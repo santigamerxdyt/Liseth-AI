@@ -7,6 +7,10 @@
     "start": "node server.js",
     "test": "node test/suite.js"
   },
+  "dependencies": {},
+  "optionalDependencies": {
+    "edge-tts-universal": "^1.1.0"
+  },
   "keywords": [
     "jarvis",
     "assistant",

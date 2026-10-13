@@ -5,12 +5,17 @@ node_modules/
 
 # Respaldos locales
 _backup_pre_upgrade/
+_backup_pre_hardening/
+jarvis.zip
+jarvis-copia.html
 *.bak
 
 # Datos privados y tokens
 claves api jarvis de ig.txt
 tokens/
-data/tokens.json
+data/
+uploads/
+archivos_creados/
 
 # Archivos de sistema y logs
 *.log

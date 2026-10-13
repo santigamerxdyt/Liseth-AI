@@ -34,6 +34,41 @@ const BrainRouter = require('./lib/ai/BrainRouter');
 const GoogleWorkspaceConnector = require('./lib/connectors/GoogleWorkspaceConnector');
 const AuditManager = require('./lib/audit/AuditManager');
 const NotificationManager = require('./lib/notifications/NotificationManager');
+const Auth = require('./lib/auth');
+
+// VALIDACIÓN DE SEGURIDAD ESTRICTA (Requisito 2: No arrancar con valores por defecto)
+const DEFAULT_FORBIDDEN_PINS = ['1234', '0000', '1111', '123456', 'admin'];
+const DEFAULT_FORBIDDEN_KEYS = [
+  'jarvis-secret-key-32-chars-change-me',
+  'jarvis-liseth-master-key-2026-safe-encrypt',
+  'default',
+  'secret'
+];
+
+const currentPin = (process.env.JARVIS_ACCESS_PIN || '').trim();
+const currentKey = (process.env.MASTER_ENCRYPTION_KEY || '').trim();
+
+if (!currentPin || DEFAULT_FORBIDDEN_PINS.includes(currentPin)) {
+  console.error('\n❌ [BLOQUEO DE SEGURIDAD]: El servidor no puede iniciar.');
+  console.error('El valor de JARVIS_ACCESS_PIN en su archivo .env sigue siendo un valor inseguro o por defecto.');
+  console.error('Por favor cambie JARVIS_ACCESS_PIN por un PIN personal seguro en su archivo .env.\n');
+  process.exit(1);
+}
+
+if (!currentKey || DEFAULT_FORBIDDEN_KEYS.includes(currentKey) || currentKey.length < 16) {
+  console.error('\n❌ [BLOQUEO DE SEGURIDAD]: El servidor no puede iniciar.');
+  console.error('El valor de MASTER_ENCRYPTION_KEY en su archivo .env es inseguro, por defecto o menor a 16 caracteres.');
+  console.error('Por favor configure una clave MASTER_ENCRYPTION_KEY única y robusta en su archivo .env.\n');
+  process.exit(1);
+}
+
+// Inicializar Hash de PIN en memoria con scrypt
+let cachedPinHash = null;
+Auth.hashPin(currentPin).then(hash => {
+  cachedPinHash = hash;
+}).catch(err => {
+  console.error('Error inicializando hash scrypt de PIN:', err);
+});
 
 let Communicate = null;
 try {
@@ -43,7 +78,8 @@ try {
   // Edge-TTS opcional
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT, 10) || 3000;
+const HOST = process.env.HOST || '127.0.0.1'; // Requisito 3: Por defecto 127.0.0.1 (local exclusivo)
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'liseth_db.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
@@ -279,19 +315,41 @@ function parseJsonBody(req) {
   });
 }
 
-// Envío de respuestas JSON con CORS
-function sendJson(res, statusCode, data) {
-  res.writeHead(statusCode, {
+// Helper para determinar origen permitido (Requisito 3: Quitar wildcard *)
+function getSafeOrigin(req) {
+  const reqOrigin = req.headers.origin;
+  const host = req.headers.host;
+  if (!reqOrigin) return null;
+  // Permitir solo si el origen coincide con el host actual
+  if (reqOrigin.includes(host) || reqOrigin.includes('localhost') || reqOrigin.includes('127.0.0.1')) {
+    return reqOrigin;
+  }
+  return null;
+}
+
+// Envío de respuestas JSON con cabeceras estrictas
+function sendJson(res, statusCode, data, extraHeaders = {}, req = null) {
+  const headers = {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
-  });
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    ...extraHeaders
+  };
+
+  if (req) {
+    const safeOrigin = getSafeOrigin(req);
+    if (safeOrigin) {
+      headers['Access-Control-Allow-Origin'] = safeOrigin;
+      headers['Access-Control-Allow-Credentials'] = 'true';
+    }
+  }
+
+  res.writeHead(statusCode, headers);
   res.end(JSON.stringify(data));
 }
 
 // Servir archivos estáticos
-function serveStaticFile(res, filePath, contentType) {
+function serveStaticFile(res, filePath, contentType, req = null) {
   fs.readFile(filePath, (err, content) => {
     if (err) {
       if (err.code === 'ENOENT') {
@@ -302,18 +360,26 @@ function serveStaticFile(res, filePath, contentType) {
         res.end('500: Error interno del servidor');
       }
     } else {
-      res.writeHead(200, {
+      const headers = {
         'Content-Type': contentType,
         'Cache-Control': 'no-cache',
-        'Access-Control-Allow-Origin': '*'
-      });
+        'X-Content-Type-Options': 'nosniff'
+      };
+      if (req) {
+        const safeOrigin = getSafeOrigin(req);
+        if (safeOrigin) {
+          headers['Access-Control-Allow-Origin'] = safeOrigin;
+          headers['Access-Control-Allow-Credentials'] = 'true';
+        }
+      }
+      res.writeHead(200, headers);
       res.end(content);
     }
   });
 }
 
 // Sintetizar voz con ElevenLabs si el usuario proporciona clave
-function synthesizeElevenLabs(text, voiceId, apiKey, res) {
+function synthesizeElevenLabs(text, voiceId, apiKey, res, clientReq = null) {
   const targetVoice = voiceId && voiceId !== 'elevenlabs-custom' ? voiceId : '21m00Tcm4TlvDq8ikWAM'; // Rachel por defecto
   const reqData = JSON.stringify({
     text: text,
@@ -333,21 +399,24 @@ function synthesizeElevenLabs(text, voiceId, apiKey, res) {
   };
 
   const req = https.request(options, (apiRes) => {
+    const safeOrigin = clientReq ? getSafeOrigin(clientReq) : null;
+    const corsHeaders = safeOrigin ? { 'Access-Control-Allow-Origin': safeOrigin, 'Access-Control-Allow-Credentials': 'true' } : {};
+
     if (apiRes.statusCode !== 200) {
-      res.writeHead(apiRes.statusCode, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(apiRes.statusCode, { 'Content-Type': 'application/json', ...corsHeaders });
       return apiRes.pipe(res);
     }
     res.writeHead(200, {
       'Content-Type': 'audio/mpeg',
       'Cache-Control': 'no-cache',
-      'Access-Control-Allow-Origin': '*'
+      ...corsHeaders
     });
     apiRes.pipe(res);
   });
 
   req.on('error', (err) => {
     console.error('Error ElevenLabs:', err);
-    sendJson(res, 500, { error: 'Error conectando con ElevenLabs' });
+    sendJson(res, 500, { error: 'Error conectando con ElevenLabs' }, {}, clientReq);
   });
 
   req.write(reqData);
@@ -355,7 +424,7 @@ function synthesizeElevenLabs(text, voiceId, apiKey, res) {
 }
 
 // Sintetizar voz con OpenAI TTS si el usuario proporciona clave
-function synthesizeOpenAI(text, voiceName, apiKey, res) {
+function synthesizeOpenAI(text, voiceName, apiKey, res, clientReq = null) {
   const voice = voiceName && ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'].includes(voiceName) ? voiceName : 'nova';
   const reqData = JSON.stringify({
     model: "tts-1",
@@ -375,21 +444,24 @@ function synthesizeOpenAI(text, voiceName, apiKey, res) {
   };
 
   const req = https.request(options, (apiRes) => {
+    const safeOrigin = clientReq ? getSafeOrigin(clientReq) : null;
+    const corsHeaders = safeOrigin ? { 'Access-Control-Allow-Origin': safeOrigin, 'Access-Control-Allow-Credentials': 'true' } : {};
+
     if (apiRes.statusCode !== 200) {
-      res.writeHead(apiRes.statusCode, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(apiRes.statusCode, { 'Content-Type': 'application/json', ...corsHeaders });
       return apiRes.pipe(res);
     }
     res.writeHead(200, {
       'Content-Type': 'audio/mpeg',
       'Cache-Control': 'no-cache',
-      'Access-Control-Allow-Origin': '*'
+      ...corsHeaders
     });
     apiRes.pipe(res);
   });
 
   req.on('error', (err) => {
     console.error('Error OpenAI TTS:', err);
-    sendJson(res, 500, { error: 'Error conectando con OpenAI' });
+    sendJson(res, 500, { error: 'Error conectando con OpenAI' }, {}, clientReq);
   });
 
   req.write(reqData);
@@ -401,24 +473,96 @@ const server = http.createServer(async (req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
   const method = req.method;
+  const clientIp = req.socket.remoteAddress || '127.0.0.1';
 
-  // Manejo de preflight CORS (OPTIONS)
+  // Manejo de preflight CORS (OPTIONS) restringido
   if (method === 'OPTIONS') {
+    const safeOrigin = getSafeOrigin(req) || '';
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': safeOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+      'Access-Control-Allow-Credentials': 'true'
     });
     return res.end();
   }
 
-  // --- RUTAS DE API ---
+  // --- RUTAS DE AUTENTICACIÓN PÚBLICAS ---
+  if (pathname === '/api/auth/login' && method === 'POST') {
+    // 1. Verificar Rate Limit contra fuerza bruta
+    const rateCheck = Auth.checkRateLimit(clientIp);
+    if (!rateCheck.allowed) {
+      return sendJson(res, 429, {
+        error: `Demasiados intentos fallidos. Intente nuevamente en ${rateCheck.remainingSec} segundos.`
+      }, { 'Retry-After': String(rateCheck.remainingSec) }, req);
+    }
+
+    try {
+      const body = await parseJsonBody(req);
+      const inputPin = (body.pin || '').toString().trim();
+      
+      // Si el hash aún no está listo, generarlo
+      if (!cachedPinHash) {
+        cachedPinHash = await Auth.hashPin(currentPin);
+      }
+
+      const isValid = await Auth.verifyPin(inputPin, cachedPinHash);
+      if (isValid) {
+        Auth.clearAttempts(clientIp);
+        const sessionToken = Auth.createSessionToken();
+        const cookieVal = `jarvis_session=${sessionToken}; HttpOnly; SameSite=Strict; Path=/; Max-Age=86400`;
+        return sendJson(res, 200, {
+          ok: true,
+          message: 'Autenticación exitosa',
+          token: sessionToken
+        }, { 'Set-Cookie': cookieVal }, req);
+      } else {
+        Auth.recordFailedAttempt(clientIp);
+        return sendJson(res, 401, { error: 'PIN de acceso incorrecto' }, {}, req);
+      }
+    } catch (e) {
+      return sendJson(res, 500, { error: 'Error procesando autenticación' }, {}, req);
+    }
+  }
+
+  if (pathname === '/api/auth/status' && method === 'GET') {
+    const cookies = Auth.parseCookies(req);
+    const authHeader = req.headers.authorization;
+    const token = cookies.jarvis_session || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
+    const authenticated = Auth.verifySessionToken(token);
+    return sendJson(res, 200, { authenticated }, {}, req);
+  }
+
+  if (pathname === '/api/auth/logout' && method === 'POST') {
+    const clearCookie = `jarvis_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`;
+    return sendJson(res, 200, { ok: true, message: 'Sesión cerrada' }, { 'Set-Cookie': clearCookie }, req);
+  }
+
+  // --- MIDDLEWARE DE PROTECCIÓN PARA TODAS LAS RUTAS /api/* ---
+  // Excepciones públicas: /api/auth/* y verificación webhook de Meta WhatsApp
+  const isPublicApi = pathname.startsWith('/api/auth/') ||
+                      (pathname === '/api/webhook/whatsapp' && method === 'GET');
+
+  if (pathname.startsWith('/api') && !isPublicApi) {
+    const cookies = Auth.parseCookies(req);
+    const authHeader = req.headers.authorization;
+    const token = cookies.jarvis_session || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
+
+    if (!Auth.verifySessionToken(token)) {
+      return sendJson(res, 401, {
+        error: 'No autorizado. Se requiere sesión activa mediante PIN.',
+        authRequired: true
+      }, {}, req);
+    }
+  }
+
+  // --- RUTAS DE API PROTEGIDAS ---
 
   // Catálogo de Voces Femeninas Humanas
   if (pathname === '/api/voices' && method === 'GET') {
     return sendJson(res, 200, {
       voices: REALISTIC_VOICES_CATALOG
-    });
+    }, {}, req);
   }
 
   // SÍNTESIS DE VOZ NEURONAL (EDGE TTS / ELEVENLABS / OPENAI)
@@ -450,18 +594,18 @@ const server = http.createServer(async (req, res) => {
     if (provider === 'elevenlabs') {
       const apiKey = db.config?.elevenLabsKey || parsedUrl.searchParams.get('key');
       if (!apiKey) {
-        return sendJson(res, 401, { error: 'Se requiere una API Key de ElevenLabs configurada en Ajustes.' });
+        return sendJson(res, 401, { error: 'Se requiere una API Key de ElevenLabs configurada en Ajustes.' }, {}, req);
       }
-      return synthesizeElevenLabs(text, voice, apiKey, res);
+      return synthesizeElevenLabs(text, voice, apiKey, res, req);
     }
 
     // 2. OpenAI TTS
     if (provider === 'openai') {
       const apiKey = db.config?.openAiKey || parsedUrl.searchParams.get('key');
       if (!apiKey) {
-        return sendJson(res, 401, { error: 'Se requiere una API Key de OpenAI configurada en Ajustes.' });
+        return sendJson(res, 401, { error: 'Se requiere una API Key de OpenAI configurada en Ajustes.' }, {}, req);
       }
-      return synthesizeOpenAI(text, voice, apiKey, res);
+      return synthesizeOpenAI(text, voice, apiKey, res, req);
     }
 
     // 3. Edge TTS (Por defecto: Gratis, Ultra Realista, Calidad Humana)
@@ -470,11 +614,17 @@ const server = http.createServer(async (req, res) => {
         const comm = new Communicate(text, { voice, rate, pitch });
         const stream = await comm.stream();
 
-        res.writeHead(200, {
+        const safeOrigin = getSafeOrigin(req);
+        const ttsHeaders = {
           'Content-Type': 'audio/mpeg',
-          'Cache-Control': 'no-cache',
-          'Access-Control-Allow-Origin': '*'
-        });
+          'Cache-Control': 'no-cache'
+        };
+        if (safeOrigin) {
+          ttsHeaders['Access-Control-Allow-Origin'] = safeOrigin;
+          ttsHeaders['Access-Control-Allow-Credentials'] = 'true';
+        }
+
+        res.writeHead(200, ttsHeaders);
 
         for await (const chunk of stream) {
           if (chunk.type === 'audio') {
@@ -942,7 +1092,7 @@ const server = http.createServer(async (req, res) => {
     const fileName = path.basename(decodeURIComponent(pathname.replace('/uploads/', '')));
     const filePath = path.join(UPLOADS_DIR, fileName);
     if (fs.existsSync(filePath)) {
-      return serveStaticFile(res, filePath, 'application/octet-stream');
+      return serveStaticFile(res, filePath, 'application/octet-stream', req);
     } else {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('404: Archivo no encontrado');
@@ -992,7 +1142,7 @@ const server = http.createServer(async (req, res) => {
     const fileName = path.basename(decodeURIComponent(pathname.replace('/archivos_creados/', '')));
     const filePath = path.join(CREATED_FILES_DIR, fileName);
     if (fs.existsSync(filePath)) {
-      return serveStaticFile(res, filePath, 'application/octet-stream');
+      return serveStaticFile(res, filePath, 'application/octet-stream', req);
     } else {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('404: Archivo no encontrado');
@@ -1003,12 +1153,12 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/' || pathname === '/jarvis.html' || pathname === '/index.html') {
     const jarvisPath = path.join(__dirname, 'jarvis.html');
-    return serveStaticFile(res, jarvisPath, 'text/html; charset=utf-8');
+    return serveStaticFile(res, jarvisPath, 'text/html; charset=utf-8', req);
   }
 
   if (pathname === '/liseth.ico' || pathname === '/favicon.ico') {
     const iconPath = path.join(__dirname, 'liseth.ico');
-    return serveStaticFile(res, iconPath, 'image/x-icon');
+    return serveStaticFile(res, iconPath, 'image/x-icon', req);
   }
 
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -1018,22 +1168,24 @@ const server = http.createServer(async (req, res) => {
 // Inicializar y arrancar
 initDatabase();
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, HOST, () => {
   const localIPs = getLocalNetworkIPs();
   console.log('\n======================================================');
-  console.log('   👑 LISETH • ASISTENTE PERSONAL (VOCES NEURONALES ACTIVAS)');
+  console.log('   👑 LISETH • ASISTENTE PERSONAL (SEGURIDAD REFORZADA v2)');
   console.log('======================================================');
-  console.log(`✓ Servidor corriendo en puerto: ${PORT}`);
+  console.log(`✓ Servidor escuchando en: http://${HOST}:${PORT}`);
+  console.log(`✓ Autenticación obligatoria: PIN scrypt + Sesiones HMAC activas`);
   console.log(`✓ Motor de Voz Neuronal: Edge TTS (Humana / Estudio) HABILITADO`);
-  console.log(`\n💻 Acceso local en este PC:`);
-  console.log(`   http://localhost:${PORT}`);
-  console.log(`   http://127.0.0.1:${PORT}`);
   
-  if (localIPs.length > 0) {
-    console.log(`\n📱 Acceso desde tu Celular / Tablet (en la misma red Wi-Fi):`);
-    localIPs.forEach(item => {
-      console.log(`   http://${item.address}:${PORT}  (${item.interface})`);
-    });
+  if (HOST === '0.0.0.0') {
+    if (localIPs.length > 0) {
+      console.log(`\n📱 Acceso Wi-Fi (Modo Remoto Habilitado):`);
+      localIPs.forEach(item => {
+        console.log(`   http://${item.address}:${PORT}  (${item.interface})`);
+      });
+    }
+  } else {
+    console.log(`🔒 Modo Seguro Local: Escuchando exclusivamente en 127.0.0.1 (Configure HOST=0.0.0.0 en .env si desea acceso móvil).`);
   }
   
   console.log('\n💾 Persistencia activada en: data/liseth_db.json');
