@@ -5,6 +5,41 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [2.3.0] - 2026-10-12
+
+### Añadido (Fase 3 — Programador de Tareas y Mensajería WhatsApp/Telegram)
+- **Programador de Tareas Persistente (`lib/scheduler/TaskScheduler.js`)**:
+  - Motor de ejecución en segundo plano (`ticker` cada 30 segundos) con persistencia garantizada en disco (`data/scheduled_tasks.json`).
+  - Tareas recurrentes preconfiguradas que sobreviven a reinicios del servidor:
+    - *Resumen Matutino Ejecutivo*: Diario a las 08:00 AM con agenda, eventos y tareas pendientes vía WhatsApp/Telegram.
+    - *Revisión Estratégica Semanal*: Lunes a las 08:30 AM con balance de metas y proyección semanal.
+    - *Monitor de Eventos Próximos*: Cada 15 minutos alertando 15 min antes de cualquier cita de Google Calendar.
+    - *Reporte de Salud y Conectividad*: Cada 60 minutos verificando estado de cerebro, tokens y conectividad.
+  - Endpoints REST protegidos para gestión del programador en `server.js`:
+    - `GET /api/scheduler/tasks`: Listado de tareas activas con su próxima fecha y hora de ejecución.
+    - `POST /api/scheduler/tasks/update`: Creación o modificación de tareas programadas.
+    - `POST /api/scheduler/tasks/delete`: Eliminación controlada de tareas.
+    - `POST /api/scheduler/tasks/trigger`: Disparo manual inmediato de cualquier tarea.
+- **Mensajería Proactiva e Interactiva (`lib/notifications/NotificationManager.js`)**:
+  - **Cumplimiento Estricto de Política Meta WhatsApp (Ventana 24h)**:
+    - Registro de marcas de tiempo en mensajes entrantes (`recordIncomingWhatsApp`).
+    - Verificación automática de ventana de 24 horas (`isWithinWhatsApp24hWindow`).
+    - Bloqueo preventivo de mensajes proactivos en texto libre fuera de la ventana de 24h, indicando el requisito de plantillas (*Message Templates*) pre-aprobadas para evitar penalizaciones en la API de Meta.
+  - **Bot Interactivo de Telegram**:
+    - Sondeo de mensajes sin dependencias externas (`_pollTelegramUpdates`).
+    - Comandos nativos interactivos:
+      - `/start`: Presentación del asistente Liseth y guía de comandos disponibles.
+      - `/estado`: Reporte en vivo del cerebro activo, consumo de tokens de hoy, estado de Google Workspace y uptime.
+      - `/resumen`: Consulta inmediata de agenda y eventos de Google Calendar.
+    - Conversación libre bidireccional: Cualquier mensaje que no sea comando es procesado a través de `BrainRouter` respondiendo con la calidez y precisión de Liseth en el mismo chat.
+  - **Webhooks en `server.js`**:
+    - `GET /api/webhook/whatsapp`: Verificación estándar de webhook de Meta (`hub.mode`, `hub.challenge`, `hub.verify_token`).
+    - `POST /api/webhook/whatsapp`: Recepción de eventos y mensajes entrantes de WhatsApp con actualización de ventana de 24 horas.
+- **Suite de Pruebas Unitarias (`test/suite.js`)**:
+  - 4 nuevas pruebas unitarias añadidas (18 pruebas en total) validando persistencia y cálculo cron de `TaskScheduler`, operaciones CRUD, política de 24 horas de Meta y comandos interactivos de Telegram con mock de `BrainRouter`.
+
+---
+
 ## [2.2.0] - 2026-10-12
 
 ### Añadido (Fase 2 — Google Workspace Completo & Function Calling)

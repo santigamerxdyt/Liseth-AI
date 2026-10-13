@@ -14,8 +14,11 @@ process.env.JARVIS_ACCESS_PIN = '987654';
 
 const Auth = require('../lib/auth');
 const Crypto = require('../lib/crypto');
-const { BrainRouter } = require('../lib/ai/BrainRouter');
+const BrainRouterInstance = require('../lib/ai/BrainRouter');
+const { BrainRouter } = BrainRouterInstance;
 const GoogleWorkspaceConnector = require('../lib/connectors/GoogleWorkspaceConnector');
+const TaskScheduler = require('../lib/scheduler/TaskScheduler');
+const NotificationManager = require('../lib/notifications/NotificationManager');
 
 // ==========================================
 // 1. PRUEBAS DEL MÓDULO DE AUTENTICACIÓN (lib/auth.js)
@@ -349,4 +352,124 @@ test('GoogleWorkspace: Ejecución con mock de API de YouTube Stats y Google Docs
   assert.strictEqual(docResult.title, 'Plan Semanal de Liseth');
   assert.ok(docResult.text.includes('Objetivo: Máxima productividad'));
 });
+
+// ==========================================
+// 6. PRUEBAS DEL PROGRAMADOR DE TAREAS PERSISTENTE (lib/scheduler/TaskScheduler.js)
+// ==========================================
+test('TaskScheduler: Persistencia en disco y cálculo de nextRun', () => {
+  const tasks = TaskScheduler.listTasks();
+  assert.ok(Array.isArray(tasks), 'listTasks debe retornar un array');
+  assert.ok(tasks.length >= 4, 'Debe incluir las tareas predeterminadas');
+
+  const dailyTask = tasks.find(t => t.type === 'daily_summary');
+  assert.ok(dailyTask, 'Debe existir tarea de resumen diario');
+  assert.ok(dailyTask.nextRun, 'Debe tener calculada una fecha de nextRun');
+
+  const intervalTask = tasks.find(t => t.type === 'event_check');
+  assert.ok(intervalTask, 'Debe existir tarea de event_check');
+  assert.ok(intervalTask.intervalMinutes === 15, 'El intervalo debe ser de 15 minutos');
+
+  // Cálculo de nextRun para recordatorio puntual
+  const reminderTask = {
+    type: 'reminder',
+    at: new Date(Date.now() + 300000).toISOString()
+  };
+  const computedNext = TaskScheduler.calculateNextRun(reminderTask);
+  assert.strictEqual(computedNext, reminderTask.at, 'nextRun debe coincidir con la fecha at');
+});
+
+test('TaskScheduler: Operaciones CRUD y ejecución controlada', async () => {
+  // Crear tarea
+  const created = TaskScheduler.createTask({
+    title: 'Prueba de Recordatorio Unitario',
+    type: 'reminder',
+    intervalMinutes: 10,
+    params: { message: 'Mensaje de prueba' }
+  });
+  assert.ok(created.id, 'Debe generar un ID');
+  assert.strictEqual(created.title, 'Prueba de Recordatorio Unitario');
+
+  // Actualizar tarea
+  const updated = TaskScheduler.updateTask(created.id, { title: 'Título Modificado' });
+  assert.strictEqual(updated.title, 'Título Modificado');
+
+  // Disparar tarea
+  let alertTriggered = false;
+  const originalSendAlert = NotificationManager.sendAlert;
+  NotificationManager.sendAlert = async (msg) => {
+    alertTriggered = true;
+    return { ok: true };
+  };
+
+  try {
+    const executed = await TaskScheduler.triggerTask(created.id);
+    assert.ok(executed.lastRun, 'Debe actualizar lastRun');
+    assert.strictEqual(alertTriggered, true, 'Debe haber disparado la alerta');
+  } finally {
+    NotificationManager.sendAlert = originalSendAlert;
+  }
+
+  // Eliminar tarea
+  const deleted = TaskScheduler.deleteTask(created.id);
+  assert.strictEqual(deleted, true, 'deleteTask debe retornar true');
+  assert.strictEqual(TaskScheduler.getTask(created.id), undefined, 'La tarea no debe existir tras borrarla');
+});
+
+// ==========================================
+// 7. PRUEBAS DE WHATSAPP (VENTANA 24H) Y TELEGRAM BOT
+// ==========================================
+test('WhatsApp: Registro de mensajes entrantes y política de ventana de 24 horas de Meta', async () => {
+  const testPhone = '573001234567';
+
+  // 1. Número sin mensajes previos (fuera de ventana de 24h)
+  assert.strictEqual(NotificationManager.isWithinWhatsApp24hWindow(testPhone), false);
+
+  const blockedResult = await NotificationManager.sendWhatsApp('Mensaje proactivo', testPhone);
+  assert.strictEqual(blockedResult.ok, false);
+  assert.strictEqual(blockedResult.requiresTemplate, true);
+  assert.ok(blockedResult.error.includes('ventana de atención al cliente de 24 horas'), 'Debe reportar la restricción de 24h');
+
+  // 2. Simular recepción de mensaje entrante (abre la ventana de 24 horas)
+  NotificationManager.recordIncomingWhatsApp(testPhone);
+  assert.strictEqual(NotificationManager.isWithinWhatsApp24hWindow(testPhone), true);
+});
+
+test('Telegram: Comandos interactivos y respuestas de Liseth con BrainRouter', async () => {
+  let replySent = null;
+  const originalSend = NotificationManager.sendTelegram;
+  NotificationManager.sendTelegram = async (text, chatId) => {
+    replySent = { text, chatId };
+    return { ok: true };
+  };
+
+  try {
+    // 1. Comando /start
+    await NotificationManager.handleTelegramMessage({ chat: { id: 12345 }, text: '/start' });
+    assert.ok(replySent, 'Debe haber respondido al comando /start');
+    assert.ok(replySent.text.includes('Hola Santiago, soy Liseth'));
+    assert.strictEqual(replySent.chatId, 12345);
+
+    // 2. Comando /estado
+    await NotificationManager.handleTelegramMessage({ chat: { id: 12345 }, text: '/estado' });
+    assert.ok(replySent.text.includes('Estado del Asistente'));
+    assert.ok(replySent.text.includes('Cerebro Activo'));
+
+    // 3. Conversación normal: pasa por BrainRouter y responde en el mismo chat
+    const originalGenerate = BrainRouterInstance.generateResponse;
+    BrainRouterInstance.generateResponse = async (opts) => {
+      return { text: 'Respuesta procesada por Liseth para Telegram', brainUsed: 'gemini' };
+    };
+
+    try {
+      await NotificationManager.handleTelegramMessage({ chat: { id: 99999 }, text: 'Liseth, ¿cómo estás?' });
+      assert.strictEqual(replySent.text, 'Respuesta procesada por Liseth para Telegram');
+      assert.strictEqual(replySent.chatId, 99999);
+    } finally {
+      BrainRouterInstance.generateResponse = originalGenerate;
+    }
+  } finally {
+    NotificationManager.sendTelegram = originalSend;
+  }
+});
+
 

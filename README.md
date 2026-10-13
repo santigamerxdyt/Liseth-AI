@@ -57,6 +57,30 @@ JARVIS integra 28 herramientas de **Google Workspace** mediante OAuth 2.0 con sc
 
 ---
 
+## ⏰ Programador de Tareas y Mensajería Proactiva (Fase 3)
+
+### 1. Programador Persistente (`lib/scheduler/TaskScheduler.js`)
+El sistema cuenta con un motor de ejecución en segundo plano (`ticker` cada 30 segundos) sin dependencias externas pesadas, con persistencia garantizada en `data/scheduled_tasks.json`:
+- **Resumen Matutino (08:00 AM)**: Compila agenda de Google Calendar, tareas pendientes y clima/noticias para enviar a WhatsApp/Telegram.
+- **Revisión Estratégica Semanal (Lunes 08:30 AM)**: Análisis de metas de la semana.
+- **Monitor de Eventos (Cada 15 min)**: Alerta anticipada 15 minutos antes de citas agendadas.
+- **Reporte de Salud del Sistema (Cada 60 min)**: Auditoría de estado de cerebro, tokens consumidos y conectividad.
+- **API REST Protegida**: Endpoints `/api/scheduler/tasks`, `/api/scheduler/tasks/update`, `/api/scheduler/tasks/delete` y `/api/scheduler/tasks/trigger`.
+
+### 2. WhatsApp Meta Cloud API y Ventana de 24 Horas
+- **Política Oficial de Meta**: WhatsApp Business Cloud API no permite enviar mensajes libres fuera de una ventana de 24 horas desde el último mensaje entrante del usuario (las políticas de Meta exigen *Message Templates* aprobadas).
+- `NotificationManager` registra la última interacción del usuario en cada mensaje recibido y bloquea intentos proactivos fuera de ventana para evitar sanciones o errores de entrega en Meta.
+
+### 3. Bot Interactivo de Telegram
+- Conexión mediante sondeo HTTP nativo con reconexión automática.
+- Comandos rápidos integrados:
+  - `/start`: Bienvenida y menú de comandos.
+  - `/estado`: Monitor en tiempo real de cerebro activo, consumo de tokens y estado de Workspace.
+  - `/resumen`: Próximos eventos y compromisos del día.
+- **Conversación Libre**: Cualquier consulta que no sea comando es procesada por `BrainRouter` respondiendo como Liseth directamente en Telegram.
+
+---
+
 ## 🚀 Inicio Rápido
 
 ### Requisitos
@@ -121,8 +145,10 @@ La suite de pruebas valida automáticamente:
 │   ├── connectors/
 │   │   ├── BaseConnector.js           # Clase base con interfaz común de conectores
 │   │   └── GoogleWorkspaceConnector.js# Conector OAuth 2.0 para Google Workspace
-│   └── notifications/
-│       └── NotificationManager.js     # Envío proactivo a WhatsApp (Meta) y Telegram
+│   ├── notifications/
+│   │   └── NotificationManager.js     # Envío proactivo a WhatsApp (Meta) y bot interactivo de Telegram
+│   └── scheduler/
+│       └── TaskScheduler.js           # Programador recurrente persistente en disco
 ├── test/
 │   └── suite.js                       # Suite de pruebas unitarias (node:test y node:assert)
 ├── data/                              # Base de datos persistente (JSON) y métricas
