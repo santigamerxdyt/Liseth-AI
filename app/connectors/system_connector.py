@@ -165,6 +165,20 @@ class SystemConnector(BaseConnector):
                 },
                 "sensitive": False,
             },
+            {
+                "name": "system_search_files",
+                "description": "Busca archivos por nombre, extensión o patrón en el equipo del usuario.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Término o extensión a buscar"},
+                        "path": {"type": "string", "default": ".", "description": "Directorio raíz"},
+                        "max_results": {"type": "integer", "default": 50},
+                    },
+                    "required": ["query"],
+                },
+                "sensitive": False,
+            },
         ]
 
     # --- Actual Direct Executors ---
@@ -428,6 +442,52 @@ class SystemConnector(BaseConnector):
             "items": entries,
         }
 
+    async def search_files(self, query: str, root_path: str = ".", max_results: int = 50) -> Dict[str, Any]:
+        """Searches for files matching query in filename or extension."""
+        target = Path(root_path).resolve()
+        if not target.exists():
+            raise FileNotFoundError(f"La ruta '{root_path}' no existe.")
+
+        q_lower = query.lower().strip()
+        matched = []
+        ignored_dirs = {".git", "node_modules", "__pycache__", ".pytest_cache", "AppData", "venv", ".venv", ".system_generated"}
+
+        try:
+            for root, dirs, files in os.walk(target):
+                dirs[:] = [d for d in dirs if d not in ignored_dirs and not d.startswith(".")]
+                for f in files:
+                    if q_lower in f.lower():
+                        full_p = Path(root) / f
+                        try:
+                            st = full_p.stat()
+                            try:
+                                rel_path = str(full_p.relative_to(target))
+                            except ValueError:
+                                rel_path = str(full_p)
+                            matched.append({
+                                "name": f,
+                                "path": str(full_p),
+                                "relative_path": rel_path,
+                                "size_bytes": st.st_size,
+                                "extension": full_p.suffix.lower(),
+                                "modified": datetime.fromtimestamp(st.st_mtime, tz=timezone.utc).isoformat(),
+                            })
+                            if len(matched) >= max_results:
+                                break
+                        except Exception:
+                            continue
+                if len(matched) >= max_results:
+                    break
+        except Exception as e:
+            logger.warning(f"Error durante búsqueda de archivos: {e}")
+
+        return {
+            "query": query,
+            "root": str(target),
+            "count": len(matched),
+            "results": matched,
+        }
+
     # --- Generic Execute Action Entrypoint ---
 
     async def execute_action(self, action_name: str, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -478,6 +538,12 @@ class SystemConnector(BaseConnector):
             )
         elif action_name == "system_list_directory":
             result = await self.list_directory(path=params.get("path", "."))
+        elif action_name == "system_search_files":
+            result = await self.search_files(
+                query=params.get("query", ""),
+                root_path=params.get("path", "."),
+                max_results=params.get("max_results", 50),
+            )
         else:
             raise ValueError(f"Acción desconocida en SystemConnector: '{action_name}'.")
 

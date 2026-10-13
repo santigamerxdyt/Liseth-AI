@@ -169,6 +169,52 @@ async def list_files(db: AsyncSession = Depends(get_db)):
     }
 
 
+@router.get("/files/catalog")
+async def get_files_catalog():
+    """
+    Lists catalog of generated and uploaded files for the Dynamic Viewer.
+    """
+    items = []
+    # 1. Archivos creados
+    if settings.ARCHIVOS_CREADOS_DIR.exists():
+        for p in settings.ARCHIVOS_CREADOS_DIR.iterdir():
+            if p.is_file():
+                try:
+                    st = p.stat()
+                    items.append({
+                        "name": p.name,
+                        "folder": "archivos_creados",
+                        "path": str(p),
+                        "url": f"/api/download-file?filename={p.name}",
+                        "size": st.st_size,
+                        "extension": p.suffix.lower(),
+                        "modified": st.st_mtime,
+                    })
+                except Exception:
+                    continue
+
+    # 2. Uploads
+    if settings.UPLOADS_DIR.exists():
+        for p in settings.UPLOADS_DIR.iterdir():
+            if p.is_file():
+                try:
+                    st = p.stat()
+                    items.append({
+                        "name": p.name,
+                        "folder": "uploads",
+                        "path": str(p),
+                        "url": f"/api/files/{p.name}",
+                        "size": st.st_size,
+                        "extension": p.suffix.lower(),
+                        "modified": st.st_mtime,
+                    })
+                except Exception:
+                    continue
+
+    items.sort(key=lambda x: x["modified"], reverse=True)
+    return {"ok": True, "files": items}
+
+
 @router.get("/files/{filename}", dependencies=[Depends(require_auth)])
 async def get_uploaded_file(filename: str):
     """
@@ -214,3 +260,5 @@ async def save_generated_file(req: SaveFileRequest):
         "path": f"/api/download-file?filename={safe_name}",
         "message": f"Archivo '{safe_name}' guardado correctamente."
     }
+
+

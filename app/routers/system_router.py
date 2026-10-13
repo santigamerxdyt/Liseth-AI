@@ -188,6 +188,36 @@ async def get_system_processes(limit: int = Query(50, ge=1, le=200), filter: Opt
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/system/search")
+async def search_system_files(
+    q: str = Query(..., min_length=1),
+    path: str = Query(".", description="Ruta base para buscar"),
+    limit: int = Query(50, ge=1, le=200)
+):
+    """Searches files by name or extension on Santiago's PC for the Dynamic Viewer."""
+    try:
+        results = await system_connector.search_files(query=q, root_path=path, max_results=limit)
+        return {"ok": True, "data": results}
+    except Exception as e:
+        logger.error(f"Error buscando archivos: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/system/read")
+async def read_system_file(
+    path: str = Query(..., description="Ruta del archivo a leer"),
+    max_bytes: int = Query(250000, ge=100, le=1000000)
+):
+    """Reads file content safely from the local system for the Dynamic Viewer."""
+    try:
+        file_data = await system_connector.read_file(path=path, max_bytes=max_bytes)
+        return {"ok": True, "data": file_data}
+    except Exception as e:
+        logger.error(f"Error leyendo archivo de sistema: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+
 @router.post("/system/execute")
 async def execute_system_action(req: SystemExecuteRequest):
     """

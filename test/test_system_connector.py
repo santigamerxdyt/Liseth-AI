@@ -139,3 +139,35 @@ def test_personalization_config_save_and_retrieve():
     assert data["personalization"]["userTitle"] == "Señor Santiago Stark"
     assert data["personalization"]["theme"] == "stark_gold"
     assert data["personalization"]["sphereStyle"] == "quantum_rings"
+
+
+@pytest.mark.asyncio
+async def test_system_search_files():
+    search_res = await system_connector.search_files(query="config", root_path="app", max_results=5)
+    assert search_res["count"] >= 1
+    assert any("config.py" in r["name"] for r in search_res["results"])
+
+
+def test_api_system_search_and_read():
+    search_res = client.get("/api/system/search?q=config&path=app")
+    assert search_res.status_code == 200
+    data = search_res.json()
+    assert data["ok"] is True
+    assert data["data"]["count"] >= 1
+
+    read_res = client.get("/api/system/read?path=app/config.py")
+    assert read_res.status_code == 200
+    read_data = read_res.json()
+    assert read_data["ok"] is True
+    assert "content" in read_data["data"]
+    assert "Settings" in read_data["data"]["content"]
+
+
+def test_api_files_catalog():
+    res = client.get("/api/files/catalog")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["ok"] is True
+    assert "files" in data
+    assert isinstance(data["files"], list)
+

@@ -232,6 +232,7 @@ Tus habilidades clave:
         initVoiceWavesCanvas();
         setupPersonalizationEvents();
         setupSystemPCEvents();
+        setupDynamicViewerManager();
         applyPersonalization(currentCustomization);
         setViewMode(currentViewMode);
         syncPersonalizationFromServer();
@@ -1074,6 +1075,20 @@ Tus habilidades clave:
           // 5. Reproducir voz humana
           speakText(responseText);
 
+          // 6. Proyección inteligente en Ventana Dinámica si el usuario lo solicita
+          const lowerUser = (messageText || "").toLowerCase();
+          if (lowerUser.includes("visor") || lowerUser.includes("ventana dinámica") || lowerUser.includes("ventana dinamica") || lowerUser.includes("en pantalla") || lowerUser.includes("en el visor")) {
+            if (window.lisethViewer) {
+              window.lisethViewer.showFromMessage(responseText);
+            }
+          } else if (lowerUser.includes("busca archivos") || lowerUser.includes("buscar archivos") || lowerUser.includes("busca en el equipo")) {
+            const qMatch = messageText.match(/(?:busca|buscar)\s+(?:archivos\s+(?:de\s+|con\s+|sobre\s+)?|en\s+el\s+equipo\s+)(.+)/i);
+            const queryTerm = qMatch ? qMatch[1].trim() : "";
+            if (queryTerm && window.lisethViewer) {
+              window.lisethViewer.executeSearch(queryTerm);
+            }
+          }
+
         } catch (error) {
           thinkingIndicator.remove();
           conversationHistory.pop();
@@ -1391,6 +1406,18 @@ Tus habilidades clave:
         textBody.className = "bubble-content";
         textBody.innerHTML = formatMarkdown(content);
         bubble.appendChild(textBody);
+
+        if (isAssistant && (content.length > 70 || content.includes("```") || content.includes("|") || content.includes("#"))) {
+          const dvBtn = document.createElement("button");
+          dvBtn.className = "btn-open-in-dv";
+          dvBtn.innerHTML = `<span>🪟</span> <span>Ver en Visor Dinámico</span>`;
+          dvBtn.addEventListener("click", () => {
+            if (window.lisethViewer) {
+              window.lisethViewer.showFromMessage(content);
+            }
+          });
+          bubble.appendChild(dvBtn);
+        }
 
         if (isAssistant) {
           row.appendChild(avatar);
@@ -3400,6 +3427,608 @@ Tus habilidades clave:
             }
           });
         }
+      // ========================================================
+      // MÓDULO VENTANA DINÁMICA: VISOR MULTIFORMATO HUD
+      // ========================================================
+      function setupDynamicViewerManager() {
+        const overlay = document.getElementById("dynamic-viewer-overlay");
+        const windowEl = document.getElementById("dynamic-viewer-window");
+        const btnOpen = document.getElementById("btn-open-dynamic-viewer");
+        const btnClose = document.getElementById("btn-dv-close");
+        const btnMaximize = document.getElementById("btn-dv-maximize");
+        const btnToggleSearch = document.getElementById("btn-dv-toggle-search");
+        const btnCopy = document.getElementById("btn-dv-copy");
+        const btnDownload = document.getElementById("btn-dv-download");
+        const titleBadge = document.getElementById("dynamic-viewer-format-badge");
+        const titleEl = document.getElementById("dynamic-viewer-title");
+        const searchBar = document.getElementById("dv-search-bar");
+        const searchInput = document.getElementById("dv-search-input");
+        const btnExecSearch = document.getElementById("btn-dv-exec-search");
+        const tabs = document.querySelectorAll(".dv-tab");
+        const hudCard = document.getElementById("hud-card-dynamic-viewer");
+
+        // Paneles
+        const paneContent = document.getElementById("dv-pane-content");
+        const paneSearches = document.getElementById("dv-pane-searches");
+        const paneFiles = document.getElementById("dv-pane-files");
+        const paneTable = document.getElementById("dv-pane-table");
+        const paneCode = document.getElementById("dv-pane-code");
+        const panePreview = document.getElementById("dv-pane-preview");
+
+        // Elementos internos
+        const richTextArea = document.getElementById("dv-rich-text-area");
+        const wordCountEl = document.getElementById("dv-word-count");
+        const charCountEl = document.getElementById("dv-char-count");
+        const timestampEl = document.getElementById("dv-timestamp");
+        const searchResultsGrid = document.getElementById("dv-search-results-grid");
+        const searchSummaryText = document.getElementById("dv-search-summary-text");
+        const searchEmbeddedInput = document.getElementById("dv-search-query-field");
+        const btnSearchGo = document.getElementById("btn-dv-search-go");
+        const fileListEl = document.getElementById("dv-file-list");
+        const filePreviewPane = document.getElementById("dv-file-preview-pane");
+        const btnRefreshFiles = document.getElementById("btn-dv-refresh-files");
+        const tableWrapper = document.getElementById("dv-table-wrapper");
+        const tableFilterInput = document.getElementById("dv-table-filter");
+        const btnExportCsv = document.getElementById("btn-dv-export-csv");
+        const codeArea = document.getElementById("dv-code-area");
+        const codeLangEl = document.getElementById("dv-code-lang");
+        const btnCopyCode = document.getElementById("btn-dv-copy-code");
+        const previewFrame = document.getElementById("dv-preview-frame");
+        const btnReloadFrame = document.getElementById("btn-dv-reload-frame");
+        const footerStatus = document.getElementById("dv-footer-status");
+        const itemInfo = document.getElementById("dv-item-info");
+
+        let activeTab = "content";
+        let currentItem = {
+          title: "Documento de Liseth",
+          content: "",
+          raw: "",
+          format: "DOCUMENTO / TEXTO",
+          ext: "txt"
+        };
+        let isMaximized = false;
+        let filesCatalog = [];
+        let currentTableData = null;
+
+        function openViewer(tab = "content") {
+          if (!overlay) return;
+          overlay.style.display = "flex";
+          switchTab(tab);
+        }
+
+        function closeViewer() {
+          if (!overlay) return;
+          overlay.style.display = "none";
+        }
+
+        function toggleMaximize() {
+          if (!windowEl) return;
+          isMaximized = !isMaximized;
+          windowEl.classList.toggle("maximized", isMaximized);
+        }
+
+        function switchTab(tabName) {
+          activeTab = tabName;
+          tabs.forEach(t => {
+            t.classList.toggle("active", t.getAttribute("data-tab") === tabName);
+          });
+          const allPanes = [paneContent, paneSearches, paneFiles, paneTable, paneCode, panePreview];
+          allPanes.forEach(p => { if (p) p.classList.remove("active"); });
+
+          if (tabName === "content" && paneContent) paneContent.classList.add("active");
+          else if (tabName === "searches" && paneSearches) {
+            paneSearches.classList.add("active");
+            searchEmbeddedInput?.focus();
+          }
+          else if (tabName === "files" && paneFiles) {
+            paneFiles.classList.add("active");
+            loadFilesCatalog();
+          }
+          else if (tabName === "table" && paneTable) paneTable.classList.add("active");
+          else if (tabName === "code" && paneCode) paneCode.classList.add("active");
+          else if (tabName === "preview" && panePreview) panePreview.classList.add("active");
+
+          if (titleBadge) {
+            const badgeMap = {
+              content: "DOCUMENTO / TEXTO",
+              searches: "BÚSQUEDAS & HALLAZGOS",
+              files: "EXPLORADOR DE ARCHIVOS",
+              table: "TABLA DE DATOS",
+              code: "CÓDIGO FUENTE",
+              preview: "VISTA PREVIA WEB"
+            };
+            titleBadge.textContent = badgeMap[tabName] || "MULTIFORMATO";
+          }
+        }
+
+        // Render Functions
+        function displayText(title, text) {
+          currentItem = {
+            title: title || "Documento de Liseth",
+            content: text,
+            raw: text,
+            format: "DOCUMENTO / TEXTO",
+            ext: "md"
+          };
+          if (titleEl) titleEl.textContent = currentItem.title;
+          if (richTextArea) richTextArea.innerHTML = formatMarkdown(text);
+          if (wordCountEl) {
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            wordCountEl.textContent = `${words} palabras`;
+          }
+          if (charCountEl) charCountEl.textContent = `${text.length} caracteres`;
+          if (timestampEl) timestampEl.textContent = new Date().toLocaleTimeString();
+          if (itemInfo) itemInfo.textContent = "Texto Renderizado";
+          openViewer("content");
+        }
+
+        function displayCode(title, code, lang = "python") {
+          currentItem = {
+            title: title || "Código Fuente",
+            content: code,
+            raw: code,
+            format: `CÓDIGO • ${lang.toUpperCase()}`,
+            ext: lang === "python" ? "py" : lang === "javascript" ? "js" : "txt"
+          };
+          if (titleEl) titleEl.textContent = currentItem.title;
+          if (codeArea) codeArea.textContent = code;
+          if (codeLangEl) codeLangEl.textContent = lang.toUpperCase();
+          if (itemInfo) itemInfo.textContent = `${code.split("\n").length} líneas de código`;
+          openViewer("code");
+        }
+
+        function displayTable(title, headers, rows) {
+          currentItem = {
+            title: title || "Tabla de Datos",
+            content: "",
+            raw: "",
+            format: "TABLA & DATOS",
+            ext: "csv"
+          };
+          currentTableData = { headers, rows };
+          renderTableHTML(headers, rows);
+          if (titleEl) titleEl.textContent = currentItem.title;
+          if (itemInfo) itemInfo.textContent = `${rows.length} filas • ${headers.length} columnas`;
+          openViewer("table");
+        }
+
+        function renderTableHTML(headers, rows) {
+          if (!tableWrapper) return;
+          if (!headers || headers.length === 0) {
+            tableWrapper.innerHTML = `
+              <div class="dv-empty-placeholder">
+                <span class="dv-placeholder-icon">📊</span>
+                <h4>Sin datos estructurados</h4>
+                <p>No se encontraron columnas o filas para tabular.</p>
+              </div>`;
+            return;
+          }
+          let html = `<table class="dv-table"><thead><tr>`;
+          headers.forEach(h => { html += `<th>${escapeHtml(String(h))}</th>`; });
+          html += `</tr></thead><tbody>`;
+          rows.forEach(r => {
+            html += `<tr>`;
+            r.forEach(cell => { html += `<td>${escapeHtml(String(cell != null ? cell : ""))}</td>`; });
+            html += `</tr>`;
+          });
+          html += `</tbody></table>`;
+          tableWrapper.innerHTML = html;
+        }
+
+        function displayPreview(title, html) {
+          currentItem = {
+            title: title || "Vista Previa HTML",
+            content: html,
+            raw: html,
+            format: "VISTA PREVIA WEB",
+            ext: "html"
+          };
+          if (titleEl) titleEl.textContent = currentItem.title;
+          if (previewFrame) {
+            previewFrame.srcdoc = html;
+          }
+          if (itemInfo) itemInfo.textContent = "Sandbox Web Activo";
+          openViewer("preview");
+        }
+
+        function displaySearchResults(query, results) {
+          currentItem = {
+            title: `Búsqueda: "${query}"`,
+            content: JSON.stringify(results, null, 2),
+            raw: query,
+            format: "RESULTADOS DE BÚSQUEDA",
+            ext: "json"
+          };
+          if (titleEl) titleEl.textContent = currentItem.title;
+          if (searchSummaryText) {
+            searchSummaryText.textContent = `Se encontraron ${results.length} coincidencias para "${query}".`;
+          }
+          if (!searchResultsGrid) return;
+          if (results.length === 0) {
+            searchResultsGrid.innerHTML = `
+              <div class="dv-empty-placeholder" style="grid-column: 1 / -1;">
+                <span class="dv-placeholder-icon">🔍</span>
+                <h4>Sin coincidencias</h4>
+                <p>No se encontraron archivos en el equipo con el término "${escapeHtml(query)}".</p>
+              </div>`;
+          } else {
+            searchResultsGrid.innerHTML = results.map(r => `
+              <div class="dv-search-card" data-path="${escapeHtml(r.path || '')}" data-name="${escapeHtml(r.name || '')}">
+                <div class="dv-search-card-top">
+                  <span style="font-size: 1.2rem;">${getFileIcon(r.extension || '')}</span>
+                  <div class="dv-search-card-title">${escapeHtml(r.name || 'Archivo')}</div>
+                  <span class="dv-search-card-ext">${escapeHtml((r.extension || '').replace('.', '') || 'FILE')}</span>
+                </div>
+                <div class="dv-search-card-path" title="${escapeHtml(r.path || '')}">${escapeHtml(r.relative_path || r.path || '')}</div>
+                <div class="dv-search-card-meta">
+                  <span>${formatBytes(r.size_bytes || 0)}</span>
+                  <span>${r.modified ? new Date(r.modified).toLocaleDateString() : 'Reciente'}</span>
+                </div>
+              </div>
+            `).join("");
+
+            // Click listener en tarjetas de búsqueda para abrir el archivo
+            searchResultsGrid.querySelectorAll(".dv-search-card").forEach(card => {
+              card.addEventListener("click", () => {
+                const path = card.getAttribute("data-path");
+                const name = card.getAttribute("data-name");
+                if (path) loadFileForViewing(path, name);
+              });
+            });
+          }
+          openViewer("searches");
+        }
+
+        function getFileIcon(ext) {
+          ext = (ext || "").toLowerCase();
+          if ([".py", ".js", ".html", ".css", ".json", ".sql", ".bat", ".sh", ".ts"].includes(ext)) return "💻";
+          if ([".csv", ".tsv", ".xlsx", ".xls"].includes(ext)) return "📊";
+          if ([".png", ".jpg", ".jpeg", ".svg", ".gif", ".webp"].includes(ext)) return "🖼️";
+          if ([".pdf"].includes(ext)) return "📕";
+          if ([".mp3", ".wav", ".ogg"].includes(ext)) return "🎵";
+          return "📄";
+        }
+
+        async function loadFilesCatalog() {
+          if (!fileListEl) return;
+          fileListEl.innerHTML = `<div class="dv-loading-files">Explorando archivos disponibles...</div>`;
+          try {
+            const res = await fetch("/api/files/catalog");
+            if (res.ok) {
+              const data = await res.json();
+              filesCatalog = data.files || [];
+              if (filesCatalog.length === 0) {
+                fileListEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 16px; font-size: 0.78rem;">No hay archivos creados ni subidos aún.</div>`;
+              } else {
+                fileListEl.innerHTML = filesCatalog.map(f => `
+                  <div class="dv-file-item" data-path="${escapeHtml(f.path)}" data-url="${escapeHtml(f.url || '')}" data-name="${escapeHtml(f.name)}" data-ext="${escapeHtml(f.extension)}">
+                    <span class="dv-file-icon">${getFileIcon(f.extension)}</span>
+                    <div class="dv-file-details">
+                      <div class="dv-file-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
+                      <div class="dv-file-sub">
+                        <span>${formatBytes(f.size)}</span> • <span>${escapeHtml(f.folder)}</span>
+                      </div>
+                    </div>
+                  </div>
+                `).join("");
+
+                fileListEl.querySelectorAll(".dv-file-item").forEach(item => {
+                  item.addEventListener("click", () => {
+                    fileListEl.querySelectorAll(".dv-file-item").forEach(i => i.classList.remove("active"));
+                    item.classList.add("active");
+                    const path = item.getAttribute("data-path");
+                    const url = item.getAttribute("data-url");
+                    const name = item.getAttribute("data-name");
+                    const ext = item.getAttribute("data-ext");
+                    previewFileItem(path, url, name, ext);
+                  });
+                });
+              }
+            }
+          } catch(e) {
+            fileListEl.innerHTML = `<div style="color: #ff5c77; padding: 12px; font-size: 0.78rem;">Error cargando archivos: ${e.message}</div>`;
+          }
+        }
+
+        async function previewFileItem(path, url, name, ext) {
+          if (!filePreviewPane) return;
+          ext = (ext || "").toLowerCase();
+          filePreviewPane.innerHTML = `<div style="color: var(--text-muted); padding: 20px;">Cargando previsualización de ${escapeHtml(name)}...</div>`;
+
+          // Imágenes
+          if ([".png", ".jpg", ".jpeg", ".svg", ".gif", ".webp"].includes(ext)) {
+            filePreviewPane.innerHTML = `
+              <div style="text-align: center; padding: 16px;">
+                <h4 style="margin-bottom: 12px; color: #fff;">${escapeHtml(name)}</h4>
+                <img src="${escapeHtml(url)}" style="max-width: 100%; max-height: 480px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 1px solid rgba(45, 90, 160, 0.4);" />
+                <div style="margin-top: 14px;">
+                  <a href="${escapeHtml(url)}" download="${escapeHtml(name)}" class="btn-primary" style="padding: 6px 14px; text-decoration: none; font-size: 0.8rem;">Descargar Imagen</a>
+                </div>
+              </div>`;
+            return;
+          }
+
+          // Código y Archivos de texto
+          try {
+            const readRes = await fetch(`/api/system/read?path=${encodeURIComponent(path)}`);
+            if (readRes.ok) {
+              const readData = await readRes.json();
+              const textContent = readData.data?.content || "";
+
+              // Si es CSV, renderizar en pestaña tabla
+              if (ext === ".csv") {
+                const parsed = parseCsv(textContent);
+                displayTable(name, parsed.headers, parsed.rows);
+                return;
+              }
+
+              filePreviewPane.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+                  <strong style="color: #fff; font-size: 0.9rem;">${escapeHtml(name)}</strong>
+                  <button id="btn-dv-file-full" class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">Ver Pantalla Completa</button>
+                </div>
+                <pre style="margin: 0; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.5; color: #a5f3fc; overflow: auto; max-height: 500px; white-space: pre-wrap;">${escapeHtml(textContent)}</pre>
+              `;
+
+              document.getElementById("btn-dv-file-full")?.addEventListener("click", () => {
+                if ([".py", ".js", ".html", ".css", ".json", ".sql", ".bat"].includes(ext)) {
+                  displayCode(name, textContent, ext.replace(".", ""));
+                } else {
+                  displayText(name, textContent);
+                }
+              });
+            } else {
+              filePreviewPane.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                  <h4 style="color: #fff;">${escapeHtml(name)}</h4>
+                  <p style="color: var(--text-muted); font-size: 0.82rem; margin: 10px 0;">Archivo binario o protegido para lectura directa.</p>
+                  <a href="${escapeHtml(url)}" download="${escapeHtml(name)}" class="btn-primary" style="padding: 6px 14px; text-decoration: none; font-size: 0.8rem;">Descargar Archivo</a>
+                </div>`;
+            }
+          } catch(e) {
+            filePreviewPane.innerHTML = `<div style="color: #ff5c77; padding: 20px;">Error leyendo previsualización: ${e.message}</div>`;
+          }
+        }
+
+        async function loadFileForViewing(path, name) {
+          try {
+            const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
+            const res = await fetch(`/api/system/read?path=${encodeURIComponent(path)}`);
+            if (res.ok) {
+              const data = await res.json();
+              const content = data.data?.content || "";
+              if ([".py", ".js", ".html", ".css", ".json", ".sql", ".bat", ".sh"].includes(ext)) {
+                displayCode(name, content, ext.replace(".", ""));
+              } else if (ext === ".csv") {
+                const parsed = parseCsv(content);
+                displayTable(name, parsed.headers, parsed.rows);
+              } else {
+                displayText(name, content);
+              }
+            } else {
+              showToast("No se pudo leer el archivo seleccionado.");
+            }
+          } catch(e) {
+            showToast("Error abriendo archivo: " + e.message);
+          }
+        }
+
+        function parseCsv(csvText) {
+          const lines = csvText.trim().split(/\r?\n/);
+          if (lines.length === 0) return { headers: [], rows: [] };
+          const headers = lines[0].split(",").map(h => h.trim().replace(/^["']|["']$/g, ""));
+          const rows = [];
+          for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim()) {
+              rows.push(lines[i].split(",").map(c => c.trim().replace(/^["']|["']$/g, "")));
+            }
+          }
+          return { headers, rows };
+        }
+
+        async function executeSearch(query) {
+          if (!query || query.trim().length === 0) return;
+          if (footerStatus) footerStatus.textContent = `Buscando "${query}" en el equipo...`;
+          try {
+            const res = await fetch(`/api/system/search?q=${encodeURIComponent(query.trim())}&path=.&limit=50`);
+            if (res.ok) {
+              const json = await res.json();
+              const results = json.data?.results || [];
+              displaySearchResults(query, results);
+              if (footerStatus) footerStatus.textContent = `Búsqueda completada (${results.length} resultados)`;
+            } else {
+              showToast("Error ejecutando búsqueda en el equipo.");
+            }
+          } catch(e) {
+            showToast("Fallo en la búsqueda: " + e.message);
+          }
+        }
+
+        function showFromMessage(content) {
+          // Detectar formato
+          if (content.includes("```")) {
+            const match = content.match(/```(\w*)\n([\s\S]*?)```/);
+            if (match) {
+              const lang = match[1] || "python";
+              const code = match[2];
+              displayCode("Código de Liseth", code, lang);
+              return;
+            }
+          }
+
+          if (content.includes("|") && content.includes("---")) {
+            const lines = content.split("\n").filter(l => l.trim().startsWith("|") && l.trim().endsWith("|"));
+            if (lines.length >= 3) {
+              const headers = lines[0].split("|").slice(1, -1).map(c => c.trim());
+              const rows = [];
+              for (let i = 2; i < lines.length; i++) {
+                rows.push(lines[i].split("|").slice(1, -1).map(c => c.trim()));
+              }
+              displayTable("Tabla Generada por Liseth", headers, rows);
+              return;
+            }
+          }
+
+          // Documento enriquecido / texto
+          displayText("Documento de Liseth", content);
+        }
+
+        // Conectar event listeners
+        if (btnOpen) btnOpen.addEventListener("click", () => openViewer(activeTab));
+        if (btnClose) btnClose.addEventListener("click", closeViewer);
+        if (overlay) {
+          overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) closeViewer();
+          });
+        }
+        if (btnMaximize) btnMaximize.addEventListener("click", toggleMaximize);
+
+        if (btnToggleSearch) {
+          btnToggleSearch.addEventListener("click", () => {
+            if (searchBar) {
+              const isHidden = searchBar.style.display === "none";
+              searchBar.style.display = isHidden ? "flex" : "none";
+              if (isHidden) searchInput?.focus();
+            }
+          });
+        }
+
+        if (btnExecSearch) {
+          btnExecSearch.addEventListener("click", () => {
+            const q = (searchInput?.value || "").trim();
+            executeSearch(q);
+          });
+        }
+        if (searchInput) {
+          searchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              const q = searchInput.value.trim();
+              executeSearch(q);
+            }
+          });
+        }
+
+        if (btnSearchGo) {
+          btnSearchGo.addEventListener("click", () => {
+            const q = (searchEmbeddedInput?.value || "").trim();
+            executeSearch(q);
+          });
+        }
+        if (searchEmbeddedInput) {
+          searchEmbeddedInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              const q = searchEmbeddedInput.value.trim();
+              executeSearch(q);
+            }
+          });
+        }
+
+        tabs.forEach(tab => {
+          tab.addEventListener("click", () => {
+            const tabName = tab.getAttribute("data-tab");
+            if (tabName) switchTab(tabName);
+          });
+        });
+
+        if (btnRefreshFiles) btnRefreshFiles.addEventListener("click", loadFilesCatalog);
+
+        if (btnCopy) {
+          btnCopy.addEventListener("click", () => {
+            const textToCopy = currentItem.content || currentItem.raw || "";
+            if (textToCopy) {
+              navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("✓ Contenido copiado al portapapeles.");
+              });
+            } else {
+              showToast("No hay contenido para copiar.");
+            }
+          });
+        }
+
+        if (btnCopyCode) {
+          btnCopyCode.addEventListener("click", () => {
+            const code = codeArea?.textContent || "";
+            if (code) {
+              navigator.clipboard.writeText(code).then(() => {
+                showToast("✓ Código copiado.");
+              });
+            }
+          });
+        }
+
+        if (btnDownload) {
+          btnDownload.addEventListener("click", () => {
+            const content = currentItem.content || currentItem.raw || "";
+            if (!content) {
+              showToast("No hay contenido para descargar.");
+              return;
+            }
+            const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${(currentItem.title || "documento").replace(/[^a-zA-Z0-9_-]/g, "_")}.${currentItem.ext || "txt"}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("✓ Descarga iniciada.");
+          });
+        }
+
+        if (btnExportCsv) {
+          btnExportCsv.addEventListener("click", () => {
+            if (!currentTableData || !currentTableData.headers) {
+              showToast("No hay tabla activa para exportar.");
+              return;
+            }
+            let csv = currentTableData.headers.join(",") + "\n";
+            currentTableData.rows.forEach(r => {
+              csv += r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",") + "\n";
+            });
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `tabla_${Date.now()}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("✓ Tabla exportada en formato CSV.");
+          });
+        }
+
+        if (btnReloadFrame) {
+          btnReloadFrame.addEventListener("click", () => {
+            if (previewFrame && currentItem.content) {
+              previewFrame.srcdoc = currentItem.content;
+              showToast("Vista previa recargada.");
+            }
+          });
+        }
+
+        if (hudCard) {
+          hudCard.addEventListener("click", () => {
+            const hudModal = document.getElementById("hud-interfaces-modal");
+            hudModal?.classList.remove("active");
+            openViewer("content");
+          });
+        }
+
+        // Exponer API pública global
+        window.lisethViewer = {
+          open: openViewer,
+          close: closeViewer,
+          showText: displayText,
+          showCode: displayCode,
+          showTable: displayTable,
+          showPreview: displayPreview,
+          showSearches: displaySearchResults,
+          showFromMessage: showFromMessage,
+          loadFile: loadFileForViewing,
+          executeSearch: executeSearch
+        };
       }
 
       // Cargar personalización persistida del servidor

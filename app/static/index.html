@@ -50,6 +50,13 @@
           <span>PERSONALIZACIÓN</span>
         </button>
 
+        <!-- BOTÓN VENTANA DINÁMICA / VISOR HUD -->
+        <button class="hud-deck-btn" id="btn-open-dynamic-viewer" title="Ventana Dinámica: Búsquedas, Archivos, Documentos y Formatos">
+          <span class="hud-deck-icon">🪟</span>
+          <span>VISOR DINÁMICO</span>
+          <span class="hud-deck-badge" id="dynamic-viewer-badge" style="display: none;">1</span>
+        </button>
+
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES -->
         <button class="hud-deck-btn" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (HUD)">
           <span class="hud-deck-icon">◈</span>
@@ -889,6 +896,17 @@
 
       <!-- Cuadrícula interactiva de módulos HUD con animación en cascada -->
       <div class="hud-modules-grid" id="hud-modules-grid">
+        <!-- 0. Ventana Dinámica / Visor Multiformato & Búsquedas -->
+        <div class="hud-card" data-category="system" id="hud-card-dynamic-viewer">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: var(--accent-blue); border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.12);">🪟</div>
+            <span class="hud-card-status status-online">MULTIFORMATO</span>
+          </div>
+          <div class="hud-card-title">Visor Dinámico Multifomato</div>
+          <div class="hud-card-desc">Proyecta búsquedas en vivo, archivos locales y generados, tablas de datos, código y textos en cualquier formato.</div>
+          <div class="hud-card-action"><span>Abrir Visor</span> <span>→</span></div>
+        </div>
+
         <!-- 1. Cerebro IA & Monitor de Tokens -->
         <div class="hud-card" data-category="intelligence" id="hud-card-brain">
           <div class="hud-card-top">
@@ -1268,6 +1286,178 @@
 
   <!-- Entrada Oculta para Importación de Memoria -->
   <input type="file" id="import-memory-file" accept=".json" style="display: none;" />
+
+  <!-- ======================================================== -->
+  <!-- VENTANA DINÁMICA: VISOR MULTIFORMATO, BÚSQUEDAS Y ARCHIVOS -->
+  <!-- ======================================================== -->
+  <div class="dynamic-viewer-overlay" id="dynamic-viewer-overlay" style="display: none;">
+    <div class="dynamic-viewer-window" id="dynamic-viewer-window">
+      <!-- Titlebar / Header Futurista -->
+      <div class="dynamic-viewer-header" id="dynamic-viewer-header">
+        <div class="dynamic-viewer-title-group">
+          <span class="dynamic-viewer-icon" id="dynamic-viewer-icon">🪟</span>
+          <div class="dynamic-viewer-titles">
+            <h3 id="dynamic-viewer-title">VISOR DINÁMICO • LISEHT HUD</h3>
+            <span class="dynamic-viewer-badge" id="dynamic-viewer-format-badge">DOCUMENTO / TEXTO</span>
+          </div>
+        </div>
+
+        <div class="dynamic-viewer-controls">
+          <!-- Botón Buscar / Filtrar -->
+          <button class="dynamic-ctrl-btn" id="btn-dv-toggle-search" title="Buscar / Filtrar archivos o texto">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+          <!-- Botón Copiar -->
+          <button class="dynamic-ctrl-btn" id="btn-dv-copy" title="Copiar contenido al portapapeles">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+          <!-- Botón Descargar -->
+          <button class="dynamic-ctrl-btn" id="btn-dv-download" title="Descargar como archivo">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+          <!-- Botón Maximizar / Restaurar -->
+          <button class="dynamic-ctrl-btn" id="btn-dv-maximize" title="Maximizar / Restaurar tamaño">
+            <svg id="dv-icon-max" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            </svg>
+          </button>
+          <!-- Botón Cerrar -->
+          <button class="dynamic-ctrl-btn dv-close" id="btn-dv-close" title="Cerrar visor">✕</button>
+        </div>
+      </div>
+
+      <!-- Barra de Pestañas Multiformato -->
+      <div class="dynamic-viewer-tabs">
+        <button class="dv-tab active" data-tab="content"><span>📄</span> Documento / Texto</button>
+        <button class="dv-tab" data-tab="searches"><span>🔎</span> Búsquedas & Hallazgos</button>
+        <button class="dv-tab" data-tab="files"><span>📁</span> Explorador & Archivos</button>
+        <button class="dv-tab" data-tab="table"><span>📊</span> Tablas & Datos</button>
+        <button class="dv-tab" data-tab="code"><span>💻</span> Código & Scripts</button>
+        <button class="dv-tab" data-tab="preview"><span>🌐</span> Vista Previa Web</button>
+      </div>
+
+      <!-- Barra de Búsqueda Integrada -->
+      <div class="dynamic-viewer-search-bar" id="dv-search-bar" style="display: none;">
+        <input type="text" id="dv-search-input" placeholder="Buscar archivos por nombre/extensión en su equipo o filtrar..." />
+        <button id="btn-dv-exec-search" class="btn-primary" style="padding: 7px 16px; font-size: 0.8rem;">Buscar Archivos</button>
+      </div>
+
+      <!-- Cuerpo Multiformato Dinámico -->
+      <div class="dynamic-viewer-body" id="dynamic-viewer-body">
+        <!-- 1. Pestaña Documento / Texto -->
+        <div class="dv-tab-content active" id="dv-pane-content">
+          <div class="dv-content-meta">
+            <span id="dv-word-count">0 palabras</span> • <span id="dv-char-count">0 caracteres</span> • <span id="dv-timestamp">En tiempo real</span>
+          </div>
+          <div class="dv-rich-text" id="dv-rich-text-area">
+            <div class="dv-empty-placeholder">
+              <span class="dv-placeholder-icon">📄</span>
+              <h4>Visor de Documentos y Textos Listo</h4>
+              <p>Pídale a Liseth cualquier texto, redacción, contrato, carta o resumen y aparecerá proyectado aquí automáticamente con formato enriquecido.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Pestaña Búsquedas & Hallazgos -->
+        <div class="dv-tab-content" id="dv-pane-searches">
+          <div class="dv-searches-header">
+            <div class="dv-search-box-embedded">
+              <input type="text" id="dv-search-query-field" placeholder="Buscar archivos o carpetas en su equipo (ej: .py, facturas, contabilidad, reportes)..." />
+              <button id="btn-dv-search-go" class="btn-primary">Buscar</button>
+            </div>
+            <div id="dv-search-summary-text" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
+              Mostrando hallazgos recientes del sistema
+            </div>
+          </div>
+          <div class="dv-search-results-grid" id="dv-search-results-grid">
+            <div class="dv-empty-placeholder">
+              <span class="dv-placeholder-icon">🔎</span>
+              <h4>Sin búsquedas activas</h4>
+              <p>Escriba un término arriba o pídale a Liseth por voz o chat: <em>"Liseth, busca archivos de..."</em></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Pestaña Explorador & Archivos -->
+        <div class="dv-tab-content" id="dv-pane-files">
+          <div class="dv-file-browser">
+            <div class="dv-file-sidebar">
+              <div class="dv-sidebar-header">
+                <span>ARCHIVOS DISPONIBLES</span>
+                <button id="btn-dv-refresh-files" class="btn-refresh-mini" title="Actualizar lista">🔄</button>
+              </div>
+              <div class="dv-file-list" id="dv-file-list">
+                <div class="dv-loading-files">Cargando catálogo...</div>
+              </div>
+            </div>
+            <div class="dv-file-preview-pane" id="dv-file-preview-pane">
+              <div class="dv-empty-placeholder">
+                <span class="dv-placeholder-icon">📁</span>
+                <h4>Seleccione un archivo</h4>
+                <p>Haga clic en cualquier archivo del panel izquierdo para previsualizarlo al instante.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Pestaña Tablas & Datos -->
+        <div class="dv-tab-content" id="dv-pane-table">
+          <div class="dv-table-toolbar">
+            <input type="text" id="dv-table-filter" placeholder="Filtrar filas de la tabla..." />
+            <button id="btn-dv-export-csv" class="btn-secondary" style="padding: 6px 12px; font-size: 0.78rem;">Exportar CSV</button>
+          </div>
+          <div class="dv-table-wrapper" id="dv-table-wrapper">
+            <div class="dv-empty-placeholder">
+              <span class="dv-placeholder-icon">📊</span>
+              <h4>Sin datos tabulares</h4>
+              <p>Pídale a Liseth: <em>"Crea una tabla con..."</em> o abra un archivo CSV/JSON para visualizarlo como hoja de datos.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Pestaña Código & Scripts -->
+        <div class="dv-tab-content" id="dv-pane-code">
+          <div class="dv-code-wrapper">
+            <div class="dv-code-header">
+              <span id="dv-code-lang" class="dv-code-badge">CÓDIGO</span>
+              <button id="btn-dv-copy-code" class="btn-secondary" style="padding: 5px 12px; font-size: 0.76rem;">Copiar Código</button>
+            </div>
+            <pre class="dv-code-pre"><code id="dv-code-area">// El código generado o solicitado aparecerá aquí con formato limpio.</code></pre>
+          </div>
+        </div>
+
+        <!-- 6. Pestaña Vista Previa Web -->
+        <div class="dv-tab-content" id="dv-pane-preview">
+          <div class="dv-preview-toolbar">
+            <span style="font-size: 0.76rem; color: var(--text-muted);">Entorno aislado (Sandbox Seguro)</span>
+            <button id="btn-dv-reload-frame" class="btn-refresh-mini" title="Recargar vista">🔄</button>
+          </div>
+          <iframe id="dv-preview-frame" sandbox="allow-scripts" style="width: 100%; height: calc(100% - 35px); border: 1px solid rgba(45, 90, 160, 0.3); background: #ffffff; border-radius: 8px;"></iframe>
+        </div>
+      </div>
+
+      <!-- Barra de Estado Inferior -->
+      <div class="dynamic-viewer-footer">
+        <div class="dv-status-item">
+          <span class="dv-status-dot"></span>
+          <span id="dv-footer-status">Visor Dinámico en línea • Conectado a Liseth</span>
+        </div>
+        <div class="dv-footer-meta">
+          <span id="dv-item-info">Modo Interactivo</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Notificación Toast Flotante -->
   <div class="liseth-toast" id="liseth-toast"></div>

@@ -98,6 +98,9 @@ EXEMPT_API_PATHS = {
     "/api/system/info",
     "/api/system/processes",
     "/api/system/execute",
+    "/api/system/search",
+    "/api/system/read",
+    "/api/files/catalog",
 }
 
 
