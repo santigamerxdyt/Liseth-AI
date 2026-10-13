@@ -21,3 +21,19 @@ archivos_creados/
 *.log
 .DS_Store
 Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+.venv/
+env/
+*.db
+*.sqlite
+dist/
+build/
+*.spec
+*claves*.txt
+*api*key*.txt
