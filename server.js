@@ -745,15 +745,25 @@ const server = http.createServer(async (req, res) => {
   // ENDPOINTS DE ARQUITECTURA JARVIS V2
   // ============================================================
 
-  // 1. BRAIN ROUTER (Cerebro Dual Gemini & Claude + Monitor de Tokens)
-  if (pathname === '/api/brain/status' && method === 'GET') {
-    return sendJson(res, 200, {
-      activeBrain: BrainRouter.getEffectiveBrain(),
-      forcedBrain: BrainRouter.forcedBrain,
-      lastFailover: BrainRouter.lastFailover,
-      stats: BrainRouter.tokenStats,
-      limits: BrainRouter.limits
-    });
+  // 1. BRAIN ROUTER (Cerebro Dual Gemini & Claude + Monitor de Tokens y Costes)
+  if ((pathname === '/api/brain/status' || pathname === '/api/stats') && method === 'GET') {
+    return sendJson(res, 200, BrainRouter.getBrainStatus(), {}, req);
+  }
+
+  if (pathname === '/api/brain/limits' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      if (body.dailyTokenLimit && typeof body.dailyTokenLimit === 'number') {
+        BrainRouter.limits.dailyTokenLimit = body.dailyTokenLimit;
+      }
+      if (body.alertThresholdPct && typeof body.alertThresholdPct === 'number') {
+        BrainRouter.limits.alertThresholdPct = body.alertThresholdPct;
+      }
+      BrainRouter.saveStats();
+      return sendJson(res, 200, { ok: true, limits: BrainRouter.limits }, {}, req);
+    } catch (e) {
+      return sendJson(res, 400, { error: e.message }, {}, req);
+    }
   }
 
   if (pathname === '/api/brain/switch' && method === 'POST') {
@@ -886,7 +896,15 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, aiResponse, {}, req);
     } catch (e) {
       console.error('Error en /api/brain/chat:', e);
-      return sendJson(res, 500, { error: e.message });
+      if (e.dailyLimitExceeded) {
+        return sendJson(res, 429, {
+          error: e.message,
+          dailyLimitExceeded: true,
+          totalToday: e.totalToday,
+          dailyLimit: e.dailyLimit
+        }, {}, req);
+      }
+      return sendJson(res, 500, { error: e.message }, {}, req);
     }
   }
 

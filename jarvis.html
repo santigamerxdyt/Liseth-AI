@@ -2794,6 +2794,12 @@
         </button>
       </div>
 
+      <!-- Modelos Activos Configurados -->
+      <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px; background: rgba(0, 195, 255, 0.05); padding: 7px 12px; border-radius: 6px; border: 1px solid rgba(0, 195, 255, 0.2);">
+        <span>✨ Gemini: <strong id="model-gemini-name" style="color: #fff;">gemini-2.0-flash</strong></span>
+        <span>🟣 Claude: <strong id="model-claude-name" style="color: #fff;">claude-3-5-sonnet</strong></span>
+      </div>
+
       <!-- Monitor de Tokens -->
       <div class="section-title"><span>📊 Consumo de Tokens (usageMetadata / usage)</span></div>
       <div class="storage-meter-box" style="margin-bottom: 14px;">
@@ -2806,7 +2812,7 @@
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.82rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.82rem; margin-bottom: 12px;">
         <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
           <div style="color: var(--text-muted);">Tokens Entrada (Hoy):</div>
           <div id="stat-tokens-in" style="font-size: 1.1rem; color: #fff; font-weight: 600; font-family: var(--font-mono);">0</div>
@@ -2817,7 +2823,28 @@
         </div>
       </div>
 
-      <div id="failover-alert-box" style="display: none; margin-top: 12px; background: rgba(255, 170, 0, 0.12); border: 1px solid rgba(255, 170, 0, 0.4); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; color: #ffd680;">
+      <!-- Estimación de Costes -->
+      <div class="section-title"><span>💵 Estimación de Costes (USD)</span></div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.82rem; margin-bottom: 6px;">
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
+          <div style="color: var(--text-muted);">Coste Hoy:</div>
+          <div id="stat-cost-today" style="font-size: 1.05rem; color: #ffd166; font-weight: 600; font-family: var(--font-mono);">$0.0000 USD</div>
+        </div>
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
+          <div style="color: var(--text-muted);">Coste Mes:</div>
+          <div id="stat-cost-month" style="font-size: 1.05rem; color: #38ef7d; font-weight: 600; font-family: var(--font-mono);">$0.0000 USD</div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 12px; padding: 0 4px;">
+        <span>Gemini: <span id="stat-cost-gemini" style="color: #fff;">$0.0000</span></span>
+        <span>Claude: <span id="stat-cost-claude" style="color: #fff;">$0.0000</span></span>
+      </div>
+
+      <div id="token-limit-alert-box" style="display: none; margin-top: 10px; background: rgba(255, 77, 109, 0.15); border: 1px solid rgba(255, 77, 109, 0.5); border-radius: 8px; padding: 10px 12px; font-size: 0.82rem; color: #ff8fa3;">
+        <strong>🛑 Límite Diario Alcanzado:</strong> Las consultas se han detenido preventivamente para evitar costes adicionales. Puede aumentar el límite en su archivo .env (<code>DAILY_TOKEN_LIMIT</code>).
+      </div>
+
+      <div id="failover-alert-box" style="display: none; margin-top: 10px; background: rgba(255, 170, 0, 0.12); border: 1px solid rgba(255, 170, 0, 0.4); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; color: #ffd680;">
         <strong>Aviso de Failover:</strong> Se activó conmutación automática de cerebro.
       </div>
 
@@ -4037,6 +4064,10 @@ Tus habilidades clave:
               if (data.text) {
                 return data.text;
               }
+            } else if (serverRes.status === 429) {
+              const errData = await serverRes.json().catch(() => ({}));
+              showToast("🛑 Límite diario de tokens alcanzado.");
+              return `🛑 **Atención:** ${errData.error || 'Se ha alcanzado el límite diario de tokens configurado.'}\n\nLas consultas se han detenido de forma preventiva para proteger sus cuotas y costes. Puede ampliar el límite en su archivo \`.env\` (\`DAILY_TOKEN_LIMIT\`).`;
             }
           } catch (servErr) {
             console.warn("Fallo en /api/brain/chat, recurriendo a cliente directo:", servErr);
@@ -5203,9 +5234,44 @@ Tus habilidades clave:
               const pct = Math.min(100, Math.round((todayTokens / limit) * 100));
 
               document.getElementById("token-usage-today").textContent = `${todayTokens.toLocaleString()} / ${limit.toLocaleString()} Tokens (${pct}%)`;
-              document.getElementById("token-progress-fill").style.width = pct + "%";
+              const fillEl = document.getElementById("token-progress-fill");
+              fillEl.style.width = pct + "%";
+              if (pct >= 100) {
+                fillEl.style.background = "linear-gradient(90deg, #ff4d6d, #ff758f)";
+              } else if (pct >= 80) {
+                fillEl.style.background = "linear-gradient(90deg, #ffaa00, #ffd166)";
+              } else {
+                fillEl.style.background = "linear-gradient(90deg, var(--accent-pink), var(--accent-cyan))";
+              }
+
               document.getElementById("stat-tokens-in").textContent = (data.stats?.today?.input || 0).toLocaleString();
               document.getElementById("stat-tokens-out").textContent = (data.stats?.today?.output || 0).toLocaleString();
+
+              // Modelos
+              if (data.models) {
+                const elG = document.getElementById("model-gemini-name");
+                if (elG) elG.textContent = data.models.gemini || 'gemini-2.0-flash';
+                const elC = document.getElementById("model-claude-name");
+                if (elC) elC.textContent = data.models.claude || 'claude-3-5-sonnet';
+              }
+
+              // Costes
+              if (data.costs) {
+                const elCostToday = document.getElementById("stat-cost-today");
+                if (elCostToday) elCostToday.textContent = `$${(data.costs.todayUSD || 0).toFixed(4)} USD`;
+                const elCostMonth = document.getElementById("stat-cost-month");
+                if (elCostMonth) elCostMonth.textContent = `$${(data.costs.monthUSD || 0).toFixed(4)} USD`;
+                const elCostGem = document.getElementById("stat-cost-gemini");
+                if (elCostGem) elCostGem.textContent = `$${(data.costs.byBrain?.gemini?.costEstimate || 0).toFixed(4)}`;
+                const elCostCla = document.getElementById("stat-cost-claude");
+                if (elCostCla) elCostCla.textContent = `$${(data.costs.byBrain?.claude?.costEstimate || 0).toFixed(4)}`;
+              }
+
+              // Alerta de límite excedido
+              const limitAlertBox = document.getElementById("token-limit-alert-box");
+              if (limitAlertBox) {
+                limitAlertBox.style.display = todayTokens >= limit ? "block" : "none";
+              }
 
               // Resaltar botón activo
               [btnSelectGemini, btnSelectClaude, btnSelectAuto].forEach(b => b && b.classList.remove("active"));
