@@ -1,12 +1,12 @@
 """
-BrainRouter - Dual Brain Architecture with Automatic Failover and Token Cost Tracking.
-Primary Brain: Google Gemini
+BrainRouter - Dual Brain Architecture with Automatic Failover, Model Redundancy, and Token Cost Tracking.
+Primary Brain: Google Gemini (with model fallback: gemini-2.0-flash -> gemini-1.5-flash)
 Fallback Brain: Anthropic Claude
 """
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 import httpx
 from app.config import settings
 
@@ -16,6 +16,7 @@ DEFAULT_RATES = {
     "gemini-2.0-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "gemini-1.5-flash": {"input_per_1k": 0.000075, "output_per_1k": 0.0003},
     "gemini-1.5-pro": {"input_per_1k": 0.00125, "output_per_1k": 0.005},
+    "gemini-2.5-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "claude-3-5-sonnet-20241022": {"input_per_1k": 0.003, "output_per_1k": 0.015},
     "claude-3-5-sonnet": {"input_per_1k": 0.003, "output_per_1k": 0.015},
     "claude-3-5-haiku-20241022": {"input_per_1k": 0.0008, "output_per_1k": 0.004},
@@ -23,6 +24,9 @@ DEFAULT_RATES = {
     "gemini-default": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "claude-default": {"input_per_1k": 0.003, "output_per_1k": 0.015},
 }
+
+# Reliable fallback chain for Gemini
+GEMINI_MODELS_CHAIN = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
 
 
 class BrainRouter:
@@ -84,54 +88,100 @@ class BrainRouter:
         total_today = self.stats["today"]["input"] + self.stats["today"]["output"]
         return total_today >= settings.DAILY_TOKEN_LIMIT
 
-    async def call_gemini(self, prompt: str, system_prompt: Optional[str] = None, tools: Optional[list] = None) -> dict:
-        """Calls Gemini API using httpx."""
-        api_key = settings.GEMINI_API_KEY
+    async def call_gemini(
+        self,
+        prompt: Optional[str] = None,
+        contents: Optional[List[dict]] = None,
+        system_prompt: Optional[str] = None,
+        tools: Optional[list] = None,
+        api_key_override: Optional[str] = None,
+    ) -> dict:
+        """
+        Calls Gemini API with automatic model retry (gemini-2.0-flash -> gemini-1.5-flash)
+        if Google returns 503 Unavailable / High Demand.
+        """
+        api_key = api_key_override or settings.GEMINI_API_KEY
         if not api_key:
-            raise ValueError("GEMINI_API_KEY no está configurada.")
+            raise ValueError("GEMINI_API_KEY no está configurada ni en .env ni en la solicitud.")
 
-        model = settings.GEMINI_MODEL
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        # Prepare contents
+        if contents:
+            formatted_contents = contents
+        elif prompt:
+            formatted_contents = [{"role": "user", "parts": [{"text": prompt}]}]
+        else:
+            raise ValueError("Se requiere al menos un prompt o historial contents.")
 
-        payload: Dict[str, Any] = {
-            "contents": [{"role": "user", "parts": [{"text": prompt}]}]
-        }
-        if system_prompt:
-            payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
+        preferred_model = settings.GEMINI_MODEL
+        models_to_try = [preferred_model] + [m for m in GEMINI_MODELS_CHAIN if m != preferred_model]
 
-        async with httpx.AsyncClient(timeout=45.0) as client:
-            resp = await client.post(url, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
+        last_error = None
+        for model in models_to_try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            payload: Dict[str, Any] = {
+                "contents": formatted_contents,
+                "generationConfig": {
+                    "temperature": 0.75,
+                    "maxOutputTokens": 3000,
+                }
+            }
+            if system_prompt:
+                payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
 
-        candidates = data.get("candidates", [])
-        if not candidates:
-            raise ValueError("Gemini no devolvió candidatos válidos.")
+            try:
+                async with httpx.AsyncClient(timeout=45.0) as client:
+                    resp = await client.post(url, json=payload)
 
-        text = ""
-        parts = candidates[0].get("content", {}).get("parts", [])
-        for p in parts:
-            if "text" in p:
-                text += p["text"]
+                    if resp.status_code in [503, 429, 500, 502, 504]:
+                        logger.warning(f"Gemini {model} respondió con estado {resp.status_code}. Probando siguiente modelo...")
+                        last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
+                        continue
 
-        usage = data.get("usageMetadata", {})
-        inp_tok = usage.get("promptTokenCount", 0)
-        out_tok = usage.get("candidatesTokenCount", 0)
-        self.record_usage("gemini", inp_tok, out_tok, model)
+                    resp.raise_for_status()
+                    data = resp.json()
 
-        return {
-            "text": text,
-            "brain": "gemini",
-            "model": model,
-            "usage": {"input": inp_tok, "output": out_tok},
-            "failover": False,
-        }
+                candidates = data.get("candidates", [])
+                if not candidates:
+                    last_error = ValueError(f"Gemini {model} no devolvió candidatos válidos.")
+                    continue
 
-    async def call_claude(self, prompt: str, system_prompt: Optional[str] = None, tools: Optional[list] = None) -> dict:
+                text = ""
+                parts = candidates[0].get("content", {}).get("parts", [])
+                for p in parts:
+                    if "text" in p:
+                        text += p["text"]
+
+                usage = data.get("usageMetadata", {})
+                inp_tok = usage.get("promptTokenCount", 0)
+                out_tok = usage.get("candidatesTokenCount", 0)
+                self.record_usage("gemini", inp_tok, out_tok, model)
+
+                return {
+                    "text": text,
+                    "brain": "gemini",
+                    "model": model,
+                    "usage": {"input": inp_tok, "output": out_tok},
+                    "failover": False,
+                }
+            except Exception as e:
+                logger.warning(f"Error con modelo {model}: {e}")
+                last_error = e
+                continue
+
+        raise last_error or RuntimeError("Todos los modelos de Gemini fallaron.")
+
+    async def call_claude(
+        self,
+        prompt: Optional[str] = None,
+        contents: Optional[List[dict]] = None,
+        system_prompt: Optional[str] = None,
+        tools: Optional[list] = None,
+        api_key_override: Optional[str] = None,
+    ) -> dict:
         """Calls Anthropic Claude API using httpx."""
-        api_key = settings.ANTHROPIC_API_KEY
+        api_key = api_key_override or settings.ANTHROPIC_API_KEY
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY no está configurada.")
+            raise ValueError("ANTHROPIC_API_KEY no está configurada para failover.")
 
         model = settings.ANTHROPIC_MODEL
         url = "https://api.anthropic.com/v1/messages"
@@ -140,10 +190,26 @@ class BrainRouter:
             "anthropic-version": "2023-06-01",
             "content-type": "application/json",
         }
+
+        # Convert contents to Claude format if needed
+        claude_messages = []
+        if contents:
+            for item in contents:
+                role = "assistant" if item.get("role") in ["model", "assistant"] else "user"
+                parts = item.get("parts", [])
+                text_part = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                if text_part:
+                    claude_messages.append({"role": role, "content": text_part})
+        elif prompt:
+            claude_messages.append({"role": "user", "content": prompt})
+
+        if not claude_messages:
+            claude_messages.append({"role": "user", "content": "Hola"})
+
         payload: Dict[str, Any] = {
             "model": model,
             "max_tokens": 4096,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": claude_messages,
         }
         if system_prompt:
             payload["system"] = system_prompt
@@ -171,7 +237,15 @@ class BrainRouter:
             "failover": True,
         }
 
-    async def generate_response(self, prompt: str, system_prompt: Optional[str] = None, tools: Optional[list] = None) -> dict:
+    async def generate_response(
+        self,
+        prompt: Optional[str] = None,
+        contents: Optional[List[dict]] = None,
+        system_prompt: Optional[str] = None,
+        tools: Optional[list] = None,
+        api_key_gemini: Optional[str] = None,
+        api_key_claude: Optional[str] = None,
+    ) -> dict:
         """
         Executes query on primary brain (Gemini).
         Automatically fails over to Claude if Gemini fails.
@@ -181,19 +255,19 @@ class BrainRouter:
 
         # If brain is manually forced
         if self.forced_brain == "claude":
-            return await self.call_claude(prompt, system_prompt, tools)
+            return await self.call_claude(prompt, contents, system_prompt, tools, api_key_claude)
         elif self.forced_brain == "gemini":
-            return await self.call_gemini(prompt, system_prompt, tools)
+            return await self.call_gemini(prompt, contents, system_prompt, tools, api_key_gemini)
 
         # Normal execution: Gemini first
         try:
-            res = await self.call_gemini(prompt, system_prompt, tools)
+            res = await self.call_gemini(prompt, contents, system_prompt, tools, api_key_gemini)
             self.active_brain = "gemini"
             return res
         except Exception as gemini_err:
-            logger.warning(f"[FAILOVER] Error en Gemini: {gemini_err}. Intentando con Claude...")
+            logger.warning(f"[FAILOVER] Gemini falló: {gemini_err}. Conmutando a Claude de respaldo...")
             try:
-                res = await self.call_claude(prompt, system_prompt, tools)
+                res = await self.call_claude(prompt, contents, system_prompt, tools, api_key_claude)
                 self.active_brain = "claude"
                 self.last_failover = {
                     "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -202,7 +276,7 @@ class BrainRouter:
                 }
                 return res
             except Exception as claude_err:
-                logger.error(f"Ambos cerebros fallaron: Gemini ({gemini_err}), Claude ({claude_err})")
+                logger.error(f"Ambos cerebros fallaron: Gemini ({gemini_err}) | Claude ({claude_err})")
                 raise RuntimeError(f"Falla total de IA: Gemini ({gemini_err}) | Claude ({claude_err})")
 
 

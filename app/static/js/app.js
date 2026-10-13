@@ -118,10 +118,10 @@ Tus habilidades clave:
    Habla siempre en un español impecable, refinado, afectuoso y perspicaz.`;
 
       const CANDIDATE_MODELS = [
-        "gemini-3.6-flash",
-        "gemini-2.5-flash",
         "gemini-2.0-flash",
-        "gemini-1.5-flash"
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+        "gemini-2.5-flash"
       ];
 
       // Elementos del DOM
@@ -1139,6 +1139,7 @@ Tus habilidades clave:
             const serverRes = await fetch("/api/brain/chat", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
+              credentials: "include",
               body: JSON.stringify({
                 systemInstruction: buildEffectiveSystemInstruction(),
                 contents: history,
@@ -1183,16 +1184,21 @@ Tus habilidades clave:
             return await executeGeminiRequest(model, apiKey, history);
           } catch (err) {
             lastError = err;
-            const isModelNotFound = err.code === 404 || 
-                                   err.status === "NOT_FOUND" || 
-                                   (err.googleMessage && (
-                                     err.googleMessage.toLowerCase().includes("not found") ||
-                                     err.googleMessage.toLowerCase().includes("no longer available") ||
-                                     err.googleMessage.toLowerCase().includes("not supported")
-                                   ));
+            const isRetryableError =
+              err.code === 404 || err.code === 503 || err.code === 429 || err.code === 500 || err.code === 502 ||
+              err.status === "NOT_FOUND" || err.status === "UNAVAILABLE" || err.status === "RESOURCE_EXHAUSTED" ||
+              (err.googleMessage && (
+                err.googleMessage.toLowerCase().includes("not found") ||
+                err.googleMessage.toLowerCase().includes("unavailable") ||
+                err.googleMessage.toLowerCase().includes("demand") ||
+                err.googleMessage.toLowerCase().includes("overloaded") ||
+                err.googleMessage.toLowerCase().includes("try again later") ||
+                err.googleMessage.toLowerCase().includes("no longer available") ||
+                err.googleMessage.toLowerCase().includes("not supported")
+              ));
 
-            if (isModelNotFound) {
-              console.warn(`Modelo ${model} no disponible, cambiando al siguiente...`, err);
+            if (isRetryableError) {
+              console.warn(`Modelo ${model} no disponible o con alta demanda (${err.code}), intentando con el siguiente modelo de respaldo...`, err);
               continue;
             }
             throw err;

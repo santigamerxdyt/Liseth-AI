@@ -16,6 +16,7 @@ from app.core.database import engine, init_db
 from app.core.migrator import run_migration_if_needed
 from app.routers.auth_router import router as auth_router
 from app.routers.files_router import router as files_router
+from app.routers.brain_router import router as brain_router
 
 # Setup logger
 logging.basicConfig(
@@ -111,6 +112,7 @@ async def api_auth_middleware(request: Request, call_next):
 # Include Routers
 app.include_router(auth_router)
 app.include_router(files_router)
+app.include_router(brain_router)
 
 
 # Mount Static Files
