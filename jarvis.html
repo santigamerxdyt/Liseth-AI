@@ -2077,6 +2077,36 @@
       </div>
 
       <div class="top-actions">
+        <!-- Botón Dashboard de Servicios (Conectores Google / Apps) -->
+        <button class="icon-btn" id="btn-services-dashboard" title="Dashboard de Servicios y Conexiones">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </button>
+
+        <!-- Botón BrainRouter & Monitor de Tokens -->
+        <button class="icon-btn" id="btn-brain-router" title="Cerebro IA (Gemini / Claude) & Monitor de Tokens">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"></path>
+            <circle cx="9" cy="13" r="1"></circle>
+            <circle cx="15" cy="13" r="1"></circle>
+          </svg>
+        </button>
+
+        <!-- Botón Registro de Auditoría y Acciones Sensibles -->
+        <button class="icon-btn" id="btn-audit-logs" title="Registro de Auditoría & Confirmaciones">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </button>
+
         <!-- Botón Historial de Conversaciones (Sistema de Memoria) -->
         <button class="icon-btn" id="btn-conv-list" title="Historial de Conversaciones">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2655,6 +2685,167 @@
 
       <div class="modal-actions">
         <button class="btn-secondary" id="btn-close-search" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DASHBOARD DE SERVICIOS & CONECTORES -->
+  <div class="modal-overlay" id="dashboard-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-blue);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Dashboard de Servicios</h2>
+          <p>Estado de conectores, Google Workspace, redes y aplicaciones</p>
+        </div>
+      </div>
+
+      <div class="productivity-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+        <!-- Tarjeta Google Workspace -->
+        <div class="idea-card" style="cursor: default;">
+          <div class="idea-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <h4 style="margin: 0;">🌐 Google Workspace</h4>
+              <span id="google-status-pill" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(255, 92, 119, 0.2); color: #ff5c77;">Desconectado</span>
+            </div>
+            <p style="font-size: 0.78rem; line-height: 1.4;">Gmail, Calendar, Drive, Tasks (Lectura/Escritura)</p>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <button class="btn-primary" id="btn-connect-google" style="padding: 5px 10px; font-size: 0.75rem;">Vincular OAuth 2.0</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta Meta WhatsApp -->
+        <div class="idea-card" style="cursor: default;">
+          <div class="idea-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <h4 style="margin: 0;">📱 WhatsApp Cloud API</h4>
+              <span id="wa-status-pill" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(37, 211, 102, 0.2); color: #38ef7d;">Listo / Webhook</span>
+            </div>
+            <p style="font-size: 0.78rem; line-height: 1.4;">Alertas proactivas, recordatorios y chat bidireccional</p>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <button class="btn-secondary" id="btn-test-wa" style="padding: 5px 10px; font-size: 0.75rem;">Probar Alerta</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta Telegram Bot -->
+        <div class="idea-card" style="cursor: default;">
+          <div class="idea-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <h4 style="margin: 0;">✈️ Telegram Bot</h4>
+              <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(0, 210, 255, 0.2); color: #00d2ff;">Gratis / Sin límites</span>
+            </div>
+            <p style="font-size: 0.78rem; line-height: 1.4;">Canal de alta disponibilidad sin ventanas de 24h</p>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <button class="btn-secondary" id="btn-test-tg" style="padding: 5px 10px; font-size: 0.75rem;">Enviar Test</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-dashboard" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BRAIN ROUTER & MONITOR DE CONSUMO DE TOKENS -->
+  <div class="modal-overlay" id="brain-modal">
+    <div class="modal-card" style="max-width: 640px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-pink); border-color: rgba(255, 102, 170, 0.4); background: rgba(255, 102, 170, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"></path>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Cerebro IA & Monitor de Tokens</h2>
+          <p>Enrutador dual Gemini / Claude y análisis de consumo</p>
+        </div>
+      </div>
+
+      <!-- Selector de Cerebro Activo -->
+      <div class="section-title"><span>🧠 Cerebro en Ejecución</span></div>
+      <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+        <button class="btn-secondary active" id="btn-select-gemini" style="flex: 1; padding: 10px;">
+          ✨ Google Gemini (Primario)
+        </button>
+        <button class="btn-secondary" id="btn-select-claude" style="flex: 1; padding: 10px;">
+          🟣 Anthropic Claude (Respaldo)
+        </button>
+        <button class="btn-secondary" id="btn-select-auto" style="flex: 1; padding: 10px;">
+          ⚡ Automático (Failover)
+        </button>
+      </div>
+
+      <!-- Monitor de Tokens -->
+      <div class="section-title"><span>📊 Consumo de Tokens (usageMetadata / usage)</span></div>
+      <div class="storage-meter-box" style="margin-bottom: 14px;">
+        <div class="storage-meter-header">
+          <span>Consumo de Hoy:</span>
+          <span class="storage-meter-val" id="token-usage-today">0 / 100,000 Tokens</span>
+        </div>
+        <div class="storage-progress-bar">
+          <div class="storage-progress-fill" id="token-progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.82rem;">
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
+          <div style="color: var(--text-muted);">Tokens Entrada (Hoy):</div>
+          <div id="stat-tokens-in" style="font-size: 1.1rem; color: #fff; font-weight: 600; font-family: var(--font-mono);">0</div>
+        </div>
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
+          <div style="color: var(--text-muted);">Tokens Salida (Hoy):</div>
+          <div id="stat-tokens-out" style="font-size: 1.1rem; color: #38ef7d; font-weight: 600; font-family: var(--font-mono);">0</div>
+        </div>
+      </div>
+
+      <div id="failover-alert-box" style="display: none; margin-top: 12px; background: rgba(255, 170, 0, 0.12); border: 1px solid rgba(255, 170, 0, 0.4); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; color: #ffd680;">
+        <strong>Aviso de Failover:</strong> Se activó conmutación automática de cerebro.
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-brain" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRO DE AUDITORÍA Y CONFIRMACIÓN DE ACCIONES SENSIBLES -->
+  <div class="modal-overlay" id="audit-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Auditoría & Acciones Sensibles</h2>
+          <p>Control de ejecuciones y autorizaciones de JARVIS</p>
+        </div>
+      </div>
+
+      <!-- Acciones Pendientes de Confirmación del Usuario -->
+      <div id="pending-confirmations-area">
+        <!-- Renderizado dinámico -->
+      </div>
+
+      <div class="section-title"><span>📜 Registro Histórico de Actividad</span></div>
+      <div class="conv-list-scroll" id="audit-log-container" style="max-height: 280px;">
+        <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">No hay registros de auditoría aún.</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-audit" type="button">Cerrar</button>
       </div>
     </div>
   </div>
@@ -3766,9 +3957,49 @@ Tus habilidades clave:
         scrollToBottom();
       }
 
-      // --- LLAMADA A GEMINI API ---
+      // --- LLAMADA UNIFICADA AL CEREBRO IA (BRAIN ROUTER O CLIENTE DIRECTO) ---
 
       async function callGeminiAPI(apiKey, history) {
+        // Si el servidor local está activo, invocar mediante /api/brain/chat (Failover Gemini/Claude + Function Calling de Google)
+        if (isServerConnected) {
+          try {
+            const serverRes = await fetch("/api/brain/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                systemInstruction: buildEffectiveSystemInstruction(),
+                contents: history,
+                apiKey: apiKey
+              })
+            });
+
+            if (serverRes.ok) {
+              const data = await serverRes.json();
+
+              // Si requirió confirmación del usuario para acción sensible
+              if (data.requiresConfirmation && data.confirmation) {
+                renderSensitiveActionPrompt(data.confirmation);
+              }
+
+              // Si ejecutó una herramienta de Google Workspace
+              if (data.executedTool) {
+                showToast(`✓ JARVIS ejecutó acción: ${data.executedTool.name}`);
+              }
+
+              if (data.failoverNotice) {
+                showToast(`🚨 Failover: Conmutado a cerebro secundario (${data.brainUsed.toUpperCase()})`);
+              }
+
+              if (data.text) {
+                return data.text;
+              }
+            }
+          } catch (servErr) {
+            console.warn("Fallo en /api/brain/chat, recurriendo a cliente directo:", servErr);
+          }
+        }
+
+        // Modo autónomo en cliente (Fallback si no hay servidor)
         let lastError = null;
         for (const model of CANDIDATE_MODELS) {
           try {
@@ -4807,6 +5038,225 @@ Tus habilidades clave:
             }
           });
         }
+
+        // Manejadores de Jarvis v2 (Dashboard, BrainRouter, Auditoría)
+        setupJarvisV2Handlers();
+      }
+
+      function setupJarvisV2Handlers() {
+        const btnServicesDashboard = document.getElementById("btn-services-dashboard");
+        const dashboardModal = document.getElementById("dashboard-modal");
+        const btnCloseDashboard = document.getElementById("btn-close-dashboard");
+        const btnConnectGoogle = document.getElementById("btn-connect-google");
+        const googleStatusPill = document.getElementById("google-status-pill");
+        const btnTestWa = document.getElementById("btn-test-wa");
+        const btnTestTg = document.getElementById("btn-test-tg");
+
+        const btnBrainRouter = document.getElementById("btn-brain-router");
+        const brainModal = document.getElementById("brain-modal");
+        const btnCloseBrain = document.getElementById("btn-close-brain");
+        const btnSelectGemini = document.getElementById("btn-select-gemini");
+        const btnSelectClaude = document.getElementById("btn-select-claude");
+        const btnSelectAuto = document.getElementById("btn-select-auto");
+
+        const btnAuditLogs = document.getElementById("btn-audit-logs");
+        const auditModal = document.getElementById("audit-modal");
+        const btnCloseAudit = document.getElementById("btn-close-audit");
+
+        // Abrir Dashboard
+        if (btnServicesDashboard) {
+          btnServicesDashboard.addEventListener("click", async () => {
+            dashboardModal.classList.add("active");
+            try {
+              const res = await fetch("/api/google/status");
+              if (res.ok) {
+                const data = await res.json();
+                if (data.connected && googleStatusPill) {
+                  googleStatusPill.textContent = "Conectado";
+                  googleStatusPill.style.background = "rgba(56, 239, 125, 0.2)";
+                  googleStatusPill.style.color = "#38ef7d";
+                }
+              }
+            } catch(e) {}
+          });
+        }
+        if (btnCloseDashboard) {
+          btnCloseDashboard.addEventListener("click", () => dashboardModal.classList.remove("active"));
+        }
+
+        if (btnConnectGoogle) {
+          btnConnectGoogle.addEventListener("click", async () => {
+            try {
+              const res = await fetch("/api/google/auth-url");
+              if (res.ok) {
+                const data = await res.json();
+                if (data.authUrl) window.open(data.authUrl, "_blank", "width=600,height=700");
+              } else {
+                alert("Configure GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en su archivo .env para iniciar la vinculación.");
+              }
+            } catch(e) {
+              alert("Inicie el servidor local para conectar Google Workspace.");
+            }
+          });
+        }
+
+        if (btnTestWa) {
+          btnTestWa.addEventListener("click", async () => {
+            const res = await fetch("/api/notifications/test", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ message: "Prueba de alerta proactiva enviada a su WhatsApp desde JARVIS." })
+            });
+            showToast("Prueba de WhatsApp enviada.");
+          });
+        }
+
+        if (btnTestTg) {
+          btnTestTg.addEventListener("click", async () => {
+            const res = await fetch("/api/notifications/test", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ message: "Prueba de alerta proactiva enviada a su Telegram desde JARVIS." })
+            });
+            showToast("Prueba de Telegram enviada.");
+          });
+        }
+
+        // BrainRouter
+        if (btnBrainRouter) {
+          btnBrainRouter.addEventListener("click", async () => {
+            brainModal.classList.add("active");
+            updateBrainModalStats();
+          });
+        }
+        if (btnCloseBrain) {
+          btnCloseBrain.addEventListener("click", () => brainModal.classList.remove("active"));
+        }
+
+        async function switchBrain(target) {
+          try {
+            await fetch("/api/brain/switch", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ brain: target })
+            });
+            updateBrainModalStats();
+            showToast(`Cerebro activo configurado en: ${target ? target.toUpperCase() : 'AUTOMÁTICO'}`);
+          } catch(e) {}
+        }
+
+        if (btnSelectGemini) btnSelectGemini.addEventListener("click", () => switchBrain('gemini'));
+        if (btnSelectClaude) btnSelectClaude.addEventListener("click", () => switchBrain('claude'));
+        if (btnSelectAuto) btnSelectAuto.addEventListener("click", () => switchBrain(null));
+
+        async function updateBrainModalStats() {
+          try {
+            const res = await fetch("/api/brain/status");
+            if (res.ok) {
+              const data = await res.json();
+              const todayTokens = (data.stats?.today?.input || 0) + (data.stats?.today?.output || 0);
+              const limit = data.limits?.dailyTokenLimit || 100000;
+              const pct = Math.min(100, Math.round((todayTokens / limit) * 100));
+
+              document.getElementById("token-usage-today").textContent = `${todayTokens.toLocaleString()} / ${limit.toLocaleString()} Tokens (${pct}%)`;
+              document.getElementById("token-progress-fill").style.width = pct + "%";
+              document.getElementById("stat-tokens-in").textContent = (data.stats?.today?.input || 0).toLocaleString();
+              document.getElementById("stat-tokens-out").textContent = (data.stats?.today?.output || 0).toLocaleString();
+
+              // Resaltar botón activo
+              [btnSelectGemini, btnSelectClaude, btnSelectAuto].forEach(b => b && b.classList.remove("active"));
+              if (data.forcedBrain === 'gemini') btnSelectGemini?.classList.add("active");
+              else if (data.forcedBrain === 'claude') btnSelectClaude?.classList.add("active");
+              else btnSelectAuto?.classList.add("active");
+
+              if (data.lastFailover) {
+                const box = document.getElementById("failover-alert-box");
+                if (box) {
+                  box.style.display = "block";
+                  box.textContent = `Aviso Failover: Conmutado a ${data.lastFailover.to.toUpperCase()} por ${data.lastFailover.reason}`;
+                }
+              }
+            }
+          } catch(e) {}
+        }
+
+        // Auditoría
+        if (btnAuditLogs) {
+          btnAuditLogs.addEventListener("click", async () => {
+            auditModal.classList.add("active");
+            loadAuditLogs();
+          });
+        }
+        if (btnCloseAudit) {
+          btnCloseAudit.addEventListener("click", () => auditModal.classList.remove("active"));
+        }
+
+        async function loadAuditLogs() {
+          try {
+            const res = await fetch("/api/audit/logs");
+            if (res.ok) {
+              const data = await res.json();
+              const container = document.getElementById("audit-log-container");
+              if (!container) return;
+
+              if (data.logs.length === 0) {
+                container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">No hay registros de auditoría aún.</div>`;
+              } else {
+                container.innerHTML = data.logs.map(l => `
+                  <div class="conv-item" style="cursor: default;">
+                    <div class="conv-item-info">
+                      <div class="conv-item-title">${escapeHtml(l.action)} [${l.connector}]</div>
+                      <div class="conv-item-meta">
+                        <span>Estado: <strong>${l.status}</strong></span> • 
+                        <span>${new Date(l.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                `).join("");
+              }
+            }
+          } catch(e) {}
+        }
+      }
+
+      // Cuadro de confirmación flotante para acciones sensibles
+      function renderSensitiveActionPrompt(conf) {
+        const row = document.createElement("div");
+        row.className = "message-row assistant";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.style.borderColor = "var(--accent-pink)";
+        bubble.innerHTML = `
+          <div style="font-weight: 600; color: #ffd166; margin-bottom: 6px;">⚠️ Confirmación de Acción Sensible</div>
+          <div style="font-size: 0.85rem; margin-bottom: 10px;">${escapeHtml(conf.reason)}</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-primary btn-confirm-action" style="padding: 6px 12px; font-size: 0.8rem;">Aprobar y Ejecutar</button>
+            <button class="btn-secondary btn-reject-action" style="padding: 6px 12px; font-size: 0.8rem;">Rechazar</button>
+          </div>
+        `;
+
+        bubble.querySelector(".btn-confirm-action").addEventListener("click", async () => {
+          bubble.innerHTML = `<div style="color: #38ef7d;">✓ Acción aprobada y enviada a ejecución...</div>`;
+          await fetch("/api/audit/confirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ confirmId: conf.id, approved: true })
+          });
+        });
+
+        bubble.querySelector(".btn-reject-action").addEventListener("click", async () => {
+          bubble.innerHTML = `<div style="color: #ff5c77;">✕ Acción rechazada por usted, Santiago.</div>`;
+          await fetch("/api/audit/confirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ confirmId: conf.id, approved: false })
+          });
+        });
+
+        row.appendChild(bubble);
+        chatMessages.appendChild(row);
+        scrollToBottom();
       }
 
       // Formateador de Markdown con Soporte para Descarga de Archivos Modificados
