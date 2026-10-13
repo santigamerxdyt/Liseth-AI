@@ -64,3 +64,40 @@ def test_brain_router_token_cost_tracking():
     new_cost = router.stats["today"]["cost_estimate"]
     assert new_cost > initial_cost
     assert round(new_cost - initial_cost, 6) == 0.0005
+
+
+def test_brain_router_failover_to_groq():
+    async def _run():
+        router = BrainRouter()
+        router.call_gemini = AsyncMock(side_effect=Exception("Gemini 503 Overloaded"))
+        router.call_groq = AsyncMock(return_value={
+            "text": "Respuesta desde Groq Llama 3.3",
+            "brain": "groq",
+            "model": "llama-3.3-70b-versatile",
+            "usage": {"input": 12, "output": 24},
+            "failover": True,
+        })
+
+        result = await router.generate_response("Hola Liseth con Groq")
+        assert result["text"] == "Respuesta desde Groq Llama 3.3"
+        assert result["brain"] == "groq"
+        assert router.active_brain == "groq"
+        router.call_gemini.assert_awaited_once()
+        router.call_groq.assert_awaited_once()
+
+    asyncio.run(_run())
+
+
+def test_brain_router_failover_cascade_all_down_graceful_notice():
+    async def _run():
+        router = BrainRouter()
+        router.call_gemini = AsyncMock(side_effect=Exception("Gemini 503 Overloaded"))
+        # No auxiliary keys or mocks configured
+
+        result = await router.generate_response("Hola Liseth en corte total")
+        assert result["brain"] == "system"
+        assert result.get("autonomousNotice") is True
+        assert "503" in result["text"]
+
+    asyncio.run(_run())
+

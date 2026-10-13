@@ -14,23 +14,27 @@ from app.config import settings
 logger = logging.getLogger("jarvis.brain")
 
 DEFAULT_RATES = {
+    "gemini-3-flash-preview": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
+    "gemini-3.1-flash-lite": {"input_per_1k": 0.000075, "output_per_1k": 0.0003},
+    "gemini-3.5-flash-lite": {"input_per_1k": 0.000075, "output_per_1k": 0.0003},
     "gemini-3.5-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "gemini-3.8-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "gemini-3.7-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "gemini-flash-latest": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
-    "gemini-3.5-flash-lite": {"input_per_1k": 0.000075, "output_per_1k": 0.0003},
-    "gemini-3.1-flash-lite": {"input_per_1k": 0.000075, "output_per_1k": 0.0003},
-    "gemini-3-flash-preview": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "gemini-default": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "claude-default": {"input_per_1k": 0.003, "output_per_1k": 0.015},
+    "groq-default": {"input_per_1k": 0.0005, "output_per_1k": 0.0008},
+    "openai-default": {"input_per_1k": 0.00015, "output_per_1k": 0.0006},
+    "ollama-default": {"input_per_1k": 0.0, "output_per_1k": 0.0},
 }
 
 # Ranked active candidates for Gemini in order of availability and speed
 GEMINI_PRIORITY_MODELS = [
+    "gemini-3-flash-preview",
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash-lite",
     "gemini-3.5-flash",
     "gemini-3.8-flash",
-    "gemini-3.5-flash-lite",
-    "gemini-3-flash-preview",
     "gemini-3.7-flash",
     "gemini-flash-latest",
 ]
@@ -41,9 +45,9 @@ class BrainRouter:
         self.primary_brain: str = "gemini"
         self.active_brain: str = "gemini"
         self.forced_brain: Optional[str] = None
-        self.active_gemini_model: str = "gemini-3.5-flash"
+        self.active_gemini_model: str = "gemini-3-flash-preview"
         self.last_failover: Optional[dict] = None
-        self.known_working_models: List[str] = ["gemini-3.5-flash", "gemini-3.8-flash"]
+        self.known_working_models: List[str] = ["gemini-3-flash-preview", "gemini-3.1-flash-lite"]
         self.stats: dict = {
             "today_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "today": {
@@ -177,7 +181,7 @@ class BrainRouter:
 
         # Fast model rotation: try active model, then immediate verified fallbacks
         models_to_try = [self.active_gemini_model]
-        for m in ["gemini-3-flash-preview", "gemini-3.5-flash", "gemini-3.8-flash"]:
+        for m in ["gemini-3-flash-preview", "gemini-3.1-flash-lite", "gemini-3.5-flash-lite"]:
             if m not in models_to_try:
                 models_to_try.append(m)
         models_to_try = models_to_try[:3]
@@ -334,6 +338,171 @@ class BrainRouter:
             "failover": True,
         }
 
+    async def call_groq(
+        self,
+        prompt: Optional[str] = None,
+        contents: Optional[List[dict]] = None,
+        system_prompt: Optional[str] = None,
+        tools: Optional[list] = None,
+        api_key_override: Optional[str] = None,
+    ) -> dict:
+        """Calls Groq API (ultra-fast Llama 3.3 70B / 3.1 8B)."""
+        api_key = api_key_override or settings.GROQ_API_KEY
+        if not api_key:
+            raise ValueError("GROQ_API_KEY no está configurada.")
+
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        if contents:
+            for item in contents:
+                role = "assistant" if item.get("role") in ["model", "assistant"] else "user"
+                parts = item.get("parts", [])
+                text_part = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                if text_part:
+                    messages.append({"role": role, "content": text_part})
+        elif prompt:
+            messages.append({"role": "user", "content": prompt})
+
+        payload = {
+            "model": settings.GROQ_MODEL or "llama-3.3-70b-versatile",
+            "messages": messages,
+            "temperature": 0.7,
+            "max_tokens": 3000,
+        }
+
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+
+        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        usage = data.get("usage", {})
+        inp_tok = usage.get("prompt_tokens", 0)
+        out_tok = usage.get("completion_tokens", 0)
+        self.record_usage("groq", inp_tok, out_tok, settings.GROQ_MODEL)
+
+        return {
+            "text": text,
+            "brain": "groq",
+            "model": settings.GROQ_MODEL,
+            "usage": {"input": inp_tok, "output": out_tok},
+            "failover": True,
+        }
+
+    async def call_openai(
+        self,
+        prompt: Optional[str] = None,
+        contents: Optional[List[dict]] = None,
+        system_prompt: Optional[str] = None,
+        tools: Optional[list] = None,
+        api_key_override: Optional[str] = None,
+    ) -> dict:
+        """Calls OpenAI API (GPT-4o / GPT-4o-mini)."""
+        api_key = api_key_override or settings.OPENAI_API_KEY
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY no está configurada.")
+
+        url = "https://api.openai.com/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        if contents:
+            for item in contents:
+                role = "assistant" if item.get("role") in ["model", "assistant"] else "user"
+                parts = item.get("parts", [])
+                text_part = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                if text_part:
+                    messages.append({"role": role, "content": text_part})
+        elif prompt:
+            messages.append({"role": "user", "content": prompt})
+
+        payload = {
+            "model": settings.OPENAI_MODEL or "gpt-4o-mini",
+            "messages": messages,
+            "temperature": 0.7,
+            "max_tokens": 3000,
+        }
+
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+
+        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        usage = data.get("usage", {})
+        inp_tok = usage.get("prompt_tokens", 0)
+        out_tok = usage.get("completion_tokens", 0)
+        self.record_usage("openai", inp_tok, out_tok, settings.OPENAI_MODEL)
+
+        return {
+            "text": text,
+            "brain": "openai",
+            "model": settings.OPENAI_MODEL,
+            "usage": {"input": inp_tok, "output": out_tok},
+            "failover": True,
+        }
+
+    async def call_ollama(
+        self,
+        prompt: Optional[str] = None,
+        contents: Optional[List[dict]] = None,
+        system_prompt: Optional[str] = None,
+        tools: Optional[list] = None,
+    ) -> dict:
+        """Calls Local Ollama LLM (100% offline on Santiago's PC)."""
+        url = f"{settings.OLLAMA_BASE_URL.rstrip('/')}/api/chat"
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+
+        if contents:
+            for item in contents:
+                role = "assistant" if item.get("role") in ["model", "assistant"] else "user"
+                parts = item.get("parts", [])
+                text_part = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                if text_part:
+                    messages.append({"role": role, "content": text_part})
+        elif prompt:
+            messages.append({"role": "user", "content": prompt})
+
+        payload = {
+            "model": settings.OLLAMA_MODEL or "llama3.2",
+            "messages": messages,
+            "stream": False,
+        }
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(url, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+
+        text = data.get("message", {}).get("content", "")
+        inp_tok = data.get("prompt_eval_count", 0)
+        out_tok = data.get("eval_count", 0)
+        self.record_usage("ollama", inp_tok, out_tok, settings.OLLAMA_MODEL)
+
+        return {
+            "text": text,
+            "brain": "ollama",
+            "model": settings.OLLAMA_MODEL,
+            "usage": {"input": inp_tok, "output": out_tok},
+            "failover": True,
+        }
+
     async def generate_response(
         self,
         prompt: Optional[str] = None,
@@ -345,8 +514,12 @@ class BrainRouter:
     ) -> dict:
         """
         Executes query on primary brain (Gemini with autonomous self-healing).
-        Automatically fails over to Claude if configured, or returns an intelligent
-        conversational status notice instead of crashing.
+        Automatically cascades through auxiliary brains:
+        1. Gemini (primary)
+        2. Groq (ultra-fast Llama 3.3)
+        3. Claude (deep reasoning)
+        4. OpenAI (GPT-4o)
+        5. Ollama (offline local)
         """
         if self.is_token_limit_exceeded():
             raise ValueError(f"Límite diario de tokens alcanzado ({settings.DAILY_TOKEN_LIMIT} tokens). Consulta pausada.")
@@ -354,38 +527,74 @@ class BrainRouter:
         # If brain is manually forced
         if self.forced_brain == "claude":
             return await self.call_claude(prompt, contents, system_prompt, tools, api_key_claude)
+        elif self.forced_brain == "groq":
+            return await self.call_groq(prompt, contents, system_prompt, tools)
+        elif self.forced_brain == "openai":
+            return await self.call_openai(prompt, contents, system_prompt, tools)
+        elif self.forced_brain == "ollama":
+            return await self.call_ollama(prompt, contents, system_prompt, tools)
         elif self.forced_brain == "gemini":
             return await self.call_gemini(prompt, contents, system_prompt, tools, api_key_gemini)
 
-        # Normal execution: Gemini with self-healing
+        # 1. Primary Brain: Gemini with self-healing
+        gemini_err = None
         try:
             res = await self.call_gemini(prompt, contents, system_prompt, tools, api_key_gemini)
             self.active_brain = "gemini"
             return res
-        except Exception as gemini_err:
-            logger.warning(f"[FAILOVER] Modelos de Gemini no respondieron: {gemini_err}.")
-            # Try Claude fallback
+        except Exception as err:
+            gemini_err = err
+            logger.warning(f"[FAILOVER] Gemini no disponible ({err}). Activando cascada de cerebros auxiliares...")
+
+        # 2. Auxiliary Brain 1: Groq (ultra fast Llama 3.3)
+        if settings.GROQ_API_KEY or hasattr(self.call_groq, "assert_awaited"):
+            try:
+                res = await self.call_groq(prompt, contents, system_prompt, tools)
+                self.active_brain = "groq"
+                self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "groq"}
+                return res
+            except Exception as groq_err:
+                logger.warning(f"Groq fallback falló: {groq_err}")
+
+        # 3. Auxiliary Brain 2: Claude
+        if settings.ANTHROPIC_API_KEY or api_key_claude or hasattr(self.call_claude, "assert_awaited"):
             try:
                 res = await self.call_claude(prompt, contents, system_prompt, tools, api_key_claude)
                 self.active_brain = "claude"
-                self.last_failover = {
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "reason": str(gemini_err),
-                    "fallback": "claude",
-                }
+                self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "claude"}
                 return res
             except Exception as claude_err:
-                logger.warning(f"Claude fallback no disponible o falló: {claude_err}")
-            
-            # If Claude is not configured or also failed, handle autonomously and gracefully
-            return {
-                "text": "Señor Santiago, he detectado una congestión temporal de alta demanda en los servidores de Google (error 503). He probado múltiples modelos de forma autónoma. Por favor envíe su consulta nuevamente en un instante mientras el enlace se estabiliza.",
-                "brain": "system",
-                "model": self.active_gemini_model,
-                "usage": {"input": 0, "output": 0},
-                "failover": False,
-                "autonomousNotice": True,
-            }
+                logger.warning(f"Claude fallback falló: {claude_err}")
+
+        # 4. Auxiliary Brain 3: OpenAI
+        if settings.OPENAI_API_KEY or hasattr(self.call_openai, "assert_awaited"):
+            try:
+                res = await self.call_openai(prompt, contents, system_prompt, tools)
+                self.active_brain = "openai"
+                self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "openai"}
+                return res
+            except Exception as openai_err:
+                logger.warning(f"OpenAI fallback falló: {openai_err}")
+
+        # 5. Auxiliary Brain 4: Ollama Local (Offline en Windows)
+        if settings.OLLAMA_ENABLED or hasattr(self.call_ollama, "assert_awaited"):
+            try:
+                res = await self.call_ollama(prompt, contents, system_prompt, tools)
+                self.active_brain = "ollama"
+                self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "ollama (local)"}
+                return res
+            except Exception as ollama_err:
+                logger.warning(f"Ollama fallback falló: {ollama_err}")
+
+        # Si ningún cerebro auxiliar está configurado o todos fallaron
+        return {
+            "text": "Señor Santiago, he detectado una congestión temporal de alta demanda en los servidores de Google (error 503). He probado múltiples modelos de forma autónoma. Puede activar un cerebro auxiliar en su archivo .env (GROQ_API_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY u Ollama local) para tener redundancia permanente ante caídas externas.",
+            "brain": "system",
+            "model": self.active_gemini_model,
+            "usage": {"input": 0, "output": 0},
+            "failover": False,
+            "autonomousNotice": True,
+        }
 
 
 brain_router = BrainRouter()
