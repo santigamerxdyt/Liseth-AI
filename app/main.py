@@ -76,6 +76,10 @@ EXEMPT_API_PATHS = {
     "/api/auth/logout",
     "/api/health",
     "/api/webhook/whatsapp",
+    "/api/brain/chat",
+    "/api/brain/test-models",
+    "/api/brain/stats",
+    "/api/brain/force",
 }
 
 
@@ -133,11 +137,15 @@ async def health_check():
 
 @app.get("/", tags=["frontend"])
 async def serve_index():
-    """Serves the main Liseth frontend HTML."""
+    """Serves the main Liseth frontend HTML with fresh cache headers."""
     index_file = settings.STATIC_DIR / "index.html"
     if not index_file.exists():
         return JSONResponse(
             status_code=500,
             content={"error": "Frontend static file index.html not found"}
         )
-    return FileResponse(index_file)
+    response = FileResponse(index_file)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
