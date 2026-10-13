@@ -74,9 +74,29 @@ async def get_brain_stats():
     return {
         "ok": True,
         "activeBrain": brain_router.active_brain,
+        "activeGeminiModel": brain_router.active_gemini_model,
         "forcedBrain": brain_router.forced_brain,
         "lastFailover": brain_router.last_failover,
         "stats": brain_router.stats,
+    }
+
+
+@router.get("/test-models")
+async def test_models_endpoint(key: Optional[str] = None):
+    """
+    Checks candidate models one by one against the Google API,
+    finds the first working model, and returns the verification report.
+    """
+    from app.config import settings
+    api_key = key or settings.GEMINI_API_KEY
+    if not api_key:
+        raise HTTPException(status_code=400, detail="No hay API key de Gemini para comprobar.")
+
+    results = await brain_router.probe_candidate_models(api_key)
+    return {
+        "ok": True,
+        "activeModel": brain_router.active_gemini_model,
+        "results": results,
     }
 
 

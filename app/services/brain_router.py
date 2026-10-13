@@ -1,22 +1,27 @@
 """
-BrainRouter - Dual Brain Architecture with Automatic Failover, Model Redundancy, and Token Cost Tracking.
-Primary Brain: Google Gemini (with model fallback: gemini-2.0-flash -> gemini-1.5-flash)
+BrainRouter - Dual Brain Architecture with Dynamic Model Probing,
+Automatic Failover, Model Redundancy, and Token Cost Tracking.
+Primary Brain: Google Gemini (autoprobes models: gemini-3.5-flash, gemini-3.8-flash, etc.)
 Fallback Brain: Anthropic Claude
 """
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import httpx
 from app.config import settings
 
 logger = logging.getLogger("jarvis.brain")
 
 DEFAULT_RATES = {
+    "gemini-3.5-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
+    "gemini-3.8-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
+    "gemini-3.7-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
+    "gemini-flash-latest": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
+    "gemini-3.1-flash-lite": {"input_per_1k": 0.000075, "output_per_1k": 0.0003},
+    "gemini-2.5-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "gemini-2.0-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "gemini-1.5-flash": {"input_per_1k": 0.000075, "output_per_1k": 0.0003},
-    "gemini-1.5-pro": {"input_per_1k": 0.00125, "output_per_1k": 0.005},
-    "gemini-2.5-flash": {"input_per_1k": 0.0001, "output_per_1k": 0.0004},
     "claude-3-5-sonnet-20241022": {"input_per_1k": 0.003, "output_per_1k": 0.015},
     "claude-3-5-sonnet": {"input_per_1k": 0.003, "output_per_1k": 0.015},
     "claude-3-5-haiku-20241022": {"input_per_1k": 0.0008, "output_per_1k": 0.004},
@@ -25,8 +30,14 @@ DEFAULT_RATES = {
     "claude-default": {"input_per_1k": 0.003, "output_per_1k": 0.015},
 }
 
-# Reliable fallback chain for Gemini
-GEMINI_MODELS_CHAIN = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+# Official modern candidate models ordered by stability and performance
+GEMINI_CANDIDATE_MODELS = [
+    "gemini-3.5-flash",
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
+    "gemini-flash-latest",
+    "gemini-3.1-flash-lite",
+]
 
 
 class BrainRouter:
@@ -34,6 +45,7 @@ class BrainRouter:
         self.primary_brain: str = "gemini"
         self.active_brain: str = "gemini"
         self.forced_brain: Optional[str] = None
+        self.active_gemini_model: str = "gemini-3.5-flash"
         self.last_failover: Optional[dict] = None
         self.stats: dict = {
             "today_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
@@ -88,6 +100,33 @@ class BrainRouter:
         total_today = self.stats["today"]["input"] + self.stats["today"]["output"]
         return total_today >= settings.DAILY_TOKEN_LIMIT
 
+    async def probe_candidate_models(self, api_key: str) -> List[Dict[str, Any]]:
+        """
+        Tests each candidate model one by one against the Google API.
+        Returns the status of each model and updates self.active_gemini_model with the first working one.
+        """
+        results = []
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            for model in GEMINI_CANDIDATE_MODELS:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+                payload = {
+                    "contents": [{"role": "user", "parts": [{"text": "ping"}]}],
+                    "generationConfig": {"maxOutputTokens": 5}
+                }
+                try:
+                    resp = await client.post(url, json=payload)
+                    if resp.status_code == 200:
+                        results.append({"model": model, "status": "working", "code": 200})
+                        if not any(r["status"] == "working" for r in results[:-1]):
+                            self.active_gemini_model = model
+                            logger.info(f"[PROBE] Modelo fijado a: {model}")
+                    else:
+                        results.append({"model": model, "status": "unavailable", "code": resp.status_code})
+                except Exception as e:
+                    results.append({"model": model, "status": "error", "error": str(e)})
+
+        return results
+
     async def call_gemini(
         self,
         prompt: Optional[str] = None,
@@ -97,8 +136,10 @@ class BrainRouter:
         api_key_override: Optional[str] = None,
     ) -> dict:
         """
-        Calls Gemini API with automatic model retry (gemini-2.0-flash -> gemini-1.5-flash)
-        if Google returns 503 Unavailable / High Demand.
+        Calls Gemini API with self-healing model testing:
+        Tries the active model first; if it returns 404, 503, 429, or 500,
+        it tests the remaining candidate models one by one, locks onto the first working one,
+        and saves it for subsequent queries.
         """
         api_key = api_key_override or settings.GEMINI_API_KEY
         if not api_key:
@@ -112,11 +153,13 @@ class BrainRouter:
         else:
             raise ValueError("Se requiere al menos un prompt o historial contents.")
 
-        preferred_model = settings.GEMINI_MODEL
-        models_to_try = [preferred_model] + [m for m in GEMINI_MODELS_CHAIN if m != preferred_model]
+        # Candidate order: active model first, followed by remaining candidates
+        ordered_models = [self.active_gemini_model] + [
+            m for m in GEMINI_CANDIDATE_MODELS if m != self.active_gemini_model
+        ]
 
         last_error = None
-        for model in models_to_try:
+        for model in ordered_models:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
             payload: Dict[str, Any] = {
                 "contents": formatted_contents,
@@ -132,8 +175,12 @@ class BrainRouter:
                 async with httpx.AsyncClient(timeout=45.0) as client:
                     resp = await client.post(url, json=payload)
 
-                    if resp.status_code in [503, 429, 500, 502, 504]:
-                        logger.warning(f"Gemini {model} respondió con estado {resp.status_code}. Probando siguiente modelo...")
+                    # Transient or deprecated model errors: 404 (not found / deprecated), 503 (high demand), 429, 500
+                    if resp.status_code in [404, 503, 429, 500, 502, 504]:
+                        logger.warning(
+                            f"[MODEL_FAIL] Modelo {model} respondió {resp.status_code}. "
+                            f"Probando siguiente modelo de la lista..."
+                        )
                         last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
                         continue
 
@@ -156,6 +203,11 @@ class BrainRouter:
                 out_tok = usage.get("candidatesTokenCount", 0)
                 self.record_usage("gemini", inp_tok, out_tok, model)
 
+                # Persist confirmed working model
+                if self.active_gemini_model != model:
+                    logger.info(f"[MODEL_SWITCH] Modelo activo actualizado a: {model}")
+                    self.active_gemini_model = model
+
                 return {
                     "text": text,
                     "brain": "gemini",
@@ -164,7 +216,7 @@ class BrainRouter:
                     "failover": False,
                 }
             except Exception as e:
-                logger.warning(f"Error con modelo {model}: {e}")
+                logger.warning(f"Error evaluando modelo {model}: {e}")
                 last_error = e
                 continue
 
@@ -247,8 +299,8 @@ class BrainRouter:
         api_key_claude: Optional[str] = None,
     ) -> dict:
         """
-        Executes query on primary brain (Gemini).
-        Automatically fails over to Claude if Gemini fails.
+        Executes query on primary brain (Gemini with self-healing model selection).
+        Automatically fails over to Claude if all Gemini models fail.
         """
         if self.is_token_limit_exceeded():
             raise ValueError(f"Límite diario de tokens alcanzado ({settings.DAILY_TOKEN_LIMIT} tokens). Consulta pausada.")
@@ -259,13 +311,13 @@ class BrainRouter:
         elif self.forced_brain == "gemini":
             return await self.call_gemini(prompt, contents, system_prompt, tools, api_key_gemini)
 
-        # Normal execution: Gemini first
+        # Normal execution: Gemini first (with model list checking)
         try:
             res = await self.call_gemini(prompt, contents, system_prompt, tools, api_key_gemini)
             self.active_brain = "gemini"
             return res
         except Exception as gemini_err:
-            logger.warning(f"[FAILOVER] Gemini falló: {gemini_err}. Conmutando a Claude de respaldo...")
+            logger.warning(f"[FAILOVER] Todos los modelos de Gemini fallaron: {gemini_err}. Conmutando a Claude de respaldo...")
             try:
                 res = await self.call_claude(prompt, contents, system_prompt, tools, api_key_claude)
                 self.active_brain = "claude"

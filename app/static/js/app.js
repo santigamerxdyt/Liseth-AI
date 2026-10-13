@@ -118,11 +118,13 @@ Tus habilidades clave:
    Habla siempre en un español impecable, refinado, afectuoso y perspicaz.`;
 
       const CANDIDATE_MODELS = [
-        "gemini-2.0-flash",
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
-        "gemini-2.5-flash"
+        "gemini-3.5-flash",
+        "gemini-3.8-flash",
+        "gemini-3.7-flash",
+        "gemini-flash-latest",
+        "gemini-3.1-flash-lite"
       ];
+      let activeGeminiModel = localStorage.getItem("liseth_active_gemini_model") || "gemini-3.5-flash";
 
       // Elementos del DOM
       const orb = document.getElementById("orb");
@@ -1178,10 +1180,23 @@ Tus habilidades clave:
         }
 
         // Modo autónomo en cliente (Fallback si no hay servidor)
+        // Comprobar cada modelo uno por uno empezando por el activo
+        const orderedCandidateModels = [
+          activeGeminiModel,
+          ...CANDIDATE_MODELS.filter(m => m !== activeGeminiModel)
+        ];
+
         let lastError = null;
-        for (const model of CANDIDATE_MODELS) {
+        for (const model of orderedCandidateModels) {
           try {
-            return await executeGeminiRequest(model, apiKey, history);
+            const result = await executeGeminiRequest(model, apiKey, history);
+            // Si tuvo éxito, guardar este modelo como el activo confirmado
+            if (activeGeminiModel !== model) {
+              activeGeminiModel = model;
+              try { localStorage.setItem("liseth_active_gemini_model", model); } catch(e) {}
+              console.log(`[Liseth AI] Modelo verificado y guardado como activo: ${model}`);
+            }
+            return result;
           } catch (err) {
             lastError = err;
             const isRetryableError =
@@ -1198,7 +1213,7 @@ Tus habilidades clave:
               ));
 
             if (isRetryableError) {
-              console.warn(`Modelo ${model} no disponible o con alta demanda (${err.code}), intentando con el siguiente modelo de respaldo...`, err);
+              console.warn(`[Liseth AI] Modelo ${model} no disponible (${err.code}), comprobando el siguiente modelo de la lista...`, err);
               continue;
             }
             throw err;
@@ -1866,8 +1881,8 @@ Tus habilidades clave:
             }
           ];
 
-          // Llamada directa sin reintentar recursivamente
-          const summaryResponse = await executeGeminiRequest("gemini-2.0-flash", apiKey, summaryPrompt);
+          // Llamada usando el modelo activo confirmado
+          const summaryResponse = await executeGeminiRequest(activeGeminiModel || "gemini-3.5-flash", apiKey, summaryPrompt);
           const cleanSummary = summaryResponse ? summaryResponse.trim() : "Historial previo resumido con éxito.";
 
           showToast("✓ Memoria previa resumida sin tocar su pantalla.");
