@@ -71,12 +71,11 @@ Auth.hashPin(currentPin).then(hash => {
   console.error('Error inicializando hash scrypt de PIN:', err);
 });
 
-let Communicate = null;
+let EdgeTTS = null;
 try {
-  const edgeTts = require('edge-tts-universal');
-  Communicate = edgeTts.Communicate;
+  EdgeTTS = require('./lib/tts/EdgeTTS');
 } catch (e) {
-  // Edge-TTS opcional
+  console.warn('Advertencia al cargar EdgeTTS:', e.message);
 }
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
@@ -546,7 +545,8 @@ const server = http.createServer(async (req, res) => {
   if (pathname.startsWith('/api') && !isPublicApi) {
     const cookies = Auth.parseCookies(req);
     const authHeader = req.headers.authorization;
-    const token = cookies.jarvis_session || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
+    const queryToken = parsedUrl.searchParams.get('token');
+    const token = cookies.jarvis_session || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null) || queryToken;
 
     if (!Auth.verifySessionToken(token)) {
       return sendJson(res, 401, {
@@ -585,7 +585,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (!text.trim()) {
-      return sendJson(res, 400, { error: 'El parámetro text es requerido' });
+      return sendJson(res, 400, { error: 'El parámetro text es requerido' }, {}, req);
     }
 
     const db = readDatabase();
@@ -609,15 +609,14 @@ const server = http.createServer(async (req, res) => {
     }
 
     // 3. Edge TTS (Por defecto: Gratis, Ultra Realista, Calidad Humana)
-    if (Communicate) {
+    if (EdgeTTS) {
       try {
-        const comm = new Communicate(text, { voice, rate, pitch });
-        const stream = await comm.stream();
-
+        const audioBuffer = await EdgeTTS.synthesize(text, { voice, rate, pitch });
         const safeOrigin = getSafeOrigin(req);
         const ttsHeaders = {
           'Content-Type': 'audio/mpeg',
-          'Cache-Control': 'no-cache'
+          'Content-Length': audioBuffer.length,
+          'Cache-Control': 'public, max-age=86400'
         };
         if (safeOrigin) {
           ttsHeaders['Access-Control-Allow-Origin'] = safeOrigin;
@@ -625,19 +624,13 @@ const server = http.createServer(async (req, res) => {
         }
 
         res.writeHead(200, ttsHeaders);
-
-        for await (const chunk of stream) {
-          if (chunk.type === 'audio') {
-            res.write(chunk.data);
-          }
-        }
-        return res.end();
+        return res.end(audioBuffer);
       } catch (err) {
-        console.error('Error generando audio con Edge TTS:', err);
-        return sendJson(res, 500, { error: 'Fallo al generar audio con Edge TTS' });
+        console.error('Error generando audio con Edge TTS:', err.message);
+        return sendJson(res, 500, { error: 'Fallo al generar audio con Edge TTS: ' + err.message }, {}, req);
       }
     } else {
-      return sendJson(res, 503, { error: 'Módulo de voz neuronal no inicializado' });
+      return sendJson(res, 503, { error: 'Módulo de voz neuronal no inicializado' }, {}, req);
     }
   }
 
@@ -652,7 +645,7 @@ const server = http.createServer(async (req, res) => {
       timestamp: new Date().toISOString(),
       port: PORT,
       localIPs: localIPs,
-      neuralTtsActive: Boolean(Communicate)
+      neuralTtsActive: Boolean(EdgeTTS)
     });
   }
 

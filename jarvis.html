@@ -3973,8 +3973,8 @@ Tus habilidades clave:
         voiceSettings.rate = (val >= 0 ? '+' : '') + val + '%';
       });
 
-      function speakText(rawText) {
-        if (!voiceSettings.enabled) return;
+      function speakText(rawText, forcePlay = false) {
+        if (!forcePlay && !voiceSettings.enabled) return;
 
         stopSpeaking();
 
@@ -3991,7 +3991,7 @@ Tus habilidades clave:
         let provider = "edge";
         let voiceId = "es-MX-DaliaNeural";
 
-        const val = voiceModelSelect.value;
+        const val = voiceModelSelect ? voiceModelSelect.value : "es-MX-DaliaNeural";
         if (val.includes(":")) {
           const parts = val.split(":");
           provider = parts[0];
@@ -4001,7 +4001,7 @@ Tus habilidades clave:
           voiceId = val;
         }
 
-        const ttsUrl = `/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate)}&pitch=${encodeURIComponent(voiceSettings.pitch)}&provider=${encodeURIComponent(provider)}&text=${encodeURIComponent(clean)}`;
+        const ttsUrl = `/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+5%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+15Hz')}&provider=${encodeURIComponent(provider)}&text=${encodeURIComponent(clean)}`;
 
         try {
           const audio = new Audio(ttsUrl);
@@ -4020,13 +4020,14 @@ Tus habilidades clave:
             activeAudioElement = null;
           };
 
-          audio.onerror = () => {
-            console.warn("Audio neuronal no disponible, usando sintetizador local...");
+          audio.onerror = (e) => {
+            console.warn("Audio neuronal no disponible, usando sintetizador local...", e);
             activeAudioElement = null;
             fallbackLocalSpeech(clean);
           };
 
-          audio.play().catch(() => {
+          audio.play().catch((playErr) => {
+            console.warn("Reproducción de audio bloqueada o diferida:", playErr);
             fallbackLocalSpeech(clean);
           });
 
@@ -4037,21 +4038,33 @@ Tus habilidades clave:
 
       function fallbackLocalSpeech(text) {
         if (!("speechSynthesis" in window)) return;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "es-ES";
-        utterance.pitch = 1.30;
-        utterance.rate = 1.05;
+        try {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "es-ES";
+          utterance.pitch = 1.25;
+          utterance.rate = 1.05;
 
-        utterance.onstart = () => {
-          isSpeaking = true;
-          orb.classList.add("speaking");
-        };
-        utterance.onend = () => {
-          isSpeaking = false;
-          orb.classList.remove("speaking");
-          statusLabel.textContent = "A su entera disposición, Santiago";
-        };
-        window.speechSynthesis.speak(utterance);
+          const voices = window.speechSynthesis.getVoices() || [];
+          const esVoice = voices.find(v => v.lang.startsWith("es-MX") || v.lang.startsWith("es-CO") || v.lang.startsWith("es-ES") || v.lang.startsWith("es"));
+          if (esVoice) utterance.voice = esVoice;
+
+          utterance.onstart = () => {
+            isSpeaking = true;
+            orb.classList.add("speaking");
+            statusLabel.textContent = "Liseth le asiste con voz local...";
+          };
+          utterance.onend = () => {
+            isSpeaking = false;
+            orb.classList.remove("speaking");
+            statusLabel.textContent = "A su entera disposición, Santiago";
+          };
+          utterance.onerror = () => {
+            isSpeaking = false;
+            orb.classList.remove("speaking");
+          };
+          window.speechSynthesis.speak(utterance);
+        } catch(e) {}
       }
 
       function stopSpeaking() {
@@ -4081,7 +4094,14 @@ Tus habilidades clave:
       btnPreviewVoice.addEventListener("click", () => {
         const val = voiceModelSelect.value;
         const info = VOICE_DETAILS[val] || { sample: "Hola Santiago, soy Liseth a su entera disposición." };
-        speakText(info.sample);
+        const prevText = btnPreviewVoice.textContent;
+        btnPreviewVoice.textContent = "⏳ Generando voz...";
+        btnPreviewVoice.disabled = true;
+        speakText(info.sample, true);
+        setTimeout(() => {
+          btnPreviewVoice.textContent = prevText;
+          btnPreviewVoice.disabled = false;
+        }, 2200);
       });
 
       // --- MOTOR DE ESCUCHA (MICRÓFONO) ---

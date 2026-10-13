@@ -19,6 +19,7 @@ const { BrainRouter } = BrainRouterInstance;
 const GoogleWorkspaceConnector = require('../lib/connectors/GoogleWorkspaceConnector');
 const TaskScheduler = require('../lib/scheduler/TaskScheduler');
 const NotificationManager = require('../lib/notifications/NotificationManager');
+const EdgeTTS = require('../lib/tts/EdgeTTS');
 
 // ==========================================
 // 1. PRUEBAS DEL MÓDULO DE AUTENTICACIÓN (lib/auth.js)
@@ -592,6 +593,22 @@ test('BrainRouter: Rollover diario resetea contadores al cambiar de fecha', () =
   assert.strictEqual(router.tokenStats.today.output, 0, 'Debe reiniciar tokens de salida');
   assert.strictEqual(router.tokenStats.today.costEstimate, 0, 'Debe reiniciar coste del día');
   assert.strictEqual(router.tokenStats.today.byBrain.gemini.input, 0);
+});
+
+// ==========================================
+// 5. PRUEBAS DEL MOTOR DE VOZ NEURONAL (lib/tts/EdgeTTS.js)
+// ==========================================
+test('EdgeTTS: Generación correcta de token Sec-MS-GEC y estructura SSML', () => {
+  const token = EdgeTTS.generateSecMsGec();
+  assert.ok(typeof token === 'string', 'El token Sec-MS-GEC debe ser un string');
+  assert.strictEqual(token.length, 64, 'El token Sec-MS-GEC debe ser un hash SHA-256 de 64 caracteres');
+  assert.strictEqual(token, token.toUpperCase(), 'El token Sec-MS-GEC debe estar en mayúsculas');
+
+  const ssml = EdgeTTS.buildSsml('Hola Santiago <test>', 'es-MX-DaliaNeural', '+15Hz', '+5%');
+  assert.ok(ssml.includes('es-MX-DaliaNeural'), 'Debe incluir la voz especificada');
+  assert.ok(ssml.includes("pitch='+15Hz'"), 'Debe incluir la modulación de pitch');
+  assert.ok(ssml.includes("rate='+5%'"), 'Debe incluir la velocidad de locución');
+  assert.ok(ssml.includes('&lt;test&gt;'), 'Debe escapar caracteres especiales de XML/SSML');
 });
 
 
