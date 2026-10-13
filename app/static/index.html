@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Liseth • Asistente Personal de Santiago</title>
+  <link rel="icon" type="image/x-icon" href="liseth.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#04070d">
+</head>
+<body>
+
+  <div class="ambient-grid"></div>
+
+  <!-- Zona Drag & Drop Pantalla Completa -->
+  <div class="dropzone-overlay" id="dropzone-overlay">
+    <div class="dropzone-box">
+      <div class="dropzone-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      </div>
+      <h3>Suelte sus archivos para Liseth</h3>
+      <p>Liseth los leerá, analizará minuciosamente y los modificará a su orden</p>
+      <div style="font-size: 0.76rem; color: var(--accent-blue); margin-top: 8px;">
+        Código • Documentos • PDFs • Imágenes • Hojas de Cálculo • CSV • Audio
+      </div>
+    </div>
+  </div>
+
+  <!-- Encabezado con el Orbe de Luz Azul -->
+  <header>
+    <div class="header-top">
+      <div class="server-badge" id="server-badge" title="Estado del servidor local">
+        <span class="badge-dot"></span>
+        <span id="server-status-text">Detectando servidor...</span>
+      </div>
+
+      <div class="top-actions">
+        <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES -->
+        <button class="hud-deck-btn" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (HUD)">
+          <span class="hud-deck-icon">◈</span>
+          <span>MÓDULOS DEL SISTEMA</span>
+          <span class="hud-deck-badge">HUD</span>
+        </button>
+
+        <!-- Botón de Voz Dulce de Liseth (Activar/Silenciar) -->
+        <button class="icon-btn active" id="btn-voice-toggle" title="Voz de Liseth (Activa)">
+          <svg id="voice-icon-on" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="voice-icon-off" style="display: none;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <!-- Botón Limpiar conversación -->
+        <button class="icon-btn" id="btn-clear-chat" title="Nueva conversación (Limpiar actual)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+
+        <!-- Botón Bloquear Sesión (PIN) -->
+        <button class="icon-btn" id="btn-session-lock" title="Bloquear Sesión (PIN)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </button>
+
+        <!-- CONTENEDOR OCULTO DE BOTONES LEGACY (Mantiene compatibilidad de eventos DOM intacta) -->
+        <div style="display: none !important;">
+          <button class="icon-btn" id="btn-services-dashboard"></button>
+          <button class="icon-btn" id="btn-brain-router"></button>
+          <button class="icon-btn" id="btn-audit-logs"></button>
+          <button class="icon-btn" id="btn-conv-list"></button>
+          <button class="icon-btn" id="btn-search-convs"></button>
+          <button class="icon-btn" id="btn-user-profile"></button>
+          <button class="icon-btn" id="btn-productivity"></button>
+          <button class="icon-btn" id="btn-google"></button>
+          <button class="icon-btn" id="btn-settings"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orbe animado -->
+    <div class="orb-container" id="orb" title="Liseth • En reposo (Haz clic para detener habla)">
+      <div class="orb-aura"></div>
+      <div class="orb-ring"></div>
+      <div class="orb-core"></div>
+    </div>
+
+    <h1 class="assistant-title">LISETH</h1>
+    <div class="assistant-status">
+      <span class="status-dot"></span>
+      <span id="status-label">A su entera disposición, Santiago</span>
+    </div>
+  </header>
+
+  <!-- Píldoras de Acciones Rápidas -->
+  <div class="quick-chips">
+    <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
+      <span>⚡</span> Automatizar mi día
+    </button>
+    <button class="chip-btn" data-prompt="¿Qué tengo programado en mi agenda de Google Calendar y cuáles deberían ser mis prioridades hoy?">
+      <span>📅</span> Mi agenda Google
+    </button>
+    <button class="chip-btn" data-prompt="Ayúdame a redactar un correo formal e impecable para mi Gmail.">
+      <span>✉️</span> Redactar correo
+    </button>
+    <button class="chip-btn" data-prompt="Dame un script en PowerShell o Batch para limpiar y organizar mis archivos de descargas automáticamente.">
+      <span>📂</span> Script de descargas
+    </button>
+  </div>
+
+  <!-- Historial de Conversación -->
+  <main id="chat-container">
+    <!-- Banner de Alerta de Almacenamiento -->
+    <div id="storage-warning-banner" class="storage-warning-banner" style="display: none;">
+      <div class="storage-warning-content">
+        <span class="storage-warning-icon">⚠️</span>
+        <div class="storage-warning-text">
+          <strong>Memoria local casi llena (<span id="storage-warning-mb">4.0</span> MB / 5.0 MB):</strong>
+          <span>Le sugerimos exportar su memoria y eliminar conversaciones antiguas para evitar pérdida de datos.</span>
+        </div>
+      </div>
+      <button class="btn-warning-action" id="btn-warning-export">Exportar Memoria</button>
+    </div>
+
+    <div class="chat-wrapper" id="chat-messages"></div>
+  </main>
+
+  <!-- Barra de Entrada Inferior con Subida de Archivos -->
+  <footer>
+    <!-- Zona de Previsualización de Archivos Adjuntos antes de enviar -->
+    <div class="attachments-preview-area" id="attachments-preview-area" style="display: none;"></div>
+
+    <div class="input-container">
+      <!-- Botón de Adjuntar Archivo -->
+      <button class="attach-btn" id="attach-btn" type="button" title="Adjuntar cualquier archivo (código, documentos, PDFs, imágenes, datos...)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+        </svg>
+      </button>
+      <input type="file" id="file-input" multiple style="display: none;">
+
+      <textarea 
+        id="user-input" 
+        rows="1" 
+        placeholder="Escriba, hable o adjunte archivos para Liseth... (Enter para enviar)"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      ></textarea>
+
+      <!-- Botón de Micrófono (Escucha) -->
+      <button class="mic-btn" id="mic-btn" type="button" title="Hablar con Liseth (Presione para dictar)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" y1="19" x2="12" y2="23"></line>
+          <line x1="8" y1="23" x2="16" y2="23"></line>
+        </svg>
+      </button>
+
+      <!-- Botón de Envío -->
+      <button class="send-btn" id="send-btn" title="Enviar instrucción" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <div class="input-footnote">
+      Presione Enter para enviar • Clip o arrastrar archivos para analizar • Micrófono para dictar
+    </div>
+  </footer>
+
+  <!-- MODAL: CENTRO DE PRODUCTIVIDAD Y AUTOMATIZACIÓN -->
+  <div class="modal-overlay" id="productivity-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Centro de Productividad</h2>
+          <p>Estrategias y automatización diaria para Santiago</p>
+        </div>
+      </div>
+
+      <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
+        Liseth optimiza su flujo de trabajo, elimina tareas repetitivas y programa rutinas en su PC:
+      </p>
+
+      <div class="productivity-grid">
+        <div class="idea-card" data-prompt="Liseth, diseña un script en PowerShell o Batch que con un solo clic encienda mi entorno de trabajo abriendo mis carpetas, correo y navegadores necesarios.">
+          <div class="idea-info">
+            <h4>⚡ Script de Inicio de Jornada</h4>
+            <p>Abre todas tus herramientas de trabajo en Windows con 1 doble clic matutino.</p>
+          </div>
+          <div class="idea-arrow">&rarr;</div>
+        </div>
+
+        <div class="idea-card" data-prompt="Liseth, crea un script para organizar mi carpeta de Descargas de Windows clasificando automáticamente imágenes, PDFs, ejecutables y documentos en subcarpetas.">
+          <div class="idea-info">
+            <h4>📂 Organizador de Descargas</h4>
+            <p>Mueve y clasifica tus archivos automáticamente según su extensión.</p>
+          </div>
+          <div class="idea-arrow">&rarr;</div>
+        </div>
+
+        <div class="idea-card" data-prompt="Liseth, organízame una rutina diaria de alto rendimiento usando la técnica de Bloques de Tiempo (Time-Blocking) y la regla de los 2 minutos.">
+          <div class="idea-info">
+            <h4>⏱️ Sistema de Time-Blocking</h4>
+            <p>Estructura tu día en 3 bloques de foco profundo y minimiza la procrastinación.</p>
+          </div>
+          <div class="idea-arrow">&rarr;</div>
+        </div>
+
+        <div class="idea-card" data-prompt="Liseth, explícame cómo configurar reglas y filtros inteligentes en Gmail para que los correos importantes se clasifiquen solos y los boletines no me interrumpan.">
+          <div class="idea-info">
+            <h4>✉️ Bandeja de Entrada Zero (Gmail)</h4>
+            <p>Filtros y atajos para procesar correos en menos de 10 minutos al día.</p>
+          </div>
+          <div class="idea-arrow">&rarr;</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-productivity">Cerrar</button>
+        <button class="btn-primary" id="btn-full-productivity-plan">Diseñar Plan Completo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ECOSISTEMA GOOGLE -->
+  <div class="modal-overlay" id="google-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Ecosistema Google</h2>
+          <p>Gmail, Google Calendar, Google Tasks y Meet</p>
+        </div>
+      </div>
+
+      <div class="productivity-grid">
+        <a href="https://mail.google.com/mail/u/0/#inbox" target="_blank" class="idea-card" style="text-decoration: none;">
+          <div class="idea-info">
+            <h4>✉️ Bandeja de Entrada Gmail</h4>
+            <p>Abrir su correo electrónico en una pestaña directa.</p>
+          </div>
+          <div class="idea-arrow">&nearr;</div>
+        </a>
+
+        <a href="https://calendar.google.com/calendar/r" target="_blank" class="idea-card" style="text-decoration: none;">
+          <div class="idea-info">
+            <h4>📅 Google Calendar</h4>
+            <p>Consultar y organizar sus eventos, reuniones y compromisos.</p>
+          </div>
+          <div class="idea-arrow">&nearr;</div>
+        </a>
+
+        <a href="https://calendar.google.com/calendar/u/0/r/eventedit" target="_blank" class="idea-card" style="text-decoration: none;">
+          <div class="idea-info">
+            <h4>➕ Crear Evento Rápido en Calendar</h4>
+            <p>Programar una nueva cita con recordatorio automático.</p>
+          </div>
+          <div class="idea-arrow">&nearr;</div>
+        </a>
+
+        <a href="https://meet.google.com/new" target="_blank" class="idea-card" style="text-decoration: none;">
+          <div class="idea-info">
+            <h4>🎥 Nueva Sala en Google Meet</h4>
+            <p>Iniciar una videoconferencia instantánea con 1 clic.</p>
+          </div>
+          <div class="idea-arrow">&nearr;</div>
+        </a>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-google">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AJUSTES (VOCES HUMANAS NEURONALES, GEMINI, RED, WHATSAPP) -->
+  <div class="modal-overlay" id="api-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-pink); border-color: rgba(255, 102, 170, 0.4); background: rgba(255, 102, 170, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Centro de Control • Liseth</h2>
+          <p>Voces Humanas Neuronales, IA, Persistencia y Red</p>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: VOCES HUMANAS ULTRA-REALISTAS -->
+      <div class="section-title">
+        <span>🎙️ Voces Femeninas Humanas (Neuronales)</span>
+        <span class="voice-badge-tag" id="active-voice-badge">Calidad Estudio</span>
+      </div>
+      
+      <div class="toggle-row">
+        <span style="font-size: 0.85rem; color: #fff;">Habla de Liseth (Voz Activa)</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="voice-enable-toggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="voice-selection-box">
+        <div class="input-field-group">
+          <label for="voice-model-select">Seleccione una Voz Femenina Similar a Humana:</label>
+          <select id="voice-model-select">
+            <optgroup label="🌟 Voces Neuronales Gratuitas (Estudio / Microsoft Neural)">
+              <option value="es-MX-DaliaNeural" selected>Dalia (México) • Dulce y Juvenil (Estilo Anime)</option>
+              <option value="es-CO-SalomeNeural">Salomé (Colombia) • Cálida y Melodiosa</option>
+              <option value="es-ES-ElviraNeural">Elvira (España) • Elegante y Aristocrática</option>
+              <option value="es-US-PalomaNeural">Paloma (Hispanoamérica) • Moderna y Enérgica</option>
+              <option value="es-PE-CamilaNeural">Camila (Perú) • Clara, Neutra y Dulce</option>
+              <option value="es-AR-ElenaNeural">Elena (Argentina) • Expresiva y Natural</option>
+              <option value="ja-JP-NanamiNeural">Nanami (Japón) • Auténtica Chica Anime</option>
+            </optgroup>
+            <optgroup label="💎 Proveedores Premium Externos (Requiere tu propia API Key)">
+              <option value="elevenlabs:Rachel">ElevenLabs • Rachel (Ultra Realista)</option>
+              <option value="elevenlabs:Sarah">ElevenLabs • Sarah (Joven y Conversacional)</option>
+              <option value="elevenlabs:Nicole">ElevenLabs • Nicole (Susurrante y Dulce)</option>
+              <option value="openai:nova">OpenAI • Nova (Cálida y Afectuosa)</option>
+              <option value="openai:shimmer">OpenAI • Shimmer (Clara y Expresiva)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="voice-desc-box" id="voice-description-text">
+          Dalia (México): Una de las voces más humanas y expresivas en español. Tono dulce, juvenil, cálido y con modulación natural de anime.
+        </div>
+
+        <div class="voice-actions-row">
+          <button class="btn-preview-voice" id="btn-preview-voice" type="button">
+            ▶ Escuchar Muestra Humana
+          </button>
+          <span style="font-size: 0.72rem; color: #38ef7d; display: flex; align-items: center; gap: 4px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #38ef7d;"></span>
+            Motor Neuronal Conectado
+          </span>
+        </div>
+      </div>
+
+      <div class="input-field-group">
+        <label>Tono / Modulación Dulce:</label>
+        <div class="slider-row">
+          <input type="range" id="voice-pitch-slider" min="-10" max="30" step="5" value="15">
+          <span class="slider-val" id="pitch-hz-val">+15Hz</span>
+        </div>
+      </div>
+
+      <div class="input-field-group">
+        <label>Velocidad de Locución:</label>
+        <div class="slider-row">
+          <input type="range" id="voice-rate-slider" min="-15" max="25" step="5" value="5">
+          <span class="slider-val" id="rate-pct-val">+5%</span>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: LLAVE GEMINI -->
+      <div class="section-title"><span>🔑 Llave de Inteligencia (Google Gemini)</span></div>
+      <div class="input-field-group">
+        <label for="api-key-input">Su Clave de API</label>
+        <div class="key-input-wrapper">
+          <input type="password" id="api-key-input" placeholder="AIzaSy..." spellcheck="false" autocomplete="off" />
+          <button class="toggle-visibility-btn" id="toggle-key-visibility" type="button" title="Mostrar/Ocultar" style="position: absolute; right: 12px; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+            <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: PROVEEDORES EXTERNOS OPCIONALES -->
+      <details style="font-size: 0.82rem; color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 12px;">
+        <summary style="cursor: pointer; color: var(--accent-blue);">Opcional: Claves para ElevenLabs u OpenAI &darr;</summary>
+        <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="input-field-group">
+            <label for="elevenlabs-key-input">API Key de ElevenLabs</label>
+            <input type="password" id="elevenlabs-key-input" placeholder="xi-api-key..." style="background: rgba(18, 28, 48, 0.8); border: 1px solid rgba(45, 90, 160, 0.4); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
+          </div>
+          <div class="input-field-group">
+            <label for="openai-key-input">API Key de OpenAI</label>
+            <input type="password" id="openai-key-input" placeholder="sk-proj-..." style="background: rgba(18, 28, 48, 0.8); border: 1px solid rgba(45, 90, 160, 0.4); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
+          </div>
+        </div>
+      </details>
+
+      <!-- SECCIÓN: PERSISTENCIA Y ACCESO EN OTROS DISPOSITIVOS -->
+      <div class="section-title"><span>🌐 Servidor Local & Acceso desde Celular</span></div>
+      <div style="background: rgba(18, 28, 48, 0.6); border: 1px solid rgba(45, 90, 160, 0.3); border-radius: 8px; padding: 10px; font-size: 0.82rem; line-height: 1.5;">
+        <div id="server-network-info">
+          <div><strong>Estado:</strong> <span id="modal-server-status">Comprobando...</span></div>
+          <div style="margin-top: 4px;"><strong>Abrir en celular/tablet (misma Wi-Fi):</strong></div>
+          <div id="local-ip-links" style="color: var(--accent-blue); font-family: var(--font-mono); margin-top: 2px;">Cargando direcciones...</div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: WHATSAPP (FASE 2) -->
+      <div class="section-title"><span>📱 Recordatorios a WhatsApp (Próxima Fase)</span></div>
+      <div style="background: rgba(37, 211, 102, 0.08); border: 1px solid rgba(37, 211, 102, 0.25); border-radius: 8px; padding: 10px; font-size: 0.8rem; color: #b7efcd; line-height: 1.5;">
+        <div><strong>⚙️ Actualización en Preparación:</strong></div>
+        <p style="margin-top: 4px;">Para enviar mensajes y recordatorios automáticos a su WhatsApp se implementará el conector de sesión <strong>Baileys (Web QR)</strong> en su servidor local.</p>
+        <p style="margin-top: 4px;">Solo requerirá escanear un código QR desde su celular una vez y el servidor podrá recordarle compromisos automáticamente.</p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-cancel-modal">Cancelar</button>
+        <button class="btn-primary" id="btn-save-key">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTORIAL DE CONVERSACIONES & MEMORIA -->
+  <div class="modal-overlay" id="conversations-modal">
+    <div class="modal-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-blue);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Conversaciones</h2>
+          <p>Historial y gestión de memoria de Liseth</p>
+        </div>
+      </div>
+
+      <div class="conv-top-bar">
+        <button class="btn-new-conv" id="btn-new-conversation" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          + Nueva Conversación
+        </button>
+      </div>
+
+      <div class="storage-meter-box">
+        <div class="storage-meter-header">
+          <span>Uso de memoria local:</span>
+          <span class="storage-meter-val" id="storage-usage-text">0.00 MB / 5.0 MB</span>
+        </div>
+        <div class="storage-progress-bar">
+          <div class="storage-progress-fill" id="storage-progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div class="conv-list-scroll" id="conversations-list-container">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <div class="section-title"><span>💾 Copia de Seguridad & Memoria</span></div>
+      <div class="memory-sync-actions">
+        <button class="btn-memory-action" id="btn-export-memory" type="button" title="Descargar archivo JSON con toda la memoria">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Exportar Memoria
+        </button>
+        <button class="btn-memory-action" id="btn-import-memory" type="button" title="Cargar archivo JSON de memoria">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Importar Memoria
+        </button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-convs" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MI PERFIL (SANTIAGO) -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-card" style="max-width: 540px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-pink); border-color: rgba(255, 102, 170, 0.4); background: rgba(255, 102, 170, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Mi Perfil • Santiago</h2>
+          <p>Datos personales y memoria persistente para Liseth</p>
+        </div>
+      </div>
+
+      <div class="input-field-group">
+        <label for="profile-name">Nombre Completo:</label>
+        <div class="key-input-wrapper">
+          <input type="text" id="profile-name" value="Santiago Huerfano Lopez" placeholder="Su nombre..." spellcheck="false" />
+        </div>
+      </div>
+
+      <div class="input-field-group">
+        <label for="profile-occupation">Ocupación / Rol:</label>
+        <div class="key-input-wrapper">
+          <input type="text" id="profile-occupation" placeholder="Ej. Desarrollador de Software, Estudiante, Emprendedor..." />
+        </div>
+      </div>
+
+      <div class="section-title"><span>🧠 Cosas que Liseth debe saber siempre</span></div>
+      <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; margin-top: -4px;">
+        Liseth recordará estos datos en cada respuesta para ofrecerle asistencia personalizada:
+      </p>
+
+      <div class="input-field-group">
+        <label for="profile-fact-1">Dato 1:</label>
+        <div class="key-input-wrapper">
+          <input type="text" id="profile-fact-1" placeholder="Ej. Me gusta el café y programar por las noches" />
+        </div>
+      </div>
+
+      <div class="input-field-group">
+        <label for="profile-fact-2">Dato 2:</label>
+        <div class="key-input-wrapper">
+          <input type="text" id="profile-fact-2" placeholder="Ej. Vivo en Colombia y prefiero respuestas concisas con código limpio" />
+        </div>
+      </div>
+
+      <div class="input-field-group">
+        <label for="profile-fact-3">Dato 3:</label>
+        <div class="key-input-wrapper">
+          <input type="text" id="profile-fact-3" placeholder="Ej. Háblame con respeto pero con cercanía y calidez de anime" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-profile" type="button">Cancelar</button>
+        <button class="btn-primary" id="btn-save-profile" type="button">Guardar Perfil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BÚSQUEDA GLOBAL EN CONVERSACIONES -->
+  <div class="modal-overlay" id="search-modal">
+    <div class="modal-card" style="max-width: 620px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-blue);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Búsqueda en la Memoria</h2>
+          <p>Buscar palabras clave en todas sus conversaciones con Liseth</p>
+        </div>
+      </div>
+
+      <div class="search-input-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-query-input" placeholder="Escriba lo que desea buscar..." autocomplete="off" />
+      </div>
+
+      <div class="search-results-list" id="search-results-container">
+        <div class="search-empty-state">Ingrese al menos 2 caracteres para buscar en sus conversaciones pasadas.</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-search" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DASHBOARD DE SERVICIOS & CONECTORES -->
+  <div class="modal-overlay" id="dashboard-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-blue);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Dashboard de Servicios</h2>
+          <p>Estado de conectores, Google Workspace, redes y aplicaciones</p>
+        </div>
+      </div>
+
+      <div class="productivity-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+        <!-- Tarjeta Google Workspace -->
+        <div class="idea-card" style="cursor: default;">
+          <div class="idea-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <h4 style="margin: 0;">🌐 Google Workspace</h4>
+              <span id="google-status-pill" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(255, 92, 119, 0.2); color: #ff5c77;">Desconectado</span>
+            </div>
+            <p style="font-size: 0.78rem; line-height: 1.4;">Gmail, Calendar, Drive, Tasks, Docs, Sheets, Slides, Contacts & YouTube (28 acciones disponibles)</p>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <button class="btn-primary" id="btn-connect-google" style="padding: 5px 10px; font-size: 0.75rem;">Vincular OAuth 2.0</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta Meta WhatsApp -->
+        <div class="idea-card" style="cursor: default;">
+          <div class="idea-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <h4 style="margin: 0;">📱 WhatsApp Cloud API</h4>
+              <span id="wa-status-pill" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(37, 211, 102, 0.2); color: #38ef7d;">Listo / Webhook</span>
+            </div>
+            <p style="font-size: 0.78rem; line-height: 1.4;">Alertas proactivas, recordatorios y chat bidireccional</p>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <button class="btn-secondary" id="btn-test-wa" style="padding: 5px 10px; font-size: 0.75rem;">Probar Alerta</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta Telegram Bot -->
+        <div class="idea-card" style="cursor: default;">
+          <div class="idea-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <h4 style="margin: 0;">✈️ Telegram Bot</h4>
+              <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: rgba(0, 210, 255, 0.2); color: #00d2ff;">Gratis / Sin límites</span>
+            </div>
+            <p style="font-size: 0.78rem; line-height: 1.4;">Canal de alta disponibilidad sin ventanas de 24h</p>
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+              <button class="btn-secondary" id="btn-test-tg" style="padding: 5px 10px; font-size: 0.75rem;">Enviar Test</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-dashboard" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BRAIN ROUTER & MONITOR DE CONSUMO DE TOKENS -->
+  <div class="modal-overlay" id="brain-modal">
+    <div class="modal-card" style="max-width: 640px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-pink); border-color: rgba(255, 102, 170, 0.4); background: rgba(255, 102, 170, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"></path>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Cerebro IA & Monitor de Tokens</h2>
+          <p>Enrutador dual Gemini / Claude y análisis de consumo</p>
+        </div>
+      </div>
+
+      <!-- Selector de Cerebro Activo -->
+      <div class="section-title"><span>🧠 Cerebro en Ejecución</span></div>
+      <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+        <button class="btn-secondary active" id="btn-select-gemini" style="flex: 1; padding: 10px;">
+          ✨ Google Gemini (Primario)
+        </button>
+        <button class="btn-secondary" id="btn-select-claude" style="flex: 1; padding: 10px;">
+          🟣 Anthropic Claude (Respaldo)
+        </button>
+        <button class="btn-secondary" id="btn-select-auto" style="flex: 1; padding: 10px;">
+          ⚡ Automático (Failover)
+        </button>
+      </div>
+
+      <!-- Modelos Activos Configurados -->
+      <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px; background: rgba(0, 195, 255, 0.05); padding: 7px 12px; border-radius: 6px; border: 1px solid rgba(0, 195, 255, 0.2);">
+        <span>✨ Gemini: <strong id="model-gemini-name" style="color: #fff;">gemini-2.0-flash</strong></span>
+        <span>🟣 Claude: <strong id="model-claude-name" style="color: #fff;">claude-3-5-sonnet</strong></span>
+      </div>
+
+      <!-- Monitor de Tokens -->
+      <div class="section-title"><span>📊 Consumo de Tokens (usageMetadata / usage)</span></div>
+      <div class="storage-meter-box" style="margin-bottom: 14px;">
+        <div class="storage-meter-header">
+          <span>Consumo de Hoy:</span>
+          <span class="storage-meter-val" id="token-usage-today">0 / 100,000 Tokens</span>
+        </div>
+        <div class="storage-progress-bar">
+          <div class="storage-progress-fill" id="token-progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.82rem; margin-bottom: 12px;">
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
+          <div style="color: var(--text-muted);">Tokens Entrada (Hoy):</div>
+          <div id="stat-tokens-in" style="font-size: 1.1rem; color: #fff; font-weight: 600; font-family: var(--font-mono);">0</div>
+        </div>
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
+          <div style="color: var(--text-muted);">Tokens Salida (Hoy):</div>
+          <div id="stat-tokens-out" style="font-size: 1.1rem; color: #38ef7d; font-weight: 600; font-family: var(--font-mono);">0</div>
+        </div>
+      </div>
+
+      <!-- Estimación de Costes -->
+      <div class="section-title"><span>💵 Estimación de Costes (USD)</span></div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.82rem; margin-bottom: 6px;">
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
+          <div style="color: var(--text-muted);">Coste Hoy:</div>
+          <div id="stat-cost-today" style="font-size: 1.05rem; color: #ffd166; font-weight: 600; font-family: var(--font-mono);">$0.0000 USD</div>
+        </div>
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3);">
+          <div style="color: var(--text-muted);">Coste Mes:</div>
+          <div id="stat-cost-month" style="font-size: 1.05rem; color: #38ef7d; font-weight: 600; font-family: var(--font-mono);">$0.0000 USD</div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 12px; padding: 0 4px;">
+        <span>Gemini: <span id="stat-cost-gemini" style="color: #fff;">$0.0000</span></span>
+        <span>Claude: <span id="stat-cost-claude" style="color: #fff;">$0.0000</span></span>
+      </div>
+
+      <div id="token-limit-alert-box" style="display: none; margin-top: 10px; background: rgba(255, 77, 109, 0.15); border: 1px solid rgba(255, 77, 109, 0.5); border-radius: 8px; padding: 10px 12px; font-size: 0.82rem; color: #ff8fa3;">
+        <strong>🛑 Límite Diario Alcanzado:</strong> Las consultas se han detenido preventivamente para evitar costes adicionales. Puede aumentar el límite en su archivo .env (<code>DAILY_TOKEN_LIMIT</code>).
+      </div>
+
+      <div id="failover-alert-box" style="display: none; margin-top: 10px; background: rgba(255, 170, 0, 0.12); border: 1px solid rgba(255, 170, 0, 0.4); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; color: #ffd680;">
+        <strong>Aviso de Failover:</strong> Se activó conmutación automática de cerebro.
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-brain" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRO DE AUDITORÍA Y CONFIRMACIÓN DE ACCIONES SENSIBLES -->
+  <div class="modal-overlay" id="audit-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Auditoría & Acciones Sensibles</h2>
+          <p>Control de ejecuciones y autorizaciones de JARVIS</p>
+        </div>
+      </div>
+
+      <!-- Acciones Pendientes de Confirmación del Usuario -->
+      <div id="pending-confirmations-area">
+        <!-- Renderizado dinámico -->
+      </div>
+
+      <div class="section-title"><span>📜 Registro Histórico de Actividad</span></div>
+      <div class="conv-list-scroll" id="audit-log-container" style="max-height: 280px;">
+        <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">No hay registros de auditoría aún.</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-audit" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CENTRO DE CONTROL DE INTERFACES HUD (ESTILO FUTURISTA) -->
+  <div class="modal-overlay hud-modal-overlay" id="hud-interfaces-modal">
+    <div class="hud-deck-window">
+      <!-- Decoración angular de HUD militar / sci-fi -->
+      <div class="hud-corner-bracket top-left"></div>
+      <div class="hud-corner-bracket top-right"></div>
+      <div class="hud-corner-bracket bottom-left"></div>
+      <div class="hud-corner-bracket bottom-right"></div>
+
+      <!-- Encabezado holográfico -->
+      <div class="hud-header">
+        <div class="hud-header-title">
+          <h2>◈ NÚCLEO OPERATIVO • JARVIS OS v2.4</h2>
+          <p>Centro de Control Centralizado de Módulos, Automatización y Conectores</p>
+        </div>
+        <button class="hud-close-btn" id="btn-close-hud" title="Cerrar Centro de Control">✕</button>
+      </div>
+
+      <!-- Barra de telemetría en tiempo real -->
+      <div class="hud-telemetry-bar">
+        <div class="hud-telemetry-item">
+          <span>🧠 CEREBRO ACTIVO:</span>
+          <strong id="hud-telemetry-brain">Gemini 2.0 Flash</strong>
+        </div>
+        <div class="hud-telemetry-item">
+          <span>📊 TOKENS HOY:</span>
+          <strong id="hud-telemetry-tokens">0 / 100k</strong>
+        </div>
+        <div class="hud-telemetry-item">
+          <span>💵 COSTE ESTIMADO:</span>
+          <strong id="hud-telemetry-cost" style="color: #ffd166;">$0.0000 USD</strong>
+        </div>
+        <div class="hud-telemetry-item">
+          <span>⏱️ TAREAS CRON:</span>
+          <strong id="hud-telemetry-tasks">4 Activas</strong>
+        </div>
+        <div class="hud-telemetry-item">
+          <span>🛡️ SEGURIDAD:</span>
+          <strong style="color: #38ef7d;">SCRYPT • ACTIVA</strong>
+        </div>
+      </div>
+
+      <!-- Pestañas de filtrado de categorías -->
+      <div class="hud-filter-tabs">
+        <button class="hud-tab active" data-filter="all">TODOS (10)</button>
+        <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
+        <button class="hud-tab" data-filter="connectors">CONECTORES</button>
+        <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
+        <button class="hud-tab" data-filter="system">SISTEMA & MEMORIA</button>
+      </div>
+
+      <!-- Cuadrícula interactiva de módulos HUD con animación en cascada -->
+      <div class="hud-modules-grid" id="hud-modules-grid">
+        <!-- 1. Cerebro IA & Monitor de Tokens -->
+        <div class="hud-card" data-category="intelligence" id="hud-card-brain">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: var(--accent-pink); border-color: rgba(255, 102, 170, 0.4); background: rgba(255, 102, 170, 0.12);">🧠</div>
+            <span class="hud-card-status status-online">EN LÍNEA</span>
+          </div>
+          <div class="hud-card-title">Cerebro IA & Tokens</div>
+          <div class="hud-card-desc">Enrutador dual Gemini / Claude, límites diarios de cuota y desglose de costes en tiempo real.</div>
+          <div class="hud-card-action"><span>Abrir Módulo</span> <span>→</span></div>
+        </div>
+
+        <!-- 2. Ecosistema Google Workspace -->
+        <div class="hud-card" data-category="connectors" id="hud-card-google">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #00d2ff; border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.12);">🌐</div>
+            <span class="hud-card-status status-online">28 ACCIONES</span>
+          </div>
+          <div class="hud-card-title">Google Workspace</div>
+          <div class="hud-card-desc">Gmail, Calendar, Drive, Docs, Sheets, Slides, Tasks, Contacts y YouTube Data API.</div>
+          <div class="hud-card-action"><span>Gestionar Google</span> <span>→</span></div>
+        </div>
+
+        <!-- 3. Centro de Conexiones & Apps -->
+        <div class="hud-card" data-category="connectors" id="hud-card-services">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">📱</div>
+            <span class="hud-card-status status-standby">MULTI-CANAL</span>
+          </div>
+          <div class="hud-card-title">Servicios & Conexiones</div>
+          <div class="hud-card-desc">Canales de mensajería: Meta WhatsApp (ventana 24h), Telegram Bot interactivo y plugins.</div>
+          <div class="hud-card-action"><span>Ver Conexiones</span> <span>→</span></div>
+        </div>
+
+        <!-- 4. Programador de Tareas (TaskScheduler) -->
+        <div class="hud-card" data-category="automation" id="hud-card-scheduler">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.12);">⏱️</div>
+            <span class="hud-card-status status-online">PERSISTENTE</span>
+          </div>
+          <div class="hud-card-title">Programador de Tareas</div>
+          <div class="hud-card-desc">Cron persistente en data/: recordatorios, reportes de procesos, resumen matutino y alertas proactivas.</div>
+          <div class="hud-card-action"><span>Ver Programador</span> <span>→</span></div>
+        </div>
+
+        <!-- 5. Auditoría & Acciones Sensibles -->
+        <div class="hud-card" data-category="system" id="hud-card-audit">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #ffaa00; border-color: rgba(255, 170, 0, 0.4); background: rgba(255, 170, 0, 0.12);">🛡️</div>
+            <span class="hud-card-status status-online">SUPERVISIÓN</span>
+          </div>
+          <div class="hud-card-title">Auditoría & Seguridad</div>
+          <div class="hud-card-desc">Registro histórico de ejecuciones, confirmación obligatoria de acciones sensibles y control estricto.</div>
+          <div class="hud-card-action"><span>Ver Auditoría</span> <span>→</span></div>
+        </div>
+
+        <!-- 6. Estratega de Productividad -->
+        <div class="hud-card" data-category="automation" id="hud-card-productivity">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #00f2fe; border-color: rgba(0, 242, 254, 0.4); background: rgba(0, 242, 254, 0.12);">⚡</div>
+            <span class="hud-card-status status-online">FLUJOS IA</span>
+          </div>
+          <div class="hud-card-title">Estratega de Productividad</div>
+          <div class="hud-card-desc">Diseñador de rutinas diarias, scripts de automatización Windows, time-blocking y plantillas.</div>
+          <div class="hud-card-action"><span>Abrir Estratega</span> <span>→</span></div>
+        </div>
+
+        <!-- 7. Historial & Memoria a Largo Plazo -->
+        <div class="hud-card" data-category="system" id="hud-card-convs">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #9d4edd; border-color: rgba(157, 78, 221, 0.4); background: rgba(157, 78, 221, 0.12);">💾</div>
+            <span class="hud-card-status status-online">PERSISTENTE</span>
+          </div>
+          <div class="hud-card-title">Memoria & Conversaciones</div>
+          <div class="hud-card-desc">Gestor de conversaciones previas, copias de seguridad descargables y monitor de almacenamiento.</div>
+          <div class="hud-card-action"><span>Ver Memoria</span> <span>→</span></div>
+        </div>
+
+        <!-- 8. Búsqueda Neuronal -->
+        <div class="hud-card" data-category="system" id="hud-card-search">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #4cc9f0; border-color: rgba(76, 201, 240, 0.4); background: rgba(76, 201, 240, 0.12);">🔍</div>
+            <span class="hud-card-status status-online">INDEXADO</span>
+          </div>
+          <div class="hud-card-title">Búsqueda Neuronal</div>
+          <div class="hud-card-desc">Localizador inmediato de mensajes, ideas y respuestas pasadas en toda la base histórica.</div>
+          <div class="hud-card-action"><span>Buscar Charlas</span> <span>→</span></div>
+        </div>
+
+        <!-- 9. Perfil del Usuario -->
+        <div class="hud-card" data-category="system" id="hud-card-profile">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #f72585; border-color: rgba(247, 37, 133, 0.4); background: rgba(247, 37, 133, 0.12);">👤</div>
+            <span class="hud-card-status status-online">SANTIAGO</span>
+          </div>
+          <div class="hud-card-title">Perfil & Personalización</div>
+          <div class="hud-card-desc">Datos de Santiago, hechos clave recordados, profesión y directivas de comportamiento.</div>
+          <div class="hud-card-action"><span>Editar Perfil</span> <span>→</span></div>
+        </div>
+
+        <!-- 10. Ajustes del Sistema & Voz -->
+        <div class="hud-card" data-category="system" id="hud-card-settings">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #adb5bd; border-color: rgba(173, 181, 189, 0.4); background: rgba(173, 181, 189, 0.12);">⚙️</div>
+            <span class="hud-card-status status-online">CONFIG</span>
+          </div>
+          <div class="hud-card-title">Ajustes & Voz Humana</div>
+          <div class="hud-card-desc">Voz neuronal dulce de Liseth (Edge/ElevenLabs), velocidad, tono, llaves de API y red local.</div>
+          <div class="hud-card-action"><span>Configurar</span> <span>→</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROGRAMADOR DE TAREAS PERSISTENTE (TASK SCHEDULER) -->
+  <div class="modal-overlay" id="scheduler-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Programador de Tareas & Recordatorios</h2>
+          <p>Cron persistente en data/ y alertas proactivas a WhatsApp / Telegram</p>
+        </div>
+      </div>
+
+      <!-- Resumen de estado del Scheduler -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(18, 28, 48, 0.6); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(45, 90, 160, 0.3); font-size: 0.82rem;">
+        <div>
+          <span style="color: var(--text-muted);">Estado:</span>
+          <strong style="color: #38ef7d;">🟢 Motor CRON Activo</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">Tareas:</span>
+          <strong id="scheduler-task-count" style="color: #00d2ff;">4 registradas</strong>
+        </div>
+        <div>
+          <button class="btn-secondary" id="btn-refresh-scheduler" style="padding: 4px 10px; font-size: 0.74rem;">↻ Actualizar</button>
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas -->
+      <div class="section-title"><span>⚡ Acciones Inmediatas</span></div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-secondary" id="btn-trigger-morning-report" style="flex: 1; padding: 8px; font-size: 0.78rem;">
+          🌅 Disparar Resumen Matutino Ahora
+        </button>
+        <button class="btn-secondary" id="btn-trigger-calendar-check" style="flex: 1; padding: 8px; font-size: 0.78rem;">
+          📅 Verificar Próximos Eventos
+        </button>
+      </div>
+
+      <!-- Lista de Tareas Programadas -->
+      <div class="section-title"><span>📋 Tareas Programadas (data/scheduler_tasks.json)</span></div>
+      <div class="conv-list-scroll" id="scheduler-task-list" style="max-height: 290px; display: flex; flex-direction: column; gap: 8px;">
+        <!-- Se rellena dinámicamente -->
+        <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">Cargando tareas del programador...</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-scheduler" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AUTENTICACIÓN SEGURA CON PIN (SCRYPT) -->
+  <div class="modal-overlay" id="auth-modal" style="backdrop-filter: blur(12px); background: rgba(5, 10, 20, 0.92); z-index: 99999;">
+    <div class="modal-card" style="max-width: 400px; text-align: center; border-color: rgba(0, 210, 255, 0.4); box-shadow: 0 0 45px rgba(0, 210, 255, 0.25);">
+      <div style="margin: 0 auto 16px; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); color: var(--accent-blue);">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; color: #fff;">Acceso Seguro a JARVIS</h2>
+      <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 22px; line-height: 1.4;">Ingrese su PIN de seguridad personal configurado para desbloquear su asistente.</p>
+
+      <form id="auth-pin-form" onsubmit="return false;">
+        <div style="margin-bottom: 16px;">
+          <input type="password" id="auth-pin-input" placeholder="••••••" maxlength="12" autocomplete="current-password" inputmode="numeric" style="width: 100%; text-align: center; font-size: 1.6rem; letter-spacing: 6px; padding: 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(0, 210, 255, 0.35); border-radius: 12px; color: #fff; outline: none; transition: all 0.2s;" autofocus />
+        </div>
+        <div id="auth-error-msg" style="display: none; color: #ff5c77; font-size: 0.82rem; margin-bottom: 16px; padding: 10px; background: rgba(255, 92, 119, 0.12); border-radius: 8px; border: 1px solid rgba(255, 92, 119, 0.35); text-align: center;"></div>
+        <button type="submit" id="btn-auth-unlock" class="btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem; justify-content: center; font-weight: 600;">
+          Desbloquear Asistente
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Entrada Oculta para Importación de Memoria -->
+  <input type="file" id="import-memory-file" accept=".json" style="display: none;" />
+
+  <!-- Notificación Toast Flotante -->
+  <div class="liseth-toast" id="liseth-toast"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
