@@ -113,6 +113,19 @@ def check_dependencies():
         sys.exit(1)
 
 
+def find_available_port(preferred_port: int, host: str = "127.0.0.1") -> int:
+    """Autonomously finds an open port if preferred port is in use."""
+    candidates = [preferred_port, 3001, 3002, 8000, 8080]
+    for port in candidates:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((host, port))
+                return port
+        except OSError:
+            continue
+    return preferred_port
+
+
 def main():
     parser = argparse.ArgumentParser(description="Lanzador de JARVIS / Liseth")
     parser.add_argument("--desktop", action="store_true", help="Abrir como aplicación nativa de escritorio")
@@ -127,7 +140,11 @@ def main():
     from app.config import settings
 
     host = args.host or settings.HOST
-    port = args.port or settings.PORT
+    requested_port = args.port or settings.PORT
+    port = find_available_port(requested_port, host)
+    if port != requested_port:
+        print(f"[!] Puerto {requested_port} ocupado. Conmutando autónomamente al puerto {port}...")
+
     lan_ip = get_local_lan_ip()
 
     banner = f"""

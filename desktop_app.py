@@ -7,21 +7,35 @@ import sys
 import threading
 import time
 import uvicorn
+import socket
 import webview
 from app.config import settings
+
+def find_available_port(preferred_port: int, host: str = "127.0.0.1") -> int:
+    candidates = [preferred_port, 3001, 3002, 8000, 8080]
+    for port in candidates:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((host, port))
+                return port
+        except OSError:
+            continue
+    return preferred_port
+
+ACTIVE_PORT = find_available_port(settings.PORT)
 
 def start_backend():
     """Starts the FastAPI backend inside a background thread."""
     uvicorn.run(
         "app.main:app",
         host="127.0.0.1",
-        port=settings.PORT,
+        port=ACTIVE_PORT,
         log_level="warning",
         access_log=False,
     )
 
 def main():
-    print(f"[*] Iniciando backend de Liseth en http://127.0.0.1:{settings.PORT}...")
+    print(f"[*] Iniciando backend de Liseth en http://127.0.0.1:{ACTIVE_PORT}...")
     backend_thread = threading.Thread(target=start_backend, daemon=True)
     backend_thread.start()
 
@@ -35,7 +49,7 @@ def main():
     print("[*] Abriendo ventana nativa de escritorio...")
     window = webview.create_window(
         title="Liseth — Asistente Personal de Santiago",
-        url=f"http://127.0.0.1:{settings.PORT}",
+        url=f"http://127.0.0.1:{ACTIVE_PORT}",
         width=1280,
         height=850,
         min_size=(900, 600),
