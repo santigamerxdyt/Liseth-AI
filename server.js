@@ -34,6 +34,7 @@ const BrainRouter = require('./lib/ai/BrainRouter');
 const GoogleWorkspaceConnector = require('./lib/connectors/GoogleWorkspaceConnector');
 const AuditManager = require('./lib/audit/AuditManager');
 const NotificationManager = require('./lib/notifications/NotificationManager');
+const TaskScheduler = require('./lib/scheduler/TaskScheduler');
 const Auth = require('./lib/auth');
 
 // VALIDACIÓN DE SEGURIDAD ESTRICTA (Requisito 2: No arrancar con valores por defecto)
@@ -539,9 +540,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   // --- MIDDLEWARE DE PROTECCIÓN PARA TODAS LAS RUTAS /api/* ---
-  // Excepciones públicas: /api/auth/* y verificación webhook de Meta WhatsApp
-  const isPublicApi = pathname.startsWith('/api/auth/') ||
-                      (pathname === '/api/webhook/whatsapp' && method === 'GET');
+  // Excepciones públicas: /api/auth/* y webhooks de mensajería (/api/webhook/*)
+  const isPublicApi = pathname.startsWith('/api/auth/') || pathname.startsWith('/api/webhook/');
 
   if (pathname.startsWith('/api') && !isPublicApi) {
     const cookies = Auth.parseCookies(req);
@@ -1017,18 +1017,70 @@ const server = http.createServer(async (req, res) => {
         const from = message.from;
         const userMsg = message.text.body;
         console.log(`[WhatsApp Recibido de ${from}]: ${userMsg}`);
-        // Procesar con BrainRouter y responder
+
+        // Registrar timestamp de mensaje entrante para activar la ventana de 24h de Meta
+        NotificationManager.recordIncomingWhatsApp(from);
+
+        // Procesar con BrainRouter y responder en el mismo canal
         const aiRes = await BrainRouter.generateResponse({
-          systemInstruction: 'Eres Liseth, asistente personal en WhatsApp. Sé concisa y resolutiva.',
+          systemInstruction: 'Eres Liseth, asistente personal en WhatsApp de Santiago Huerfano Lopez. Sé concisa, cálida y resolutiva.',
           contents: [{ role: 'user', parts: [{ text: userMsg }] }]
         });
         if (aiRes.text) {
-          await NotificationManager.sendWhatsApp(aiRes.text);
+          await NotificationManager.sendWhatsApp(aiRes.text, from);
         }
       }
       return sendJson(res, 200, { status: 'EVENT_RECEIVED' });
     } catch (e) {
       return sendJson(res, 200, { status: 'PROCESSED_WITH_WARNING' });
+    }
+  }
+
+  // --- 5. PROGRAMADOR DE TAREAS PERSISTENTE (TaskScheduler) ---
+  if (pathname === '/api/scheduler/tasks' && method === 'GET') {
+    return sendJson(res, 200, {
+      tasks: TaskScheduler.listTasks()
+    }, {}, req);
+  }
+
+  if (pathname === '/api/scheduler/tasks' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const created = TaskScheduler.createTask(body);
+      return sendJson(res, 200, { ok: true, task: created }, {}, req);
+    } catch (e) {
+      return sendJson(res, 400, { error: e.message }, {}, req);
+    }
+  }
+
+  if (pathname === '/api/scheduler/tasks/update' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const updated = TaskScheduler.updateTask(body.id, body.updates || body);
+      if (!updated) return sendJson(res, 404, { error: 'Tarea no encontrada' }, {}, req);
+      return sendJson(res, 200, { ok: true, task: updated }, {}, req);
+    } catch (e) {
+      return sendJson(res, 400, { error: e.message }, {}, req);
+    }
+  }
+
+  if (pathname === '/api/scheduler/tasks/delete' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const success = TaskScheduler.deleteTask(body.id);
+      return sendJson(res, 200, { ok: success }, {}, req);
+    } catch (e) {
+      return sendJson(res, 400, { error: e.message }, {}, req);
+    }
+  }
+
+  if (pathname === '/api/scheduler/tasks/trigger' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const triggered = await TaskScheduler.triggerTask(body.id);
+      return sendJson(res, 200, { ok: true, task: triggered }, {}, req);
+    } catch (e) {
+      return sendJson(res, 400, { error: e.message }, {}, req);
     }
   }
 
@@ -1218,6 +1270,10 @@ const initialDb = readDatabase();
 if (initialDb && initialDb.google_tokens) {
   GoogleWorkspaceConnector.loadEncryptedTokens(initialDb.google_tokens);
 }
+
+// Iniciar servicios en segundo plano: TaskScheduler y Bot de Telegram
+TaskScheduler.start();
+NotificationManager.startTelegramBot();
 
 server.listen(PORT, HOST, () => {
   const localIPs = getLocalNetworkIPs();
