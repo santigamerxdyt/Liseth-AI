@@ -1,33 +1,34 @@
 @echo off
-chcp 65001 >nul
-title Liseth — Asistente Inteligente de Santiago
+setlocal
 cd /d "%~dp0"
+title Liseth - Asistente Personal
+cls
 
 echo =====================================================================
-echo                 LISETH — ASISTENTE INTELIGENTE
+echo                 LISETH - ASISTENTE INTELIGENTE
 echo                      Arquitectura Python 2.0
 echo =====================================================================
 echo.
 
-:: 1. Verificar si Python está instalado
+:: 1. Verificar si Python esta instalado
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] No se encontró Python en el sistema.
-    echo Por favor instala Python 3.10 o superior y márcalo en el PATH.
+    echo [ERROR] No se encontro Python en el sistema.
+    echo Por favor instala Python 3.10 o superior y marcalo en el PATH.
     pause
     exit /b 1
 )
 
-:: 2. Preguntar o usar selección automática con temporizador
-echo Selecciona cómo deseas iniciar a Liseth:
+:: 2. Preguntar o usar seleccion automatica con temporizador
+echo Selecciona como deseas iniciar a Liseth:
 echo.
 echo   [1] Modo Ventana Nativa de Escritorio (App independiente)
-echo   [2] Modo Servidor Web + Celular PWA (Abre tu navegador)
+echo   [2] Modo Servidor Web (Abre tu navegador)
 echo   [3] Ejecutar pruebas del sistema (pytest)
 echo.
 echo Presiona 1, 2 o 3 (o espera 5 segundos para Modo Escritorio):
 
-choice /c 123 /n /t 5 /d 1 /m "Tu opción [1, 2 o 3]: "
+choice /c 123 /n /t 5 /d 1 /m "Tu opcion [1, 2 o 3]: "
 set OP=%errorlevel%
 
 echo.
@@ -42,7 +43,7 @@ goto FIN
 
 :MODO_WEB
 echo [*] Iniciando servidor web de Liseth...
-start "" "http://127.0.0.1:3000"
+start http://127.0.0.1:3000
 python run.py
 goto FIN
 
@@ -55,4 +56,5 @@ pause >nul
 goto FIN
 
 :FIN
+endlocal
 exit /b 0
