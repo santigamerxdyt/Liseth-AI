@@ -1334,6 +1334,414 @@
       letter-spacing: 0.02em;
     }
 
+    /* ========================================================
+       HUD DECK & INTERFACES FUTURISTAS
+       ======================================================== */
+    .hud-deck-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.16), rgba(10, 71, 163, 0.3));
+      border: 1px solid rgba(0, 210, 255, 0.55);
+      color: #ffffff;
+      font-family: var(--font-title);
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 16px rgba(0, 210, 255, 0.25), inset 0 0 10px rgba(0, 210, 255, 0.12);
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .hud-deck-btn:hover {
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.32), rgba(255, 102, 170, 0.28));
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 25px rgba(0, 210, 255, 0.5), inset 0 0 16px rgba(0, 210, 255, 0.25);
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    .hud-deck-btn .hud-deck-icon {
+      display: flex;
+      align-items: center;
+      color: var(--accent-blue);
+      filter: drop-shadow(0 0 4px var(--accent-blue));
+    }
+
+    .hud-deck-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #38ef7d;
+      box-shadow: 0 0 8px #38ef7d;
+      animation: hudDotPulse 1.8s infinite;
+    }
+
+    @keyframes hudDotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.6; }
+    }
+
+    /* HUD Modal Overlay */
+    .hud-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 6, 14, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .hud-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .hud-deck-window {
+      background: radial-gradient(circle at 50% 0%, rgba(14, 28, 56, 0.95), rgba(7, 12, 24, 0.98));
+      border: 1px solid rgba(0, 210, 255, 0.45);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 26px 28px;
+      position: relative;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.85),
+        0 0 50px rgba(0, 210, 255, 0.2),
+        inset 0 0 30px rgba(0, 210, 255, 0.05);
+      transform: scale(0.94) translateY(15px);
+      transition: transform 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.2);
+    }
+
+    .hud-modal-overlay.active .hud-deck-window {
+      transform: scale(1) translateY(0);
+    }
+
+    /* Brackets Holográficos en las esquinas */
+    .hud-corner-bracket {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-color: var(--accent-blue);
+      pointer-events: none;
+    }
+    .hud-bracket-tl { top: -1px; left: -1px; border-top: 3px solid; border-left: 3px solid; border-top-left-radius: 12px; }
+    .hud-bracket-tr { top: -1px; right: -1px; border-top: 3px solid; border-right: 3px solid; border-top-right-radius: 12px; }
+    .hud-bracket-bl { bottom: -1px; left: -1px; border-bottom: 3px solid; border-left: 3px solid; border-bottom-left-radius: 12px; }
+    .hud-bracket-br { bottom: -1px; right: -1px; border-bottom: 3px solid; border-right: 3px solid; border-bottom-right-radius: 12px; }
+
+    .hud-deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .hud-deck-badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: #38ef7d;
+      font-family: var(--font-mono);
+      margin-bottom: 4px;
+    }
+
+    .hud-pulse-ring {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #38ef7d;
+      box-shadow: 0 0 8px #38ef7d;
+    }
+
+    .hud-main-title {
+      font-family: var(--font-title);
+      font-size: 1.28rem;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-shadow: 0 0 16px rgba(0, 210, 255, 0.4);
+    }
+
+    .hud-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .hud-close-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .hud-close-btn:hover {
+      background: rgba(255, 77, 109, 0.2);
+      border-color: #ff4d6d;
+      color: #fff;
+    }
+
+    /* Barra de Telemetría Dinámica */
+    .hud-telemetry-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 18, 36, 0.75);
+      border: 1px solid rgba(0, 210, 255, 0.25);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin: 16px 0 18px;
+    }
+
+    .hud-telemetry-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-telemetry-val {
+      color: #ffffff;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    /* Filtros por Categoría */
+    .hud-filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .hud-tab-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      border-radius: 18px;
+      padding: 6px 14px;
+      font-size: 0.74rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .hud-tab-btn:hover, .hud-tab-btn.active {
+      background: rgba(0, 210, 255, 0.16);
+      border-color: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.25);
+    }
+
+    /* Grid de Tarjetas de Módulos */
+    .hud-modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .hud-card {
+      background: rgba(12, 22, 42, 0.75);
+      border: 1px solid rgba(45, 90, 160, 0.4);
+      border-radius: 14px;
+      padding: 18px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .hud-modal-overlay.active .hud-card {
+      animation: hudCardDeploy 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    }
+
+    .hud-card:nth-child(1) { animation-delay: 0.03s; }
+    .hud-card:nth-child(2) { animation-delay: 0.06s; }
+    .hud-card:nth-child(3) { animation-delay: 0.09s; }
+    .hud-card:nth-child(4) { animation-delay: 0.12s; }
+    .hud-card:nth-child(5) { animation-delay: 0.15s; }
+    .hud-card:nth-child(6) { animation-delay: 0.18s; }
+    .hud-card:nth-child(7) { animation-delay: 0.21s; }
+    .hud-card:nth-child(8) { animation-delay: 0.24s; }
+    .hud-card:nth-child(9) { animation-delay: 0.27s; }
+    .hud-card:nth-child(10) { animation-delay: 0.30s; }
+
+    @keyframes hudCardDeploy {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .hud-card:hover {
+      border-color: var(--accent-blue);
+      background: rgba(18, 34, 66, 0.88);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 24px rgba(0, 210, 255, 0.3);
+    }
+
+    .hud-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.08), transparent);
+      transition: left 0.6s ease;
+      pointer-events: none;
+    }
+
+    .hud-card:hover::before {
+      left: 100%;
+    }
+
+    .hud-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .hud-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .hud-card-category {
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      opacity: 0.7;
+    }
+
+    .hud-card-title {
+      font-family: var(--font-title);
+      font-size: 1.05rem;
+      color: #ffffff;
+      margin-bottom: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .hud-card-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 14px;
+      flex-grow: 1;
+    }
+
+    .hud-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 10px;
+      font-size: 0.75rem;
+    }
+
+    .hud-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+
+    .hud-card-action {
+      color: var(--accent-blue);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: gap 0.2s ease;
+    }
+
+    .hud-card:hover .hud-card-action {
+      gap: 7px;
+      color: var(--accent-pink);
+    }
+
+    /* Tareas del Scheduler */
+    .scheduler-task-card {
+      background: rgba(14, 24, 44, 0.65);
+      border: 1px solid rgba(45, 90, 160, 0.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .scheduler-task-card:hover {
+      border-color: rgba(0, 210, 255, 0.4);
+      background: rgba(18, 30, 56, 0.8);
+    }
+
+    .scheduler-task-info h4 {
+      font-size: 0.88rem;
+      color: #ffffff;
+      margin-bottom: 2px;
+      font-family: var(--font-title);
+    }
+
+    .scheduler-task-meta {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .scheduler-task-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
     /* Modales Globales */
     .modal-overlay {
       position: fixed;
@@ -2077,82 +2485,11 @@
       </div>
 
       <div class="top-actions">
-        <!-- Botón Bloquear Sesión (PIN) -->
-        <button class="icon-btn" id="btn-session-lock" title="Bloquear Sesión (PIN)">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-        </button>
-
-        <!-- Botón Dashboard de Servicios (Conectores Google / Apps) -->
-        <button class="icon-btn" id="btn-services-dashboard" title="Dashboard de Servicios y Conexiones">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-        </button>
-
-        <!-- Botón BrainRouter & Monitor de Tokens -->
-        <button class="icon-btn" id="btn-brain-router" title="Cerebro IA (Gemini / Claude) & Monitor de Tokens">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"></path>
-            <circle cx="9" cy="13" r="1"></circle>
-            <circle cx="15" cy="13" r="1"></circle>
-          </svg>
-        </button>
-
-        <!-- Botón Registro de Auditoría y Acciones Sensibles -->
-        <button class="icon-btn" id="btn-audit-logs" title="Registro de Auditoría & Confirmaciones">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-        </button>
-
-        <!-- Botón Historial de Conversaciones (Sistema de Memoria) -->
-        <button class="icon-btn" id="btn-conv-list" title="Historial de Conversaciones">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
-        </button>
-
-        <!-- Botón Buscar en Conversaciones -->
-        <button class="icon-btn" id="btn-search-convs" title="Buscar en todas las conversaciones">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
-
-        <!-- Botón Perfil de Usuario -->
-        <button class="icon-btn" id="btn-user-profile" title="Mi Perfil • Santiago">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-        </button>
-
-        <!-- Botón Productividad & Automatización -->
-        <button class="icon-btn" id="btn-productivity" title="Estratega de Productividad & Automatización">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
-        </button>
-
-        <!-- Botón Ecosistema Google (Gmail, Calendar, Tasks) -->
-        <button class="icon-btn" id="btn-google" title="Ecosistema Google (Gmail, Calendar, Meet)">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
+        <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES -->
+        <button class="hud-deck-btn" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (HUD)">
+          <span class="hud-deck-icon">◈</span>
+          <span>MÓDULOS DEL SISTEMA</span>
+          <span class="hud-deck-badge">HUD</span>
         </button>
 
         <!-- Botón de Voz Dulce de Liseth (Activar/Silenciar) -->
@@ -2177,13 +2514,26 @@
           </svg>
         </button>
 
-        <!-- Botón Configuración General -->
-        <button class="icon-btn" id="btn-settings" title="Ajustes (Voces humanas, Gemini, Red, WhatsApp)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        <!-- Botón Bloquear Sesión (PIN) -->
+        <button class="icon-btn" id="btn-session-lock" title="Bloquear Sesión (PIN)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
         </button>
+
+        <!-- CONTENEDOR OCULTO DE BOTONES LEGACY (Mantiene compatibilidad de eventos DOM intacta) -->
+        <div style="display: none !important;">
+          <button class="icon-btn" id="btn-services-dashboard"></button>
+          <button class="icon-btn" id="btn-brain-router"></button>
+          <button class="icon-btn" id="btn-audit-logs"></button>
+          <button class="icon-btn" id="btn-conv-list"></button>
+          <button class="icon-btn" id="btn-search-convs"></button>
+          <button class="icon-btn" id="btn-user-profile"></button>
+          <button class="icon-btn" id="btn-productivity"></button>
+          <button class="icon-btn" id="btn-google"></button>
+          <button class="icon-btn" id="btn-settings"></button>
+        </div>
       </div>
     </div>
 
@@ -2881,6 +3231,227 @@
 
       <div class="modal-actions">
         <button class="btn-secondary" id="btn-close-audit" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CENTRO DE CONTROL DE INTERFACES HUD (ESTILO FUTURISTA) -->
+  <div class="modal-overlay hud-modal-overlay" id="hud-interfaces-modal">
+    <div class="hud-deck-window">
+      <!-- Decoración angular de HUD militar / sci-fi -->
+      <div class="hud-corner-bracket top-left"></div>
+      <div class="hud-corner-bracket top-right"></div>
+      <div class="hud-corner-bracket bottom-left"></div>
+      <div class="hud-corner-bracket bottom-right"></div>
+
+      <!-- Encabezado holográfico -->
+      <div class="hud-header">
+        <div class="hud-header-title">
+          <h2>◈ NÚCLEO OPERATIVO • JARVIS OS v2.4</h2>
+          <p>Centro de Control Centralizado de Módulos, Automatización y Conectores</p>
+        </div>
+        <button class="hud-close-btn" id="btn-close-hud" title="Cerrar Centro de Control">✕</button>
+      </div>
+
+      <!-- Barra de telemetría en tiempo real -->
+      <div class="hud-telemetry-bar">
+        <div class="hud-telemetry-item">
+          <span>🧠 CEREBRO ACTIVO:</span>
+          <strong id="hud-telemetry-brain">Gemini 2.0 Flash</strong>
+        </div>
+        <div class="hud-telemetry-item">
+          <span>📊 TOKENS HOY:</span>
+          <strong id="hud-telemetry-tokens">0 / 100k</strong>
+        </div>
+        <div class="hud-telemetry-item">
+          <span>💵 COSTE ESTIMADO:</span>
+          <strong id="hud-telemetry-cost" style="color: #ffd166;">$0.0000 USD</strong>
+        </div>
+        <div class="hud-telemetry-item">
+          <span>⏱️ TAREAS CRON:</span>
+          <strong id="hud-telemetry-tasks">4 Activas</strong>
+        </div>
+        <div class="hud-telemetry-item">
+          <span>🛡️ SEGURIDAD:</span>
+          <strong style="color: #38ef7d;">SCRYPT • ACTIVA</strong>
+        </div>
+      </div>
+
+      <!-- Pestañas de filtrado de categorías -->
+      <div class="hud-filter-tabs">
+        <button class="hud-tab active" data-filter="all">TODOS (10)</button>
+        <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
+        <button class="hud-tab" data-filter="connectors">CONECTORES</button>
+        <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
+        <button class="hud-tab" data-filter="system">SISTEMA & MEMORIA</button>
+      </div>
+
+      <!-- Cuadrícula interactiva de módulos HUD con animación en cascada -->
+      <div class="hud-modules-grid" id="hud-modules-grid">
+        <!-- 1. Cerebro IA & Monitor de Tokens -->
+        <div class="hud-card" data-category="intelligence" id="hud-card-brain">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: var(--accent-pink); border-color: rgba(255, 102, 170, 0.4); background: rgba(255, 102, 170, 0.12);">🧠</div>
+            <span class="hud-card-status status-online">EN LÍNEA</span>
+          </div>
+          <div class="hud-card-title">Cerebro IA & Tokens</div>
+          <div class="hud-card-desc">Enrutador dual Gemini / Claude, límites diarios de cuota y desglose de costes en tiempo real.</div>
+          <div class="hud-card-action"><span>Abrir Módulo</span> <span>→</span></div>
+        </div>
+
+        <!-- 2. Ecosistema Google Workspace -->
+        <div class="hud-card" data-category="connectors" id="hud-card-google">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #00d2ff; border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.12);">🌐</div>
+            <span class="hud-card-status status-online">28 ACCIONES</span>
+          </div>
+          <div class="hud-card-title">Google Workspace</div>
+          <div class="hud-card-desc">Gmail, Calendar, Drive, Docs, Sheets, Slides, Tasks, Contacts y YouTube Data API.</div>
+          <div class="hud-card-action"><span>Gestionar Google</span> <span>→</span></div>
+        </div>
+
+        <!-- 3. Centro de Conexiones & Apps -->
+        <div class="hud-card" data-category="connectors" id="hud-card-services">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">📱</div>
+            <span class="hud-card-status status-standby">MULTI-CANAL</span>
+          </div>
+          <div class="hud-card-title">Servicios & Conexiones</div>
+          <div class="hud-card-desc">Canales de mensajería: Meta WhatsApp (ventana 24h), Telegram Bot interactivo y plugins.</div>
+          <div class="hud-card-action"><span>Ver Conexiones</span> <span>→</span></div>
+        </div>
+
+        <!-- 4. Programador de Tareas (TaskScheduler) -->
+        <div class="hud-card" data-category="automation" id="hud-card-scheduler">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.12);">⏱️</div>
+            <span class="hud-card-status status-online">PERSISTENTE</span>
+          </div>
+          <div class="hud-card-title">Programador de Tareas</div>
+          <div class="hud-card-desc">Cron persistente en data/: recordatorios, reportes de procesos, resumen matutino y alertas proactivas.</div>
+          <div class="hud-card-action"><span>Ver Programador</span> <span>→</span></div>
+        </div>
+
+        <!-- 5. Auditoría & Acciones Sensibles -->
+        <div class="hud-card" data-category="system" id="hud-card-audit">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #ffaa00; border-color: rgba(255, 170, 0, 0.4); background: rgba(255, 170, 0, 0.12);">🛡️</div>
+            <span class="hud-card-status status-online">SUPERVISIÓN</span>
+          </div>
+          <div class="hud-card-title">Auditoría & Seguridad</div>
+          <div class="hud-card-desc">Registro histórico de ejecuciones, confirmación obligatoria de acciones sensibles y control estricto.</div>
+          <div class="hud-card-action"><span>Ver Auditoría</span> <span>→</span></div>
+        </div>
+
+        <!-- 6. Estratega de Productividad -->
+        <div class="hud-card" data-category="automation" id="hud-card-productivity">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #00f2fe; border-color: rgba(0, 242, 254, 0.4); background: rgba(0, 242, 254, 0.12);">⚡</div>
+            <span class="hud-card-status status-online">FLUJOS IA</span>
+          </div>
+          <div class="hud-card-title">Estratega de Productividad</div>
+          <div class="hud-card-desc">Diseñador de rutinas diarias, scripts de automatización Windows, time-blocking y plantillas.</div>
+          <div class="hud-card-action"><span>Abrir Estratega</span> <span>→</span></div>
+        </div>
+
+        <!-- 7. Historial & Memoria a Largo Plazo -->
+        <div class="hud-card" data-category="system" id="hud-card-convs">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #9d4edd; border-color: rgba(157, 78, 221, 0.4); background: rgba(157, 78, 221, 0.12);">💾</div>
+            <span class="hud-card-status status-online">PERSISTENTE</span>
+          </div>
+          <div class="hud-card-title">Memoria & Conversaciones</div>
+          <div class="hud-card-desc">Gestor de conversaciones previas, copias de seguridad descargables y monitor de almacenamiento.</div>
+          <div class="hud-card-action"><span>Ver Memoria</span> <span>→</span></div>
+        </div>
+
+        <!-- 8. Búsqueda Neuronal -->
+        <div class="hud-card" data-category="system" id="hud-card-search">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #4cc9f0; border-color: rgba(76, 201, 240, 0.4); background: rgba(76, 201, 240, 0.12);">🔍</div>
+            <span class="hud-card-status status-online">INDEXADO</span>
+          </div>
+          <div class="hud-card-title">Búsqueda Neuronal</div>
+          <div class="hud-card-desc">Localizador inmediato de mensajes, ideas y respuestas pasadas en toda la base histórica.</div>
+          <div class="hud-card-action"><span>Buscar Charlas</span> <span>→</span></div>
+        </div>
+
+        <!-- 9. Perfil del Usuario -->
+        <div class="hud-card" data-category="system" id="hud-card-profile">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #f72585; border-color: rgba(247, 37, 133, 0.4); background: rgba(247, 37, 133, 0.12);">👤</div>
+            <span class="hud-card-status status-online">SANTIAGO</span>
+          </div>
+          <div class="hud-card-title">Perfil & Personalización</div>
+          <div class="hud-card-desc">Datos de Santiago, hechos clave recordados, profesión y directivas de comportamiento.</div>
+          <div class="hud-card-action"><span>Editar Perfil</span> <span>→</span></div>
+        </div>
+
+        <!-- 10. Ajustes del Sistema & Voz -->
+        <div class="hud-card" data-category="system" id="hud-card-settings">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #adb5bd; border-color: rgba(173, 181, 189, 0.4); background: rgba(173, 181, 189, 0.12);">⚙️</div>
+            <span class="hud-card-status status-online">CONFIG</span>
+          </div>
+          <div class="hud-card-title">Ajustes & Voz Humana</div>
+          <div class="hud-card-desc">Voz neuronal dulce de Liseth (Edge/ElevenLabs), velocidad, tono, llaves de API y red local.</div>
+          <div class="hud-card-action"><span>Configurar</span> <span>→</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROGRAMADOR DE TAREAS PERSISTENTE (TASK SCHEDULER) -->
+  <div class="modal-overlay" id="scheduler-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Programador de Tareas & Recordatorios</h2>
+          <p>Cron persistente en data/ y alertas proactivas a WhatsApp / Telegram</p>
+        </div>
+      </div>
+
+      <!-- Resumen de estado del Scheduler -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(18, 28, 48, 0.6); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(45, 90, 160, 0.3); font-size: 0.82rem;">
+        <div>
+          <span style="color: var(--text-muted);">Estado:</span>
+          <strong style="color: #38ef7d;">🟢 Motor CRON Activo</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">Tareas:</span>
+          <strong id="scheduler-task-count" style="color: #00d2ff;">4 registradas</strong>
+        </div>
+        <div>
+          <button class="btn-secondary" id="btn-refresh-scheduler" style="padding: 4px 10px; font-size: 0.74rem;">↻ Actualizar</button>
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas -->
+      <div class="section-title"><span>⚡ Acciones Inmediatas</span></div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-secondary" id="btn-trigger-morning-report" style="flex: 1; padding: 8px; font-size: 0.78rem;">
+          🌅 Disparar Resumen Matutino Ahora
+        </button>
+        <button class="btn-secondary" id="btn-trigger-calendar-check" style="flex: 1; padding: 8px; font-size: 0.78rem;">
+          📅 Verificar Próximos Eventos
+        </button>
+      </div>
+
+      <!-- Lista de Tareas Programadas -->
+      <div class="section-title"><span>📋 Tareas Programadas (data/scheduler_tasks.json)</span></div>
+      <div class="conv-list-scroll" id="scheduler-task-list" style="max-height: 290px; display: flex; flex-direction: column; gap: 8px;">
+        <!-- Se rellena dinámicamente -->
+        <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">Cargando tareas del programador...</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-scheduler" type="button">Cerrar</button>
       </div>
     </div>
   </div>
@@ -5326,6 +5897,317 @@ Tus habilidades clave:
               }
             }
           } catch(e) {}
+        }
+
+        // --- SISTEMA HUD FUTURISTA DE INTERFACES & SCHEDULER ---
+        setupHudDeckAndScheduler();
+
+        function setupHudDeckAndScheduler() {
+          const btnHudMenu = document.getElementById("btn-hud-menu");
+          const hudModal = document.getElementById("hud-interfaces-modal");
+          const btnCloseHud = document.getElementById("btn-close-hud");
+
+          // Sintetizador Web Audio API para efectos de sonido HUD
+          function playHudSound(type) {
+            try {
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              if (!AudioCtx) return;
+              const ctx = new AudioCtx();
+              const now = ctx.currentTime;
+
+              if (type === "open") {
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc1.type = "sine";
+                osc2.type = "triangle";
+                osc1.frequency.setValueAtTime(440, now);
+                osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+                osc1.frequency.exponentialRampToValueAtTime(1320, now + 0.24);
+                osc2.frequency.setValueAtTime(220, now);
+                osc2.frequency.exponentialRampToValueAtTime(660, now + 0.24);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(ctx.destination);
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.35);
+                osc2.stop(now + 0.35);
+              } else if (type === "click") {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(980, now);
+                osc.frequency.exponentialRampToValueAtTime(1400, now + 0.06);
+                gain.gain.setValueAtTime(0.06, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+              } else if (type === "close") {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(880, now);
+                osc.frequency.exponentialRampToValueAtTime(320, now + 0.15);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.18);
+              }
+            } catch(e) {}
+          }
+
+          async function updateHudTelemetry() {
+            try {
+              const bRes = await fetch("/api/brain/status");
+              if (bRes.ok) {
+                const bData = await bRes.json();
+                const elBrain = document.getElementById("hud-telemetry-brain");
+                if (elBrain) {
+                  const bName = bData.forcedBrain || bData.activeBrain || "gemini";
+                  const modelName = bData.models ? (bData.models[bName] || bName) : bName;
+                  elBrain.textContent = `${bName.toUpperCase()} (${modelName})`;
+                }
+                const todayTokens = (bData.stats?.today?.input || 0) + (bData.stats?.today?.output || 0);
+                const limit = bData.limits?.dailyTokenLimit || 100000;
+                const elTok = document.getElementById("hud-telemetry-tokens");
+                if (elTok) elTok.textContent = `${todayTokens.toLocaleString()} / ${(limit/1000).toFixed(0)}k`;
+                const elCost = document.getElementById("hud-telemetry-cost");
+                if (elCost) elCost.textContent = `$${(bData.costs?.todayUSD || 0).toFixed(4)} USD`;
+              }
+            } catch(e) {}
+
+            try {
+              const sRes = await fetch("/api/scheduler/tasks");
+              if (sRes.ok) {
+                const sData = await sRes.json();
+                const elTasks = document.getElementById("hud-telemetry-tasks");
+                if (elTasks && Array.isArray(sData.tasks)) {
+                  elTasks.textContent = `${sData.tasks.filter(t => t.enabled).length} Activas`;
+                }
+              }
+            } catch(e) {}
+          }
+
+          if (btnHudMenu && hudModal) {
+            btnHudMenu.addEventListener("click", () => {
+              playHudSound("open");
+              hudModal.classList.add("active");
+              updateHudTelemetry();
+            });
+          }
+
+          if (btnCloseHud && hudModal) {
+            btnCloseHud.addEventListener("click", () => {
+              playHudSound("close");
+              hudModal.classList.remove("active");
+            });
+          }
+
+          // Filtro por pestañas de categoría en el HUD
+          const hudTabs = document.querySelectorAll(".hud-filter-tabs .hud-tab");
+          const hudCards = document.querySelectorAll(".hud-modules-grid .hud-card");
+
+          hudTabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+              playHudSound("click");
+              hudTabs.forEach(t => t.classList.remove("active"));
+              tab.classList.add("active");
+              const filter = tab.getAttribute("data-filter");
+
+              hudCards.forEach(card => {
+                const cat = card.getAttribute("data-category");
+                if (filter === "all" || cat === filter) {
+                  card.style.display = "flex";
+                  card.style.animation = "none";
+                  void card.offsetWidth;
+                  card.style.animation = "hudCardDeploy 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards";
+                } else {
+                  card.style.display = "none";
+                }
+              });
+            });
+          });
+
+          // Enlace de cada tarjeta a su interfaz correspondiente
+          function bindHudCard(cardId, targetModalId, onOpenCallback) {
+            const card = document.getElementById(cardId);
+            const modal = document.getElementById(targetModalId);
+            if (card && modal) {
+              card.addEventListener("click", () => {
+                playHudSound("click");
+                hudModal.classList.remove("active");
+                modal.classList.add("active");
+                if (typeof onOpenCallback === "function") onOpenCallback();
+              });
+            }
+          }
+
+          bindHudCard("hud-card-brain", "brain-modal", () => updateBrainModalStats());
+          bindHudCard("hud-card-google", "google-modal");
+          bindHudCard("hud-card-services", "dashboard-modal");
+          bindHudCard("hud-card-scheduler", "scheduler-modal", () => loadSchedulerTasks());
+          bindHudCard("hud-card-audit", "audit-modal", () => loadAuditLogs());
+          bindHudCard("hud-card-productivity", "productivity-modal");
+          bindHudCard("hud-card-convs", "conversations-modal", () => {
+            renderConversationsList();
+            updateStorageMeter();
+          });
+          bindHudCard("hud-card-search", "search-modal", () => {
+            if (searchQueryInput) {
+              searchQueryInput.value = "";
+              searchAcrossConversations("");
+              setTimeout(() => searchQueryInput.focus(), 150);
+            }
+          });
+          bindHudCard("hud-card-profile", "profile-modal", () => loadUserProfile());
+          bindHudCard("hud-card-settings", "api-modal", () => showModal(true));
+
+          // Manejadores del Programador de Tareas (TaskScheduler)
+          const schedulerModal = document.getElementById("scheduler-modal");
+          const btnCloseScheduler = document.getElementById("btn-close-scheduler");
+          const btnRefreshScheduler = document.getElementById("btn-refresh-scheduler");
+          const btnTriggerMorning = document.getElementById("btn-trigger-morning-report");
+          const btnTriggerCalendar = document.getElementById("btn-trigger-calendar-check");
+          const schedulerTaskList = document.getElementById("scheduler-task-list");
+          const schedulerTaskCount = document.getElementById("scheduler-task-count");
+
+          if (btnCloseScheduler && schedulerModal) {
+            btnCloseScheduler.addEventListener("click", () => schedulerModal.classList.remove("active"));
+          }
+          if (btnRefreshScheduler) {
+            btnRefreshScheduler.addEventListener("click", () => {
+              playHudSound("click");
+              loadSchedulerTasks();
+            });
+          }
+
+          async function loadSchedulerTasks() {
+            if (!schedulerTaskList) return;
+            try {
+              schedulerTaskList.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">Consultando tareas en data/scheduler_tasks.json...</div>`;
+              const res = await fetch("/api/scheduler/tasks");
+              if (res.ok) {
+                const data = await res.json();
+                const tasks = data.tasks || [];
+                if (schedulerTaskCount) {
+                  schedulerTaskCount.textContent = `${tasks.length} tareas (${tasks.filter(t => t.enabled).length} activas)`;
+                }
+
+                if (tasks.length === 0) {
+                  schedulerTaskList.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem;">No hay tareas registradas.</div>`;
+                  return;
+                }
+
+                schedulerTaskList.innerHTML = tasks.map(t => `
+                  <div class="scheduler-task-card">
+                    <div class="scheduler-task-info">
+                      <h4>${escapeHtml(t.name || t.id)}</h4>
+                      <div class="scheduler-task-meta">
+                        <span style="color: #00d2ff; font-family: var(--font-mono);">⏰ ${escapeHtml(t.schedule)}</span>
+                        <span>Handler: <strong>${escapeHtml(t.handler || 'custom')}</strong></span>
+                        ${t.lastRun ? `<span>Último: ${new Date(t.lastRun).toLocaleTimeString()}</span>` : ''}
+                        <span>Estado: <strong style="color: ${t.enabled ? '#38ef7d' : '#ff5c77'}">${t.enabled ? 'ACTIVO' : 'PAUSADO'}</strong></span>
+                      </div>
+                    </div>
+                    <div class="scheduler-task-actions">
+                      <button class="btn-secondary btn-trigger-task" data-id="${escapeHtml(t.id)}" style="padding: 5px 10px; font-size: 0.74rem;">
+                        ▶ Ejecutar
+                      </button>
+                    </div>
+                  </div>
+                `).join("");
+
+                schedulerTaskList.querySelectorAll(".btn-trigger-task").forEach(btn => {
+                  btn.addEventListener("click", async () => {
+                    const id = btn.getAttribute("data-id");
+                    btn.disabled = true;
+                    btn.textContent = "Ejecutando...";
+                    playHudSound("click");
+                    try {
+                      const trigRes = await fetch("/api/scheduler/tasks/trigger", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ taskId: id })
+                      });
+                      const trigData = await trigRes.json();
+                      if (trigRes.ok && trigData.ok) {
+                        showToast(`✓ Tarea "${id}" ejecutada correctamente.`);
+                        loadSchedulerTasks();
+                      } else {
+                        showToast(`⚠️ Error: ${trigData.error || 'Fallo de ejecución'}`);
+                      }
+                    } catch(e) {
+                      showToast("Error de conexión al disparar tarea.");
+                    } finally {
+                      btn.disabled = false;
+                      btn.textContent = "▶ Ejecutar";
+                    }
+                  });
+                });
+              }
+            } catch(e) {
+              schedulerTaskList.innerHTML = `<div style="text-align: center; padding: 20px; color: #ff5c77; font-size: 0.85rem;">Error al cargar las tareas del servidor.</div>`;
+            }
+          }
+
+          if (btnTriggerMorning) {
+            btnTriggerMorning.addEventListener("click", async () => {
+              btnTriggerMorning.disabled = true;
+              btnTriggerMorning.textContent = "Generando resumen...";
+              playHudSound("click");
+              try {
+                const res = await fetch("/api/scheduler/tasks/trigger", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ taskId: "daily_morning_report" })
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                  showToast("✓ Resumen matutino generado y enviado.");
+                } else {
+                  showToast(data.error || "Aviso al generar reporte.");
+                }
+              } catch(e) {
+                showToast("Error de red al ejecutar.");
+              } finally {
+                btnTriggerMorning.disabled = false;
+                btnTriggerMorning.textContent = "🌅 Disparar Resumen Matutino Ahora";
+              }
+            });
+          }
+
+          if (btnTriggerCalendar) {
+            btnTriggerCalendar.addEventListener("click", async () => {
+              btnTriggerCalendar.disabled = true;
+              btnTriggerCalendar.textContent = "Verificando...";
+              playHudSound("click");
+              try {
+                const res = await fetch("/api/scheduler/tasks/trigger", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ taskId: "calendar_upcoming_check" })
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                  showToast("✓ Verificación de eventos completada.");
+                } else {
+                  showToast(data.error || "Aviso en verificación de eventos.");
+                }
+              } catch(e) {
+                showToast("Error de red.");
+              } finally {
+                btnTriggerCalendar.disabled = false;
+                btnTriggerCalendar.textContent = "📅 Verificar Próximos Eventos";
+              }
+            });
+          }
         }
       }
 
