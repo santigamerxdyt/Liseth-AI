@@ -2077,6 +2077,14 @@
       </div>
 
       <div class="top-actions">
+        <!-- Botón Bloquear Sesión (PIN) -->
+        <button class="icon-btn" id="btn-session-lock" title="Bloquear Sesión (PIN)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </button>
+
         <!-- Botón Dashboard de Servicios (Conectores Google / Apps) -->
         <button class="icon-btn" id="btn-services-dashboard" title="Dashboard de Servicios y Conexiones">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2850,6 +2858,30 @@
     </div>
   </div>
 
+  <!-- MODAL: AUTENTICACIÓN SEGURA CON PIN (SCRYPT) -->
+  <div class="modal-overlay" id="auth-modal" style="backdrop-filter: blur(12px); background: rgba(5, 10, 20, 0.92); z-index: 99999;">
+    <div class="modal-card" style="max-width: 400px; text-align: center; border-color: rgba(0, 210, 255, 0.4); box-shadow: 0 0 45px rgba(0, 210, 255, 0.25);">
+      <div style="margin: 0 auto 16px; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); color: var(--accent-blue);">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; color: #fff;">Acceso Seguro a JARVIS</h2>
+      <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 22px; line-height: 1.4;">Ingrese su PIN de seguridad personal configurado para desbloquear su asistente.</p>
+
+      <form id="auth-pin-form" onsubmit="return false;">
+        <div style="margin-bottom: 16px;">
+          <input type="password" id="auth-pin-input" placeholder="••••••" maxlength="12" autocomplete="current-password" inputmode="numeric" style="width: 100%; text-align: center; font-size: 1.6rem; letter-spacing: 6px; padding: 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(0, 210, 255, 0.35); border-radius: 12px; color: #fff; outline: none; transition: all 0.2s;" autofocus />
+        </div>
+        <div id="auth-error-msg" style="display: none; color: #ff5c77; font-size: 0.82rem; margin-bottom: 16px; padding: 10px; background: rgba(255, 92, 119, 0.12); border-radius: 8px; border: 1px solid rgba(255, 92, 119, 0.35); text-align: center;"></div>
+        <button type="submit" id="btn-auth-unlock" class="btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem; justify-content: center; font-weight: 600;">
+          Desbloquear Asistente
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Entrada Oculta para Importación de Memoria -->
   <input type="file" id="import-memory-file" accept=".json" style="display: none;" />
 
@@ -3072,6 +3104,8 @@ Tus habilidades clave:
 
       // Inicialización
       window.addEventListener("DOMContentLoaded", () => {
+        setupAuthHandlers();
+        checkAuthSession();
         loadVoiceSettings();
         loadUserProfile();
         initApiKey();
@@ -3546,6 +3580,16 @@ Tus habilidades clave:
       async function checkServerConnection() {
         try {
           const res = await fetch("/api/status", { cache: "no-store" });
+          if (res.status === 401) {
+            const errData = await res.json().catch(() => ({}));
+            if (errData.authRequired) {
+              isServerConnected = true;
+              serverBadge.classList.add("connected");
+              serverStatusText.textContent = "🔒 Requiere PIN";
+              showAuthModal();
+              return;
+            }
+          }
           if (res.ok) {
             const data = await res.json();
             isServerConnected = true;
@@ -5216,6 +5260,103 @@ Tus habilidades clave:
               }
             }
           } catch(e) {}
+        }
+      }
+
+      // --- AUTENTICACIÓN SEGURA CON PIN Y SESIÓN CRIPTOGRÁFICA ---
+      const authModal = document.getElementById("auth-modal");
+      const authPinInput = document.getElementById("auth-pin-input");
+      const authPinForm = document.getElementById("auth-pin-form");
+      const authErrorMsg = document.getElementById("auth-error-msg");
+      const btnSessionLock = document.getElementById("btn-session-lock");
+
+      function showAuthModal() {
+        if (!authModal) return;
+        authModal.classList.add("active");
+        if (authErrorMsg) authErrorMsg.style.display = "none";
+        if (authPinInput) {
+          authPinInput.value = "";
+          setTimeout(() => authPinInput.focus(), 150);
+        }
+      }
+
+      function hideAuthModal() {
+        if (!authModal) return;
+        authModal.classList.remove("active");
+        if (authErrorMsg) authErrorMsg.style.display = "none";
+      }
+
+      async function checkAuthSession() {
+        try {
+          const res = await fetch("/api/auth/status", { cache: "no-store" });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.authenticated === false) {
+              showAuthModal();
+              return false;
+            } else {
+              hideAuthModal();
+              return true;
+            }
+          }
+        } catch(e) {}
+        return true;
+      }
+
+      async function handlePinLogin(e) {
+        if (e) e.preventDefault();
+        const pin = (authPinInput ? authPinInput.value : "").trim();
+        if (!pin) {
+          if (authErrorMsg) {
+            authErrorMsg.textContent = "Por favor ingrese su PIN de acceso.";
+            authErrorMsg.style.display = "block";
+          }
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pin })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            hideAuthModal();
+            showToast("✓ Sesión iniciada. Bienvenido, Santiago.");
+            checkServerConnection();
+          } else {
+            if (authErrorMsg) {
+              authErrorMsg.textContent = data.error || "PIN de acceso incorrecto.";
+              authErrorMsg.style.display = "block";
+            }
+            if (authPinInput) {
+              authPinInput.value = "";
+              authPinInput.focus();
+            }
+          }
+        } catch(err) {
+          if (authErrorMsg) {
+            authErrorMsg.textContent = "Error al conectar con el servidor.";
+            authErrorMsg.style.display = "block";
+          }
+        }
+      }
+
+      async function handleLogout() {
+        try {
+          await fetch("/api/auth/logout", { method: "POST" });
+        } catch(e) {}
+        showAuthModal();
+        showToast("🔒 Sesión bloqueada con éxito.");
+      }
+
+      function setupAuthHandlers() {
+        if (authPinForm) {
+          authPinForm.addEventListener("submit", handlePinLogin);
+        }
+        if (btnSessionLock) {
+          btnSessionLock.addEventListener("click", handleLogout);
         }
       }
 
