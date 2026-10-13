@@ -1,0 +1,21 @@
+{
+  "name": "jarvis-liseth-assistant",
+  "version": "2.0.0",
+  "description": "JARVIS / Liseth - Asistente personal de IA con cerebro dual (Gemini & Claude), integración Google Workspace y notificaciones WhatsApp/Telegram",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/suite.js"
+  },
+  "keywords": [
+    "jarvis",
+    "assistant",
+    "gemini",
+    "claude",
+    "google-workspace",
+    "whatsapp",
+    "telegram"
+  ],
+  "author": "Santiago Huerfano Lopez",
+  "license": "ISC"
+}

@@ -1,0 +1,18 @@
+# Dependencias y Entorno
+node_modules/
+.env
+.env.local
+
+# Respaldos locales
+_backup_pre_upgrade/
+*.bak
+
+# Datos privados y tokens
+claves api jarvis de ig.txt
+tokens/
+data/tokens.json
+
+# Archivos de sistema y logs
+*.log
+.DS_Store
+Thumbs.db
