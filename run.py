@@ -11,6 +11,12 @@ import socket
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 BASE_DIR = Path(__file__).resolve().parent
 
 
@@ -124,19 +130,22 @@ def main():
     port = args.port or settings.PORT
     lan_ip = get_local_lan_ip()
 
-    banner = rf"""
-  ╔═══════════════════════════════════════════════════════════╗
-  ║            LISETH — ASISTENTE INTELIGENTE                ║
-  ║                 Arquitectura Python 2.0                   ║
-  ╚═══════════════════════════════════════════════════════════╝
+    banner = f"""
+  +-----------------------------------------------------------+
+  |              LISETH - ASISTENTE INTELIGENTE               |
+  |                  Arquitectura Python 2.0                  |
+  +-----------------------------------------------------------+
   [+] Estado Backend  : ONLINE
   [+] Base de Datos   : SQLite WAL (data/jarvis.db)
   [+] Acceso Local    : http://127.0.0.1:{port}
   [+] Acceso LAN / PWA: http://{lan_ip}:{port}
   [+] Modo Escritorio : {'ACTIVADO' if args.desktop else 'DESACTIVADO (Navegador)'}
-  ═════════════════════════════════════════════════════════════
+  -------------------------------------------------------------
 """
-    print(banner)
+    try:
+        print(banner)
+    except Exception:
+        pass
 
     if args.desktop:
         import desktop_app
