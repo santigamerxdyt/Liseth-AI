@@ -80,9 +80,25 @@ class Settings:
         origins: List[str] = [
             f"http://127.0.0.1:{self.PORT}",
             f"http://localhost:{self.PORT}",
-            f"http://127.0.0.1:8000",
-            f"http://localhost:8000",
+            "http://127.0.0.1:3000",
+            "http://localhost:3000",
+            "http://127.0.0.1:3001",
+            "http://localhost:3001",
+            "http://127.0.0.1:3002",
+            "http://localhost:3002",
+            "http://127.0.0.1:8000",
+            "http://localhost:8000",
+            "http://127.0.0.1:8080",
+            "http://localhost:8080",
+            "null",
         ]
+        # Preserve order and deduplicate
+        dedup_origins: List[str] = []
+        for orig in origins:
+            if orig not in dedup_origins:
+                dedup_origins.append(orig)
+        origins = dedup_origins
+
         if self.HOST == "0.0.0.0":
             # Allow LAN access if explicitly configured
             origins.append("*")

@@ -142,6 +142,9 @@ def main():
     host = args.host or settings.HOST
     requested_port = args.port or settings.PORT
     port = find_available_port(requested_port, host)
+    settings.PORT = port
+    if f"http://127.0.0.1:{port}" not in settings.ALLOWED_ORIGINS:
+        settings.ALLOWED_ORIGINS.extend([f"http://127.0.0.1:{port}", f"http://localhost:{port}"])
     if port != requested_port:
         print(f"[!] Puerto {requested_port} ocupado. Conmutando autónomamente al puerto {port}...")
 

@@ -177,6 +177,32 @@
       box-shadow: 0 0 8px #38ef7d;
     }
 
+    .server-badge.detecting {
+      border-color: rgba(0, 210, 255, 0.5);
+      color: var(--accent-blue);
+    }
+
+    .server-badge.detecting .badge-dot {
+      background: #00d2ff;
+      box-shadow: 0 0 8px #00d2ff;
+      animation: pulseServerDot 0.8s infinite alternate ease-in-out;
+    }
+
+    .server-badge.disconnected {
+      border-color: rgba(255, 170, 0, 0.35);
+      color: #ffd166;
+    }
+
+    .server-badge.disconnected .badge-dot {
+      background: #ffaa00;
+      box-shadow: 0 0 6px rgba(255, 170, 0, 0.4);
+    }
+
+    @keyframes pulseServerDot {
+      from { opacity: 0.4; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1.2); }
+    }
+
     .badge-dot {
       width: 7px;
       height: 7px;
@@ -3673,7 +3699,7 @@
   <!-- Encabezado con el Orbe de Luz Azul -->
   <header>
     <div class="header-top">
-      <div class="server-badge" id="server-badge" title="Estado del servidor local">
+      <div class="server-badge" id="server-badge" title="Estado del servidor local (Clic para detectar o sincronizar)">
         <span class="badge-dot"></span>
         <span id="server-status-text">Detectando servidor...</span>
       </div>
@@ -5303,7 +5329,24 @@ Tus habilidades clave:
       const voiceDescText = document.getElementById("voice-description-text");
       const activeVoiceBadge = document.getElementById("active-voice-badge");
 
-      // Estado en memoria
+      // Estado en memoria y conectividad backend
+      let apiBaseUrl = "";
+      let isDetectingServer = false;
+      let serverPollTimer = null;
+      const _nativeFetch = window.fetch.bind(window);
+
+      // Interceptor transparente de llamadas API para soportar file:// y puertos dinámicos (3000, 3001, 8000...)
+      window.fetch = function(resource, init) {
+        if (typeof resource === "string" && resource.startsWith("/api")) {
+          const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
+          resource = base + resource;
+        } else if (resource instanceof URL && resource.pathname && resource.pathname.startsWith("/api")) {
+          const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
+          resource = new URL(resource.pathname + resource.search + resource.hash, base);
+        }
+        return _nativeFetch(resource, init);
+      };
+
       let isThinking = false;
       let isListening = false;
       let isSpeaking = false;
@@ -5820,46 +5863,147 @@ Tus habilidades clave:
 
       // --- PERSISTENCIA Y SINCRONIZACIÓN ---
 
-      async function checkServerConnection() {
+      // --- AUTODETECCIÓN Y SINCRONIZACIÓN DE SERVIDOR MULTI-PUERTO ---
+
+      function getCandidateServerUrls() {
+        const candidates = [];
+        if (window.location.protocol.startsWith("http") && window.location.origin) {
+          candidates.push(window.location.origin);
+        }
+        const standardPorts = [3000, 3001, 3002, 8000, 8080];
+        standardPorts.forEach(p => {
+          candidates.push(`http://127.0.0.1:${p}`);
+          candidates.push(`http://localhost:${p}`);
+        });
+        return Array.from(new Set(candidates));
+      }
+
+      async function probeServerUrl(baseUrl) {
         try {
-          const res = await fetch("/api/status", { cache: "no-store" });
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 1500);
+          const res = await _nativeFetch(`${baseUrl}/api/status`, {
+            cache: "no-store",
+            signal: controller.signal
+          });
+          clearTimeout(timer);
           if (res.status === 401) {
-            const errData = await res.json().catch(() => ({}));
-            if (errData.authRequired) {
-              isServerConnected = true;
-              serverBadge.classList.add("connected");
-              serverStatusText.textContent = "🔒 Requiere PIN";
-              showAuthModal();
-              return;
-            }
+            const data = await res.json().catch(() => ({}));
+            return { ok: true, baseUrl, authRequired: true, data };
           }
           if (res.ok) {
-            const data = await res.json();
-            isServerConnected = true;
-            serverBadge.classList.add("connected");
-            serverStatusText.textContent = "🟢 Sincronizado";
-            document.getElementById("modal-server-status").textContent = "Activo en puerto " + (data.port || 3000);
-            
-            const ips = data.localIPs || [];
-            const container = document.getElementById("local-ip-links");
-            if (ips.length > 0) {
-              container.innerHTML = ips.map(ip => `
-                <div>📱 http://${ip.address}:${data.port} <span style="color: #64748b;">(${ip.interface})</span></div>
-              `).join("");
-            } else {
-              container.textContent = `http://localhost:${data.port}`;
-            }
-
-            syncHistoryFromServer();
-            return;
+            const data = await res.json().catch(() => ({}));
+            return { ok: true, baseUrl, authRequired: false, data };
           }
         } catch(e) {}
+        return { ok: false, baseUrl };
+      }
 
-        isServerConnected = false;
-        serverBadge.classList.remove("connected");
-        serverStatusText.textContent = "💻 Modo Local";
-        document.getElementById("modal-server-status").textContent = "Modo Local (Inicia 'server.js' para sincronizar)";
-        document.getElementById("local-ip-links").textContent = "Ejecuta 'iniciar_liseth.bat' para conectar tu celular.";
+      async function checkServerConnection(isManual = false) {
+        if (isDetectingServer) return;
+        isDetectingServer = true;
+
+        if (serverBadge) {
+          serverBadge.classList.add("detecting");
+        }
+        if (serverStatusText && !isServerConnected) {
+          serverStatusText.textContent = "🔍 Detectando servidor...";
+        }
+
+        const candidates = getCandidateServerUrls();
+        let connectedResult = null;
+
+        // 1. Probar URL base actual o guardada
+        if (apiBaseUrl) {
+          const quick = await probeServerUrl(apiBaseUrl);
+          if (quick.ok) connectedResult = quick;
+        }
+
+        // 2. Si es origen HTTP actual, probar directamente
+        if (!connectedResult && window.location.protocol.startsWith("http") && window.location.origin) {
+          const originRes = await probeServerUrl(window.location.origin);
+          if (originRes.ok) connectedResult = originRes;
+        }
+
+        // 3. Probar en paralelo todos los candidatos (puertos 3000, 3001, 3002, 8000, 8080)
+        if (!connectedResult) {
+          const probes = candidates.map(url => probeServerUrl(url));
+          const results = await Promise.all(probes);
+          connectedResult = results.find(r => r && r.ok) || null;
+        }
+
+        if (serverBadge) {
+          serverBadge.classList.remove("detecting");
+        }
+
+        if (connectedResult) {
+          apiBaseUrl = connectedResult.baseUrl;
+          isServerConnected = true;
+          serverBadge?.classList.add("connected");
+          serverBadge?.classList.remove("disconnected");
+
+          const portNum = connectedResult.data?.port || (connectedResult.baseUrl.match(/:(\d+)/)?.[1]) || "3000";
+
+          if (connectedResult.authRequired) {
+            serverStatusText.textContent = `🔒 Requiere PIN (:${portNum})`;
+            showAuthModal();
+          } else {
+            serverStatusText.textContent = `🟢 En línea (:${portNum})`;
+            if (isManual) {
+              showToast(`✓ Servidor detectado y sincronizado en puerto ${portNum}`);
+            }
+          }
+
+          const modalStatus = document.getElementById("modal-server-status");
+          if (modalStatus) {
+            modalStatus.textContent = `Activo en ${connectedResult.baseUrl} (Puerto ${portNum})`;
+          }
+
+          const ips = connectedResult.data?.localIPs || [];
+          const container = document.getElementById("local-ip-links");
+          if (container) {
+            if (ips.length > 0) {
+              container.innerHTML = ips.map(ip => `
+                <div>📱 http://${ip.address}:${portNum} <span style="color: #64748b;">(${ip.interface})</span></div>
+              `).join("");
+            } else {
+              container.textContent = `http://127.0.0.1:${portNum}`;
+            }
+          }
+
+          // Sincronizar historial y preferencias con el backend encontrado
+          syncHistoryFromServer();
+          syncPersonalizationFromServer();
+        } else {
+          isServerConnected = false;
+          serverBadge?.classList.remove("connected");
+          serverBadge?.classList.add("disconnected");
+          serverStatusText.textContent = "🔌 Servidor Inactivo (Clic)";
+
+          const modalStatus = document.getElementById("modal-server-status");
+          if (modalStatus) {
+            modalStatus.textContent = "Modo Local (Inicia 'INICIAR_WEB.bat' o 'python run.py' para sincronizar)";
+          }
+          const container = document.getElementById("local-ip-links");
+          if (container) {
+            container.textContent = "Ejecuta 'INICIAR_WEB.bat' o 'INICIAR_ESCRITORIO.bat' para conectar.";
+          }
+
+          if (isManual) {
+            showToast("ℹ️ Servidor no detectado. Inicia el backend ejecutando 'INICIAR_WEB.bat' o 'run.py'");
+          }
+        }
+
+        isDetectingServer = false;
+        scheduleServerHeartbeat();
+      }
+
+      function scheduleServerHeartbeat() {
+        if (serverPollTimer) clearTimeout(serverPollTimer);
+        const delay = isServerConnected ? 20000 : 4500;
+        serverPollTimer = setTimeout(() => {
+          checkServerConnection(false);
+        }, delay);
       }
 
       async function syncHistoryFromServer() {
@@ -5924,7 +6068,16 @@ Tus habilidades clave:
 
       btnSettings.addEventListener("click", () => showModal(true));
       btnCancelModal.addEventListener("click", hideModal);
-      serverBadge.addEventListener("click", () => showModal(true));
+      if (serverBadge) {
+        serverBadge.addEventListener("click", () => {
+          if (!isServerConnected) {
+            showToast("🔍 Buscando servidor local en puertos 3000, 3001, 8000...");
+            checkServerConnection(true);
+          } else {
+            showModal(true);
+          }
+        });
+      }
 
       btnSaveKey.addEventListener("click", () => {
         const val = apiKeyInput.value.trim();

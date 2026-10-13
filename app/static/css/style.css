@@ -165,6 +165,32 @@
       box-shadow: 0 0 8px #38ef7d;
     }
 
+    .server-badge.detecting {
+      border-color: rgba(0, 210, 255, 0.5);
+      color: var(--accent-blue);
+    }
+
+    .server-badge.detecting .badge-dot {
+      background: #00d2ff;
+      box-shadow: 0 0 8px #00d2ff;
+      animation: pulseServerDot 0.8s infinite alternate ease-in-out;
+    }
+
+    .server-badge.disconnected {
+      border-color: rgba(255, 170, 0, 0.35);
+      color: #ffd166;
+    }
+
+    .server-badge.disconnected .badge-dot {
+      background: #ffaa00;
+      box-shadow: 0 0 6px rgba(255, 170, 0, 0.4);
+    }
+
+    @keyframes pulseServerDot {
+      from { opacity: 0.4; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1.2); }
+    }
+
     .badge-dot {
       width: 7px;
       height: 7px;

@@ -23,6 +23,9 @@ def find_available_port(preferred_port: int, host: str = "127.0.0.1") -> int:
     return preferred_port
 
 ACTIVE_PORT = find_available_port(settings.PORT)
+settings.PORT = ACTIVE_PORT
+if f"http://127.0.0.1:{ACTIVE_PORT}" not in settings.ALLOWED_ORIGINS:
+    settings.ALLOWED_ORIGINS.extend([f"http://127.0.0.1:{ACTIVE_PORT}", f"http://localhost:{ACTIVE_PORT}"])
 
 def start_backend():
     """Starts the FastAPI backend inside a background thread."""
