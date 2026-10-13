@@ -14,12 +14,33 @@ const os = require('os');
 const url = require('url');
 const https = require('https');
 
+// Carga de variables de entorno desde .env si existe
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  envContent.split('\n').forEach(line => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+      const idx = trimmed.indexOf('=');
+      const key = trimmed.slice(0, idx).trim();
+      const val = trimmed.slice(idx + 1).trim();
+      if (!process.env[key]) process.env[key] = val;
+    }
+  });
+}
+
+// Módulos de Arquitectura JARVIS v2
+const BrainRouter = require('./lib/ai/BrainRouter');
+const GoogleWorkspaceConnector = require('./lib/connectors/GoogleWorkspaceConnector');
+const AuditManager = require('./lib/audit/AuditManager');
+const NotificationManager = require('./lib/notifications/NotificationManager');
+
 let Communicate = null;
 try {
   const edgeTts = require('edge-tts-universal');
   Communicate = edgeTts.Communicate;
 } catch (e) {
-  console.warn('edge-tts-universal no cargado:', e.message);
+  // Edge-TTS opcional
 }
 
 const PORT = process.env.PORT || 3000;
@@ -570,29 +591,247 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // Google Apps: Estado y Configuración
-  if (pathname === '/api/google/status' && method === 'GET') {
-    const db = readDatabase();
+  // ============================================================
+  // ENDPOINTS DE ARQUITECTURA JARVIS V2
+  // ============================================================
+
+  // 1. BRAIN ROUTER (Cerebro Dual Gemini & Claude + Monitor de Tokens)
+  if (pathname === '/api/brain/status' && method === 'GET') {
     return sendJson(res, 200, {
-      google: db.google || { connected: false }
+      activeBrain: BrainRouter.getEffectiveBrain(),
+      forcedBrain: BrainRouter.forcedBrain,
+      lastFailover: BrainRouter.lastFailover,
+      stats: BrainRouter.tokenStats,
+      limits: BrainRouter.limits
     });
   }
 
-  if (pathname === '/api/google/config' && method === 'POST') {
+  if (pathname === '/api/brain/switch' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const success = BrainRouter.setForcedBrain(body.brain !== undefined ? body.brain : null);
+      return sendJson(res, 200, { ok: success, activeBrain: BrainRouter.getEffectiveBrain(), forcedBrain: BrainRouter.forcedBrain });
+    } catch (e) {
+      return sendJson(res, 400, { error: e.message });
+    }
+  }
+
+  // Ejecución de Inteligencia Unificada en el Servidor (Protege las API Keys)
+  if (pathname === '/api/brain/chat' && method === 'POST') {
     try {
       const body = await parseJsonBody(req);
       const db = readDatabase();
-      db.google = {
-        ...db.google,
-        clientId: body.clientId || db.google.clientId,
-        clientEmail: body.clientEmail || db.google.clientEmail,
-        connected: Boolean(body.connected || body.clientId),
-        lastSync: new Date().toISOString()
-      };
+      const apiKeyGemini = body.apiKey || process.env.GEMINI_API_KEY || db.config?.apiKey;
+      const apiKeyClaude = process.env.ANTHROPIC_API_KEY || db.config?.claudeKey;
+
+      // Obtener herramientas disponibles de Google Workspace y otros conectores
+      const tools = GoogleWorkspaceConnector.connected ? GoogleWorkspaceConnector.list_actions() : [];
+
+      const aiResponse = await BrainRouter.generateResponse({
+        systemInstruction: body.systemInstruction,
+        contents: body.contents,
+        tools: tools,
+        apiKeyGemini,
+        apiKeyClaude
+      });
+
+      // Si el LLM devolvió una llamada a herramienta (Function Calling)
+      if (aiResponse.functionCall) {
+        const fnName = aiResponse.functionCall.name;
+        const fnArgs = aiResponse.functionCall.args || {};
+        
+        // Determinar si la acción es sensible
+        const actionDef = tools.find(t => t.name === fnName);
+        if (actionDef && actionDef.sensitive) {
+          const pending = AuditManager.createPendingConfirmation(
+            'google_workspace',
+            fnName,
+            fnArgs,
+            `JARVIS solicita ejecutar ${fnName} con parámetros: ${JSON.stringify(fnArgs)}`
+          );
+          return sendJson(res, 200, {
+            ...aiResponse,
+            requiresConfirmation: true,
+            confirmation: pending
+          });
+        }
+
+        // Ejecutar acción directamente
+        try {
+          const toolResult = await GoogleWorkspaceConnector.execute_action(fnName, fnArgs);
+          AuditManager.logAction({
+            connector: 'google_workspace',
+            action: fnName,
+            params: fnArgs,
+            status: 'success',
+            result: toolResult,
+            autoApproved: true
+          });
+          return sendJson(res, 200, {
+            ...aiResponse,
+            executedTool: { name: fnName, result: toolResult }
+          });
+        } catch (toolErr) {
+          AuditManager.logAction({
+            connector: 'google_workspace',
+            action: fnName,
+            params: fnArgs,
+            status: 'failed',
+            result: { error: toolErr.message }
+          });
+          return sendJson(res, 200, {
+            ...aiResponse,
+            executedTool: { name: fnName, error: toolErr.message }
+          });
+        }
+      }
+
+      return sendJson(res, 200, aiResponse);
+    } catch (e) {
+      console.error('Error en /api/brain/chat:', e);
+      return sendJson(res, 500, { error: e.message });
+    }
+  }
+
+  // 2. GOOGLE WORKSPACE OAUTH 2.0 & ESTADO
+  if (pathname === '/api/google/status' && method === 'GET') {
+    const db = readDatabase();
+    if (db.google_tokens) {
+      GoogleWorkspaceConnector.loadEncryptedTokens(db.google_tokens);
+    }
+    return sendJson(res, 200, {
+      connected: GoogleWorkspaceConnector.connected,
+      clientId: GoogleWorkspaceConnector.clientId ? 'Configurado' : 'Pendiente',
+      actions: GoogleWorkspaceConnector.list_actions().map(a => a.name)
+    });
+  }
+
+  if (pathname === '/api/google/auth-url' && method === 'GET') {
+    const clientId = parsedUrl.searchParams.get('clientId') || process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = parsedUrl.searchParams.get('clientSecret') || process.env.GOOGLE_CLIENT_SECRET;
+    if (clientId) GoogleWorkspaceConnector.clientId = clientId;
+    if (clientSecret) GoogleWorkspaceConnector.clientSecret = clientSecret;
+    if (!GoogleWorkspaceConnector.clientId) {
+      return sendJson(res, 400, { error: 'Falta Google Client ID' });
+    }
+    return sendJson(res, 200, { authUrl: GoogleWorkspaceConnector.getAuthUrl() });
+  }
+
+  if (pathname === '/api/google/oauth2callback' && method === 'GET') {
+    const code = parsedUrl.searchParams.get('code');
+    if (!code) {
+      res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end('<h2>Error: No se recibió código de autorización</h2>');
+    }
+    try {
+      const tokens = await GoogleWorkspaceConnector.exchangeCodeForTokens(code);
+      const db = readDatabase();
+      db.google_tokens = tokens;
+      db.google = { connected: true, lastSync: new Date().toISOString() };
       saveDatabase(db);
-      return sendJson(res, 200, { ok: true, google: db.google });
-    } catch (err) {
-      return sendJson(res, 400, { error: 'Error guardando config de Google' });
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(`
+        <body style="background:#090d16; color:#00d2ff; font-family:sans-serif; text-align:center; padding-top:60px;">
+          <h2>✓ Google Workspace Conectado con Éxito</h2>
+          <p style="color:#cbd5e1;">Puede cerrar esta ventana y regresar al panel de Liseth.</p>
+          <script>window.opener && window.opener.location.reload(); setTimeout(() => window.close(), 2500);</script>
+        </body>
+      `);
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(`<h2>Error vinculando Google: ${e.message}</h2>`);
+    }
+  }
+
+  // 3. AUDITORÍA Y ACCIONES SENSIBLES
+  if (pathname === '/api/audit/logs' && method === 'GET') {
+    return sendJson(res, 200, {
+      logs: AuditManager.getLogs(),
+      pendingConfirmations: AuditManager.getPendingConfirmations()
+    });
+  }
+
+  if (pathname === '/api/audit/confirm' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const resolution = AuditManager.resolveConfirmation(body.confirmId, Boolean(body.approved));
+      if (!resolution) return sendJson(res, 404, { error: 'Confirmación no encontrada' });
+
+      // Si fue aprobada, ejecutar la acción pendiente
+      if (body.approved && resolution.connector === 'google_workspace') {
+        const result = await GoogleWorkspaceConnector.execute_action(resolution.action, resolution.params);
+        AuditManager.logAction({
+          connector: resolution.connector,
+          action: resolution.action,
+          params: resolution.params,
+          status: 'success',
+          result: result,
+          userConfirmed: true
+        });
+        return sendJson(res, 200, { ok: true, result });
+      }
+      return sendJson(res, 200, { ok: true, resolution });
+    } catch (e) {
+      return sendJson(res, 500, { error: e.message });
+    }
+  }
+
+  // 4. NOTIFICACIONES & WEBHOOKS (WhatsApp Meta & Telegram)
+  if (pathname === '/api/notifications/test' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const resSend = await NotificationManager.sendAlert(body.message || 'Prueba de alerta desde JARVIS', true);
+      return sendJson(res, 200, { ok: true, result: resSend });
+    } catch (e) {
+      return sendJson(res, 500, { error: e.message });
+    }
+  }
+
+  if (pathname === '/api/notifications/config' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      NotificationManager.setConfig(body);
+      return sendJson(res, 200, { ok: true, config: NotificationManager.config });
+    } catch (e) {
+      return sendJson(res, 400, { error: e.message });
+    }
+  }
+
+  // Webhook para Meta WhatsApp Cloud API (Verificación GET)
+  if (pathname === '/api/webhook/whatsapp' && method === 'GET') {
+    const mode = parsedUrl.searchParams.get('hub.mode');
+    const token = parsedUrl.searchParams.get('hub.verify_token');
+    const challenge = parsedUrl.searchParams.get('hub.challenge');
+    const expectedToken = process.env.META_WA_VERIFY_TOKEN || 'jarvis_webhook_verify_token';
+    if (mode === 'subscribe' && token === expectedToken) {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      return res.end(challenge);
+    }
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    return res.end('Verificación de webhook fallida');
+  }
+
+  // Webhook para Meta WhatsApp Cloud API (Recepción de mensajes POST)
+  if (pathname === '/api/webhook/whatsapp' && method === 'POST') {
+    try {
+      const body = await parseJsonBody(req);
+      const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+      if (message && message.text) {
+        const from = message.from;
+        const userMsg = message.text.body;
+        console.log(`[WhatsApp Recibido de ${from}]: ${userMsg}`);
+        // Procesar con BrainRouter y responder
+        const aiRes = await BrainRouter.generateResponse({
+          systemInstruction: 'Eres Liseth, asistente personal en WhatsApp. Sé concisa y resolutiva.',
+          contents: [{ role: 'user', parts: [{ text: userMsg }] }]
+        });
+        if (aiRes.text) {
+          await NotificationManager.sendWhatsApp(aiRes.text);
+        }
+      }
+      return sendJson(res, 200, { status: 'EVENT_RECEIVED' });
+    } catch (e) {
+      return sendJson(res, 200, { status: 'PROCESSED_WITH_WARNING' });
     }
   }
 
