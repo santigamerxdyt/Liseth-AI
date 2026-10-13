@@ -18,6 +18,7 @@ from app.routers.auth_router import router as auth_router
 from app.routers.files_router import router as files_router
 from app.routers.brain_router import router as brain_router
 from app.routers.system_router import router as system_router
+from app.routers.audit_router import router as audit_router
 
 # Setup logger
 logging.basicConfig(
@@ -90,6 +91,10 @@ EXEMPT_API_PATHS = {
     "/api/brain/skills",
     "/api/brain/memories/remember",
     "/api/upload",
+    "/api/audit/logs",
+    "/api/audit/pending",
+    "/api/audit/confirm",
+    "/api/audit/request",
 }
 
 
@@ -125,6 +130,7 @@ async def api_auth_middleware(request: Request, call_next):
 
 # Include Routers
 app.include_router(system_router)
+app.include_router(audit_router)
 app.include_router(auth_router)
 app.include_router(files_router)
 app.include_router(brain_router)
