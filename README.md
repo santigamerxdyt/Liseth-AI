@@ -29,6 +29,34 @@ El sistema cuenta con un modelo de defensa en profundidad para proteger todos lo
 
 ---
 
+## 🌐 Google Workspace & Function Calling (Fase 2)
+
+JARVIS integra 28 herramientas de **Google Workspace** mediante OAuth 2.0 con scopes mínimos y function calling nativo:
+
+| Servicio | Herramientas Disponibles | Sensible (Requiere Aprobación) |
+|---|---|---|
+| **Gmail** | `list_emails`, `search_emails`, `read_email`, `send_email`, `reply_email`, `archive_email`, `label_email`, `delete_email` | `send`, `reply`, `delete` |
+| **Calendar** | `list_events`, `create_event`, `update_event`, `delete_event` | `create`, `update`, `delete` |
+| **Tasks** | `list_tasks`, `create_task`, `complete_task`, `delete_task` | `delete` |
+| **Drive** | `list_drive_files`, `search_drive_files`, `read_drive_file`, `upload_drive_file`, `move_drive_file` | `upload`, `move` |
+| **Docs** | `read_doc`, `create_doc`, `append_doc` | `create`, `append` |
+| **Sheets** | `read_sheet`, `create_sheet`, `append_sheet_row` | `create`, `append_row` |
+| **Slides** | `read_slides`, `create_slides`, `add_slide` | `create`, `add_slide` |
+| **Contacts (People API)** | `search_contacts` (búsqueda por nombre, email o teléfono) | Ninguna (Solo lectura) |
+| **YouTube Data API v3** | `search_youtube`, `list_my_youtube_videos`, `get_youtube_video_stats` | Ninguna (Solo lectura) |
+
+### 📌 Límites y Cuotas Gratuitas de YouTube Data API v3:
+- **Cuota Diaria Gratuita**: 10,000 unidades por día por proyecto.
+- **Costos de Lectura**: `videos.list` (estadísticas) cuesta **1 unidad**; `search.list` cuesta **100 unidades**.
+- **Costos de Escritura**: Subir videos (`videos.insert`) consume **1,600 unidades** por video (máximo ~6 videos/día antes de agotar cuota). Actualizar metadata (`videos.update`) cuesta **50 unidades**.
+- **Políticas de Privacidad**: Los videos subidos a través de aplicaciones no verificadas por Google se marcan obligatoriamente como **Privados**.
+
+### 🛡️ Acciones Sensibles & AuditManager
+- Todas las operaciones destructivas o que envían información a terceros exigen confirmación en pantalla en [`jarvis.html`](file:///c:/Users/Usuario/Desktop/MI%20LISEHT/jarvis.html).
+- Si Google Workspace no está conectado, JARVIS expone igualmente las herramientas y responde educadamente indicando: *"Para realizar esta acción, conecta Google Workspace en el Dashboard de Servicios"*.
+
+---
+
 ## 🚀 Inicio Rápido
 
 ### Requisitos

@@ -5,6 +5,31 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [2.2.0] - 2026-10-12
+
+### Añadido (Fase 2 — Google Workspace Completo & Function Calling)
+- **Expansión Completa de Google Workspace (`lib/connectors/GoogleWorkspaceConnector.js`)**:
+  - Ampliación del catálogo de 7 a 28 herramientas disponibles para Function Calling de IA.
+  - **Gmail**: Búsqueda avanzada (`google_search_emails`), lectura detallada de mensajes (`google_read_email`), respuestas automáticas en hilo (`google_reply_email`), archivado (`google_archive_email`), gestión de etiquetas (`google_label_email`) y eliminación a papelera (`google_delete_email`).
+  - **Calendar**: Edición y reprogramación de eventos (`google_update_event`) y eliminación de eventos (`google_delete_event`).
+  - **Tasks**: Marcar tareas como completadas (`google_complete_task`) y eliminación permanente (`google_delete_task`).
+  - **Drive**: Búsqueda avanzada por texto/MIME (`google_search_drive_files`), lectura/exportación de archivos a texto o CSV (`google_read_drive_file`), subida de archivos multipart (`google_upload_drive_file`) y traslado de carpetas (`google_move_drive_file`).
+  - **Docs**: Lectura de documentos (`google_read_doc`), creación (`google_create_doc`) y adición de texto (`google_append_doc`).
+  - **Sheets**: Lectura de celdas y tablas (`google_read_sheet`), creación de libros (`google_create_sheet`) y adición de filas (`google_append_sheet_row`).
+  - **Slides**: Lectura de diapositivas (`google_read_slides`), creación de presentaciones (`google_create_slides`) y creación de nuevas diapositivas (`google_add_slide`).
+  - **Contacts (People API)**: Búsqueda rápida de contactos por nombre, email o teléfono (`google_search_contacts`) con fallback a conexiones de libreta.
+  - **YouTube Data API v3**: Búsqueda de videos (`google_search_youtube`), listado de videos del canal autenticado (`google_list_my_youtube_videos`) y consulta de estadísticas de vistas, likes y comentarios (`google_get_youtube_video_stats`).
+- **Seguridad en Acciones Sensibles (`AuditManager`)**:
+  - Todas las operaciones destructivas o que envían/modifican datos de terceros (`send_email`, `reply_email`, `delete_email`, `create_event`, `update_event`, `delete_event`, `delete_task`, `upload_drive_file`, `move_drive_file`, `create_doc`, `append_doc`, `create_sheet`, `append_sheet_row`, `create_slides`, `add_slide`) marcadas estrictamente con `sensitive: true`.
+  - Exigen confirmación interactiva en pantalla mediante `AuditManager.createPendingConfirmation` antes de su ejecución real.
+- **Function Calling Permanente & Resiliente**:
+  - Todas las herramientas se exponen permanentemente a Gemini y Claude independientemente de si Google está conectado o no.
+  - Si el usuario solicita una acción de Google y no está vinculado, el sistema responde guiando al usuario a conectar su cuenta en el Dashboard de Servicios en lugar de fallar o quedarse mudo.
+- **Pruebas Automatizadas en `test/suite.js`**:
+  - 4 nuevas pruebas unitarias añadidas (14 pruebas en total) cubriendo catálogo de acciones, validación de marcas `sensitive`, comportamiento desconectado, URL OAuth con scopes mínimos y simulación de llamadas HTTP a YouTube y Docs.
+
+---
+
 ## [2.1.0] - 2026-10-12
 
 ### Añadido (Fase 1 — Seguridad & Hardening)
