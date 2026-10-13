@@ -774,8 +774,8 @@ const server = http.createServer(async (req, res) => {
       const apiKeyGemini = body.apiKey || process.env.GEMINI_API_KEY || db.config?.apiKey;
       const apiKeyClaude = process.env.ANTHROPIC_API_KEY || db.config?.claudeKey;
 
-      // Obtener herramientas disponibles de Google Workspace y otros conectores
-      const tools = GoogleWorkspaceConnector.connected ? GoogleWorkspaceConnector.list_actions() : [];
+      // Obtener herramientas disponibles de Google Workspace (siempre expuestas para function calling)
+      const tools = GoogleWorkspaceConnector.list_actions();
 
       const aiResponse = await BrainRouter.generateResponse({
         systemInstruction: body.systemInstruction,
@@ -789,7 +789,27 @@ const server = http.createServer(async (req, res) => {
       if (aiResponse.functionCall) {
         const fnName = aiResponse.functionCall.name;
         const fnArgs = aiResponse.functionCall.args || {};
-        
+
+        // Si Google Workspace no está conectado, responder indicando conectar Google
+        if (!GoogleWorkspaceConnector.connected) {
+          const notConnectedMsg = 'Para realizar esta acción con tus servicios de Google, primero debes conectar tu cuenta de Google Workspace en el Dashboard de Servicios (botón en la barra superior).';
+          AuditManager.logAction({
+            connector: 'google_workspace',
+            action: fnName,
+            params: fnArgs,
+            status: 'failed',
+            result: { error: 'Google Workspace no conectado' }
+          });
+          return sendJson(res, 200, {
+            ...aiResponse,
+            text: notConnectedMsg,
+            executedTool: {
+              name: fnName,
+              error: 'Google Workspace no conectado. Conecta Google en el Dashboard de Servicios.'
+            }
+          }, {}, req);
+        }
+
         // Determinar si la acción es sensible
         const actionDef = tools.find(t => t.name === fnName);
         if (actionDef && actionDef.sensitive) {
@@ -802,8 +822,9 @@ const server = http.createServer(async (req, res) => {
           return sendJson(res, 200, {
             ...aiResponse,
             requiresConfirmation: true,
-            confirmation: pending
-          });
+            confirmation: pending,
+            text: `He preparado la acción sensible "${fnName}". Por favor confírmela en pantalla para proceder.`
+          }, {}, req);
         }
 
         // Ejecutar acción directamente
@@ -817,10 +838,35 @@ const server = http.createServer(async (req, res) => {
             result: toolResult,
             autoApproved: true
           });
+
+          // Si el modelo no produjo texto explicativo, realizar llamada de seguimiento para respuesta natural
+          let finalResponseText = aiResponse.text || '';
+          if (!finalResponseText) {
+            try {
+              const updatedContents = [
+                ...(body.contents || []),
+                { role: 'model', parts: [{ functionCall: aiResponse.functionCall }] },
+                { role: 'function', parts: [{ functionResponse: { name: fnName, response: toolResult } }] }
+              ];
+              const secondTurn = await BrainRouter.generateResponse({
+                systemInstruction: body.systemInstruction,
+                contents: updatedContents,
+                apiKeyGemini,
+                apiKeyClaude
+              });
+              if (secondTurn.text) {
+                finalResponseText = secondTurn.text;
+              }
+            } catch (secErr) {
+              finalResponseText = `✓ Acción ejecutada exitosamente (${fnName}).`;
+            }
+          }
+
           return sendJson(res, 200, {
             ...aiResponse,
+            text: finalResponseText,
             executedTool: { name: fnName, result: toolResult }
-          });
+          }, {}, req);
         } catch (toolErr) {
           AuditManager.logAction({
             connector: 'google_workspace',
@@ -831,12 +877,13 @@ const server = http.createServer(async (req, res) => {
           });
           return sendJson(res, 200, {
             ...aiResponse,
+            text: `⚠️ Error al ejecutar ${fnName}: ${toolErr.message}`,
             executedTool: { name: fnName, error: toolErr.message }
-          });
+          }, {}, req);
         }
       }
 
-      return sendJson(res, 200, aiResponse);
+      return sendJson(res, 200, aiResponse, {}, req);
     } catch (e) {
       console.error('Error en /api/brain/chat:', e);
       return sendJson(res, 500, { error: e.message });
@@ -1167,6 +1214,10 @@ const server = http.createServer(async (req, res) => {
 
 // Inicializar y arrancar
 initDatabase();
+const initialDb = readDatabase();
+if (initialDb && initialDb.google_tokens) {
+  GoogleWorkspaceConnector.loadEncryptedTokens(initialDb.google_tokens);
+}
 
 server.listen(PORT, HOST, () => {
   const localIPs = getLocalNetworkIPs();
