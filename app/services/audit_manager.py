@@ -89,6 +89,35 @@ GOOGLE_ACTION_DESCRIPTIONS = {
     },
 }
 
+# Map of sensitive local Windows system actions
+SYSTEM_ACTION_DESCRIPTIONS = {
+    "system_run_command": {
+        "service": "Sistema Operativo (Windows)",
+        "action_title": "Ejecutar comando en la consola",
+        "template": "Estoy a punto de ejecutar el comando '{command}' en su equipo ({shell}). ¿Desea autorizar la ejecución?",
+    },
+    "system_open_app": {
+        "service": "Sistema Operativo (Windows)",
+        "action_title": "Abrir aplicación",
+        "template": "Estoy a punto de abrir la aplicación o recurso '{app_name}' en su equipo. ¿Desea que la inicie?",
+    },
+    "system_write_file": {
+        "service": "Sistema Operativo (Windows)",
+        "action_title": "Modificar/crear archivo",
+        "template": "Estoy a punto de escribir/modificar el archivo en la ruta '{path}'. ¿Desea autorizar esta modificación?",
+    },
+    "system_delete_file": {
+        "service": "Sistema Operativo (Windows)",
+        "action_title": "Eliminar archivo",
+        "template": "Estoy a punto de eliminar el archivo '{path}' de su equipo. Esta acción es irreversible. ¿Desea continuar?",
+    },
+    "system_kill_process": {
+        "service": "Sistema Operativo (Windows)",
+        "action_title": "Terminar proceso",
+        "template": "Estoy a punto de finalizar el proceso '{name}' (PID: {pid}). ¿Desea forzar el cierre?",
+    },
+}
+
 
 class AuditManager:
     def __init__(self):
@@ -122,8 +151,22 @@ class AuditManager:
                 reason = f"Estoy a punto de ejecutar '{meta['action_title']}' en {service} con los parámetros: {params}. ¿Desea que proceda?"
             return True, service, reason
 
-        # General sensitive actions heuristics (create, send, delete, update, modify)
-        sensitive_keywords = ["send", "create", "delete", "remove", "update", "write", "post", "publish", "drop"]
+        # Check predefined Windows System actions
+        if action_name in SYSTEM_ACTION_DESCRIPTIONS:
+            meta = SYSTEM_ACTION_DESCRIPTIONS[action_name]
+            service = meta["service"]
+            template = meta["template"]
+            try:
+                safe_params = {k: str(v) for k, v in params.items()}
+                for key in ["command", "shell", "app_name", "path", "name", "pid"]:
+                    safe_params.setdefault(key, params.get(key, "(sin especificar)"))
+                reason = template.format(**safe_params)
+            except Exception:
+                reason = f"Estoy a punto de ejecutar '{meta['action_title']}' en su equipo con los parámetros: {params}. ¿Desea que proceda?"
+            return True, service, reason
+
+        # General sensitive actions heuristics (create, send, delete, update, modify, run, execute, kill)
+        sensitive_keywords = ["send", "create", "delete", "remove", "update", "write", "post", "publish", "drop", "run", "exec", "kill", "start", "launch"]
         action_lower = action_name.lower()
         is_sensitive = any(w in action_lower for w in sensitive_keywords)
 

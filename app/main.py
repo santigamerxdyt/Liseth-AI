@@ -95,6 +95,9 @@ EXEMPT_API_PATHS = {
     "/api/audit/pending",
     "/api/audit/confirm",
     "/api/audit/request",
+    "/api/system/info",
+    "/api/system/processes",
+    "/api/system/execute",
 }
 
 

@@ -229,6 +229,12 @@ Tus habilidades clave:
         setupChips();
         setupMemoryHandlers();
         updateStorageMeter();
+        initVoiceWavesCanvas();
+        setupPersonalizationEvents();
+        setupSystemPCEvents();
+        applyPersonalization(currentCustomization);
+        setViewMode(currentViewMode);
+        syncPersonalizationFromServer();
       });
 
       // --- MANEJO UNIVERSAL DE ARCHIVOS (SUBIDA, LECTURA, ANÁLISIS Y DESCARGA) ---
@@ -524,12 +530,14 @@ Tus habilidades clave:
             isSpeaking = true;
             orb.classList.add("speaking");
             statusLabel.textContent = "Liseth le asiste con voz viva...";
+            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
           };
 
           audio.onended = () => {
             isSpeaking = false;
             orb.classList.remove("speaking");
-            statusLabel.textContent = "A su entera disposición, Santiago";
+            statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
+            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
             activeAudioElement = null;
           };
 
@@ -566,15 +574,18 @@ Tus habilidades clave:
             isSpeaking = true;
             orb.classList.add("speaking");
             statusLabel.textContent = "Liseth le asiste con voz local...";
+            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
           };
           utterance.onend = () => {
             isSpeaking = false;
             orb.classList.remove("speaking");
-            statusLabel.textContent = "A su entera disposición, Santiago";
+            statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
+            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
           };
           utterance.onerror = () => {
             isSpeaking = false;
             orb.classList.remove("speaking");
+            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
           };
           window.speechSynthesis.speak(utterance);
         } catch(e) {}
@@ -1420,6 +1431,7 @@ Tus habilidades clave:
         });
 
         if (shouldScroll) scrollToBottom();
+        updateHudTranscript(content, isAssistant ? "LISETH" : (currentCustomization.userTitle || "SANTIAGO"));
       }
 
       function showThinkingIndicator() {
@@ -2980,6 +2992,427 @@ Tus habilidades clave:
           }
           return `<p>${p.replace(/\n/g, "<br>")}</p>`;
         }).join("");
+      }
+
+      // ========================================================
+      // SISTEMA DE ONDAS SONORAS EN VIVO Y ESFERA HOLOGRÁFICA
+      // ========================================================
+
+      let waveAnimationId = null;
+      const voiceCanvas = document.getElementById("voice-waves-canvas");
+      const hudTranscriptText = document.getElementById("hud-transcript-text");
+      const transcriptSpeaker = document.getElementById("transcript-speaker");
+      const btnToggleView = document.getElementById("btn-toggle-view");
+      const toggleViewIcon = document.getElementById("toggle-view-icon");
+      const toggleViewText = document.getElementById("toggle-view-text");
+      const sphereWorkspace = document.getElementById("sphere-workspace");
+      const consoleWorkspace = document.getElementById("console-workspace");
+      const btnOpenPersonalization = document.getElementById("btn-open-personalization");
+      const personalizationModal = document.getElementById("personalization-modal");
+      const btnClosePersonalization = document.getElementById("btn-close-personalization");
+      const btnSavePersonalization = document.getElementById("btn-save-personalization");
+      const systemPcModal = document.getElementById("system-pc-modal");
+      const btnCloseSystemPc = document.getElementById("btn-close-system-pc");
+      const btnRefreshSystemPc = document.getElementById("btn-refresh-system-pc");
+      const btnRunPcCommand = document.getElementById("btn-run-pc-command");
+      const pcCommandInput = document.getElementById("pc-command-input");
+
+      let currentViewMode = localStorage.getItem("liseth_view_mode") || "sphere";
+
+      function updateHudTranscript(text, speaker = "LISETH") {
+        if (!hudTranscriptText) return;
+        if (transcriptSpeaker) transcriptSpeaker.textContent = speaker;
+        
+        let cleanText = text
+          .replace(/```[\s\S]*?```/g, " [Bloque de código y archivo] ")
+          .replace(/`([^`]+)`/g, "$1")
+          .replace(/[*_#~]/g, "")
+          .trim();
+          
+        if (cleanText.length > 280) {
+          cleanText = cleanText.substring(0, 280) + "...";
+        }
+        hudTranscriptText.textContent = `"${cleanText}"`;
+      }
+
+      function setViewMode(mode) {
+        currentViewMode = mode;
+        localStorage.setItem("liseth_view_mode", mode);
+        if (mode === "sphere") {
+          sphereWorkspace?.classList.remove("hidden");
+          consoleWorkspace?.classList.add("hidden");
+          if (btnToggleView) {
+            btnToggleView.classList.add("active");
+            if (toggleViewIcon) toggleViewIcon.textContent = "📜";
+            if (toggleViewText) toggleViewText.textContent = "Consola";
+          }
+        } else {
+          sphereWorkspace?.classList.add("hidden");
+          consoleWorkspace?.classList.remove("hidden");
+          if (btnToggleView) {
+            btnToggleView.classList.remove("active");
+            if (toggleViewIcon) toggleViewIcon.textContent = "🔮";
+            if (toggleViewText) toggleViewText.textContent = "Esfera";
+          }
+        }
+      }
+
+      if (btnToggleView) {
+        btnToggleView.addEventListener("click", () => {
+          setViewMode(currentViewMode === "sphere" ? "console" : "sphere");
+        });
+      }
+
+      // --- RENDERIZADO DE ONDAS ACÚSTICAS Y RADIALES EN CANVAS ---
+      function initVoiceWavesCanvas() {
+        if (!voiceCanvas) return;
+        const ctx = voiceCanvas.getContext("2d");
+        if (!ctx) return;
+
+        let time = 0;
+
+        function resizeCanvas() {
+          const rect = voiceCanvas.getBoundingClientRect();
+          const dpr = window.devicePixelRatio || 1;
+          voiceCanvas.width = (rect.width || 540) * dpr;
+          voiceCanvas.height = (rect.height || 540) * dpr;
+          ctx.scale(dpr, dpr);
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        function drawWaves() {
+          const w = voiceCanvas.width / (window.devicePixelRatio || 1);
+          const h = voiceCanvas.height / (window.devicePixelRatio || 1);
+          const cx = w / 2;
+          const cy = h / 2;
+
+          ctx.clearRect(0, 0, w, h);
+
+          const computedStyle = getComputedStyle(document.documentElement);
+          const accentColor = computedStyle.getPropertyValue('--accent-blue').trim() || '#00d2ff';
+          const glowColor = computedStyle.getPropertyValue('--accent-glow').trim() || 'rgba(0, 210, 255, 0.4)';
+
+          time += isSpeaking ? 0.08 : (isListening ? 0.05 : 0.02);
+
+          const numRings = isSpeaking ? 6 : (isListening ? 4 : 3);
+          const baseRadius = 88;
+
+          for (let i = 0; i < numRings; i++) {
+            ctx.beginPath();
+            const ringOffset = (time * (isSpeaking ? 40 : 15) + i * 35) % 180;
+            const radius = baseRadius + ringOffset;
+            const alpha = Math.max(0, 1 - (ringOffset / 180));
+
+            // Si está hablando, ondas sinusoidales dinámicas que vibran con la voz
+            if (isSpeaking) {
+              const segments = 90;
+              for (let s = 0; s <= segments; s++) {
+                const angle = (s / segments) * Math.PI * 2;
+                const waveAmp = (Math.sin(angle * 7 + time * 3) * 6 + Math.cos(angle * 3 - time * 2) * 5) * alpha;
+                const r = radius + waveAmp;
+                const x = cx + Math.cos(angle) * r;
+                const y = cy + Math.sin(angle) * r;
+                if (s === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+              }
+              ctx.closePath();
+              ctx.strokeStyle = `rgba(0, 210, 255, ${alpha * 0.7})`;
+              ctx.lineWidth = 2;
+              ctx.stroke();
+
+            } else if (isListening) {
+              // Sonar radar rings cuando el usuario habla
+              ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(56, 239, 125, ${alpha * 0.8})`;
+              ctx.lineWidth = 2.5;
+              ctx.stroke();
+
+            } else {
+              // Pulso suave armónico en reposo
+              ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(0, 210, 255, ${alpha * 0.25})`;
+              ctx.lineWidth = 1.2;
+              ctx.stroke();
+            }
+          }
+
+          waveAnimationId = requestAnimationFrame(drawWaves);
+        }
+
+        drawWaves();
+      }
+
+      // ========================================================
+      // ESTUDIO DE PERSONALIZACIÓN COMPLETO
+      // ========================================================
+
+      let currentCustomization = {
+        userTitle: localStorage.getItem("liseth_user_title") || "Señor Santiago",
+        userTone: localStorage.getItem("liseth_user_tone") || "formal",
+        customGreeting: localStorage.getItem("liseth_custom_greeting") || "A sus órdenes, Señor Santiago. Todos los sistemas están en línea.",
+        theme: localStorage.getItem("liseth_theme") || "arc_cyan",
+        sphereStyle: localStorage.getItem("liseth_sphere_style") || "reactor"
+      };
+
+      function applyPersonalization(custom) {
+        if (!custom) return;
+        currentCustomization = { ...currentCustomization, ...custom };
+
+        // 1. Guardar en localStorage
+        localStorage.setItem("liseth_user_title", currentCustomization.userTitle);
+        localStorage.setItem("liseth_user_tone", currentCustomization.userTone);
+        localStorage.setItem("liseth_custom_greeting", currentCustomization.customGreeting);
+        localStorage.setItem("liseth_theme", currentCustomization.theme);
+        localStorage.setItem("liseth_sphere_style", currentCustomization.sphereStyle);
+
+        // 2. Aplicar Tema al HTML
+        document.documentElement.setAttribute("data-theme", currentCustomization.theme);
+
+        // 3. Aplicar Estilo de Esfera
+        if (orb) {
+          orb.classList.remove("sphere-style-reactor", "sphere-style-rings", "sphere-style-waves", "sphere-style-crystal");
+          orb.classList.add(`sphere-style-${currentCustomization.sphereStyle}`);
+        }
+
+        // 4. Actualizar título en interfaz
+        if (statusLabel && !isSpeaking && !isListening && !isThinking) {
+          statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle}`;
+        }
+
+        // 5. Actualizar campos del modal
+        const prefTitleInput = document.getElementById("pref-user-title");
+        if (prefTitleInput) prefTitleInput.value = currentCustomization.userTitle;
+
+        const prefToneSelect = document.getElementById("pref-user-tone");
+        if (prefToneSelect) prefToneSelect.value = currentCustomization.userTone;
+
+        const prefGreetingInput = document.getElementById("pref-custom-greeting");
+        if (prefGreetingInput) prefGreetingInput.value = currentCustomization.customGreeting;
+
+        // Actualizar chips de trato
+        document.querySelectorAll(".title-chip-btn").forEach(btn => {
+          if (btn.getAttribute("data-title") === currentCustomization.userTitle) {
+            btn.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+
+        // Actualizar selección visual de temas
+        document.querySelectorAll(".theme-option-btn").forEach(btn => {
+          if (btn.getAttribute("data-theme") === currentCustomization.theme) {
+            btn.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+
+        // Actualizar selección visual de formas
+        document.querySelectorAll(".shape-option-btn").forEach(btn => {
+          if (btn.getAttribute("data-shape") === currentCustomization.sphereStyle) {
+            btn.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+      }
+
+      function setupPersonalizationEvents() {
+        if (btnOpenPersonalization) {
+          btnOpenPersonalization.addEventListener("click", () => {
+            personalizationModal?.classList.add("active");
+          });
+        }
+
+        const hudCardPersonalization = document.getElementById("hud-card-personalization");
+        if (hudCardPersonalization) {
+          hudCardPersonalization.addEventListener("click", () => {
+            const hudModal = document.getElementById("hud-interfaces-modal");
+            hudModal?.classList.remove("active");
+            personalizationModal?.classList.add("active");
+          });
+        }
+
+        if (btnClosePersonalization) {
+          btnClosePersonalization.addEventListener("click", () => {
+            personalizationModal?.classList.remove("active");
+          });
+        }
+
+        // Chips de trato
+        document.querySelectorAll(".title-chip-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".title-chip-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            const titleVal = btn.getAttribute("data-title");
+            const prefTitleInput = document.getElementById("pref-user-title");
+            if (prefTitleInput) prefTitleInput.value = titleVal;
+          });
+        });
+
+        // Opciones de tema en tiempo real
+        document.querySelectorAll(".theme-option-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".theme-option-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            const theme = btn.getAttribute("data-theme");
+            document.documentElement.setAttribute("data-theme", theme);
+            currentCustomization.theme = theme;
+          });
+        });
+
+        // Opciones de forma en tiempo real
+        document.querySelectorAll(".shape-option-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".shape-option-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            const shape = btn.getAttribute("data-shape");
+            if (orb) {
+              orb.classList.remove("sphere-style-reactor", "sphere-style-rings", "sphere-style-waves", "sphere-style-crystal");
+              orb.classList.add(`sphere-style-${shape}`);
+            }
+            currentCustomization.sphereStyle = shape;
+          });
+        });
+
+        // Guardar cambios
+        if (btnSavePersonalization) {
+          btnSavePersonalization.addEventListener("click", async () => {
+            const prefTitleInput = document.getElementById("pref-user-title");
+            const prefToneSelect = document.getElementById("pref-user-tone");
+            const prefGreetingInput = document.getElementById("pref-custom-greeting");
+
+            const newCustom = {
+              userTitle: (prefTitleInput?.value || "").trim() || "Señor Santiago",
+              userTone: prefToneSelect?.value || "formal",
+              customGreeting: (prefGreetingInput?.value || "").trim() || currentCustomization.customGreeting,
+              theme: currentCustomization.theme,
+              sphereStyle: currentCustomization.sphereStyle
+            };
+
+            applyPersonalization(newCustom);
+
+            // Sincronizar con backend si está disponible
+            if (isServerConnected) {
+              try {
+                await fetch("/api/config", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(newCustom)
+                });
+              } catch(e) {}
+            }
+
+            personalizationModal?.classList.remove("active");
+            showToast("✓ Personalización aplicada exitosamente.");
+          });
+        }
+      }
+
+      // ========================================================
+      // MÓDULO DE CONTROL Y EJECUCIÓN EN WINDOWS PC
+      // ========================================================
+
+      async function refreshPCTelemetry() {
+        if (!isServerConnected) return;
+        try {
+          const res = await fetch("/api/system/info");
+          if (res.ok) {
+            const json = await res.json();
+            const d = json.data || {};
+            const cpuEl = document.getElementById("pc-cpu-val");
+            const ramEl = document.getElementById("pc-ram-val");
+            const diskEl = document.getElementById("pc-disk-val");
+            const osEl = document.getElementById("pc-os-val");
+
+            if (cpuEl && d.cpu) cpuEl.textContent = `${d.cpu.percent}%`;
+            if (ramEl && d.memory) ramEl.textContent = `${(d.memory.total_gb - d.memory.available_gb).toFixed(1)} / ${d.memory.total_gb} GB`;
+            if (diskEl && d.disk) diskEl.textContent = `${d.disk.free_gb} GB Libre`;
+            if (osEl) osEl.textContent = `${d.user} • ${d.os}`;
+          }
+        } catch(e) {}
+      }
+
+      function setupSystemPCEvents() {
+        const hudCardPC = document.getElementById("hud-card-system-pc");
+        if (hudCardPC) {
+          hudCardPC.addEventListener("click", () => {
+            const hudModal = document.getElementById("hud-interfaces-modal");
+            hudModal?.classList.remove("active");
+            systemPcModal?.classList.add("active");
+            refreshPCTelemetry();
+          });
+        }
+
+        // Chip rápido "Estado de mi PC"
+        const pcChip = document.querySelector('button[data-prompt="Consulta el estado de mi computadora: uso de CPU, memoria RAM y procesos activos."]');
+        if (pcChip) {
+          pcChip.addEventListener("click", (e) => {
+            e.stopPropagation();
+            systemPcModal?.classList.add("active");
+            refreshPCTelemetry();
+          });
+        }
+
+        if (btnCloseSystemPc) {
+          btnCloseSystemPc.addEventListener("click", () => {
+            systemPcModal?.classList.remove("active");
+          });
+        }
+
+        if (btnRefreshSystemPc) {
+          btnRefreshSystemPc.addEventListener("click", refreshPCTelemetry);
+        }
+
+        if (btnRunPcCommand) {
+          btnRunPcCommand.addEventListener("click", async () => {
+            const cmd = (pcCommandInput?.value || "").trim();
+            if (!cmd) {
+              alert("Por favor ingrese un comando a ejecutar.");
+              return;
+            }
+
+            try {
+              const res = await fetch("/api/system/execute", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  action: "system_run_command",
+                  params: { command: cmd, shell: "powershell" }
+                })
+              });
+
+              const data = await res.json();
+              if (data.pendingConfirmation) {
+                // Notificación de autorización requerida ("Audit First")
+                systemPcModal?.classList.remove("active");
+                renderSensitiveActionPrompt(data);
+              } else if (data.ok) {
+                showToast("✓ Comando ejecutado con éxito.");
+                if (data.result?.stdout) {
+                  alert(`Salida:\n${data.result.stdout}`);
+                }
+              }
+            } catch(e) {
+              alert("Error ejecutando acción en el equipo: " + e.message);
+            }
+          });
+        }
+      }
+
+      // Cargar personalización persistida del servidor
+      async function syncPersonalizationFromServer() {
+        try {
+          const res = await fetch("/api/config");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.personalization) {
+              applyPersonalization(data.personalization);
+            }
+          }
+        } catch(e) {}
       }
 
     })();

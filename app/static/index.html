@@ -44,11 +44,23 @@
       </div>
 
       <div class="top-actions">
+        <!-- BOTÓN PERSONALIZACIÓN (ESTUDIO COMPLETO) -->
+        <button class="hud-deck-btn" id="btn-open-personalization" title="Estudio de Personalización (Trato, Colores, Forma de la Esfera)">
+          <span class="hud-deck-icon">🎨</span>
+          <span>PERSONALIZACIÓN</span>
+        </button>
+
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES -->
         <button class="hud-deck-btn" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (HUD)">
           <span class="hud-deck-icon">◈</span>
-          <span>MÓDULOS DEL SISTEMA</span>
+          <span>MÓDULOS</span>
           <span class="hud-deck-badge">HUD</span>
+        </button>
+
+        <!-- BOTÓN ALTERNAR VISTA: ESFERA HOLOGRÁFICA vs CONSOLA -->
+        <button class="hud-view-toggle-btn active" id="btn-toggle-view" title="Cambiar modo de visualización: Esfera Holográfica / Consola Historial">
+          <span id="toggle-view-icon">🔮</span>
+          <span id="toggle-view-text">Esfera</span>
         </button>
 
         <!-- Botón de Voz Dulce de Liseth (Activar/Silenciar) -->
@@ -95,53 +107,83 @@
         </div>
       </div>
     </div>
-
-    <!-- Orbe animado -->
-    <div class="orb-container" id="orb" title="Liseth • En reposo (Haz clic para detener habla)">
-      <div class="orb-aura"></div>
-      <div class="orb-ring"></div>
-      <div class="orb-core"></div>
-    </div>
-
-    <h1 class="assistant-title">LISETH</h1>
-    <div class="assistant-status">
-      <span class="status-dot"></span>
-      <span id="status-label">A su entera disposición, Santiago</span>
-    </div>
   </header>
 
-  <!-- Píldoras de Acciones Rápidas -->
-  <div class="quick-chips">
-    <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
-      <span>⚡</span> Automatizar mi día
-    </button>
-    <button class="chip-btn" data-prompt="¿Qué tengo programado en mi agenda de Google Calendar y cuáles deberían ser mis prioridades hoy?">
-      <span>📅</span> Mi agenda Google
-    </button>
-    <button class="chip-btn" data-prompt="Ayúdame a redactar un correo formal e impecable para mi Gmail.">
-      <span>✉️</span> Redactar correo
-    </button>
-    <button class="chip-btn" data-prompt="Dame un script en PowerShell o Batch para limpiar y organizar mis archivos de descargas automáticamente.">
-      <span>📂</span> Script de descargas
-    </button>
-  </div>
+  <!-- ESCENARIO PRINCIPAL HOLOGRÁFICO: ESFERA CON ONDAS SONORAS Y TRANSCIPCIÓN -->
+  <div class="holographic-main-stage" id="holographic-main-stage">
+    <!-- 1. VISTA PREDETERMINADA: ESFERA HOLOGRÁFICA CON ONDAS -->
+    <div class="sphere-workspace" id="sphere-workspace">
+      <!-- Canvas de ondas sonoras dinámicas -->
+      <div class="voice-waves-canvas-wrapper">
+        <canvas id="voice-waves-canvas" width="600" height="600"></canvas>
+      </div>
 
-  <!-- Historial de Conversación -->
-  <main id="chat-container">
-    <!-- Banner de Alerta de Almacenamiento -->
-    <div id="storage-warning-banner" class="storage-warning-banner" style="display: none;">
-      <div class="storage-warning-content">
-        <span class="storage-warning-icon">⚠️</span>
-        <div class="storage-warning-text">
-          <strong>Memoria local casi llena (<span id="storage-warning-mb">4.0</span> MB / 5.0 MB):</strong>
-          <span>Le sugerimos exportar su memoria y eliminar conversaciones antiguas para evitar pérdida de datos.</span>
+      <!-- Gran Esfera Central -->
+      <div class="orb-stage-wrapper">
+        <div class="orb-container sphere-large sphere-style-reactor" id="orb" title="Liseth • En reposo (Haz clic para pausar/activar habla)">
+          <div class="orb-aura"></div>
+          <div class="orb-rings-container">
+            <div class="orb-ring ring-1"></div>
+            <div class="orb-ring ring-2"></div>
+            <div class="orb-ring ring-3"></div>
+          </div>
+          <div class="orb-core"></div>
+        </div>
+
+        <h1 class="assistant-title" id="assistant-display-name">LISETH</h1>
+        <div class="assistant-status">
+          <span class="status-dot"></span>
+          <span id="status-label">A su entera disposición, Señor Santiago</span>
         </div>
       </div>
-      <button class="btn-warning-action" id="btn-warning-export">Exportar Memoria</button>
+
+      <!-- Subtítulos Holográficos Flotantes -->
+      <div class="hud-transcript-display" id="hud-transcript-display">
+        <div class="hud-transcript-badge">
+          <span class="pulse-dot"></span>
+          <span id="transcript-speaker">LISETH</span>
+        </div>
+        <div class="hud-transcript-text" id="hud-transcript-text">
+          "A sus órdenes, Señor Santiago. Todos los sistemas están en línea y listos para ejecutar sus órdenes."
+        </div>
+      </div>
+
+      <!-- Píldoras de Acciones Rápidas -->
+      <div class="quick-chips" style="margin-top: 18px;">
+        <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
+          <span>⚡</span> Automatizar mi día
+        </button>
+        <button class="chip-btn" data-prompt="¿Qué tengo programado en mi agenda de Google Calendar y cuáles deberían ser mis prioridades hoy?">
+          <span>📅</span> Mi agenda Google
+        </button>
+        <button class="chip-btn" data-prompt="Ayúdame a redactar un correo formal e impecable para mi Gmail.">
+          <span>✉️</span> Redactar correo
+        </button>
+        <button class="chip-btn" data-prompt="Consulta el estado de mi computadora: uso de CPU, memoria RAM y procesos activos.">
+          <span>💻</span> Estado de mi PC
+        </button>
+      </div>
     </div>
 
-    <div class="chat-wrapper" id="chat-messages"></div>
-  </main>
+    <!-- 2. VISTA ALTERNATIVA: CONSOLA DE MENSAJES CLÁSICA -->
+    <div class="console-workspace hidden" id="console-workspace">
+      <main id="chat-container">
+        <!-- Banner de Alerta de Almacenamiento -->
+        <div id="storage-warning-banner" class="storage-warning-banner" style="display: none;">
+          <div class="storage-warning-content">
+            <span class="storage-warning-icon">⚠️</span>
+            <div class="storage-warning-text">
+              <strong>Memoria local casi llena (<span id="storage-warning-mb">4.0</span> MB / 5.0 MB):</strong>
+              <span>Le sugerimos exportar su memoria y eliminar conversaciones antiguas para evitar pérdida de datos.</span>
+            </div>
+          </div>
+          <button class="btn-warning-action" id="btn-warning-export">Exportar Memoria</button>
+        </div>
+
+        <div class="chat-wrapper" id="chat-messages"></div>
+      </main>
+    </div>
+  </div>
 
   <!-- Barra de Entrada Inferior con Subida de Archivos -->
   <footer>
@@ -956,6 +998,28 @@
           <div class="hud-card-desc">Voz neuronal dulce de Liseth (Edge/ElevenLabs), velocidad, tono, llaves de API y red local.</div>
           <div class="hud-card-action"><span>Configurar</span> <span>→</span></div>
         </div>
+
+        <!-- 11. Estudio de Personalización -->
+        <div class="hud-card" data-category="system" id="hud-card-personalization">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #d946ef; border-color: rgba(217, 70, 239, 0.4); background: rgba(217, 70, 239, 0.12);">🎨</div>
+            <span class="hud-card-status status-online">ACTIVO</span>
+          </div>
+          <div class="hud-card-title">Estudio de Personalización</div>
+          <div class="hud-card-desc">Cómo te llama Liseth (Señor Santiago, Jefe...), paletas de color y forma de la esfera.</div>
+          <div class="hud-card-action"><span>Personalizar</span> <span>→</span></div>
+        </div>
+
+        <!-- 12. Control y Ejecución en Windows PC -->
+        <div class="hud-card" data-category="system" id="hud-card-system-pc">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">💻</div>
+            <span class="hud-card-status status-online">LOCAL PC</span>
+          </div>
+          <div class="hud-card-title">Control de Windows PC</div>
+          <div class="hud-card-desc">Telemetría de hardware, ejecución de comandos y apps en el equipo con auditoría previa.</div>
+          <div class="hud-card-action"><span>Ver PC</span> <span>→</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1011,6 +1075,169 @@
 
       <div class="modal-actions">
         <button class="btn-secondary" id="btn-close-scheduler" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ESTUDIO DE PERSONALIZACIÓN COMPLETO -->
+  <div class="modal-overlay" id="personalization-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: var(--accent-blue); border-color: var(--accent-glow); background: rgba(0, 210, 255, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Estudio de Personalización</h2>
+          <p>Configuración de Identidad, Paleta de Colores y Esfera Holográfica</p>
+        </div>
+      </div>
+
+      <div class="personalization-grid">
+        <!-- SECCIÓN 1: TRATO E IDENTIDAD -->
+        <div class="personalization-card">
+          <h3><span>👤</span> ¿Cómo quiere que Liseth se dirija a usted?</h3>
+          <p>Elija el título, apelativo o trato preferido con el que Liseth le responderá siempre.</p>
+          <input type="text" id="pref-user-title" class="input-text" placeholder="Ej: Señor Santiago, Jefe, Comandante..." value="Señor Santiago" style="width: 100%; margin-bottom: 8px;">
+          <div class="title-chips">
+            <button type="button" class="title-chip-btn active" data-title="Señor Santiago">Señor Santiago</button>
+            <button type="button" class="title-chip-btn" data-title="Jefe">Jefe</button>
+            <button type="button" class="title-chip-btn" data-title="Comandante">Comandante</button>
+            <button type="button" class="title-chip-btn" data-title="Santiago">Santiago</button>
+            <button type="button" class="title-chip-btn" data-title="Creador">Creador</button>
+          </div>
+
+          <div style="margin-top: 14px;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Tono conversacional de Liseth:</label>
+            <select id="pref-user-tone" class="input-text" style="width: 100%;">
+              <option value="formal">Formal y Leal (Estilo JARVIS Stark)</option>
+              <option value="dulce">Cálido y Tierno (Liseth Dulce)</option>
+              <option value="tecnico">Técnico y Ejecutivo (Directo y conciso)</option>
+            </select>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Saludo personalizado de inicio:</label>
+            <input type="text" id="pref-custom-greeting" class="input-text" style="width: 100%;" value="A sus órdenes, Señor Santiago. Todos los sistemas están en línea.">
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: PALETA DE COLORES -->
+        <div class="personalization-card">
+          <h3><span>🎨</span> Colores y Estilo Visual del Entorno</h3>
+          <p>Personalice el aura, neón, acentos y sombras de toda la interfaz y la esfera.</p>
+          <div class="theme-selector-grid">
+            <button type="button" class="theme-option-btn active" data-theme="arc_cyan">
+              <div class="theme-swatch" style="background: radial-gradient(circle, #00d2ff, #0a47a3);"></div>
+              <span class="theme-name">Arc Cyan</span>
+            </button>
+            <button type="button" class="theme-option-btn" data-theme="cyberpunk">
+              <div class="theme-swatch" style="background: radial-gradient(circle, #d946ef, #701a75);"></div>
+              <span class="theme-name">Cyberpunk</span>
+            </button>
+            <button type="button" class="theme-option-btn" data-theme="matrix">
+              <div class="theme-swatch" style="background: radial-gradient(circle, #10b981, #064e3b);"></div>
+              <span class="theme-name">Matrix Emerald</span>
+            </button>
+            <button type="button" class="theme-option-btn" data-theme="stark_gold">
+              <div class="theme-swatch" style="background: radial-gradient(circle, #f59e0b, #78350f);"></div>
+              <span class="theme-name">Stark Gold</span>
+            </button>
+            <button type="button" class="theme-option-btn" data-theme="sakura">
+              <div class="theme-swatch" style="background: radial-gradient(circle, #f472b6, #831843);"></div>
+              <span class="theme-name">Sakura Pink</span>
+            </button>
+            <button type="button" class="theme-option-btn" data-theme="cosmos">
+              <div class="theme-swatch" style="background: radial-gradient(circle, #6366f1, #312e81);"></div>
+              <span class="theme-name">Deep Cosmos</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: FORMA Y DINÁMICA DE LA ESFERA -->
+        <div class="personalization-card">
+          <h3><span>🔮</span> Forma y Núcleo de la Esfera Holográfica</h3>
+          <p>Modifique la estructura geométrica, anillos orbitales y pulso de plasma de Liseth.</p>
+          <div class="shape-selector-grid">
+            <button type="button" class="shape-option-btn active" data-shape="reactor">
+              <span class="shape-icon">🔘</span>
+              <span class="theme-name">Reactor Clásico</span>
+            </button>
+            <button type="button" class="shape-option-btn" data-shape="rings">
+              <span class="shape-icon">🪐</span>
+              <span class="theme-name">Anillos Cuánticos</span>
+            </button>
+            <button type="button" class="shape-option-btn" data-shape="waves">
+              <span class="shape-icon">🌊</span>
+              <span class="theme-name">Pulso Acústico</span>
+            </button>
+            <button type="button" class="shape-option-btn" data-shape="crystal">
+              <span class="shape-icon">💎</span>
+              <span class="theme-name">Núcleo Cristal</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-personalization" type="button">Cerrar</button>
+        <button class="btn-primary" id="btn-save-personalization" type="button">Guardar y Aplicar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONTROL Y EJECUCIÓN EN WINDOWS PC -->
+  <div class="modal-overlay" id="system-pc-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.1);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+        </div>
+        <div class="modal-title">
+          <h2>Control de Computadora (Windows PC)</h2>
+          <p>Telemetría, Ejecución de Procesos y Gestión de Archivos de Santiago</p>
+        </div>
+      </div>
+
+      <!-- Hardware Telemetry Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px;">
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3); text-align: center;">
+          <div style="font-size: 0.72rem; color: var(--text-muted);">CPU:</div>
+          <div id="pc-cpu-val" style="font-size: 1.15rem; font-weight: 700; color: #00d2ff; font-family: var(--font-mono);">--%</div>
+        </div>
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3); text-align: center;">
+          <div style="font-size: 0.72rem; color: var(--text-muted);">MEMORIA RAM:</div>
+          <div id="pc-ram-val" style="font-size: 1.15rem; font-weight: 700; color: #38ef7d; font-family: var(--font-mono);">-- GB</div>
+        </div>
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3); text-align: center;">
+          <div style="font-size: 0.72rem; color: var(--text-muted);">ALMACENAMIENTO:</div>
+          <div id="pc-disk-val" style="font-size: 1.15rem; font-weight: 700; color: #ffd166; font-family: var(--font-mono);">-- GB</div>
+        </div>
+        <div style="background: rgba(18, 28, 48, 0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(45, 90, 160, 0.3); text-align: center;">
+          <div style="font-size: 0.72rem; color: var(--text-muted);">USUARIO / SO:</div>
+          <div id="pc-os-val" style="font-size: 0.85rem; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Windows</div>
+        </div>
+      </div>
+
+      <!-- Consola de Ejecución con Confirmación -->
+      <div class="section-title"><span>⚡ Ejecución de Comandos & Aplicaciones</span></div>
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="text" id="pc-command-input" class="input-text" placeholder="Ej: Start-Process calc / notepad.exe / dir..." style="flex: 1;">
+        <button class="btn-primary" id="btn-run-pc-command" style="padding: 10px 16px;">Ejecutar</button>
+      </div>
+      <div style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 14px;">
+        🔒 Toda acción que modifique el equipo o inicie programas solicitará su autorización previa inmediata ("Audit First").
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-close-system-pc" type="button">Cerrar</button>
+        <button class="btn-secondary" id="btn-refresh-system-pc" type="button">Actualizar Telemetría</button>
       </div>
     </div>
   </div>
