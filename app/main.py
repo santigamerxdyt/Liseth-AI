@@ -80,6 +80,9 @@ EXEMPT_API_PATHS = {
     "/api/brain/test-models",
     "/api/brain/stats",
     "/api/brain/force",
+    "/api/brain/soul",
+    "/api/brain/skills",
+    "/api/brain/memories/remember",
 }
 
 

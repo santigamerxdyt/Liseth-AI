@@ -35,10 +35,13 @@ async def chat_endpoint(req: ChatRequest):
     If Gemini is unavailable, automatically fails over to Claude.
     """
     try:
+        from app.services.soul_service import soul_service
+        enriched_system_instruction = soul_service.build_system_instruction(req.systemInstruction)
+
         res = await brain_router.generate_response(
             prompt=req.prompt,
             contents=req.contents,
-            system_prompt=req.systemInstruction,
+            system_prompt=enriched_system_instruction,
             tools=req.tools,
             api_key_gemini=req.apiKey,
         )
@@ -113,3 +116,55 @@ async def force_brain(req: ForceBrainRequest):
             "message": f"Cerebro fijado a: {brain_router.forced_brain or 'Automático (Failover)'}",
         }
     raise HTTPException(status_code=400, detail="Cerebro no válido. Usa 'gemini', 'claude' o null.")
+
+
+class SoulUpdateRequest(BaseModel):
+    content: str
+
+
+class MemoryAddRequest(BaseModel):
+    note: str
+    target: str = "memory"
+
+
+@router.get("/soul")
+async def get_soul_endpoint():
+    """Returns the current SOUL identity and active memories."""
+    from app.services.soul_service import soul_service
+    return {
+        "ok": True,
+        "soul": soul_service.get_soul(),
+        "userMemory": soul_service.get_user_memory(),
+        "systemMemory": soul_service.get_system_memory(),
+    }
+
+
+@router.post("/soul")
+async def update_soul_endpoint(req: SoulUpdateRequest):
+    """Updates the contents of SOUL.md."""
+    from app.services.soul_service import soul_service
+    success = soul_service.save_soul(req.content)
+    if not success:
+        raise HTTPException(status_code=500, detail="No se pudo guardar el archivo SOUL.md")
+    return {"ok": True, "message": "SOUL.md actualizado correctamente."}
+
+
+@router.post("/memories/remember")
+async def add_memory_endpoint(req: MemoryAddRequest):
+    """Appends a new memory note to USER.md or MEMORY.md."""
+    from app.services.soul_service import soul_service
+    success = soul_service.append_memory(req.note, req.target)
+    if not success:
+        raise HTTPException(status_code=500, detail="No se pudo guardar la nota de memoria")
+    return {"ok": True, "message": f"Nota guardada en memoria ({req.target})."}
+
+
+@router.get("/skills")
+async def get_skills_endpoint():
+    """Lists all modular skills discovered in skills/*/SKILL.md."""
+    from app.services.soul_service import soul_service
+    return {
+        "ok": True,
+        "skills": soul_service.list_skills(),
+    }
+

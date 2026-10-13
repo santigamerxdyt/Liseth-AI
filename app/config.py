@@ -122,6 +122,8 @@ class Settings:
 
         # Voice APIs (Optional external providers)
         self.ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "").strip()
+        self.ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "").strip()
+        self.ELEVENLABS_MODEL_ID: str = os.getenv("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2").strip()
         self.OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
 
     def validate_security(self, strict: bool = True):
