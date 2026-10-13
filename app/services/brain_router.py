@@ -175,10 +175,12 @@ class BrainRouter:
         else:
             raise ValueError("Se requiere al menos un prompt o historial contents.")
 
-        # Build candidate model list with active model first
-        models_to_try = [self.active_gemini_model] + [
-            m for m in GEMINI_PRIORITY_MODELS if m != self.active_gemini_model
-        ]
+        # Build candidate model list with verified active model first, limited to top 3 to avoid latency
+        models_to_try = [self.active_gemini_model]
+        for m in ["gemini-3.5-flash", "gemini-3-flash-preview", "gemini-3.8-flash"]:
+            if m not in models_to_try:
+                models_to_try.append(m)
+        models_to_try = models_to_try[:3]
 
         last_error = None
         for idx, model in enumerate(models_to_try):
@@ -193,17 +195,17 @@ class BrainRouter:
             if system_prompt:
                 payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
 
-            # Attempt model with automatic backoff for 503 spikes
+            # Fast attempt with smart backoff
             for attempt in range(2):
                 try:
-                    async with httpx.AsyncClient(timeout=35.0) as client:
+                    async with httpx.AsyncClient(timeout=12.0) as client:
                         resp = await client.post(url, json=payload)
 
                         # Handle high demand / transient server error
                         if resp.status_code in [503, 502, 504]:
                             if attempt == 0:
-                                logger.info(f"[AUTO_HEAL] {model} respondió 503 (demanda alta). Pausando 1.2s para reintentar...")
-                                await asyncio.sleep(1.2)
+                                logger.info(f"[AUTO_HEAL] {model} respondió 503 (demanda alta). Pausa breve 0.6s...")
+                                await asyncio.sleep(0.6)
                                 continue
                             else:
                                 logger.warning(f"[AUTO_HEAL] {model} saturado tras reintento. Probando siguiente modelo...")
@@ -250,18 +252,18 @@ class BrainRouter:
                 except Exception as e:
                     last_error = e
                     if attempt == 0:
-                        await asyncio.sleep(0.8)
+                        await asyncio.sleep(0.4)
                     else:
                         break
 
-        # If static candidates failed, attempt dynamic live model discovery as a last autonomous effort
+        # If primary candidates failed, try dynamic live model discovery as quick fallback
         try:
             logger.info("[AUTO_HEAL] Consultando API de Google para descubrir nuevos modelos en vivo...")
             live_models = await self.fetch_live_gemini_models(api_key)
             untested = [m for m in live_models if m not in models_to_try]
-            for model in untested[:3]:
+            for model in untested[:2]:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                async with httpx.AsyncClient(timeout=25.0) as client:
+                async with httpx.AsyncClient(timeout=10.0) as client:
                     resp = await client.post(url, json=payload)
                     if resp.status_code == 200:
                         data = resp.json()

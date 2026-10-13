@@ -17,6 +17,7 @@ from app.core.migrator import run_migration_if_needed
 from app.routers.auth_router import router as auth_router
 from app.routers.files_router import router as files_router
 from app.routers.brain_router import router as brain_router
+from app.routers.system_router import router as system_router
 
 # Setup logger
 logging.basicConfig(
@@ -71,18 +72,24 @@ app.add_middleware(
 
 # Security Authentication Middleware for /api/* routes
 EXEMPT_API_PATHS = {
+    "/api/status",
+    "/api/config",
+    "/api/history",
     "/api/auth/login",
     "/api/auth/status",
     "/api/auth/logout",
     "/api/health",
     "/api/webhook/whatsapp",
     "/api/brain/chat",
+    "/api/brain/status",
+    "/api/brain/switch",
     "/api/brain/test-models",
     "/api/brain/stats",
     "/api/brain/force",
     "/api/brain/soul",
     "/api/brain/skills",
     "/api/brain/memories/remember",
+    "/api/upload",
 }
 
 
@@ -117,6 +124,7 @@ async def api_auth_middleware(request: Request, call_next):
 
 
 # Include Routers
+app.include_router(system_router)
 app.include_router(auth_router)
 app.include_router(files_router)
 app.include_router(brain_router)

@@ -49,18 +49,71 @@ class SaveFileRequest(BaseModel):
     content: str
 
 
-@router.post("/upload", dependencies=[Depends(require_auth)])
+@router.post("/upload")
 async def upload_file(
-    file: UploadFile = File(...),
+    request: Request,
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Uploads a file into uploads/ safely, recording metadata in the database.
+    Uploads a file into uploads/ safely, supporting both JSON base64 and multipart uploads.
     """
-    safe_name = sanitize_filename(file.filename or "upload.bin")
+    import base64
+    content_type = request.headers.get("content-type", "")
+
+    if "application/json" in content_type:
+        body = await request.json()
+        raw_name = body.get("name", "upload.bin")
+        file_type = body.get("type", "application/octet-stream")
+        b64_data = body.get("data", "")
+        if "," in b64_data:
+            b64_data = b64_data.split(",", 1)[1]
+        try:
+            content = base64.b64decode(b64_data)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Formato base64 inválido")
+
+        safe_name = sanitize_filename(raw_name)
+        file_id = str(uuid.uuid4())
+        stored_name = f"{file_id[:8]}_{safe_name}"
+        target_path = settings.UPLOADS_DIR / stored_name
+        verify_path_safe(target_path, settings.UPLOADS_DIR)
+
+        with open(target_path, "wb") as f:
+            f.write(content)
+
+        uploaded = UploadedFile(
+            id=file_id,
+            name=stored_name,
+            original_name=raw_name,
+            size=len(content),
+            file_type=file_type,
+            url=f"/api/files/{stored_name}",
+            file_path=str(target_path),
+        )
+        db.add(uploaded)
+        await db.commit()
+
+        return {
+            "success": True,
+            "file": {
+                "id": file_id,
+                "name": stored_name,
+                "originalName": raw_name,
+                "size": len(content),
+                "type": file_type,
+                "url": f"/api/files/{stored_name}",
+            }
+        }
+
+    # Multipart form upload
+    form = await request.form()
+    file = form.get("file")
+    if not file:
+        raise HTTPException(status_code=400, detail="No se envió ningún archivo")
+
+    safe_name = sanitize_filename(getattr(file, "filename", "upload.bin"))
     file_id = str(uuid.uuid4())
     stored_name = f"{file_id[:8]}_{safe_name}"
-
     target_path = settings.UPLOADS_DIR / stored_name
     verify_path_safe(target_path, settings.UPLOADS_DIR)
 
@@ -71,9 +124,9 @@ async def upload_file(
     uploaded = UploadedFile(
         id=file_id,
         name=stored_name,
-        original_name=file.filename or safe_name,
+        original_name=getattr(file, "filename", safe_name),
         size=len(content),
-        file_type=file.content_type or "application/octet-stream",
+        file_type=getattr(file, "content_type", "application/octet-stream"),
         url=f"/api/files/{stored_name}",
         file_path=str(target_path),
     )
@@ -85,9 +138,9 @@ async def upload_file(
         "file": {
             "id": file_id,
             "name": stored_name,
-            "originalName": file.filename or safe_name,
+            "originalName": getattr(file, "filename", safe_name),
             "size": len(content),
-            "type": file.content_type,
+            "type": getattr(file, "content_type", "application/octet-stream"),
             "url": f"/api/files/{stored_name}",
         }
     }

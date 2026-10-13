@@ -975,7 +975,7 @@ Tus habilidades clave:
 
         if ((!text && attached.length === 0) || isThinking) return;
 
-        if (!apiKey) {
+        if (!apiKey && !isServerConnected) {
           showModal(false);
           return;
         }
@@ -1137,17 +1137,21 @@ Tus habilidades clave:
       async function callGeminiAPI(apiKey, history) {
         // Si el servidor local está activo, invocar mediante /api/brain/chat (Failover Gemini/Claude + Function Calling de Google)
         if (isServerConnected) {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 20000);
           try {
             const serverRes = await fetch("/api/brain/chat", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
+              signal: controller.signal,
               body: JSON.stringify({
                 systemInstruction: buildEffectiveSystemInstruction(),
                 contents: history,
-                apiKey: apiKey
+                apiKey: apiKey || ""
               })
             });
+            clearTimeout(timeoutId);
 
             if (serverRes.ok) {
               const data = await serverRes.json();
@@ -1175,16 +1179,15 @@ Tus habilidades clave:
               return `🛑 **Atención:** ${errData.error || 'Se ha alcanzado el límite diario de tokens configurado.'}\n\nLas consultas se han detenido de forma preventiva para proteger sus cuotas y costes. Puede ampliar el límite en su archivo \`.env\` (\`DAILY_TOKEN_LIMIT\`).`;
             }
           } catch (servErr) {
-            console.warn("Fallo en /api/brain/chat, recurriendo a cliente directo:", servErr);
+            clearTimeout(timeoutId);
+            console.warn("Fallo o timeout en /api/brain/chat, recurriendo a cliente directo:", servErr);
           }
         }
 
         // Modo autónomo en cliente (Fallback si no hay servidor)
-        // Comprobar cada modelo uno por uno empezando por el activo
-        const orderedCandidateModels = [
-          activeGeminiModel,
-          ...CANDIDATE_MODELS.filter(m => m !== activeGeminiModel)
-        ];
+        // Comprobar únicamente los 2 mejores modelos verificados para evitar esperas largas
+        const candidatePool = [activeGeminiModel, "gemini-3.5-flash", "gemini-3-flash-preview"];
+        const orderedCandidateModels = [...new Set(candidatePool.filter(Boolean))].slice(0, 2);
 
         let lastError = null;
         for (const model of orderedCandidateModels) {
@@ -1200,7 +1203,7 @@ Tus habilidades clave:
           } catch (err) {
             lastError = err;
             const isRetryableError =
-              err.code === 404 || err.code === 503 || err.code === 429 || err.code === 500 || err.code === 502 ||
+              err.code === "TIMEOUT" || err.code === 404 || err.code === 503 || err.code === 429 || err.code === 500 || err.code === 502 ||
               err.status === "NOT_FOUND" || err.status === "UNAVAILABLE" || err.status === "RESOURCE_EXHAUSTED" ||
               (err.googleMessage && (
                 err.googleMessage.toLowerCase().includes("not found") ||
@@ -1213,7 +1216,7 @@ Tus habilidades clave:
               ));
 
             if (isRetryableError) {
-              console.warn(`[Liseth AI] Modelo ${model} no disponible (${err.code}), comprobando el siguiente modelo de la lista...`, err);
+              console.warn(`[Liseth AI] Modelo ${model} no disponible (${err.code}), comprobando el siguiente modelo...`, err);
               continue;
             }
             throw err;
@@ -1267,19 +1270,25 @@ Tus habilidades clave:
           }
         };
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
         let response;
         try {
           response = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
             body: JSON.stringify(payload)
           });
+          clearTimeout(timeoutId);
         } catch (netErr) {
-          const customErr = new Error("No se pudo conectar con los servidores de Google (Fallo de red).");
-          customErr.code = "NETWORK_ERROR";
-          customErr.status = "FETCH_FAILED";
+          clearTimeout(timeoutId);
+          const isTimeout = netErr.name === "AbortError";
+          const customErr = new Error(isTimeout ? "Tiempo de espera agotado (15s)." : "No se pudo conectar con los servidores de Google (Fallo de red).");
+          customErr.code = isTimeout ? "TIMEOUT" : "NETWORK_ERROR";
+          customErr.status = isTimeout ? "TIMEOUT" : "FETCH_FAILED";
           customErr.modelUsed = modelName;
-          customErr.googleMessage = `Fallo en fetch: ${netErr.name} - ${netErr.message}`;
+          customErr.googleMessage = isTimeout ? "El servidor de Google demoró más de 15 segundos en responder." : `Fallo en fetch: ${netErr.name} - ${netErr.message}`;
           customErr.rawResponse = { error: { message: netErr.message, name: netErr.name } };
           throw customErr;
         }

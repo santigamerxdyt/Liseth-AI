@@ -71,6 +71,7 @@ async def chat_endpoint(req: ChatRequest):
         }
 
 
+@router.get("/status")
 @router.get("/stats")
 async def get_brain_stats():
     """Returns token consumption, limits, and active brain stats."""
@@ -103,6 +104,7 @@ async def test_models_endpoint(key: Optional[str] = None):
     }
 
 
+@router.post("/switch")
 @router.post("/force")
 async def force_brain(req: ForceBrainRequest):
     """Forces the active brain to a specific provider or returns to auto."""
