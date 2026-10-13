@@ -81,6 +81,28 @@ El sistema cuenta con un motor de ejecución en segundo plano (`ticker` cada 30 
 
 ---
 
+## 💰 Control de Costes, Modelos y Límites de Tokens (Fase 4)
+
+JARVIS integra un sistema contable y de protección preventiva contra sobrecostes en [`lib/ai/BrainRouter.js`](file:///c:/Users/Usuario/Desktop/MI%20LISEHT/lib/ai/BrainRouter.js):
+
+### 1. Límite Diario de Tokens & Bloqueo Preventivo
+- **Límite Configurable**: `DAILY_TOKEN_LIMIT` en `.env` (por defecto `100,000` tokens).
+- **Protección Activa**: Si el consumo acumulado del día alcanza el límite, el servidor detiene las consultas retornando error `429 Too Many Requests` y envía una alerta proactiva por WhatsApp/Telegram.
+- **Alerta Temprana**: Al superar `ALERT_THRESHOLD_PCT` (por defecto 80%), notifica al usuario del consumo alcanzado.
+- **Rollover Automático a Medianoche**: Al cambiar la fecha calendario, las estadísticas diarias de tokens y costes se reinician limpiamente a cero.
+
+### 2. Parametrización de Modelos de Inteligencia Artificial
+- **Google Gemini**: Configurable mediante `GEMINI_MODEL` (ej. `gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`).
+- **Anthropic Claude**: Configurable mediante `ANTHROPIC_MODEL` (ej. `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`).
+- Soporte para override puntual por llamada en `options.model`.
+
+### 3. Estimación Financiera de Costes (USD)
+- Tarifas oficiales por 1,000 tokens integradas en `DEFAULT_RATES` (o configurables vía variables de entorno).
+- Desglose contable en tiempo real expuesto en `GET /api/brain/status` y `GET /api/stats`.
+- Visualización interactiva en el modal de Cerebro en [`jarvis.html`](file:///c:/Users/Usuario/Desktop/MI%20LISEHT/jarvis.html) con indicador en vivo de costes hoy y del mes, desglose por modelo y barra de consumo con alertas visuales.
+
+---
+
 ## 🚀 Inicio Rápido
 
 ### Requisitos

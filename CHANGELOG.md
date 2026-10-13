@@ -5,6 +5,36 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [2.4.0] - 2026-10-12
+
+### Añadido (Fase 4 — Control de Costes, Modelos y Límites de Tokens)
+- **Control y Bloqueo de Límite Diario de Tokens (`lib/ai/BrainRouter.js`)**:
+  - Bloqueo preventivo de consultas cuando el consumo acumulado de hoy supera `DAILY_TOKEN_LIMIT` (por defecto 100,000 tokens, configurable en `.env` o en tiempo de ejecución).
+  - Emisión de alerta preventiva inmediata vía WhatsApp/Telegram al alcanzar el umbral porcentual (`ALERT_THRESHOLD_PCT`, por defecto 80%).
+  - Rollover diario automático (`checkDailyRollover`) que reinicia los contadores diarios (`input`, `output`, `costEstimate`) al cambiar la fecha, evitando acumulaciones interdiarias.
+  - Excepción para llamadas críticas del sistema mediante bandera `bypassLimit`.
+- **Parametrización Dinámica de Modelos**:
+  - Modelo de Google Gemini configurable vía variable de entorno `GEMINI_MODEL` (soporte nativo para `gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`).
+  - Modelo de Anthropic Claude configurable vía variable de entorno `ANTHROPIC_MODEL` (soporte nativo para `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`, `claude-3-haiku-20240307`).
+  - Posibilidad de anular o especificar modelo por llamada en las opciones del enrutador (`options.model`).
+- **Estimación y Desglose Financiero de Costes (USD)**:
+  - Tarifas de API oficiales integradas por 1,000 tokens (`DEFAULT_RATES`) con posibilidad de ajuste fino mediante variables de entorno (`GEMINI_INPUT_COST_PER_1K`, etc.).
+  - Registro de costes en microdólares en cada invocación (`costEstimate`), acumulado en el día y en el mes.
+  - Desglose contable independiente por cerebro (`byBrain.gemini` y `byBrain.claude`).
+- **Servidor y Endpoints REST (`server.js`)**:
+  - `GET /api/brain/status` y `GET /api/stats`: Devuelve informe unificado con cerebro activo, modelos, estadísticas de tokens, límites y estimación de costos en USD.
+  - `POST /api/brain/limits`: Permite ajustar el límite diario y umbral de alerta en tiempo real.
+  - Manejo de error `429 Too Many Requests` en `/api/brain/chat` al superar la cuota diaria, devolviendo métricas y aviso descriptivo.
+- **Interfaz Gráfica (`jarvis.html`)**:
+  - Modal de Cerebro actualizado con indicadores en vivo de los modelos activos de Gemini y Claude.
+  - Monitor de costes en USD (día y mes) con desglose por cada IA.
+  - Barra de progreso de consumo con cambios de color contextuales (azul cian normal, amarillo ámbar al 80%, rojo carmesí al 100%).
+  - Alerta visual destacada cuando se supera el límite diario.
+- **Suite de Pruebas Unitarias (`test/suite.js`)**:
+  - 4 nuevas pruebas unitarias añadidas (22 pruebas en total, 100% de éxito) cubriendo rechazo 429 por límite diario, parametrización de modelos, cálculo exacto de costes por cerebro y rollover de medianoche.
+
+---
+
 ## [2.3.0] - 2026-10-12
 
 ### Añadido (Fase 3 — Programador de Tareas y Mensajería WhatsApp/Telegram)

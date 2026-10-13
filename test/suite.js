@@ -472,4 +472,127 @@ test('Telegram: Comandos interactivos y respuestas de Liseth con BrainRouter', a
   }
 });
 
+// ==========================================
+// 8. PRUEBAS DE CONTROL DE COSTES, MODELOS Y LÍMITES DE TOKENS (FASE 4)
+// ==========================================
+test('BrainRouter: Bloqueo de consultas al alcanzar el límite diario de tokens (DAILY_TOKEN_LIMIT)', async () => {
+  const router = new BrainRouter();
+  router.limits.dailyTokenLimit = 2000;
+  router.tokenStats.today = { input: 1500, output: 600, costEstimate: 0.001 }; // Total 2100 > 2000
+
+  // 1. Debe rechazar la consulta con error de límite diario
+  let errorCaught = null;
+  try {
+    await router.generateResponse({
+      apiKeyGemini: 'mock-key',
+      contents: [{ role: 'user', parts: [{ text: 'Consulta bloqueada' }] }]
+    });
+  } catch (err) {
+    errorCaught = err;
+  }
+
+  assert.ok(errorCaught, 'Debe haber lanzado un error');
+  assert.strictEqual(errorCaught.dailyLimitExceeded, true, 'Debe marcar dailyLimitExceeded: true');
+  assert.strictEqual(errorCaught.code, 429, 'Debe tener código 429');
+  assert.ok(errorCaught.message.includes('Límite diario de tokens alcanzado'));
+
+  // 2. Con bypassLimit: true debe permitir la ejecución
+  router._callGemini = async () => ({ text: 'Respuesta con bypass', tokens: { input: 10, output: 5 } });
+  const bypassRes = await router.generateResponse({
+    apiKeyGemini: 'mock-key',
+    contents: [],
+    bypassLimit: true
+  });
+  assert.strictEqual(bypassRes.text, 'Respuesta con bypass');
+});
+
+test('BrainRouter: Parametrización de modelos para Gemini y Claude', () => {
+  const router = new BrainRouter();
+
+  // Valores por defecto
+  delete process.env.GEMINI_MODEL;
+  delete process.env.ANTHROPIC_MODEL;
+  assert.strictEqual(router.getGeminiModel(), 'gemini-2.0-flash');
+  assert.strictEqual(router.getClaudeModel(), 'claude-3-5-sonnet-20241022');
+
+  // Configuración mediante variables de entorno
+  process.env.GEMINI_MODEL = 'gemini-1.5-pro';
+  process.env.ANTHROPIC_MODEL = 'claude-3-5-haiku-20241022';
+  assert.strictEqual(router.getGeminiModel(), 'gemini-1.5-pro');
+  assert.strictEqual(router.getClaudeModel(), 'claude-3-5-haiku-20241022');
+
+  // Override específico en llamada
+  assert.strictEqual(router.getGeminiModel('gemini-1.5-flash'), 'gemini-1.5-flash');
+  assert.strictEqual(router.getClaudeModel('claude-3-haiku-20240307'), 'claude-3-haiku-20240307');
+
+  // Limpieza de entorno
+  delete process.env.GEMINI_MODEL;
+  delete process.env.ANTHROPIC_MODEL;
+});
+
+test('BrainRouter: Estimación de costes y desglose por cerebro', () => {
+  const router = new BrainRouter();
+  router.tokenStats.today = {
+    input: 0,
+    output: 0,
+    costEstimate: 0,
+    byBrain: {
+      gemini: { input: 0, output: 0, costEstimate: 0 },
+      claude: { input: 0, output: 0, costEstimate: 0 }
+    }
+  };
+
+  // 1. Registrar uso de Gemini (10,000 in, 2,000 out) en gemini-2.0-flash
+  // 10K in * 0.0001 = 0.0010 USD, 2K out * 0.0004 = 0.0008 USD => Total = 0.0018 USD
+  router.recordUsage('gemini', 10000, 2000, 'gemini-2.0-flash');
+  assert.strictEqual(router.tokenStats.today.input, 10000);
+  assert.strictEqual(router.tokenStats.today.output, 2000);
+  assert.strictEqual(router.tokenStats.today.byBrain.gemini.input, 10000);
+  assert.strictEqual(router.tokenStats.today.byBrain.gemini.output, 2000);
+  assert.strictEqual(router.tokenStats.today.byBrain.gemini.costEstimate, 0.0018);
+
+  // 2. Registrar uso de Claude (1,000 in, 500 out) en claude-3-5-sonnet-20241022
+  // 1K in * 0.003 = 0.003 USD, 0.5K out * 0.015 = 0.0075 USD => Total = 0.0105 USD
+  router.recordUsage('claude', 1000, 500, 'claude-3-5-sonnet-20241022');
+  assert.strictEqual(router.tokenStats.today.byBrain.claude.input, 1000);
+  assert.strictEqual(router.tokenStats.today.byBrain.claude.output, 500);
+  assert.strictEqual(router.tokenStats.today.byBrain.claude.costEstimate, 0.0105);
+
+  // Costo total acumulado
+  const expectedTotal = 0.0018 + 0.0105;
+  assert.strictEqual(router.tokenStats.today.costEstimate, expectedTotal);
+
+  // 3. getBrainStatus debe entregar estructura completa de métricas y costos
+  const status = router.getBrainStatus();
+  assert.strictEqual(status.costs.todayUSD, expectedTotal);
+  assert.ok(status.costs.byBrain.gemini);
+  assert.ok(status.costs.byBrain.claude);
+  assert.ok(status.costs.rates.gemini);
+  assert.ok(status.costs.rates.claude);
+});
+
+test('BrainRouter: Rollover diario resetea contadores al cambiar de fecha', () => {
+  const router = new BrainRouter();
+  router.tokenStats.todayDate = '2026-01-01'; // Fecha antigua
+  router.tokenStats.today = {
+    input: 50000,
+    output: 20000,
+    costEstimate: 0.15,
+    byBrain: {
+      gemini: { input: 50000, output: 20000, costEstimate: 0.15 },
+      claude: { input: 0, output: 0, costEstimate: 0 }
+    }
+  };
+
+  router.checkDailyRollover();
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  assert.strictEqual(router.tokenStats.todayDate, todayStr, 'Debe haber actualizado todayDate');
+  assert.strictEqual(router.tokenStats.today.input, 0, 'Debe reiniciar tokens de entrada');
+  assert.strictEqual(router.tokenStats.today.output, 0, 'Debe reiniciar tokens de salida');
+  assert.strictEqual(router.tokenStats.today.costEstimate, 0, 'Debe reiniciar coste del día');
+  assert.strictEqual(router.tokenStats.today.byBrain.gemini.input, 0);
+});
+
+
 
