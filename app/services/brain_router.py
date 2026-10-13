@@ -175,9 +175,9 @@ class BrainRouter:
         else:
             raise ValueError("Se requiere al menos un prompt o historial contents.")
 
-        # Build candidate model list with verified active model first, limited to top 3 to avoid latency
+        # Fast model rotation: try active model, then immediate verified fallbacks
         models_to_try = [self.active_gemini_model]
-        for m in ["gemini-3.5-flash", "gemini-3-flash-preview", "gemini-3.8-flash"]:
+        for m in ["gemini-3-flash-preview", "gemini-3.5-flash", "gemini-3.8-flash"]:
             if m not in models_to_try:
                 models_to_try.append(m)
         models_to_try = models_to_try[:3]
@@ -195,66 +195,51 @@ class BrainRouter:
             if system_prompt:
                 payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
 
-            # Fast attempt with smart backoff
-            for attempt in range(2):
-                try:
-                    async with httpx.AsyncClient(timeout=12.0) as client:
-                        resp = await client.post(url, json=payload)
+            try:
+                async with httpx.AsyncClient(timeout=8.0) as client:
+                    resp = await client.post(url, json=payload)
 
-                        # Handle high demand / transient server error
-                        if resp.status_code in [503, 502, 504]:
-                            if attempt == 0:
-                                logger.info(f"[AUTO_HEAL] {model} respondió 503 (demanda alta). Pausa breve 0.6s...")
-                                await asyncio.sleep(0.6)
-                                continue
-                            else:
-                                logger.warning(f"[AUTO_HEAL] {model} saturado tras reintento. Probando siguiente modelo...")
-                                last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
-                                break
+                    # If model is saturated (503) or unavailable (404/429), switch immediately
+                    if resp.status_code in [503, 502, 504, 404, 429, 500]:
+                        logger.warning(f"[AUTO_HEAL] {model} devolvió HTTP {resp.status_code}. Conmutando de inmediato al siguiente modelo...")
+                        last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
+                        continue
 
-                        # Deprecated or quota error
-                        if resp.status_code in [404, 429, 500]:
-                            logger.warning(f"[AUTO_HEAL] {model} no disponible ({resp.status_code}). Probando siguiente...")
-                            last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
-                            break
+                    resp.raise_for_status()
+                    data = resp.json()
 
-                        resp.raise_for_status()
-                        data = resp.json()
+                candidates = data.get("candidates", [])
+                if not candidates:
+                    last_error = ValueError(f"Gemini {model} no devolvió candidatos.")
+                    continue
 
-                    candidates = data.get("candidates", [])
-                    if not candidates:
-                        last_error = ValueError(f"Gemini {model} no devolvió candidatos.")
-                        break
+                text = ""
+                parts = candidates[0].get("content", {}).get("parts", [])
+                for p in parts:
+                    if "text" in p:
+                        text += p["text"]
 
-                    text = ""
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    for p in parts:
-                        if "text" in p:
-                            text += p["text"]
+                usage = data.get("usageMetadata", {})
+                inp_tok = usage.get("promptTokenCount", 0)
+                out_tok = usage.get("candidatesTokenCount", 0)
+                self.record_usage("gemini", inp_tok, out_tok, model)
 
-                    usage = data.get("usageMetadata", {})
-                    inp_tok = usage.get("promptTokenCount", 0)
-                    out_tok = usage.get("candidatesTokenCount", 0)
-                    self.record_usage("gemini", inp_tok, out_tok, model)
+                # Persist verified working model
+                if self.active_gemini_model != model:
+                    logger.info(f"[AUTO_HEAL] ¡Éxito! Modelo confirmado y actualizado a: {model}")
+                    self.active_gemini_model = model
 
-                    # Persist verified working model
-                    if self.active_gemini_model != model:
-                        logger.info(f"[AUTO_HEAL] ¡Éxito! Modelo confirmado y actualizado a: {model}")
-                        self.active_gemini_model = model
-
-                    return {
-                        "text": text,
-                        "brain": "gemini",
-                        "model": model,
-                        "usage": {"input": inp_tok, "output": out_tok},
-                        "failover": False,
-                    }
-                except Exception as e:
-                    last_error = e
-                    if attempt == 0:
-                        await asyncio.sleep(0.4)
-                    else:
-                        break
+                return {
+                    "text": text,
+                    "brain": "gemini",
+                    "model": model,
+                    "usage": {"input": inp_tok, "output": out_tok},
+                    "failover": False,
+                }
+            except Exception as e:
+                logger.warning(f"[AUTO_HEAL] Error o timeout con {model}: {e}. Probando siguiente modelo...")
+                last_error = e
+                continue
 
         # If primary candidates failed, try dynamic live model discovery as quick fallback
         try:
