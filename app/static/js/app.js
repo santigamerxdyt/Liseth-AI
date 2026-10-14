@@ -620,12 +620,9 @@ Tus habilidades clave:
             };
 
             audio.onended = () => {
-              isSpeaking = false;
-              orb.classList.remove("speaking");
-              statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
-              if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
               try { URL.revokeObjectURL(blobUrl); } catch(e) {}
               activeAudioElement = null;
+              handleSpeechOutputFinished();
             };
 
             audio.onerror = (e) => {
@@ -665,19 +662,30 @@ Tus habilidades clave:
             if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
           };
           utterance.onend = () => {
-            isSpeaking = false;
-            orb.classList.remove("speaking");
-            statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
-            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
+            handleSpeechOutputFinished();
           };
           utterance.onerror = () => {
-            isSpeaking = false;
-            orb.classList.remove("speaking");
-            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
+            handleSpeechOutputFinished();
           };
           window.speechSynthesis.speak(utterance);
         } catch(e) {
           console.warn("Fallo en fallback de voz:", e);
+        }
+      }
+
+      let speechOutputEndTime = 0;
+
+      function handleSpeechOutputFinished() {
+        isSpeaking = false;
+        orb.classList.remove("speaking");
+        speechOutputEndTime = Date.now();
+        if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
+
+        // Si la comunicación continua está activa, pasar a Modo Activo (20s de escucha abierta)
+        if (continuousListeningEnabled && voiceAssistantState !== "off") {
+          activateVoiceMode(false);
+        } else {
+          statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
         }
       }
 
@@ -697,13 +705,18 @@ Tus habilidades clave:
         }
         isSpeaking = false;
         orb.classList.remove("speaking");
+        speechOutputEndTime = Date.now();
       }
 
       orb.addEventListener("click", () => {
         if (isSpeaking) {
           stopSpeaking();
-          statusLabel.textContent = "Habla pausada a su orden, Santiago";
-        } else if (!isListening) {
+          handleSpeechOutputFinished();
+        } else if (voiceAssistantState === "standby") {
+          activateVoiceMode(true);
+        } else if (voiceAssistantState === "active") {
+          enterStandbyMode();
+        } else {
           toggleListening();
         }
       });
@@ -721,25 +734,109 @@ Tus habilidades clave:
         }, 2200);
       });
 
-      // --- MOTOR DE ESCUCHA ROBUSTO (MICRÓFONO SIN CIERRES PREMATUROS) ---
+      // --- SISTEMA DE COMUNICACIÓN POR VOZ BIDIRECCIONAL CONTINUA (ALWAYS-ON & MODO REPOSO) ---
 
-      let isUserDictating = false;
-      let micSilenceTimer = null;
+      let voiceAssistantState = "standby"; // "active" | "standby" | "off"
+      let continuousListeningEnabled = true;
+      let standbyTimer = null;             // Contador de 20 segundos de inactividad
+      let voiceInputTimer = null;          // Pausa de 1.8s para auto-envío tras hablar
 
-      function playChime(freq = 580) {
+      function getAssistantNamePattern() {
+        const customName = (window.currentCustomization && window.currentCustomization.assistantName) || (typeof currentCustomization !== "undefined" && currentCustomization.assistantName) || "Liseth";
+        const escaped = customName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return `(?:${escaped}|liseth|liceth|lizeth|lizet|liset|lissette|lisset|jarvis)`;
+      }
+
+      function containsWakeWord(text) {
+        if (!text) return false;
+        const pattern = new RegExp(`\\b${getAssistantNamePattern()}\\b`, "i");
+        return pattern.test(text);
+      }
+
+      function extractCommandAfterWakeWord(text) {
+        if (!text) return "";
+        const pattern = new RegExp(`^.*?\\b${getAssistantNamePattern()}\\b[\\s,:;.-]*`, "i");
+        return text.replace(pattern, "").trim();
+      }
+
+      function playChime(freq = 640) {
         try {
           const ctx = new (window.AudioContext || window.webkitAudioContext)();
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = "sine";
           osc.frequency.setValueAtTime(freq, ctx.currentTime);
-          gain.gain.setValueAtTime(0.06, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+          gain.gain.setValueAtTime(0.07, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.24);
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start();
-          osc.stop(ctx.currentTime + 0.22);
+          osc.stop(ctx.currentTime + 0.24);
         } catch(e) {}
+      }
+
+      function resetStandbyTimer() {
+        if (standbyTimer) clearTimeout(standbyTimer);
+        standbyTimer = setTimeout(() => {
+          // Si pasan 20 segundos sin comandos en modo activo, pasar a Modo Reposo
+          if (voiceAssistantState === "active" && !isSpeaking && !isThinking) {
+            console.log("[Liseth Voice] 20 segundos sin comando detectado. Pasando a Modo Reposo.");
+            enterStandbyMode();
+          }
+        }, 20000); // Exactamente 20 segundos
+      }
+
+      function activateVoiceMode(playChimeSound = true) {
+        voiceAssistantState = "active";
+        if (playChimeSound) playChime(720);
+
+        orb.classList.remove("standby");
+        orb.classList.remove("thinking");
+        orb.classList.remove("speaking");
+        orb.classList.add("listening");
+
+        micBtn.classList.remove("standby");
+        micBtn.classList.add("listening");
+        micBtn.title = "Voz Continua: Liseth atenta (Activa por 20s de inactividad)";
+
+        statusLabel.textContent = "Liseth atenta • Escuchando su instrucción, Santiago...";
+        statusLabel.style.color = "#38ef7d";
+
+        resetStandbyTimer();
+        ensureRecognitionActive();
+      }
+
+      function enterStandbyMode() {
+        if (voiceAssistantState === "off") return;
+        voiceAssistantState = "standby";
+        if (standbyTimer) clearTimeout(standbyTimer);
+        if (voiceInputTimer) clearTimeout(voiceInputTimer);
+
+        userInput.value = "";
+        userInput.style.height = "auto";
+
+        orb.classList.remove("listening");
+        orb.classList.remove("thinking");
+        orb.classList.remove("speaking");
+        orb.classList.add("standby");
+
+        micBtn.classList.remove("listening");
+        micBtn.classList.add("standby");
+        micBtn.title = "Voz Continua: Modo Reposo (Escuchando en segundo plano • Diga 'Liseth')";
+
+        statusLabel.textContent = "Modo Reposo • Diga 'Liseth' para activar";
+        statusLabel.style.color = "var(--text-muted)";
+
+        ensureRecognitionActive();
+      }
+
+      function ensureRecognitionActive() {
+        if (!recognition || voiceAssistantState === "off") return;
+        if (!isListening) {
+          try {
+            recognition.start();
+          } catch(e) {}
+        }
       }
 
       function setupSpeechRecognition() {
@@ -751,91 +848,143 @@ Tus habilidades clave:
 
         try {
           recognition = new SpeechRecognition();
-          recognition.lang = "es-ES";
-          recognition.continuous = true;       // NO se cierra a los 2 segundos
-          recognition.interimResults = true;   // Muestra palabras en tiempo real
+          const browserLang = (navigator.language || "").toLowerCase();
+          recognition.lang = browserLang.startsWith("es") ? navigator.language : "es-CO";
+          recognition.continuous = true;
+          recognition.interimResults = true;
           recognition.maxAlternatives = 1;
 
           recognition.onstart = () => {
             isListening = true;
-            micBtn.classList.add("listening");
-            orb.classList.add("listening");
-            statusLabel.textContent = "Liseth le escucha atentamente, Santiago... (hable a su propio ritmo)";
-            playChime(640);
+            if (voiceAssistantState === "active") {
+              orb.classList.add("listening");
+              micBtn.classList.add("listening");
+              statusLabel.textContent = "Liseth atenta • Escuchando su instrucción, Santiago...";
+            } else if (voiceAssistantState === "standby") {
+              orb.classList.add("standby");
+              micBtn.classList.add("standby");
+              statusLabel.textContent = "Modo Reposo • Diga 'Liseth' para activar";
+            }
           };
 
           recognition.onresult = (event) => {
-            let finalText = "";
-            let interimText = "";
+            // Protección contra eco: si Liseth está hablando o terminó hace menos de 400ms, ignorar entrada
+            if (isSpeaking || isThinking || (Date.now() - speechOutputEndTime < 400)) {
+              return;
+            }
+
+            let interimTranscript = "";
+            let finalTranscript = "";
 
             for (let i = 0; i < event.results.length; ++i) {
               const res = event.results[i];
               if (res.isFinal) {
-                finalText += res[0].transcript;
+                finalTranscript += res[0].transcript;
               } else {
-                interimText += res[0].transcript;
+                interimTranscript += res[0].transcript;
               }
             }
 
-            const combined = (finalText + (interimText ? (finalText ? " " : "") + interimText : "")).trim();
-            if (combined) {
-              userInput.value = combined;
+            const currentSpeech = (finalTranscript + (interimTranscript ? (finalTranscript ? " " : "") + interimTranscript : "")).trim();
+            if (!currentSpeech) return;
+
+            // Subtítulos flotantes en tiempo real
+            updateHudTranscript(currentSpeech, (currentCustomization.userTitle || "SANTIAGO").toUpperCase());
+
+            // --- CASO 1: EN MODO REPOSO (STANDBY) ---
+            if (voiceAssistantState === "standby") {
+              if (containsWakeWord(currentSpeech)) {
+                console.log("[Liseth Voice] Wake word detectada en reposo:", currentSpeech);
+                const command = extractCommandAfterWakeWord(currentSpeech);
+
+                // Activar modo activo con chime
+                activateVoiceMode(true);
+
+                // Si además del nombre dictó una orden:
+                if (command && command.length > 2) {
+                  userInput.value = command;
+                  userInput.style.height = "auto";
+                  userInput.style.height = Math.min(userInput.scrollHeight, 140) + "px";
+
+                  if (voiceInputTimer) clearTimeout(voiceInputTimer);
+                  voiceInputTimer = setTimeout(() => {
+                    if (voiceAssistantState === "active" && !isSpeaking && !isThinking) {
+                      const txt = userInput.value.trim();
+                      if (txt.length >= 2) {
+                        try { recognition.stop(); } catch(e) {}
+                        handleSend();
+                      }
+                    }
+                  }, 1400);
+                } else {
+                  // Solo dijo "Liseth": dar acuse afectuoso y quedar atenta
+                  userInput.value = "";
+                  speakText("¿Sí, Santiago? Le escucho atentamente.", true);
+                }
+              }
+              return;
+            }
+
+            // --- CASO 2: EN MODO ACTIVO (CONVERSACIÓN FLUIDA) ---
+            if (voiceAssistantState === "active") {
+              userInput.value = currentSpeech;
               userInput.style.height = "auto";
               userInput.style.height = Math.min(userInput.scrollHeight, 140) + "px";
               sendBtn.disabled = false;
-            }
 
-            // Temporizador de silencio: si el usuario deja de hablar durante 4.5 segundos tras haber dictado algo,
-            // finaliza la captura de forma relajada y natural
-            if (micSilenceTimer) clearTimeout(micSilenceTimer);
-            if (combined.length > 0) {
-              micSilenceTimer = setTimeout(() => {
-                if (isListening && isUserDictating) {
-                  isUserDictating = false;
-                  try { recognition.stop(); } catch(e) {}
-                  statusLabel.textContent = "Dictado capturado con éxito. Presione Enviar o el micrófono para dictar más.";
+              // Reiniciar temporizador de 20 segundos de inactividad
+              resetStandbyTimer();
+
+              // Auto-envío tras pausa natural de habla (1.8 segundos de silencio)
+              if (voiceInputTimer) clearTimeout(voiceInputTimer);
+              voiceInputTimer = setTimeout(() => {
+                if (voiceAssistantState === "active" && !isSpeaking && !isThinking) {
+                  const textToSend = userInput.value.trim();
+                  if (textToSend.length >= 2) {
+                    console.log("[Liseth Voice] Pausa detectada. Enviando automáticamente:", textToSend);
+                    try { recognition.stop(); } catch(e) {}
+                    handleSend();
+                  }
                 }
-              }, 4500);
+              }, 1800);
             }
           };
 
           recognition.onerror = (event) => {
-            // "no-speech" es emitido por Chromium si hay pausa al principio.
-            // NO cerramos el micrófono; dejamos que el usuario respire y empiece a hablar
-            if (event.error === "no-speech") {
-              return;
-            }
-            if (event.error === "aborted") {
+            if (event.error === "no-speech" || event.error === "aborted") {
               return;
             }
             console.warn("Aviso en reconocimiento de voz:", event.error);
             if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-              alert("Acceso al micrófono denegado. Verifique los permisos de micrófono de su sistema o navegador.");
-              isUserDictating = false;
-              stopListening();
+              alert("Acceso al micrófono denegado. Por favor conceda permisos de micrófono en su navegador para la comunicación por voz.");
+              stopListeningVisuals();
             }
           };
 
           recognition.onend = () => {
-            // Si el usuario sigue queriendo dictar y el motor finalizó por timeout interno del navegador,
-            // reactivamos suavemente la sesión
-            if (isUserDictating) {
-              try {
-                recognition.start();
-                return;
-              } catch(e) {}
-            }
-            stopListening();
-            if (userInput.value.trim().length > 3) {
-              statusLabel.textContent = "Dictado capturado con éxito";
+            isListening = false;
+            // Reconexión indestructible: si la voz continua sigue activa, reiniciar en segundo plano
+            if (continuousListeningEnabled && voiceAssistantState !== "off") {
+              if (!isSpeaking) {
+                setTimeout(() => {
+                  try {
+                    if (continuousListeningEnabled && voiceAssistantState !== "off") {
+                      recognition.start();
+                    }
+                  } catch(e) {}
+                }, 100);
+              }
             } else {
-              statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
+              stopListeningVisuals();
             }
           };
 
           micBtn.addEventListener("click", toggleListening);
+
+          // Iniciar en modo reposo escuchando en segundo plano de inmediato
+          enterStandbyMode();
         } catch(err) {
-          console.warn("No se pudo inicializar reconocimiento de voz:", err);
+          console.warn("No se pudo inicializar SpeechRecognition:", err);
         }
       }
 
@@ -844,39 +993,34 @@ Tus habilidades clave:
           alert("El reconocimiento de voz requiere un navegador con soporte de Web Speech API (como Google Chrome o Microsoft Edge).");
           return;
         }
-        if (isListening) {
-          isUserDictating = false;
-          if (micSilenceTimer) clearTimeout(micSilenceTimer);
-          try {
-            recognition.stop();
-          } catch(e) {}
-          stopListening();
+
+        if (voiceAssistantState !== "off") {
+          // Pausar/apagar escucha continua
+          voiceAssistantState = "off";
+          continuousListeningEnabled = false;
+          if (standbyTimer) clearTimeout(standbyTimer);
+          if (voiceInputTimer) clearTimeout(voiceInputTimer);
+          try { recognition.stop(); } catch(e) {}
+          stopListeningVisuals();
+          showToast("🔇 Micrófono pausado. Haga clic para reactivar la comunicación.");
         } else {
+          // Reactivar escucha continua en Modo Activo
+          continuousListeningEnabled = true;
           stopSpeaking();
-          isUserDictating = true;
-          if (micSilenceTimer) clearTimeout(micSilenceTimer);
-          try {
-            recognition.start();
-          } catch(e) {
-            console.warn("Error iniciando reconocimiento de voz:", e);
-            try {
-              recognition.stop();
-              setTimeout(() => {
-                if (isUserDictating) {
-                  try { recognition.start(); } catch(err2) {}
-                }
-              }, 200);
-            } catch(e2) {}
-          }
+          activateVoiceMode(true);
+          showToast("🎤 Comunicación por voz activa. Diga su orden o espere 20s para reposo.");
         }
       }
 
-      function stopListening() {
+      function stopListeningVisuals() {
         isListening = false;
-        isUserDictating = false;
-        if (micSilenceTimer) clearTimeout(micSilenceTimer);
-        if (micBtn) micBtn.classList.remove("listening");
-        if (orb) orb.classList.remove("listening");
+        orb.classList.remove("listening");
+        orb.classList.remove("standby");
+        micBtn.classList.remove("listening");
+        micBtn.classList.remove("standby");
+        micBtn.title = "Hablar con Liseth (Clic para activar)";
+        statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
+        statusLabel.style.color = "";
       }
 
       // --- PERSISTENCIA Y SINCRONIZACIÓN ---
@@ -1281,11 +1425,10 @@ Tus habilidades clave:
         }
 
         stopSpeaking();
-        if (isListening) {
-          isUserDictating = false;
-          if (micSilenceTimer) clearTimeout(micSilenceTimer);
-          if (recognition) { try { recognition.stop(); } catch(e) {} }
-          stopListening();
+        if (voiceInputTimer) clearTimeout(voiceInputTimer);
+        if (standbyTimer) clearTimeout(standbyTimer);
+        if (recognition) {
+          try { recognition.stop(); } catch(e) {}
         }
 
         // 1. Renderizar mensaje del usuario con los archivos adjuntos

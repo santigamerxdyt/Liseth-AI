@@ -344,6 +344,38 @@
       animation: listenCore 0.8s ease-in-out infinite alternate;
     }
 
+    /* Orbe: Modo Reposo (Escucha pasiva en segundo plano esperando "Liseth") */
+    .orb-container.standby .orb-aura {
+      animation: standbyAura 4s ease-in-out infinite alternate;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(59, 130, 246, 0.18) 55%, transparent 75%);
+      filter: blur(16px);
+      opacity: 0.7;
+    }
+
+    .orb-container.standby .orb-ring {
+      border-color: rgba(168, 85, 247, 0.45);
+      border-width: 1.5px;
+      animation: rotateRing 16s linear infinite;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+    }
+
+    .orb-container.standby .orb-core {
+      background: radial-gradient(circle at 35% 35%, #faf5ff 0%, #a855f7 38%, #3b82f6 75%, #1e1b4b 100%);
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.65), 0 0 40px rgba(59, 130, 246, 0.35), inset 0 0 10px #ffffff;
+      animation: standbyCore 4s ease-in-out infinite alternate;
+      opacity: 0.9;
+    }
+
+    @keyframes standbyAura {
+      0% { opacity: 0.35; transform: scale(0.92); }
+      100% { opacity: 0.8; transform: scale(1.06); }
+    }
+
+    @keyframes standbyCore {
+      0% { transform: scale(0.96); filter: brightness(0.9); }
+      100% { transform: scale(1.02); filter: brightness(1.12); }
+    }
+
     @keyframes breatheCore {
       0%, 100% { transform: scale(0.96); filter: brightness(0.95); }
       50% { transform: scale(1.04); filter: brightness(1.15); box-shadow: 0 0 28px rgba(0, 210, 255, 0.75), 0 0 55px rgba(0, 180, 255, 0.4); }
@@ -1304,6 +1336,19 @@
       border-color: #38ef7d;
       animation: micPulse 1.2s infinite;
       box-shadow: 0 0 20px rgba(56, 239, 125, 0.8);
+    }
+
+    .mic-btn.standby {
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, 0.6);
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+      animation: micStandbyGlow 3s infinite alternate;
+    }
+
+    @keyframes micStandbyGlow {
+      0% { box-shadow: 0 0 6px rgba(168, 85, 247, 0.3); }
+      100% { box-shadow: 0 0 16px rgba(168, 85, 247, 0.7); }
     }
 
     @keyframes micPulse {
