@@ -14,9 +14,9 @@ router = APIRouter(prefix="/api", tags=["tts"])
 @router.get("/tts")
 async def tts_endpoint(
     text: str = Query(..., min_length=1, max_length=2000, description="Texto a sintetizar"),
-    voice: str = Query("es-MX-DaliaNeural", description="Identificador de voz Edge/Neuronal"),
-    rate: str = Query("+5%", description="Velocidad de locución"),
-    pitch: str = Query("+15Hz", description="Tono / afinación"),
+    voice: str = Query("es-CO-SalomeNeural", description="Identificador de voz Edge/Neuronal"),
+    rate: str = Query("+0%", description="Velocidad de locución"),
+    pitch: str = Query("+10Hz", description="Tono / afinación"),
     provider: str = Query("edge", description="Proveedor TTS"),
 ):
     """

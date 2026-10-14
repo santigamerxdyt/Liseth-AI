@@ -21,46 +21,46 @@
       let conversationsList = [];
       let activeConversationId = null;
 
-      // Parámetros de Voz Neuronal
+      // Parámetros de Voz Neuronal Femenina Humana y Armoniosa
       let voiceSettings = {
         enabled: true,
-        voiceId: "es-MX-DaliaNeural",
+        voiceId: "es-CO-SalomeNeural",
         provider: "edge",
-        pitch: "+15Hz",
-        rate: "+5%"
+        pitch: "+10Hz",
+        rate: "+0%"
       };
 
-      // Catálogo de descripciones y muestras
+      // Catálogo de descripciones y muestras de voces femeninas dulces y armoniosas
       const VOICE_DETAILS = {
-        "es-MX-DaliaNeural": {
-          badge: "Recomendada Anime",
-          desc: "Dalia (México): Una de las voces más humanas y expresivas en español. Tono dulce, juvenil, cálido y con modulación natural de anime.",
-          sample: "Hola Santiago, soy Liseth a su entera disposición. Es un verdadero placer asistirle con mi voz viva."
-        },
         "es-CO-SalomeNeural": {
-          badge: "Cálida y Humana",
-          desc: "Salomé (Colombia): Entonación sumamente humana, suave, tranquila y respetuosa. Ideal para una asistente cercana y afectuosa.",
-          sample: "Hola Santiago, estoy lista para ayudarle a planificar y organizar su jornada con total tranquilidad y armonía."
+          badge: "Recomendada • Dulce y Cálida",
+          desc: "Salomé (Colombia): Entonación sumamente humana, suave, pacífica, dulce y melodiosa. Transmite calidez, cercanía y una armonía natural inigualable.",
+          sample: "Hola Santiago, soy Liseth a su entera disposición. Es un verdadero placer asistirle con mi voz viva, dulce y armoniosa."
+        },
+        "es-MX-DaliaNeural": {
+          badge: "Juvenil y Alegre (Anime)",
+          desc: "Dalia (México): Una de las voces más expresivas y vivas. Tono dulce, juvenil, fresco y cariñoso con modulación natural y alegre.",
+          sample: "¡Hola Santiago! Qué alegría saludarle hoy. Estoy lista para acompañarle y organizar cada uno de sus proyectos con entusiasmo."
         },
         "es-ES-ElviraNeural": {
-          badge: "Elegante y Aristocrática",
-          desc: "Elvira (España): Dicción castellana pulcra, distinguida y de alta sociedad. Perfecta para un mayordomo refinado.",
-          sample: "Buenas noches, Santiago. Liseth a su servicio con la máxima pulcritud, criterio y distinción."
+          badge: "Suave, Elegante y Aristocrática",
+          desc: "Elvira (España): Dicción castellana pulcra, refinada, serena y de alta distinción con una suave y melódica cadencia.",
+          sample: "Buenas noches, Santiago. Liseth a su servicio con la máxima devoción, serenidad y distinción."
         },
         "es-US-PalomaNeural": {
-          badge: "Moderna y Ágil",
-          desc: "Paloma (Hispanoamérica): Voz juvenil, moderna, alegre y resolutiva, ideal para días de trabajo intenso.",
-          sample: "¡Hola Santiago! Todo listo para optimizar tu día y llevar tu productividad al máximo nivel."
+          badge: "Moderna, Clara y Natural",
+          desc: "Paloma (Hispanoamérica): Voz femenina actual, fluida, afectuosa y resolutiva, perfecta para conversaciones ágiles del día a día.",
+          sample: "¡Hola Santiago! Todo listo para avanzar juntos en sus planes y llevar su productividad al máximo nivel con total naturalidad."
         },
         "es-PE-CamilaNeural": {
-          badge: "Neutra y Dulce",
-          desc: "Camila (Perú): Acento sumamente neutro, claro, limpio y agradable al oído.",
-          sample: "Hola Santiago, he organizado toda su información con precisión para su revisión inmediata."
+          badge: "Neutra, Dulce y Serena",
+          desc: "Camila (Perú): Acento sumamente neutro, claro, limpio, dulce y muy agradable al oído.",
+          sample: "Hola Santiago, he organizado toda su información con precisión y serenidad para su revisión inmediata."
         },
         "es-AR-ElenaNeural": {
-          badge: "Expresiva y Natural",
-          desc: "Elena (Argentina): Tono empático, expresivo y con calidez humana natural.",
-          sample: "Hola Santiago, contá conmigo para lo que necesites hoy. Estoy a tu completa disposición."
+          badge: "Expresiva, Cálida y Natural",
+          desc: "Elena (Argentina): Tono empático, expresivo, cercano y con calidez humana natural.",
+          sample: "Hola Santiago, contá conmigo para lo que necesites hoy. Estoy a tu completa disposición con todo el cariño."
         },
         "ja-JP-NanamiNeural": {
           badge: "Anime Japonés",
@@ -534,6 +534,41 @@ Tus habilidades clave:
         voiceSettings.rate = (val >= 0 ? '+' : '') + val + '%';
       });
 
+      // Cache y cargador de voces locales del navegador
+      function getBestFeminineLocalVoice() {
+        if (!("speechSynthesis" in window)) return null;
+        const voices = window.speechSynthesis.getVoices() || [];
+        if (!voices.length) return null;
+
+        const sweetFemaleKeywords = [
+          "salome", "salomé", "dalia", "elvira", "paulina", "sabina", "monica", "mónica",
+          "laura", "lucia", "lucía", "camila", "elena", "paloma", "mia", "mía", "zira",
+          "sofia", "sofía", "natural", "online", "female", "mujer"
+        ];
+
+        const esVoices = voices.filter(v => v.lang && (v.lang.toLowerCase().startsWith("es") || v.lang.toLowerCase().includes("spanish")));
+
+        for (const kw of sweetFemaleKeywords) {
+          const match = esVoices.find(v => v.name.toLowerCase().includes(kw));
+          if (match) return match;
+        }
+
+        if (esVoices.length > 0) return esVoices[0];
+
+        for (const kw of sweetFemaleKeywords) {
+          const match = voices.find(v => v.name.toLowerCase().includes(kw));
+          if (match) return match;
+        }
+
+        return voices[0] || null;
+      }
+
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.getVoices();
+        };
+      }
+
       function speakText(rawText, forcePlay = false) {
         if (!forcePlay && !voiceSettings.enabled) return;
 
@@ -550,9 +585,9 @@ Tus habilidades clave:
         if (!clean) return;
 
         let provider = "edge";
-        let voiceId = "es-MX-DaliaNeural";
+        let voiceId = "es-CO-SalomeNeural";
 
-        const val = voiceModelSelect ? voiceModelSelect.value : "es-MX-DaliaNeural";
+        const val = voiceModelSelect ? voiceModelSelect.value : "es-CO-SalomeNeural";
         if (val.includes(":")) {
           const parts = val.split(":");
           provider = parts[0];
@@ -564,48 +599,48 @@ Tus habilidades clave:
 
         const token = localStorage.getItem("liseth_session_token") || "";
         const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
-        const ttsUrl = `${base}/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+5%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+15Hz')}&provider=${encodeURIComponent(provider)}&token=${encodeURIComponent(token)}&text=${encodeURIComponent(clean)}`;
+        const ttsUrl = `${base}/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+0%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+10Hz')}&provider=${encodeURIComponent(provider)}&token=${encodeURIComponent(token)}&text=${encodeURIComponent(clean)}`;
 
-        try {
-          if (activeAudioElement) {
-            try {
-              activeAudioElement.pause();
-              activeAudioElement.src = "";
-            } catch(e) {}
-            activeAudioElement = null;
-          }
-          const audio = new Audio(ttsUrl);
-          activeAudioElement = audio;
+        // Reproducir vía fetch interceptado con blob para enviar credenciales y evitar 401
+        fetch(ttsUrl)
+          .then(async (response) => {
+            if (!response.ok) {
+              throw new Error(`TTS HTTP status ${response.status}`);
+            }
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const audio = new Audio(blobUrl);
+            activeAudioElement = audio;
 
-          audio.onplay = () => {
-            isSpeaking = true;
-            orb.classList.add("speaking");
-            statusLabel.textContent = "Liseth le asiste con voz viva...";
-            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
-          };
+            audio.onplay = () => {
+              isSpeaking = true;
+              orb.classList.add("speaking");
+              statusLabel.textContent = "Liseth le asiste con voz viva y melodiosa...";
+              if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
+            };
 
-          audio.onended = () => {
-            isSpeaking = false;
-            orb.classList.remove("speaking");
-            statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
-            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
-            activeAudioElement = null;
-          };
+            audio.onended = () => {
+              isSpeaking = false;
+              orb.classList.remove("speaking");
+              statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
+              if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
+              try { URL.revokeObjectURL(blobUrl); } catch(e) {}
+              activeAudioElement = null;
+            };
 
-          audio.onerror = (e) => {
-            console.warn("Audio neuronal no disponible, usando sintetizador local...", e);
-            activeAudioElement = null;
-            fallbackLocalSpeech(clean);
-          };
+            audio.onerror = (e) => {
+              console.warn("Audio neuronal no reproducible, usando sintetizador local femenino...", e);
+              try { URL.revokeObjectURL(blobUrl); } catch(err) {}
+              activeAudioElement = null;
+              fallbackLocalSpeech(clean);
+            };
 
-          audio.play().catch((playErr) => {
-            console.warn("Reproducción de audio bloqueada o diferida:", playErr);
+            return audio.play();
+          })
+          .catch((err) => {
+            console.warn("Motor neuronal no disponible, recurriendo a voz local dulce:", err);
             fallbackLocalSpeech(clean);
           });
-
-        } catch(e) {
-          fallbackLocalSpeech(clean);
-        }
       }
 
       function fallbackLocalSpeech(text) {
@@ -614,17 +649,19 @@ Tus habilidades clave:
           window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.lang = "es-ES";
-          utterance.pitch = 1.25;
-          utterance.rate = 1.05;
+          utterance.pitch = 1.18; // Tono dulce, juvenil y femenino (en lugar del monótono 1.0)
+          utterance.rate = 0.98;  // Cadencia melodiosa y pausada
 
-          const voices = window.speechSynthesis.getVoices() || [];
-          const esVoice = voices.find(v => v.lang.startsWith("es-MX") || v.lang.startsWith("es-CO") || v.lang.startsWith("es-ES") || v.lang.startsWith("es"));
-          if (esVoice) utterance.voice = esVoice;
+          const bestVoice = getBestFeminineLocalVoice();
+          if (bestVoice) {
+            utterance.voice = bestVoice;
+            utterance.lang = bestVoice.lang || "es-ES";
+          }
 
           utterance.onstart = () => {
             isSpeaking = true;
             orb.classList.add("speaking");
-            statusLabel.textContent = "Liseth le asiste con voz local...";
+            statusLabel.textContent = "Liseth le asiste con voz armoniosa...";
             if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
           };
           utterance.onend = () => {
@@ -639,7 +676,9 @@ Tus habilidades clave:
             if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
           };
           window.speechSynthesis.speak(utterance);
-        } catch(e) {}
+        } catch(e) {
+          console.warn("Fallo en fallback de voz:", e);
+        }
       }
 
       function stopSpeaking() {
@@ -647,11 +686,14 @@ Tus habilidades clave:
           try {
             activeAudioElement.pause();
             activeAudioElement.currentTime = 0;
+            if (activeAudioElement.src && activeAudioElement.src.startsWith("blob:")) {
+              URL.revokeObjectURL(activeAudioElement.src);
+            }
           } catch(e) {}
           activeAudioElement = null;
         }
         if ("speechSynthesis" in window) {
-          window.speechSynthesis.cancel();
+          try { window.speechSynthesis.cancel(); } catch(e) {}
         }
         isSpeaking = false;
         orb.classList.remove("speaking");
@@ -679,7 +721,10 @@ Tus habilidades clave:
         }, 2200);
       });
 
-      // --- MOTOR DE ESCUCHA (MICRÓFONO) ---
+      // --- MOTOR DE ESCUCHA ROBUSTO (MICRÓFONO SIN CIERRES PREMATUROS) ---
+
+      let isUserDictating = false;
+      let micSilenceTimer = null;
 
       function playChime(freq = 580) {
         try {
@@ -700,72 +745,138 @@ Tus habilidades clave:
       function setupSpeechRecognition() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-          micBtn.style.display = "none";
+          if (micBtn) micBtn.style.display = "none";
           return;
         }
 
-        recognition = new SpeechRecognition();
-        recognition.lang = "es-ES";
-        recognition.continuous = false;
-        recognition.interimResults = true;
+        try {
+          recognition = new SpeechRecognition();
+          recognition.lang = "es-ES";
+          recognition.continuous = true;       // NO se cierra a los 2 segundos
+          recognition.interimResults = true;   // Muestra palabras en tiempo real
+          recognition.maxAlternatives = 1;
 
-        recognition.onstart = () => {
-          isListening = true;
-          micBtn.classList.add("listening");
-          orb.classList.add("listening");
-          statusLabel.textContent = "Liseth le escucha atentamente, Santiago...";
-          playChime(640);
-        };
+          recognition.onstart = () => {
+            isListening = true;
+            micBtn.classList.add("listening");
+            orb.classList.add("listening");
+            statusLabel.textContent = "Liseth le escucha atentamente, Santiago... (hable a su propio ritmo)";
+            playChime(640);
+          };
 
-        recognition.onresult = (event) => {
-          let transcript = "";
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            transcript += event.results[i][0].transcript;
-          }
-          userInput.value = transcript;
-          userInput.style.height = "auto";
-          userInput.style.height = Math.min(userInput.scrollHeight, 140) + "px";
-          sendBtn.disabled = !userInput.value.trim() && currentAttachedFiles.length === 0;
-        };
+          recognition.onresult = (event) => {
+            let finalText = "";
+            let interimText = "";
 
-        recognition.onerror = (event) => {
-          console.warn("Error en escucha:", event.error);
-          stopListening();
-        };
+            for (let i = 0; i < event.results.length; ++i) {
+              const res = event.results[i];
+              if (res.isFinal) {
+                finalText += res[0].transcript;
+              } else {
+                interimText += res[0].transcript;
+              }
+            }
 
-        recognition.onend = () => {
-          stopListening();
-          if (userInput.value.trim().length > 3) {
-            statusLabel.textContent = "Dictado capturado con éxito";
-          } else {
-            statusLabel.textContent = "A su entera disposición, Santiago";
-          }
-        };
+            const combined = (finalText + (interimText ? (finalText ? " " : "") + interimText : "")).trim();
+            if (combined) {
+              userInput.value = combined;
+              userInput.style.height = "auto";
+              userInput.style.height = Math.min(userInput.scrollHeight, 140) + "px";
+              sendBtn.disabled = false;
+            }
 
-        micBtn.addEventListener("click", toggleListening);
+            // Temporizador de silencio: si el usuario deja de hablar durante 4.5 segundos tras haber dictado algo,
+            // finaliza la captura de forma relajada y natural
+            if (micSilenceTimer) clearTimeout(micSilenceTimer);
+            if (combined.length > 0) {
+              micSilenceTimer = setTimeout(() => {
+                if (isListening && isUserDictating) {
+                  isUserDictating = false;
+                  try { recognition.stop(); } catch(e) {}
+                  statusLabel.textContent = "Dictado capturado con éxito. Presione Enviar o el micrófono para dictar más.";
+                }
+              }, 4500);
+            }
+          };
+
+          recognition.onerror = (event) => {
+            // "no-speech" es emitido por Chromium si hay pausa al principio.
+            // NO cerramos el micrófono; dejamos que el usuario respire y empiece a hablar
+            if (event.error === "no-speech") {
+              return;
+            }
+            if (event.error === "aborted") {
+              return;
+            }
+            console.warn("Aviso en reconocimiento de voz:", event.error);
+            if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+              alert("Acceso al micrófono denegado. Verifique los permisos de micrófono de su sistema o navegador.");
+              isUserDictating = false;
+              stopListening();
+            }
+          };
+
+          recognition.onend = () => {
+            // Si el usuario sigue queriendo dictar y el motor finalizó por timeout interno del navegador,
+            // reactivamos suavemente la sesión
+            if (isUserDictating) {
+              try {
+                recognition.start();
+                return;
+              } catch(e) {}
+            }
+            stopListening();
+            if (userInput.value.trim().length > 3) {
+              statusLabel.textContent = "Dictado capturado con éxito";
+            } else {
+              statusLabel.textContent = `A sus órdenes, ${currentCustomization.userTitle || "Señor Santiago"}`;
+            }
+          };
+
+          micBtn.addEventListener("click", toggleListening);
+        } catch(err) {
+          console.warn("No se pudo inicializar reconocimiento de voz:", err);
+        }
       }
 
       function toggleListening() {
         if (!recognition) {
-          alert("El reconocimiento de voz requiere un navegador como Google Chrome o Microsoft Edge.");
+          alert("El reconocimiento de voz requiere un navegador con soporte de Web Speech API (como Google Chrome o Microsoft Edge).");
           return;
         }
         if (isListening) {
-          recognition.stop();
+          isUserDictating = false;
+          if (micSilenceTimer) clearTimeout(micSilenceTimer);
+          try {
+            recognition.stop();
+          } catch(e) {}
+          stopListening();
         } else {
           stopSpeaking();
+          isUserDictating = true;
+          if (micSilenceTimer) clearTimeout(micSilenceTimer);
           try {
             recognition.start();
           } catch(e) {
-            console.warn("Error iniciando reconocimiento:", e);
+            console.warn("Error iniciando reconocimiento de voz:", e);
+            try {
+              recognition.stop();
+              setTimeout(() => {
+                if (isUserDictating) {
+                  try { recognition.start(); } catch(err2) {}
+                }
+              }, 200);
+            } catch(e2) {}
           }
         }
       }
 
       function stopListening() {
         isListening = false;
-        micBtn.classList.remove("listening");
-        orb.classList.remove("listening");
+        isUserDictating = false;
+        if (micSilenceTimer) clearTimeout(micSilenceTimer);
+        if (micBtn) micBtn.classList.remove("listening");
+        if (orb) orb.classList.remove("listening");
       }
 
       // --- PERSISTENCIA Y SINCRONIZACIÓN ---
@@ -1170,6 +1281,12 @@ Tus habilidades clave:
         }
 
         stopSpeaking();
+        if (isListening) {
+          isUserDictating = false;
+          if (micSilenceTimer) clearTimeout(micSilenceTimer);
+          if (recognition) { try { recognition.stop(); } catch(e) {} }
+          stopListening();
+        }
 
         // 1. Renderizar mensaje del usuario con los archivos adjuntos
         appendUserMessageWithFiles(text, attached);
