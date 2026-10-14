@@ -5336,7 +5336,7 @@ Tus habilidades clave:
       const _nativeFetch = window.fetch.bind(window);
 
       // Interceptor transparente de llamadas API para soportar file://, puertos dinámicos y tokens Bearer
-      window.fetch = function(resource, init) {
+      window.fetch = async function(resource, init) {
         init = init || {};
         const sessionToken = localStorage.getItem("liseth_session_token");
         if (sessionToken) {
@@ -5352,14 +5352,23 @@ Tus habilidades clave:
             }
           }
         }
+        let reqResource = resource;
         if (typeof resource === "string" && resource.startsWith("/api")) {
           const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
-          resource = base + resource;
+          reqResource = base + resource;
         } else if (resource instanceof URL && resource.pathname && resource.pathname.startsWith("/api")) {
           const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
-          resource = new URL(resource.pathname + resource.search + resource.hash, base);
+          reqResource = new URL(resource.pathname + resource.search + resource.hash, base);
         }
-        return _nativeFetch(resource, init);
+        const response = await _nativeFetch(reqResource, init);
+        if (response.status === 401) {
+          const pathStr = typeof resource === "string" ? resource : (resource.pathname || "");
+          if (!pathStr.includes("/api/auth/login") && !pathStr.includes("/api/auth/status") && !pathStr.includes("/api/status")) {
+            localStorage.removeItem("liseth_session_token");
+            if (typeof showAuthModal === "function") showAuthModal();
+          }
+        }
+        return response;
       };
 
       let isThinking = false;
@@ -5679,7 +5688,9 @@ Tus habilidades clave:
           voiceId = val;
         }
 
-        const ttsUrl = `/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+5%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+15Hz')}&provider=${encodeURIComponent(provider)}&text=${encodeURIComponent(clean)}`;
+        const token = localStorage.getItem("liseth_session_token") || "";
+        const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
+        const ttsUrl = `${base}/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+5%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+15Hz')}&provider=${encodeURIComponent(provider)}&token=${encodeURIComponent(token)}&text=${encodeURIComponent(clean)}`;
 
         try {
           if (activeAudioElement) {
@@ -6261,6 +6272,13 @@ Tus habilidades clave:
         const attached = [...currentAttachedFiles];
 
         if ((!text && attached.length === 0) || isThinking) return;
+
+        // Verificación de Bloqueo de Acceso: solo Santiago con PIN puede interactuar
+        if (!localStorage.getItem("liseth_session_token")) {
+          showAuthModal();
+          showToast("🔒 Asistente bloqueado. Ingrese su PIN de seguridad para continuar.");
+          return;
+        }
 
         if (!apiKey && !isServerConnected) {
           showModal(false);
@@ -8110,19 +8128,33 @@ Tus habilidades clave:
       }
 
       async function checkAuthSession() {
+        const token = localStorage.getItem("liseth_session_token");
+        if (!token) {
+          showAuthModal();
+          return false;
+        }
         try {
           const res = await fetch("/api/auth/status", { cache: "no-store" });
           if (res.ok) {
             const data = await res.json();
             if (data.authenticated === false) {
+              localStorage.removeItem("liseth_session_token");
               showAuthModal();
               return false;
             } else {
               hideAuthModal();
               return true;
             }
+          } else {
+            showAuthModal();
+            return false;
           }
-        } catch(e) {}
+        } catch(e) {
+          if (!localStorage.getItem("liseth_session_token")) {
+            showAuthModal();
+            return false;
+          }
+        }
         return true;
       }
 
@@ -8185,6 +8217,23 @@ Tus habilidades clave:
         if (btnSessionLock) {
           btnSessionLock.addEventListener("click", handleLogout);
         }
+        // Modal inviolable: no cerrar al hacer clic en el fondo ni con Escape
+        if (authModal) {
+          authModal.addEventListener("click", (e) => {
+            if (e.target === authModal) {
+              e.stopPropagation();
+              e.preventDefault();
+              if (authPinInput) authPinInput.focus();
+            }
+          });
+        }
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && authModal && authModal.classList.contains("active")) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (authPinInput) authPinInput.focus();
+          }
+        });
       }
 
       // Cuadro de confirmación flotante para acciones sensibles

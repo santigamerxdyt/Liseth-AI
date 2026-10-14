@@ -80,47 +80,38 @@ app.add_middleware(
 )
 
 
+# Security: Whitelist of local loopback client addresses
+LOCAL_IPS = {"127.0.0.1", "::1", "localhost", "testclient"}
+
+
+@app.middleware("http")
+async def local_only_guard_middleware(request: Request, call_next):
+    """
+    Enforces strict local machine access. Rejects any connection from external LAN or remote IPs.
+    """
+    if settings.LOCAL_ONLY:
+        client_host = request.client.host if request.client else None
+        if client_host and client_host not in LOCAL_IPS:
+            logger.warning(f"Acceso externo no autorizado bloqueado desde IP: {client_host}")
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={
+                    "ok": False,
+                    "error": "Acceso restringido: Liseth opera exclusivamente en modo local privado para Santiago. Conexiones externas bloqueadas.",
+                },
+            )
+    return await call_next(request)
+
+
 # Security Authentication Middleware for /api/* routes
+# Only auth discovery and liveness checks are exempt; all operational endpoints require valid PIN session
 EXEMPT_API_PATHS = {
     "/api/status",
-    "/api/config",
-    "/api/history",
     "/api/auth/login",
     "/api/auth/status",
     "/api/auth/logout",
     "/api/health",
-    "/api/webhook/whatsapp",
-    "/api/brain/chat",
-    "/api/brain/status",
-    "/api/brain/switch",
-    "/api/brain/test-models",
-    "/api/brain/stats",
-    "/api/brain/force",
-    "/api/brain/soul",
-    "/api/brain/skills",
-    "/api/brain/memories/remember",
-    "/api/upload",
-    "/api/audit/logs",
-    "/api/audit/pending",
-    "/api/audit/confirm",
-    "/api/audit/request",
-    "/api/system/info",
-    "/api/system/processes",
-    "/api/system/execute",
-    "/api/system/search",
-    "/api/system/read",
-    "/api/files/catalog",
-    "/api/download-file",
-    "/api/save-generated-file",
-    "/api/tts",
-    "/api/google/status",
-    "/api/google/auth-url",
-    "/api/google/oauth2callback",
-    "/api/google/execute",
-    "/api/scheduler/tasks",
-    "/api/scheduler/tasks/trigger",
-    "/api/scheduler/tasks/toggle",
-    "/api/notifications/test",
+    "/health",
 }
 
 
@@ -142,7 +133,7 @@ async def api_auth_middleware(request: Request, call_next):
                     content={
                         "ok": False,
                         "authRequired": True,
-                        "error": "Acceso restringido. Por favor ingrese su PIN de acceso.",
+                        "error": "Acceso restringido. Por favor ingrese su PIN de acceso personal (Santiago).",
                     },
                 )
 

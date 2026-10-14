@@ -3,9 +3,11 @@ Unit tests for system_router endpoints (/api/status, /api/config, /api/history).
 """
 import pytest
 from fastapi.testclient import TestClient
+from app.config import settings
 from app.main import app
 
 client = TestClient(app)
+client.post("/api/auth/login", json={"pin": settings.JARVIS_ACCESS_PIN})
 
 
 def test_system_status_endpoint():

@@ -2,9 +2,11 @@
 Tests for Google Workspace API router endpoints.
 """
 from fastapi.testclient import TestClient
+from app.config import settings
 from app.main import app
 
 client = TestClient(app)
+client.post("/api/auth/login", json={"pin": settings.JARVIS_ACCESS_PIN})
 
 
 def test_google_status_endpoint():

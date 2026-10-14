@@ -82,6 +82,11 @@ def check_and_harden_env():
         content += f"\nSESSION_SECRET={session_secret}\n"
         modified = True
 
+    # Ensure LOCAL_ONLY mode is explicitly enabled
+    if "LOCAL_ONLY=" not in content:
+        content += "\nLOCAL_ONLY=true\n"
+        modified = True
+
     if modified:
         env_file.write_text(content, encoding="utf-8")
         print("[+] Archivo .env asegurado y actualizado correctamente.")
@@ -139,7 +144,11 @@ def main():
 
     from app.config import settings
 
-    host = args.host or settings.HOST
+    if settings.LOCAL_ONLY:
+        host = "127.0.0.1"
+    else:
+        host = args.host or settings.HOST
+
     requested_port = args.port or settings.PORT
     port = find_available_port(requested_port, host)
     settings.PORT = port
@@ -148,17 +157,17 @@ def main():
     if port != requested_port:
         print(f"[!] Puerto {requested_port} ocupado. Conmutando autónomamente al puerto {port}...")
 
-    lan_ip = get_local_lan_ip()
-
     banner = f"""
   +-----------------------------------------------------------+
   |              LISETH - ASISTENTE INTELIGENTE               |
   |                  Arquitectura Python 2.0                  |
   +-----------------------------------------------------------+
   [+] Estado Backend  : ONLINE
+  [+] Modo Operativo  : LOCAL PRIVADO (Exclusivo Santiago)
   [+] Base de Datos   : SQLite WAL (data/jarvis.db)
   [+] Acceso Local    : http://127.0.0.1:{port}
-  [+] Acceso LAN / PWA: http://{lan_ip}:{port}
+  [+] Conexiones Red  : BLOQUEADAS (LAN/Externa desactivada)
+  [+] Seguridad       : Protegido por PIN Criptográfico Personal
   [+] Modo Escritorio : {'ACTIVADO' if args.desktop else 'DESACTIVADO (Navegador)'}
   -------------------------------------------------------------
 """

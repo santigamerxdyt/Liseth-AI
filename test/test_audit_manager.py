@@ -8,7 +8,10 @@ from app.main import app
 from app.services.audit_manager import audit_manager
 from app.connectors.google_workspace import google_connector
 
+from app.config import settings
+
 client = TestClient(app)
+client.post("/api/auth/login", json={"pin": settings.JARVIS_ACCESS_PIN})
 
 
 def test_describe_action_gmail_sensitive():

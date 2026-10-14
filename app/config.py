@@ -31,9 +31,15 @@ class SecurityConfigurationError(Exception):
 
 class Settings:
     def __init__(self):
+        # Security: Local-Only Mode (Private to Santiago, external access blocked)
+        self.LOCAL_ONLY: bool = os.getenv("LOCAL_ONLY", "true").lower() in ("true", "1", "yes")
+
         # Server settings
         self.PORT: int = int(os.getenv("PORT", "3000"))
-        self.HOST: str = os.getenv("HOST", "127.0.0.1")
+        if self.LOCAL_ONLY:
+            self.HOST: str = "127.0.0.1"
+        else:
+            self.HOST: str = os.getenv("HOST", "127.0.0.1")
         self.ENV: str = os.getenv("ENV", "development").lower()
         self.DESKTOP_MODE: bool = os.getenv("DESKTOP_MODE", "false").lower() in ("true", "1", "yes")
 
@@ -99,10 +105,10 @@ class Settings:
                 dedup_origins.append(orig)
         origins = dedup_origins
 
-        if self.HOST == "0.0.0.0":
-            # Allow LAN access if explicitly configured
+        if not self.LOCAL_ONLY and self.HOST == "0.0.0.0":
+            # Allow LAN access only if explicitly configured and NOT in local-only mode
             origins.append("*")
-        elif allowed_env:
+        elif not self.LOCAL_ONLY and allowed_env:
             for item in allowed_env.split(","):
                 clean = item.strip()
                 if clean and clean not in origins:

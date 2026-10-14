@@ -10,7 +10,10 @@ from app.main import app
 from app.connectors.system_connector import system_connector
 from app.services.audit_manager import audit_manager
 
+from app.config import settings
+
 client = TestClient(app)
+client.post("/api/auth/login", json={"pin": settings.JARVIS_ACCESS_PIN})
 
 
 @pytest.mark.asyncio
