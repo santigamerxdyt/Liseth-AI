@@ -5914,7 +5914,7 @@ Tus habilidades clave:
       async function probeServerUrl(baseUrl) {
         try {
           const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 1500);
+          const timer = setTimeout(() => controller.abort(), 600);
           const res = await _nativeFetch(`${baseUrl}/api/status`, {
             cache: "no-store",
             signal: controller.signal
@@ -5943,92 +5943,102 @@ Tus habilidades clave:
           serverStatusText.textContent = "🔍 Detectando servidor...";
         }
 
-        const candidates = getCandidateServerUrls();
-        let connectedResult = null;
+        try {
+          const candidates = getCandidateServerUrls();
+          let connectedResult = null;
 
-        // 1. Probar URL base actual o guardada
-        if (apiBaseUrl) {
-          const quick = await probeServerUrl(apiBaseUrl);
-          if (quick.ok) connectedResult = quick;
-        }
-
-        // 2. Si es origen HTTP actual, probar directamente
-        if (!connectedResult && window.location.protocol.startsWith("http") && window.location.origin) {
-          const originRes = await probeServerUrl(window.location.origin);
-          if (originRes.ok) connectedResult = originRes;
-        }
-
-        // 3. Probar en paralelo todos los candidatos (puertos 3000, 3001, 3002, 8000, 8080)
-        if (!connectedResult) {
-          const probes = candidates.map(url => probeServerUrl(url));
-          const results = await Promise.all(probes);
-          connectedResult = results.find(r => r && r.ok) || null;
-        }
-
-        if (serverBadge) {
-          serverBadge.classList.remove("detecting");
-        }
-
-        if (connectedResult) {
-          apiBaseUrl = connectedResult.baseUrl;
-          isServerConnected = true;
-          serverBadge?.classList.add("connected");
-          serverBadge?.classList.remove("disconnected");
-
-          const portNum = connectedResult.data?.port || (connectedResult.baseUrl.match(/:(\d+)/)?.[1]) || "3000";
-
-          if (connectedResult.authRequired) {
-            serverStatusText.textContent = `🔒 Requiere PIN (:${portNum})`;
-            showAuthModal();
-          } else {
-            serverStatusText.textContent = `🟢 En línea (:${portNum})`;
-            if (isManual) {
-              showToast(`✓ Servidor detectado y sincronizado en puerto ${portNum}`);
-            }
+          // 1. Probar URL base actual o guardada
+          if (apiBaseUrl) {
+            const quick = await probeServerUrl(apiBaseUrl);
+            if (quick.ok) connectedResult = quick;
           }
 
-          const modalStatus = document.getElementById("modal-server-status");
-          if (modalStatus) {
-            modalStatus.textContent = `Activo en ${connectedResult.baseUrl} (Puerto ${portNum})`;
+          // 2. Si es origen HTTP actual, probar directamente
+          if (!connectedResult && window.location.protocol.startsWith("http") && window.location.origin) {
+            const originRes = await probeServerUrl(window.location.origin);
+            if (originRes.ok) connectedResult = originRes;
           }
 
-          const ips = connectedResult.data?.localIPs || [];
-          const container = document.getElementById("local-ip-links");
-          if (container) {
-            if (ips.length > 0) {
-              container.innerHTML = ips.map(ip => `
-                <div>📱 http://${ip.address}:${portNum} <span style="color: #64748b;">(${ip.interface})</span></div>
-              `).join("");
+          // 3. Probar en paralelo todos los candidatos (puertos 3000, 3001, 3002, 8000, 8080)
+          if (!connectedResult) {
+            const probes = candidates.map(url => probeServerUrl(url));
+            const results = await Promise.all(probes);
+            connectedResult = results.find(r => r && r.ok) || null;
+          }
+
+          if (serverBadge) {
+            serverBadge.classList.remove("detecting");
+          }
+
+          if (connectedResult) {
+            apiBaseUrl = connectedResult.baseUrl;
+            isServerConnected = true;
+            serverBadge?.classList.add("connected");
+            serverBadge?.classList.remove("disconnected");
+
+            const portNum = connectedResult.data?.port || (connectedResult.baseUrl.match(/:(\d+)/)?.[1]) || "3000";
+
+            if (connectedResult.authRequired) {
+              serverStatusText.textContent = `🔒 Requiere PIN (:${portNum})`;
+              showAuthModal();
             } else {
-              container.textContent = `http://127.0.0.1:${portNum}`;
+              serverStatusText.textContent = `🟢 En línea (:${portNum})`;
+              if (isManual) {
+                showToast(`✓ Servidor detectado y sincronizado en puerto ${portNum}`);
+              }
+            }
+
+            const modalStatus = document.getElementById("modal-server-status");
+            if (modalStatus) {
+              modalStatus.textContent = `Activo en ${connectedResult.baseUrl} (Puerto ${portNum})`;
+            }
+
+            const ips = connectedResult.data?.localIPs || [];
+            const container = document.getElementById("local-ip-links");
+            if (container) {
+              if (ips.length > 0) {
+                container.innerHTML = ips.map(ip => `
+                  <div>📱 http://${ip.address}:${portNum} <span style="color: #64748b;">(${ip.interface})</span></div>
+                `).join("");
+              } else {
+                container.textContent = `http://127.0.0.1:${portNum}`;
+              }
+            }
+
+            // Sincronizar historial y preferencias con el backend encontrado
+            syncHistoryFromServer();
+            syncPersonalizationFromServer();
+          } else {
+            isServerConnected = false;
+            serverBadge?.classList.remove("connected");
+            serverBadge?.classList.add("disconnected");
+            serverStatusText.textContent = "🔌 Servidor Inactivo (Clic)";
+
+            const modalStatus = document.getElementById("modal-server-status");
+            if (modalStatus) {
+              modalStatus.textContent = "Modo Local (Inicia 'INICIAR_WEB.bat' o 'python run.py' para sincronizar)";
+            }
+            const container = document.getElementById("local-ip-links");
+            if (container) {
+              container.textContent = "Ejecuta 'INICIAR_WEB.bat' o 'INICIAR_ESCRITORIO.bat' para conectar.";
+            }
+
+            if (isManual) {
+              showToast("ℹ️ Servidor no detectado. Inicia el backend ejecutando 'INICIAR_WEB.bat' o 'run.py'");
             }
           }
-
-          // Sincronizar historial y preferencias con el backend encontrado
-          syncHistoryFromServer();
-          syncPersonalizationFromServer();
-        } else {
-          isServerConnected = false;
-          serverBadge?.classList.remove("connected");
-          serverBadge?.classList.add("disconnected");
-          serverStatusText.textContent = "🔌 Servidor Inactivo (Clic)";
-
-          const modalStatus = document.getElementById("modal-server-status");
-          if (modalStatus) {
-            modalStatus.textContent = "Modo Local (Inicia 'INICIAR_WEB.bat' o 'python run.py' para sincronizar)";
+        } catch(err) {
+          if (serverBadge) {
+            serverBadge.classList.remove("detecting");
+            serverBadge.classList.add("disconnected");
           }
-          const container = document.getElementById("local-ip-links");
-          if (container) {
-            container.textContent = "Ejecuta 'INICIAR_WEB.bat' o 'INICIAR_ESCRITORIO.bat' para conectar.";
+          if (serverStatusText) {
+            serverStatusText.textContent = "🔌 Servidor Inactivo (Clic)";
           }
-
-          if (isManual) {
-            showToast("ℹ️ Servidor no detectado. Inicia el backend ejecutando 'INICIAR_WEB.bat' o 'run.py'");
-          }
+        } finally {
+          isDetectingServer = false;
+          scheduleServerHeartbeat();
         }
-
-        isDetectingServer = false;
-        scheduleServerHeartbeat();
       }
 
       function scheduleServerHeartbeat() {
@@ -8768,6 +8778,8 @@ Tus habilidades clave:
             }
           });
         }
+      }
+
       // ========================================================
       // MÓDULO VENTANA DINÁMICA: VISOR MULTIFORMATO HUD
       // ========================================================

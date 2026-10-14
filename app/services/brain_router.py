@@ -216,17 +216,17 @@ class BrainRouter:
                 payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
 
             try:
-                async with httpx.AsyncClient(timeout=8.0) as client:
-                    resp = await client.post(url, json=payload)
+                client = self.get_client()
+                resp = await client.post(url, json=payload)
 
-                    # If model is saturated (503) or unavailable (404/429), switch immediately
-                    if resp.status_code in [503, 502, 504, 404, 429, 500]:
-                        logger.warning(f"[AUTO_HEAL] {model} devolvió HTTP {resp.status_code}. Conmutando de inmediato al siguiente modelo...")
-                        last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
-                        continue
+                # If model is saturated (503) or unavailable (404/429), switch immediately
+                if resp.status_code in [503, 502, 504, 404, 429, 500]:
+                    logger.warning(f"[AUTO_HEAL] {model} devolvió HTTP {resp.status_code}. Conmutando de inmediato al siguiente modelo...")
+                    last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
+                    continue
 
-                    resp.raise_for_status()
-                    data = resp.json()
+                resp.raise_for_status()
+                data = resp.json()
 
                 candidates = data.get("candidates", [])
                 if not candidates:
