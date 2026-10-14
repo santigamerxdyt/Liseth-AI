@@ -49,6 +49,14 @@ def main():
     if not os.path.exists(icon_path):
         icon_path = None
 
+    # Start native hardware voice engine (sounddevice)
+    try:
+        from app.services.voice_engine import voice_engine
+        voice_engine.start()
+        print("[*] Motor nativo de voz de Liseth activo (micrófono en segundo plano listo).")
+    except Exception as ve_err:
+        print(f"[!] Aviso al iniciar motor nativo de voz: {ve_err}")
+
     print("[*] Abriendo ventana nativa de escritorio...")
     try:
         window = webview.create_window(
@@ -72,6 +80,12 @@ def main():
                 time.sleep(1)
         except KeyboardInterrupt:
             print("\n[*] Liseth detenida.")
+    finally:
+        try:
+            from app.services.voice_engine import voice_engine
+            voice_engine.stop()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     main()

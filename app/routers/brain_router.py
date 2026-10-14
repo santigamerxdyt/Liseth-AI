@@ -53,6 +53,7 @@ async def chat_endpoint(req: ChatRequest):
             "failoverNotice": res.get("failover", False),
             "usage": res.get("usage", {}),
             "model": res.get("model", ""),
+            "executedTools": res.get("executedTools", []),
         }
     except ValueError as ve:
         # Token limit exceeded or validation error

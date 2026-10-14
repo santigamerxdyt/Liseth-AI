@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 import httpx
 from app.config import settings
+from app.services.action_dispatcher import action_dispatcher, SYSTEM_TOOL_DECLARATIONS
 
 logger = logging.getLogger("jarvis.brain")
 
@@ -214,6 +215,9 @@ class BrainRouter:
             }
             if system_prompt:
                 payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
+            tools_to_use = tools if tools is not None else SYSTEM_TOOL_DECLARATIONS
+            if tools_to_use:
+                payload["tools"] = [{"functionDeclarations": tools_to_use}]
 
             try:
                 client = self.get_client()
@@ -239,6 +243,48 @@ class BrainRouter:
                     if "text" in p:
                         text += p["text"]
 
+                # Process native function/tool execution (Mark-XXXIX automation)
+                executed_tools = []
+                function_calls = [p["functionCall"] for p in parts if "functionCall" in p]
+                if function_calls:
+                    for fc in function_calls:
+                        fn_name = fc.get("name")
+                        fn_args = fc.get("args", {})
+                        try:
+                            t_res = await action_dispatcher.execute_tool(fn_name, fn_args)
+                        except Exception as te:
+                            t_res = f"Error ejecutando {fn_name}: {te}"
+                        executed_tools.append({"name": fn_name, "args": fn_args, "result": t_res})
+
+                    # Follow up with Gemini to synthesize a sweet, conversational voice response
+                    followup_contents = list(formatted_contents)
+                    followup_contents.append({"role": "model", "parts": parts})
+                    followup_parts = [
+                        {
+                            "functionResponse": {
+                                "name": et["name"],
+                                "response": {"result": et["result"]}
+                            }
+                        }
+                        for et in executed_tools
+                    ]
+                    followup_contents.append({"role": "function", "parts": followup_parts})
+                    followup_payload = dict(payload)
+                    followup_payload["contents"] = followup_contents
+                    try:
+                        resp2 = await client.post(url, json=followup_payload)
+                        if resp2.status_code == 200:
+                            data2 = resp2.json()
+                            cands2 = data2.get("candidates", [])
+                            if cands2:
+                                parts2 = cands2[0].get("content", {}).get("parts", [])
+                                text = "".join(p.get("text", "") for p in parts2)
+                    except Exception as fe:
+                        logger.warning(f"Error en followup de Gemini: {fe}")
+
+                    if not text:
+                        text = f"He completado la acción en su equipo: {', '.join([et['name'] for et in executed_tools])}."
+
                 usage = data.get("usageMetadata", {})
                 inp_tok = usage.get("promptTokenCount", 0)
                 out_tok = usage.get("candidatesTokenCount", 0)
@@ -255,6 +301,7 @@ class BrainRouter:
                     "model": model,
                     "usage": {"input": inp_tok, "output": out_tok},
                     "failover": False,
+                    "executedTools": executed_tools,
                 }
             except Exception as e:
                 logger.warning(f"[AUTO_HEAL] Error o timeout con {model}: {e}. Probando siguiente modelo...")

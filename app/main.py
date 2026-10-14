@@ -20,6 +20,7 @@ from app.routers.brain_router import router as brain_router
 from app.routers.system_router import router as system_router
 from app.routers.audit_router import router as audit_router
 from app.routers.tts_router import router as tts_router
+from app.routers.voice_router import router as voice_router
 from app.routers.google_router import router as google_router
 from app.routers.scheduler_router import router as scheduler_router
 from app.routers.notifications_router import router as notifications_router
@@ -50,10 +51,16 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Error inicializando base de datos / migración: {e}", exc_info=True)
 
+    # 3. Configure native voice engine loop
+    import asyncio
+    from app.services.voice_engine import voice_engine
+    voice_engine.set_event_loop(asyncio.get_running_loop())
+
     yield
 
     # Shutdown
-    logger.info("Cerrando conexiones de base de datos...")
+    logger.info("Cerrando motor de voz y conexiones...")
+    voice_engine.stop()
     await engine.dispose()
     try:
         from app.services.brain_router import brain_router
@@ -112,6 +119,9 @@ EXEMPT_API_PATHS = {
     "/api/auth/logout",
     "/api/health",
     "/health",
+    "/api/voice/state",
+    "/api/voice/events",
+    "/api/voice/toggle",
 }
 
 
@@ -152,6 +162,7 @@ app.include_router(auth_router)
 app.include_router(files_router)
 app.include_router(brain_router)
 app.include_router(tts_router)
+app.include_router(voice_router)
 app.include_router(google_router)
 app.include_router(scheduler_router)
 app.include_router(notifications_router)
