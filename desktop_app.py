@@ -50,18 +50,28 @@ def main():
         icon_path = None
 
     print("[*] Abriendo ventana nativa de escritorio...")
-    window = webview.create_window(
-        title="Liseth — Asistente Personal de Santiago",
-        url=f"http://127.0.0.1:{ACTIVE_PORT}",
-        width=1280,
-        height=850,
-        min_size=(900, 600),
-        background_color="#04070d",
-        text_select=True,
-    )
-
-    webview.start(debug=False)
-    print("[*] Ventana cerrada. Liseth finalizada.")
+    try:
+        window = webview.create_window(
+            title="Liseth — Asistente Personal de Santiago",
+            url=f"http://127.0.0.1:{ACTIVE_PORT}",
+            width=1280,
+            height=850,
+            min_size=(900, 600),
+            background_color="#04070d",
+            text_select=True,
+        )
+        webview.start(debug=False)
+        print("[*] Ventana de escritorio cerrada. Liseth finalizada.")
+    except Exception as e:
+        print(f"[!] No se pudo iniciar la ventana nativa ({e}).")
+        print("[*] Conmutando de emergencia al navegador predeterminado...")
+        import webbrowser
+        webbrowser.open(f"http://127.0.0.1:{ACTIVE_PORT}")
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\n[*] Liseth detenida.")
 
 if __name__ == "__main__":
     main()

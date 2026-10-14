@@ -159,6 +159,11 @@ def extract_token_from_request(request: Request) -> Optional[str]:
     if token:
         return token
 
+    # 4. Check query parameter 'token' (vital for cross-origin <a download> and window.open)
+    token = request.query_params.get("token")
+    if token:
+        return token
+
     return None
 
 

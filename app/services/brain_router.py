@@ -48,6 +48,7 @@ class BrainRouter:
         self.active_gemini_model: str = "gemini-3-flash-preview"
         self.last_failover: Optional[dict] = None
         self.known_working_models: List[str] = ["gemini-3-flash-preview", "gemini-3.1-flash-lite"]
+        self._http_client: Optional[httpx.AsyncClient] = None
         self.stats: dict = {
             "today_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "today": {
@@ -61,6 +62,21 @@ class BrainRouter:
             },
             "month": {"input": 0, "output": 0, "cost_estimate": 0.0},
         }
+
+    def get_client(self, timeout: float = 20.0) -> httpx.AsyncClient:
+        """Returns or creates a reusable HTTP client with connection pooling."""
+        if self._http_client is None or self._http_client.is_closed:
+            self._http_client = httpx.AsyncClient(
+                timeout=httpx.Timeout(timeout, connect=5.0),
+                limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
+            )
+        return self._http_client
+
+    async def close(self):
+        """Closes the underlying HTTP client connection pool."""
+        if self._http_client and not self._http_client.is_closed:
+            await self._http_client.aclose()
+            self._http_client = None
 
     def _check_daily_rollover(self):
         today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")

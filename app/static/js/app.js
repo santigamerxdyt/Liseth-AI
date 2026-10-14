@@ -209,8 +209,23 @@ Tus habilidades clave:
       let serverPollTimer = null;
       const _nativeFetch = window.fetch.bind(window);
 
-      // Interceptor transparente de llamadas API para soportar file:// y puertos dinámicos (3000, 3001, 8000...)
+      // Interceptor transparente de llamadas API para soportar file://, puertos dinámicos y tokens Bearer
       window.fetch = function(resource, init) {
+        init = init || {};
+        const sessionToken = localStorage.getItem("liseth_session_token");
+        if (sessionToken) {
+          if (!init.headers) {
+            init.headers = { "Authorization": `Bearer ${sessionToken}` };
+          } else if (init.headers instanceof Headers) {
+            if (!init.headers.has("Authorization")) {
+              init.headers.set("Authorization", `Bearer ${sessionToken}`);
+            }
+          } else if (typeof init.headers === "object" && !Array.isArray(init.headers)) {
+            if (!init.headers["Authorization"] && !init.headers["authorization"]) {
+              init.headers["Authorization"] = `Bearer ${sessionToken}`;
+            }
+          }
+        }
         if (typeof resource === "string" && resource.startsWith("/api")) {
           const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
           resource = base + resource;
@@ -541,6 +556,13 @@ Tus habilidades clave:
         const ttsUrl = `/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+5%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+15Hz')}&provider=${encodeURIComponent(provider)}&text=${encodeURIComponent(clean)}`;
 
         try {
+          if (activeAudioElement) {
+            try {
+              activeAudioElement.pause();
+              activeAudioElement.src = "";
+            } catch(e) {}
+            activeAudioElement = null;
+          }
           const audio = new Audio(ttsUrl);
           activeAudioElement = audio;
 
@@ -2997,6 +3019,9 @@ Tus habilidades clave:
           });
           const data = await res.json();
           if (res.ok && data.ok) {
+            if (data.token) {
+              localStorage.setItem("liseth_session_token", data.token);
+            }
             hideAuthModal();
             showToast("✓ Sesión iniciada. Bienvenido, Santiago.");
             checkServerConnection();
@@ -3019,6 +3044,7 @@ Tus habilidades clave:
       }
 
       async function handleLogout() {
+        localStorage.removeItem("liseth_session_token");
         try {
           await fetch("/api/auth/logout", { method: "POST" });
         } catch(e) {}
@@ -3294,6 +3320,19 @@ Tus habilidades clave:
 
           waveAnimationId = requestAnimationFrame(drawWaves);
         }
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            if (waveAnimationId) {
+              cancelAnimationFrame(waveAnimationId);
+              waveAnimationId = null;
+            }
+          } else {
+            if (!waveAnimationId) {
+              drawWaves();
+            }
+          }
+        });
 
         drawWaves();
       }

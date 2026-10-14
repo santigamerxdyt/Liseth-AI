@@ -19,6 +19,10 @@ from app.routers.files_router import router as files_router
 from app.routers.brain_router import router as brain_router
 from app.routers.system_router import router as system_router
 from app.routers.audit_router import router as audit_router
+from app.routers.tts_router import router as tts_router
+from app.routers.google_router import router as google_router
+from app.routers.scheduler_router import router as scheduler_router
+from app.routers.notifications_router import router as notifications_router
 
 # Setup logger
 logging.basicConfig(
@@ -51,6 +55,11 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("Cerrando conexiones de base de datos...")
     await engine.dispose()
+    try:
+        from app.services.brain_router import brain_router
+        await brain_router.close()
+    except Exception:
+        pass
     logger.info("JARVIS / Liseth detenido correctamente.")
 
 
@@ -101,6 +110,17 @@ EXEMPT_API_PATHS = {
     "/api/system/search",
     "/api/system/read",
     "/api/files/catalog",
+    "/api/download-file",
+    "/api/save-generated-file",
+    "/api/tts",
+    "/api/google/status",
+    "/api/google/auth-url",
+    "/api/google/oauth2callback",
+    "/api/google/execute",
+    "/api/scheduler/tasks",
+    "/api/scheduler/tasks/trigger",
+    "/api/scheduler/tasks/toggle",
+    "/api/notifications/test",
 }
 
 
@@ -140,6 +160,10 @@ app.include_router(audit_router)
 app.include_router(auth_router)
 app.include_router(files_router)
 app.include_router(brain_router)
+app.include_router(tts_router)
+app.include_router(google_router)
+app.include_router(scheduler_router)
+app.include_router(notifications_router)
 
 
 # Mount Static Files
