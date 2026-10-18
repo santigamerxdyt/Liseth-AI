@@ -91,6 +91,33 @@ class GitSyncService:
             logger.error(f"Error checking git status: {e}", exc_info=True)
             return {"error": str(e), "clean": False, "uncommitted_count": 0}
 
+    def _get_github_token(self) -> Optional[str]:
+        """Safely retrieves the GitHub token from Windows Credential Manager."""
+        try:
+            import ctypes
+            from ctypes import wintypes
+            CRED_TYPE_GENERIC = 1
+            class CREDENTIAL(ctypes.Structure):
+                _fields_ = [('Flags', wintypes.DWORD), ('Type', wintypes.DWORD), ('TargetName', wintypes.LPWSTR), ('Comment', wintypes.LPWSTR), ('LastWritten', wintypes.FILETIME), ('CredentialBlobSize', wintypes.DWORD), ('CredentialBlob', ctypes.POINTER(ctypes.c_byte)), ('Persist', wintypes.DWORD), ('AttributeCount', wintypes.DWORD), ('Attributes', ctypes.c_void_p), ('TargetAlias', wintypes.LPWSTR), ('UserName', wintypes.LPWSTR)]
+            PCREDENTIAL = ctypes.POINTER(CREDENTIAL)
+            advapi32 = ctypes.WinDLL('advapi32.dll', use_last_error=True)
+            CredReadW = advapi32.CredReadW
+            CredReadW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.POINTER(PCREDENTIAL)]
+            CredReadW.restype = wintypes.BOOL
+            CredFree = advapi32.CredFree
+            CredFree.argtypes = [ctypes.c_void_p]
+
+            pcred = PCREDENTIAL()
+            if CredReadW('GitHub - https://api.github.com/santigamerxdyt', CRED_TYPE_GENERIC, 0, ctypes.byref(pcred)):
+                cred = pcred.contents
+                raw = bytes(ctypes.string_at(cred.CredentialBlob, cred.CredentialBlobSize))
+                token = raw.decode('utf-8', errors='ignore').strip('\x00\r\n ')
+                CredFree(pcred)
+                return token
+        except Exception as e:
+            logger.debug(f"Could not read credential via CredReadW: {e}")
+        return os.getenv("GH_TOKEN") or os.getenv("GITHUB_TOKEN")
+
     def sync_to_github(self, custom_message: Optional[str] = None) -> Dict[str, Any]:
         """
         Stages all allowed changes, commits, and pushes to GitHub.
@@ -133,10 +160,13 @@ class GitSyncService:
                 if commit_res.returncode != 0 and "nothing to commit" not in commit_res.stdout.lower():
                     return {"success": False, "error": f"Error en git commit: {commit_res.stderr.strip()}"}
 
-                # 3. Push to origin main
+                # 3. Push to origin main (using token if available for zero-prompt background pushes)
                 branch = status.get("branch", "main")
+                token = self._get_github_token()
+                push_target = f"https://{token}@github.com/santigamerxdyt/Liseth-AI.git" if token else "origin"
+
                 push_res = subprocess.run(
-                    ["git", "push", "origin", branch],
+                    ["git", "push", push_target, f"{branch}:{branch}"],
                     cwd=str(self.repo_dir),
                     capture_output=True,
                     text=True,
@@ -144,22 +174,21 @@ class GitSyncService:
                 )
 
                 if push_res.returncode != 0:
-                    # If push fails, check if we need to set upstream
-                    if "set-upstream" in push_res.stderr.lower():
-                        push_res = subprocess.run(
-                            ["git", "push", "-u", "origin", branch],
-                            cwd=str(self.repo_dir),
-                            capture_output=True,
-                            text=True,
-                            check=False
-                        )
+                    # Retry with plain origin if token failed
+                    push_res = subprocess.run(
+                        ["git", "push", "origin", branch],
+                        cwd=str(self.repo_dir),
+                        capture_output=True,
+                        text=True,
+                        check=False
+                    )
 
-                    if push_res.returncode != 0:
-                        return {
-                            "success": False,
-                            "error": f"Error al subir a GitHub: {push_res.stderr.strip()}",
-                            "details": push_res.stderr
-                        }
+                if push_res.returncode != 0:
+                    return {
+                        "success": False,
+                        "error": f"Error al subir a GitHub: {push_res.stderr.strip()}",
+                        "details": push_res.stderr
+                    }
 
                 # 4. Update telemetry
                 self.last_sync_time = now_str
