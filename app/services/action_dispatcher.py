@@ -511,6 +511,18 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": []
         }
+    },
+    {
+        "name": "git_sync",
+        "description": "Sincronizador automático de código y repositorio con GitHub: detecta archivos modificados, crea commits semánticos y sube los cambios a la rama principal de https://github.com/santigamerxdyt/Liseth-AI. También gestiona el centinela en segundo plano.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "sync | status | start_watcher | stop_watcher"},
+                "message": {"type": "STRING", "description": "Mensaje personalizado opcional para el commit de Git"}
+            },
+            "required": []
+        }
     }
 ]
 
@@ -793,6 +805,11 @@ class ActionDispatcher:
             elif name in ("slopmonster", "deslop", "humanize_copy", "anti_slop", "humanize_text"):
                 from app.actions.slopmonster_action import slopmonster_action
                 res = await loop.run_in_executor(None, lambda: slopmonster_action(parameters=args))
+                return res
+
+            elif name in ("git_sync", "sync_github", "github_sync", "git_push", "repo_sync"):
+                from app.actions.git_sync_action import git_sync_action
+                res = await loop.run_in_executor(None, lambda: git_sync_action(parameters=args))
                 return res
 
             else:

@@ -731,6 +731,37 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
             "Analizando huellas de IA y calculando puntaje de humanidad (0-5)..."
         )
 
+    # 33f. Git Auto-Sync & GitHub Cloud Synchronization
+    if any(k in norm for k in ["sincroniza con github", "sincronizar con github", "sube los cambios a github", "subir cambios a github", "sube a github", "guarda mis cambios en github", "actualiza el repositorio", "actualizar el repositorio", "sincroniza el repositorio", "sincronizar el repositorio", "sube el proyecto a github"]):
+        m_msg = re.search(r"(?:con mensaje|mensaje|commit)[\s:]+[\"']([^\"']+)[\"']", cleaned, re.IGNORECASE)
+        msg_arg = m_msg.group(1).strip() if m_msg else None
+        return (
+            "git_sync",
+            {"action": "sync", "message": msg_arg},
+            "Sincronizando y subiendo los cambios del proyecto a su repositorio de GitHub, señor Santiago..."
+        )
+
+    if any(k in norm for k in ["estado de git", "estado de sincronizacion", "estado del repositorio", "estado de github", "cambios pendientes en git"]):
+        return (
+            "git_sync",
+            {"action": "status"},
+            "Consultando el estado de sincronización local contra el repositorio remoto en GitHub..."
+        )
+
+    if any(k in norm for k in ["centinela de github", "auto sync de github", "sincronizacion automatica"]) and any(w in norm for w in ["inicia", "activa", "empieza", "activar"]):
+        return (
+            "git_sync",
+            {"action": "start_watcher"},
+            "Activando centinela de sincronización automática en segundo plano con GitHub..."
+        )
+
+    if any(k in norm for k in ["centinela de github", "auto sync de github", "sincronizacion automatica"]) and any(w in norm for w in ["deten", "para", "apaga", "desactiva", "detener"]):
+        return (
+            "git_sync",
+            {"action": "stop_watcher"},
+            "Deteniendo centinela de sincronización automática con GitHub..."
+        )
+
     # 34. Open App / Program: "abre la calculadora", "abrir bloc de notas", "inicia chrome"
     m_open = _RE_OPEN_APP.match(norm)
     if m_open:

@@ -4998,6 +4998,9 @@
         <button type="submit" id="btn-auth-unlock" class="btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem; justify-content: center; font-weight: 600;">
           Desbloquear Asistente
         </button>
+        <button type="button" id="btn-auth-guest" style="width: 100%; margin-top: 10px; padding: 10px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; background: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.35); color: #00d2ff; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+          🌐 Entrar en Modo Web / Invitado (GitHub Pages)
+        </button>
       </form>
     </div>
   </div>
@@ -5432,6 +5435,13 @@ Tus habilidades clave:
       let isListening = false;
       let isSpeaking = false;
       let isServerConnected = false;
+
+      // --- DETECCIÓN DE ENTORNO GITHUB PAGES / WEB HOSTING ---
+      const isGitHubPages = window.location.hostname.includes("github.io") || window.location.protocol === "file:";
+      if (isGitHubPages && !localStorage.getItem("liseth_session_token")) {
+        localStorage.setItem("liseth_session_token", "github-pages-guest");
+      }
+
       let conversationHistory = [];
       let recognition = null;
       let activeAudioElement = null;
@@ -8580,6 +8590,13 @@ Tus habilidades clave:
       }
 
       async function checkAuthSession() {
+        if (isGitHubPages) {
+          if (!localStorage.getItem("liseth_session_token")) {
+            localStorage.setItem("liseth_session_token", "github-pages-guest");
+          }
+          hideAuthModal();
+          return true;
+        }
         const token = localStorage.getItem("liseth_session_token");
         if (!token) {
           showAuthModal();
