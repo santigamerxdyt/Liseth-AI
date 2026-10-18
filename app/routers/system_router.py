@@ -275,3 +275,216 @@ async def save_chat_history(req: HistorySaveRequest):
             await session.rollback()
             logger.error(f"Error guardando historial: {e}")
             raise HTTPException(status_code=500, detail="Error guardando historial en la base de datos.")
+
+
+class DndToggleRequest(BaseModel):
+    enabled: Optional[bool] = None
+
+
+@router.get("/system/dnd")
+async def get_dnd_status():
+    """Returns the current state of Do Not Disturb (DND) / Modo No Molestar."""
+    from app.services.heartbeat_service import heartbeat_service
+    return {"ok": True, "dnd": heartbeat_service.gatekeeper.dnd_mode}
+
+
+@router.post("/system/dnd")
+async def set_dnd_status(req: DndToggleRequest):
+    """Enables, disables, or toggles Do Not Disturb."""
+    from app.services.heartbeat_service import heartbeat_service
+    if req.enabled is None:
+        new_state = heartbeat_service.gatekeeper.toggle_dnd()
+    else:
+        if req.enabled:
+            heartbeat_service.gatekeeper.enable_dnd()
+        else:
+            heartbeat_service.gatekeeper.disable_dnd()
+        new_state = heartbeat_service.gatekeeper.dnd_mode
+    return {"ok": True, "dnd": new_state}
+
+
+class OptimizeRamRequest(BaseModel):
+    targetProcess: Optional[str] = None
+
+
+@router.post("/system/optimize-ram")
+async def optimize_ram_endpoint(req: OptimizeRamRequest = OptimizeRamRequest()):
+    """Triggers system RAM optimization and working set flushing."""
+    from app.actions.system_monitor import optimize_memory
+    msg = optimize_memory(req.targetProcess)
+    return {"ok": True, "message": msg}
+
+
+class CalendarAddRequest(BaseModel):
+    summary: str
+    startTime: str
+    endTime: Optional[str] = None
+    meetingLink: Optional[str] = None
+    description: Optional[str] = None
+
+
+@router.get("/system/calendar")
+async def get_calendar_events(date: Optional[str] = None):
+    """Returns agenda and calendar meetings."""
+    from app.services.calendar_service import calendar_service
+    events = calendar_service.list_events(date)
+    return {"ok": True, "events": events, "count": len(events)}
+
+
+@router.post("/system/calendar")
+async def add_calendar_event(req: CalendarAddRequest):
+    """Schedules a new meeting or event."""
+    from app.services.calendar_service import calendar_service
+    event = calendar_service.add_event(
+        summary=req.summary,
+        start_time=req.startTime,
+        end_time=req.endTime,
+        meeting_link=req.meetingLink,
+        description=req.description,
+    )
+    return {"ok": True, "event": event}
+
+
+class DeepWorkRequest(BaseModel):
+    action: str = "start"
+    duration: Optional[int] = 50
+    task: Optional[str] = ""
+
+
+@router.get("/system/deep-work")
+async def get_deep_work_status():
+    """Returns the current state of deep work / pomodoro session."""
+    from app.actions.deep_work import deep_work_manager
+    return {"ok": True, "data": deep_work_manager.get_status()}
+
+
+@router.post("/system/deep-work")
+async def manage_deep_work(req: DeepWorkRequest):
+    """Starts, stops, or checks deep work focus session."""
+    from app.actions.deep_work import deep_work_manager
+    act = req.action.lower()
+    if act in ["start", "iniciar", "activar"]:
+        res = deep_work_manager.start_session(duration_minutes=req.duration or 50, task=req.task or "")
+    elif act in ["stop", "cancel", "terminar", "detener"]:
+        res = deep_work_manager.stop_session()
+    else:
+        res = deep_work_manager.get_status()
+    return {"ok": True, "data": res}
+
+
+class SystemShutdownRequest(BaseModel):
+    delaySeconds: Optional[float] = 1.5
+
+
+@router.post("/system/shutdown")
+async def shutdown_system_endpoint(req: SystemShutdownRequest = SystemShutdownRequest()):
+    """Triggers graceful closure of the Liseth application and background services."""
+    from app.actions.system_shutdown import shutdown_liseth
+    msg = shutdown_liseth(delay_seconds=req.delaySeconds or 1.5)
+    return {"ok": True, "message": msg}
+
+
+class BackgroundTaskCreateRequest(BaseModel):
+    title: str
+    description: Optional[str] = ""
+    notifyUser: Optional[bool] = True
+
+
+@router.get("/system/tasks/background")
+async def list_background_tasks(status: Optional[str] = None):
+    """Lists all active and completed background autonomous tasks."""
+    from app.services.background_worker_service import background_worker
+    tasks = background_worker.list_tasks(status=status)
+    return {"ok": True, "data": [t.to_dict() for t in tasks], "summary": background_worker.get_summary()}
+
+
+@router.post("/system/tasks/background")
+async def create_background_task(req: BackgroundTaskCreateRequest):
+    """Enqueues an autonomous background task."""
+    from app.services.background_worker_service import background_worker
+
+    def _async_job():
+        import time
+        time.sleep(1.0)
+        return f"Tarea '{req.title}' procesada en segundo plano."
+
+    task = background_worker.submit_task(
+        title=req.title,
+        func=_async_job,
+        description=req.description or "",
+        notify_user=bool(req.notifyUser)
+    )
+    return {"ok": True, "task": task.to_dict()}
+
+
+@router.delete("/system/tasks/background/{task_id}")
+async def cancel_background_task(task_id: str):
+    """Cancels a background task by ID."""
+    from app.services.background_worker_service import background_worker
+    ok = background_worker.cancel_task(task_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Tarea no encontrada o ya finalizada.")
+    return {"ok": True, "message": f"Tarea {task_id} cancelada exitosamente."}
+
+
+class RoutineExecuteRequest(BaseModel):
+    routine: str = "morning"
+
+
+@router.get("/system/routines")
+async def get_routines_endpoint():
+    """Returns available automated routines and recent execution history."""
+    from app.services.routine_engine import routine_engine
+    return {
+        "ok": True,
+        "routines": routine_engine.list_available_routines(),
+        "history": [
+            {
+                "routine": h.routine_name,
+                "started_at": h.started_at,
+                "completed_at": h.completed_at,
+                "success": h.success,
+                "summary": h.summary,
+            }
+            for h in routine_engine.get_history()
+        ]
+    }
+
+
+@router.post("/system/routines/execute")
+async def execute_routine_endpoint(req: RoutineExecuteRequest):
+    """Executes a routine on demand."""
+    from app.services.routine_engine import routine_engine
+    result = routine_engine.execute_routine(req.routine)
+    return {
+        "ok": True,
+        "success": result.success,
+        "summary": result.summary,
+        "step_results": [
+            {
+                "step_name": s.step_name,
+                "success": s.success,
+                "output": s.output,
+                "duration_seconds": round(s.duration_seconds, 2)
+            }
+            for s in result.step_results
+        ]
+    }
+
+
+@router.get("/system/debrief")
+async def get_daily_debrief_endpoint():
+    """Returns today's executive debrief and activity log."""
+    from app.services.daily_debrief_service import daily_debrief_service
+    entries = daily_debrief_service.get_entries(limit=50)
+    summary = daily_debrief_service.generate_debrief()
+    return {
+        "ok": True,
+        "summary": summary,
+        "entries": [e.to_dict() for e in entries],
+    }
+
+
+
+
+

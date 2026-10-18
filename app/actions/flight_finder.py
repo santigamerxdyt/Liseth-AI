@@ -27,14 +27,13 @@ _MONTH_MAP: dict[str, int] = {
     "january": 1, "february": 2, "march": 3,     "april": 4,
     "may": 5,     "june": 6,     "july": 7,       "august": 8,
     "september": 9, "october": 10, "november": 11, "december": 12,
-    "ocak": 1,  "şubat": 2,  "mart": 3,   "nisan": 4,
-    "mayıs": 5, "haziran": 6, "temmuz": 7, "ağustos": 8,
-    "eylül": 9, "ekim": 10,  "kasım": 11, "aralık": 12,
 }
 
+# English fast-path only — Gemini (below) normalizes date expressions in ANY
+# language to YYYY-MM-DD, so no other language needs to be hardcoded here.
 _RELATIVE_MAP_KEYS = {
-    "today", "bugün",
-    "tomorrow", "yarın",
+    "today",
+    "tomorrow",
 }
 
 
@@ -53,24 +52,21 @@ def _parse_date(raw: str) -> str:
             pass
 
     relative = {
-        "today": today, "bugün": today,
+        "today": today,
         "tomorrow": today + timedelta(days=1),
-        "yarın":    today + timedelta(days=1),
     }
     for key, val in relative.items():
         if key in lower:
             return val.strftime("%Y-%m-%d")
 
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=_get_api_key())
-        model    = genai.GenerativeModel("gemini-2.5-flash-lite")
-        response = model.generate_content(
+        from core import gemini
+        result = gemini.text(
             f"Today is {today.strftime('%Y-%m-%d')}. "
             f"Convert this date expression to YYYY-MM-DD: '{raw}'. "
-            f"Return ONLY the date string, nothing else."
+            f"Return ONLY the date string, nothing else.",
+            tier=gemini.FAST,
         )
-        result = response.text.strip()
         if re.match(r"\d{4}-\d{2}-\d{2}", result):
             return result
     except Exception as e:
@@ -152,19 +148,10 @@ def _parse_flights_with_gemini(
     destination: str,
     date:        str,
 ) -> list[dict]:
-    import google.generativeai as genai
+    from google import genai as _genai
+    from google.genai import types
 
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash",
-        system_instruction=(
-            "You are a flight data extraction expert. "
-            "Extract flight information from raw webpage text. "
-            "Return ONLY valid JSON — no markdown, no explanation."
-        ),
-    )
-
-    prompt = (
+    prompt  = (
         f"Extract flight options from {origin} to {destination} on {date} "
         f"from this Google Flights page text:\n\n{raw_text[:12000]}\n\n"
         f"Return a JSON array of up to 5 flights:\n"
@@ -174,7 +161,19 @@ def _parse_flights_with_gemini(
     )
 
     try:
-        response = model.generate_content(prompt)
+        from core import gemini
+        response = gemini.call(
+            prompt,
+            tier=gemini.SMART,
+            timeout_ms=30_000,
+            config=types.GenerateContentConfig(
+                system_instruction=(
+                    "You are a flight data extraction expert. "
+                    "Extract flight information from raw webpage text. "
+                    "Return ONLY valid JSON — no markdown, no explanation."
+                )
+            ),
+        )
         text     = re.sub(r"```(?:json)?", "", response.text).strip().rstrip("`").strip()
         flights  = json.loads(text)
         return flights if isinstance(flights, list) else []
@@ -358,3 +357,49 @@ def flight_finder(parameters: dict, player=None, speak=None) -> str:
     except Exception as e:
         print(f"[FlightFinder] ❌ {e}")
         return f"Flight search failed, sir: {e}"
+
+
+# ── Tool declaration (auto-discovered by core/action_loader.py) ──────────────
+TOOL = {
+    "name": "flight_finder",
+    "description": "Searches Google Flights and speaks the best options.",
+    "parameters": {
+        "type": "OBJECT",
+        "properties": {
+            "origin": {
+                "type": "STRING",
+                "description": "Departure city or airport code"
+            },
+            "destination": {
+                "type": "STRING",
+                "description": "Arrival city or airport code"
+            },
+            "date": {
+                "type": "STRING",
+                "description": "Departure date (any format)"
+            },
+            "return_date": {
+                "type": "STRING",
+                "description": "Return date for round trips"
+            },
+            "passengers": {
+                "type": "INTEGER",
+                "description": "Number of passengers (default: 1)"
+            },
+            "cabin": {
+                "type": "STRING",
+                "description": "economy | premium | business | first"
+            },
+            "save": {
+                "type": "BOOLEAN",
+                "description": "Save results to Notepad"
+            }
+        },
+        "required": [
+            "origin",
+            "destination",
+            "date"
+        ]
+    },
+    "handler": flight_finder,
+}

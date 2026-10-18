@@ -28,6 +28,8 @@ class SoulService:
     def __init__(self):
         MEMORIES_DIR.mkdir(parents=True, exist_ok=True)
         SKILLS_DIR.mkdir(parents=True, exist_ok=True)
+        self._skills_cache: List[Dict[str, str]] = []
+        self._skills_cache_time: float = 0.0
 
     def get_soul(self) -> str:
         """Reads SOUL.md or returns the default identity."""
@@ -83,7 +85,12 @@ class SoulService:
             return False
 
     def list_skills(self) -> List[Dict[str, str]]:
-        """Discovers and parses all skills in skills/*/SKILL.md."""
+        """Discovers and parses all skills in skills/*/SKILL.md (cached with TTL)."""
+        import time
+        now = time.time()
+        if self._skills_cache and (now - self._skills_cache_time < 5.0):
+            return self._skills_cache
+
         skills = []
         if not SKILLS_DIR.exists():
             return skills
@@ -115,6 +122,8 @@ class SoulService:
             except Exception as e:
                 logger.warning(f"Error leyendo skill {skill_path}: {e}")
 
+        self._skills_cache = skills
+        self._skills_cache_time = now
         return skills
 
     def build_system_instruction(self, custom_prompt: Optional[str] = None) -> str:

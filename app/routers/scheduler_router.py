@@ -125,9 +125,17 @@ async def trigger_scheduler_task(req: TaskTriggerRequest):
     target["lastRun"] = now_iso
     save_tasks(tasks)
 
+    # Autonomously dispatch execution through HeartbeatService
+    exec_status = "Iniciada"
+    try:
+        from app.services.heartbeat_service import heartbeat_service
+        exec_status = heartbeat_service.execute_scheduled_task(target)
+    except Exception as e:
+        logger.warning(f"Error despachando tarea programada: {e}")
+
     return {
         "ok": True,
-        "message": f"Tarea '{target.get('title')}' disparada y ejecutada exitosamente.",
+        "message": f"Tarea '{target.get('title')}' disparada y ejecutada exitosamente. ({exec_status})",
         "task": target,
         "executedAt": now_iso,
     }

@@ -118,13 +118,13 @@ Tus habilidades clave:
    Habla siempre en un español impecable, refinado, afectuoso y perspicaz.`;
 
       const CANDIDATE_MODELS = [
-        "gemini-3.5-flash",
-        "gemini-3.8-flash",
-        "gemini-3.7-flash",
-        "gemini-flash-latest",
-        "gemini-3.1-flash-lite"
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-flash-latest"
       ];
-      let activeGeminiModel = localStorage.getItem("liseth_active_gemini_model") || "gemini-3.5-flash";
+      let activeGeminiModel = localStorage.getItem("liseth_active_gemini_model") || "gemini-2.5-flash";
 
       // Elementos del DOM
       const orb = document.getElementById("orb");
@@ -1037,11 +1037,36 @@ Tus habilidades clave:
                 const userTag = (currentCustomization.userTitle || "SANTIAGO").toUpperCase();
                 updateHudTranscript(data.text, userTag);
                 appendUserMessageWithFiles(data.text, []);
+
+                // Guardar en el historial de conversación de la consola
+                conversationHistory.push({
+                  role: "user",
+                  parts: [{ text: data.text }]
+                });
+                saveChatHistory();
+                saveChatToServer();
+
+                if (currentViewMode === "sphere" && btnToggleView) {
+                  btnToggleView.classList.add("has-unread");
+                }
               } else if (data.type === "thinking") {
                 setThinkingState(true);
               } else if (data.type === "response") {
                 setThinkingState(false);
                 appendMessage("assistant", data.text, true);
+
+                // Guardar respuesta de Liseth en el historial de la consola
+                conversationHistory.push({
+                  role: "model",
+                  parts: [{ text: data.text }]
+                });
+                saveChatHistory();
+                saveChatToServer();
+
+                if (currentViewMode === "sphere" && btnToggleView) {
+                  btnToggleView.classList.add("has-unread");
+                }
+
                 if (data.executedTools && data.executedTools.length > 0) {
                   const toolNames = data.executedTools.map(t => t.name).join(", ");
                   showToast(`✓ Liseth ejecutó acción: ${toolNames}`);
@@ -1749,7 +1774,7 @@ Tus habilidades clave:
 
         // Modo autónomo en cliente (Fallback si no hay servidor)
         // Comprobar únicamente los 2 mejores modelos verificados para evitar esperas largas
-        const candidatePool = [activeGeminiModel, "gemini-3.5-flash", "gemini-3-flash-preview"];
+        const candidatePool = [activeGeminiModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
         const orderedCandidateModels = [...new Set(candidatePool.filter(Boolean))].slice(0, 2);
 
         let lastError = null;
@@ -2467,7 +2492,7 @@ Tus habilidades clave:
           ];
 
           // Llamada usando el modelo activo confirmado
-          const summaryResponse = await executeGeminiRequest(activeGeminiModel || "gemini-3.5-flash", apiKey, summaryPrompt);
+          const summaryResponse = await executeGeminiRequest(activeGeminiModel || "gemini-2.5-flash", apiKey, summaryPrompt);
           const cleanSummary = summaryResponse ? summaryResponse.trim() : "Historial previo resumido con éxito.";
 
           showToast("✓ Memoria previa resumida sin tocar su pantalla.");
@@ -3650,9 +3675,11 @@ Tus habilidades clave:
           consoleWorkspace?.classList.remove("hidden");
           if (btnToggleView) {
             btnToggleView.classList.remove("active");
+            btnToggleView.classList.remove("has-unread");
             if (toggleViewIcon) toggleViewIcon.textContent = "🔮";
             if (toggleViewText) toggleViewText.textContent = "Esfera";
           }
+          scrollToBottom();
         }
       }
 

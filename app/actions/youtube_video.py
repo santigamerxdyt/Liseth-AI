@@ -9,8 +9,17 @@ from pathlib import Path
 from datetime import datetime
 from urllib.parse import quote_plus
 
-import pyautogui
-import numpy as np
+try:
+    import pyautogui
+    _PYAUTOGUI = True
+except ImportError:
+    _PYAUTOGUI = False
+
+try:
+    import numpy as np
+    _NUMPY = True
+except ImportError:
+    _NUMPY = False
 
 try:
     import requests
@@ -158,26 +167,30 @@ def _get_transcript(video_id: str) -> str | None:
 
 
 def _summarize_with_gemini(transcript: str, video_url: str) -> str:
-    import google.generativeai as genai
-
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash",
-        system_instruction=(
-            "You are JARVIS, an AI assistant. "
-            "Summarize YouTube video transcripts clearly and concisely. "
-            "Structure: 1-sentence overview, then 3-5 key points. "
-            "Be direct. Address the user as 'sir'. "
-            "Match the language of the transcript."
-        )
-    )
+    from google.genai import types
+    from core import gemini
 
     max_chars = 80000
     truncated = transcript[:max_chars] + ("..." if len(transcript) > max_chars else "")
-    response  = model.generate_content(
-        f"Please summarize this YouTube video transcript:\n\n{truncated}"
+    # A whole transcript can be 80k characters, hence the long deadline — but a
+    # deadline there is, and the ladder in core/gemini.py picks the model.
+    response = gemini.call(
+        f"Please summarize this YouTube video transcript:\n\n{truncated}",
+        tier=gemini.SMART,
+        timeout_ms=60_000,
+        config=types.GenerateContentConfig(
+            system_instruction=(
+                "You are JARVIS, an AI assistant. "
+                "Summarize YouTube video transcripts clearly and concisely. "
+                "Structure: 1-sentence overview, then 3-5 key points. "
+                "Be direct. Address the user as 'sir'. "
+                "Match the language of the transcript."
+            )
+        )
     )
-    return response.text.strip()
+    if response is None:
+        return "I couldn't reach Gemini to summarise that transcript, sir."
+    return (response.text or "").strip()
 
 
 def _save_summary(content: str, video_url: str) -> str:
@@ -426,3 +439,37 @@ def youtube_video(
     except Exception as e:
         print(f"[YouTube] ❌ Error in {action}: {e}")
         return f"YouTube {action} failed, sir: {e}"
+
+
+# ── Tool declaration (auto-discovered by core/action_loader.py) ──────────────
+TOOL = {
+    "name": "youtube_video",
+    "description": "Controls YouTube. Use for: playing videos, summarizing a video's content, getting video info, or showing trending videos.",
+    "parameters": {
+        "type": "OBJECT",
+        "properties": {
+            "action": {
+                "type": "STRING",
+                "description": "play | summarize | get_info | trending (default: play)"
+            },
+            "query": {
+                "type": "STRING",
+                "description": "Search query for play action"
+            },
+            "save": {
+                "type": "BOOLEAN",
+                "description": "Save summary to Notepad (summarize only)"
+            },
+            "region": {
+                "type": "STRING",
+                "description": "Country code for trending e.g. TR, US"
+            },
+            "url": {
+                "type": "STRING",
+                "description": "Video URL for get_info action"
+            }
+        },
+        "required": []
+    },
+    "handler": youtube_video,
+}

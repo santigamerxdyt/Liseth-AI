@@ -56,10 +56,34 @@ async def lifespan(app: FastAPI):
     from app.services.voice_engine import voice_engine
     voice_engine.set_event_loop(asyncio.get_running_loop())
 
+    # 4. Start Autonomous Background Heartbeat Sentinel
+    try:
+        from app.services.heartbeat_service import heartbeat_service
+        heartbeat_service.start()
+    except Exception as e:
+        logger.error(f"Error iniciando centinela autónomo (heartbeat): {e}", exc_info=True)
+
+    # 5. Start Bidirectional Telegram Polling Bot if configured
+    try:
+        from app.services.telegram_service import telegram_service
+        telegram_service.start()
+    except Exception as e:
+        logger.error(f"Error iniciando bot bidireccional de Telegram: {e}", exc_info=True)
+
     yield
 
     # Shutdown
-    logger.info("Cerrando motor de voz y conexiones...")
+    logger.info("Cerrando motor de voz, centinela autónomo y conexiones...")
+    try:
+        from app.services.telegram_service import telegram_service
+        telegram_service.stop()
+    except Exception:
+        pass
+    try:
+        from app.services.heartbeat_service import heartbeat_service
+        heartbeat_service.stop()
+    except Exception:
+        pass
     voice_engine.stop()
     await engine.dispose()
     try:

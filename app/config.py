@@ -118,7 +118,7 @@ class Settings:
         # LLM Brains
         self.GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "").strip()
         self.ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "").strip()
-        self.GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview").strip()
+        self.GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
         self.ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022").strip()
         # Auxiliary Brains (Failover Fallbacks)
         self.GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "").strip()

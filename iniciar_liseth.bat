@@ -1,11 +1,21 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Liseth - Asistente Personal
+title Liseth - Asistente Personal (Modo Administrador)
+
+:: 0. Verificacion y Elevacion Automatica a Modo Administrador
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [*] Solicitando privilegios de Administrador para Liseth...
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~f0' -ArgumentList '%*' -Verb RunAs"
+    exit /b 0
+)
+
 cls
 
 echo =====================================================================
 echo                 LISETH - ASISTENTE INTELIGENTE
+echo               [Modo Administrador - Acceso Total]
 echo                      Arquitectura Python 2.0
 echo =====================================================================
 echo.

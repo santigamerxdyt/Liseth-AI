@@ -8,6 +8,7 @@ import platform
 import shutil
 import subprocess
 import threading
+import webbrowser
 from pathlib import Path
 from typing import Optional
 
@@ -344,10 +345,106 @@ def _detect_default_browser() -> str:
     return "chrome"
 
 
+_SEARCH_ENGINES: dict[str, str] = {
+    "google":     "https://www.google.com/search?q=",
+    "bing":       "https://www.bing.com/search?q=",
+    "duckduckgo": "https://duckduckgo.com/?q=",
+    "yandex":     "https://yandex.com/search/?text=",
+}
+
+_MAC_APP_NAMES: dict[str, str] = {
+    "chrome":  "Google Chrome",
+    "edge":    "Microsoft Edge",
+    "firefox": "Firefox",
+    "opera":   "Opera",
+    "operagx": "Opera GX",
+    "brave":   "Brave Browser",
+    "vivaldi": "Vivaldi",
+    "safari":  "Safari",
+}
+
+# Windows registry lookup names for browsers whose spec has no explicit binary
+_WIN_EXE_HINTS: dict[str, str] = {"chrome": "chrome", "edge": "msedge"}
+
+
+def _open_native(url: str, browser_name: Optional[str]) -> str:
+    """
+    Opens the user's REAL browser normally — with their own profile,
+    logged-in accounts and extensions. No automation attaches, so an
+    about:blank tab or a blank profile NEVER shows up.
+    If url is empty the browser starts with no URL (its own start page /
+    session restore) — exactly as if the user had opened it themselves.
+    Works on all three of Windows / macOS / Linux.
+    """
+    url = _normalize_url(url) if url and url.strip() else ""
+    if url == "about:blank":
+        url = ""
+
+    name = None
+    if browser_name:
+        name = _ALIASES.get(browser_name.lower().strip(), browser_name.lower().strip())
+    elif not url:
+        # No URL → only a window will open; needs the default browser's exe
+        name = _detect_default_browser()
+
+    # Specific browser → launch its own executable, exactly like the user would.
+    if name:
+        if _OS == "Darwin":
+            app = _MAC_APP_NAMES.get(name)
+            if app:
+                cmd = ["open", "-a", app] + ([url] if url else [])
+                try:
+                    subprocess.run(cmd, check=True, timeout=10)
+                    return f"Opened in {name}: {url}" if url else f"Opened {name}."
+                except Exception as e:
+                    print(f"[Browser] 'open -a {app}' failed ({e}), trying binary…")
+
+        spec = _resolve_browser(name)
+        exe  = spec.get("exe") if spec else None
+        if not exe and _OS == "Windows":
+            if name in ("opera", "operagx"):
+                exe = _find_opera_windows()
+            else:
+                exe = _find_exe_windows(_WIN_EXE_HINTS.get(name, name))
+        if exe:
+            try:
+                subprocess.Popen(
+                    [exe, url] if url else [exe],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                )
+                return f"Opened in {name}: {url}" if url else f"Opened {name}."
+            except Exception as e:
+                print(f"[Browser] Native launch failed for {name}: {e}")
+        print(f"[Browser] '{name}' not found — falling back to default browser.")
+
+    if not url:
+        return "Could not find a browser to open."
+
+    # Default browser via the OS — exactly like the user clicking a link.
+    try:
+        if _OS == "Windows":
+            os.startfile(url)                       # ShellExecute → default browser
+        elif _OS == "Darwin":
+            subprocess.run(["open", url], check=True, timeout=10)
+        else:
+            subprocess.Popen(
+                ["xdg-open", url],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+        return f"Opened in your default browser: {url}"
+    except Exception:
+        try:
+            if webbrowser.open(url):
+                return f"Opened in your default browser: {url}"
+        except Exception:
+            pass
+        return f"Could not open a browser for: {url}"
+
+
 class _BrowserSession:
     """
-    Bir tarayıcı örneği için tam oturum.
-    Tüm tarayıcılar launch_persistent_context ile gerçek profil üzerinde açılır.
+    A full session for one browser instance.
+    All browsers open on the real profile via launch_persistent_context.
     """
 
     def __init__(self, browser_name: str):
@@ -406,10 +503,20 @@ class _BrowserSession:
                 pass
         self._context = self._page = None
 
+    async def _adopt_page(self) -> Page:
+        """
+        launch_persistent_context already opens a starting tab.
+        Instead of opening a new blank tab (about:blank), it adopts that tab —
+        so the user never sees an extra blank tab.
+        """
+        await asyncio.sleep(0.3)
+        pages = self._context.pages
+        return pages[0] if pages else await self._context.new_page()
+
     async def _launch(self):
         """
-        Tarayıcıyı gerçek kullanıcı profiliyle başlatır.
-        Context zaten açıksa hiçbir şey yapmaz.
+        Launches the browser with the real user profile.
+        Does nothing if the context is already open.
         """
         if self._context is not None:
             return
@@ -433,6 +540,7 @@ class _BrowserSession:
                 "slow_mo":     0,
                 "viewport":    None,
                 "no_viewport": True,
+                "timeout":     25_000,
             }
             if exe:
                 kwargs["executable_path"] = exe
@@ -444,8 +552,7 @@ class _BrowserSession:
                 Path(jarvis).mkdir(parents=True, exist_ok=True)
                 self._context = await engine_obj.launch_persistent_context(jarvis, **kwargs)
 
-            await asyncio.sleep(0.5)  
-            self._page = await self._context.new_page()
+            self._page = await self._adopt_page()
             print(f"[Browser] ✅ Firefox launched")
             return
 
@@ -457,10 +564,10 @@ class _BrowserSession:
                 "slow_mo":     0,
                 "viewport":    None,
                 "no_viewport": True,
+                "timeout":     25_000,
             }
             self._context = await engine_obj.launch_persistent_context(safari_profile, **kwargs)
-            await asyncio.sleep(0.5)
-            self._page = await self._context.new_page()
+            self._page = await self._adopt_page()
             print(f"[Browser] ✅ Safari launched")
             return
 
@@ -471,6 +578,7 @@ class _BrowserSession:
             "slow_mo":     0,
             "viewport":    None,
             "no_viewport": True,
+            "timeout":     25_000,
             "args": [
                 "--start-maximized",
                 "--disable-blink-features=AutomationControlled",
@@ -493,22 +601,25 @@ class _BrowserSession:
 
         try:
             self._context = await engine_obj.launch_persistent_context(profile, **kwargs)
-            await asyncio.sleep(0.5) 
-            self._page = await self._context.new_page()
+            self._page = await self._adopt_page()
             print(f"[Browser] ✅ Launched [{label}] profile={profile}")
             return
         except Exception as e:
             print(f"[Browser] ⚠️  Real profile failed for {label}: {e}")
 
+        # The real profile could not be opened (browser already open / locked
+        # profile / newer Chrome versions block the real profile under
+        # automation). Fall back to a persistent JARVIS automation profile —
+        # accounts logged in here once stay logged in on later sessions too.
         jarvis_profile = str(Path.home() / ".jarvis_profiles" / self.browser_name)
         Path(jarvis_profile).mkdir(parents=True, exist_ok=True)
         print(f"[Browser] Retrying with JARVIS profile: {jarvis_profile}")
 
         try:
             self._context = await engine_obj.launch_persistent_context(jarvis_profile, **kwargs)
-            await asyncio.sleep(0.5)
-            self._page = await self._context.new_page()
-            print(f"[Browser] ✅ Launched [{label}] with JARVIS profile")
+            self._page = await self._adopt_page()
+            print(f"[Browser] ✅ Launched [{label}] with JARVIS profile "
+                  f"(sign-ins persist across sessions)")
         except Exception as e2:
             raise RuntimeError(f"Could not launch {self.browser_name}: {e2}") from e2
 
@@ -554,13 +665,7 @@ class _BrowserSession:
         return f"Could not open: {url}"
 
     async def search(self, query: str, engine: str = "google") -> str:
-        _engines = {
-            "google":     "https://www.google.com/search?q=",
-            "bing":       "https://www.bing.com/search?q=",
-            "duckduckgo": "https://duckduckgo.com/?q=",
-            "yandex":     "https://yandex.com/search/?text=",
-        }
-        base = _engines.get(engine.lower(), _engines["google"])
+        base = _SEARCH_ENGINES.get(engine.lower(), _SEARCH_ENGINES["google"])
         return await self.go_to(base + query.replace(" ", "+"))
 
     async def click(self, selector: str = None, text: str = None) -> str:
@@ -735,12 +840,29 @@ class _BrowserSession:
         return f"{self.browser_name} closed."
 
 class _SessionRegistry:
-    """Tüm aktif tarayıcı oturumlarını yönetir."""
+    """Manages all active browser sessions."""
 
     def __init__(self):
-        self._sessions:       dict[str, _BrowserSession] = {}
-        self._active_browser: str                        = ""
-        self._lock            = threading.Lock()
+        self._sessions:        dict[str, _BrowserSession] = {}
+        self._active_browser:  str                        = ""
+        self._lock             = threading.Lock()
+        self._last_native_url: str                        = ""
+
+    def has(self, browser_name: str | None = None) -> bool:
+        """Is there an active automation session for this browser (or any)?"""
+        with self._lock:
+            if not browser_name:
+                return bool(self._sessions)
+            name = _ALIASES.get(browser_name.lower().strip(), browser_name.lower().strip())
+            return name in self._sessions
+
+    def note_native_url(self, url: str) -> None:
+        self._last_native_url = url
+
+    def pop_native_url(self) -> str:
+        """Returns the last natively-opened URL once (consumed to avoid repeats)."""
+        url, self._last_native_url = self._last_native_url, ""
+        return url
 
     def _get_or_create(self, browser_name: str) -> _BrowserSession:
         with self._lock:
@@ -828,6 +950,53 @@ def browser_control(
         _log(player, result)
         return result
 
+    if action == "close":
+        target = browser or _registry._active_browser
+        result = _registry.close_one(target) if target else "No browser specified."
+        _log(player, result)
+        return result
+
+    # ── Navigation is ALWAYS native ──────────────────────────────────────────
+    # go_to / search / new_tab open the site in the user's own browser —
+    # their own profile, logged-in accounts and start page; exactly as if the
+    # user had opened it themselves. A controlled window with about:blank never
+    # opens here. The only exception: if an automation flow is already running,
+    # navigation continues in that window (so multi-step tasks aren't split).
+    if action in ("go_to", "search", "new_tab"):
+        if _registry.has(browser):
+            sess = _registry.get(browser)
+            try:
+                if action == "search":
+                    result = sess.run(sess.search(params.get("query", ""),
+                                                  params.get("engine", "google")))
+                elif action == "new_tab":
+                    result = sess.run(sess.new_tab(params.get("url", "")))
+                else:
+                    result = sess.run(sess.go_to(params.get("url", "")))
+            except concurrent.futures.TimeoutError:
+                result = f"Browser action '{action}' timed out (60s)."
+            except Exception as e:
+                result = f"Browser error ({action}): {e}"
+            _log(player, result)
+            return result
+
+        if action == "search":
+            base    = _SEARCH_ENGINES.get(params.get("engine", "google").lower(),
+                                          _SEARCH_ENGINES["google"])
+            nav_url = base + params.get("query", "").replace(" ", "+")
+        else:
+            nav_url = params.get("url", "").strip()
+
+        result = _open_native(nav_url, browser)
+        if result.startswith("Opened") and nav_url:
+            _registry.note_native_url(_normalize_url(nav_url))
+        _log(player, result)
+        return result
+
+    # ── Interactive actions (click/type/read…) ───────────────────────────────
+    # These require a physically controllable browser; the automation window
+    # only opens here, and as soon as it opens it goes to the user's last
+    # navigated page — it doesn't sit on a blank page.
     try:
         sess = _registry.get(browser)
     except Exception as e:
@@ -836,11 +1005,14 @@ def browser_control(
         return result
 
     try:
-        if action == "go_to":
-            result = sess.run(sess.go_to(params.get("url", "")))
-        elif action == "search":
-            result = sess.run(sess.search(params.get("query", ""), params.get("engine", "google")))
-        elif action == "click":
+        last = _registry.pop_native_url()
+        if last:
+            try:
+                sess.run(sess.go_to(last))
+            except Exception as e:
+                print(f"[Browser] Could not resume last page ({last}): {e}")
+
+        if action == "click":
             result = sess.run(sess.click(params.get("selector"), params.get("text")))
         elif action == "type":
             result = sess.run(sess.type_text(
@@ -859,8 +1031,6 @@ def browser_control(
             result = sess.run(sess.get_url())
         elif action == "press":
             result = sess.run(sess.press(params.get("key", "Enter")))
-        elif action == "new_tab":
-            result = sess.run(sess.new_tab(params.get("url", "")))
         elif action == "close_tab":
             result = sess.run(sess.close_tab())
         elif action == "screenshot":
@@ -871,9 +1041,6 @@ def browser_control(
             result = sess.run(sess.forward())
         elif action == "reload":
             result = sess.run(sess.reload())
-        elif action == "close":
-            target = browser or _registry._active_browser
-            result = _registry.close_one(target) if target else "No browser specified."
         else:
             result = f"Unknown browser action: '{action}'"
 
@@ -891,3 +1058,75 @@ def _log(player, text: str):
     print(f"[Browser] {short}")
     if player:
         player.write_log(f"[browser] {short[:60]}")
+
+
+# ── Tool declaration (auto-discovered by core/action_loader.py) ──────────────
+TOOL = {
+    "name": "browser_control",
+    "description": "Controls any web browser. Use for: opening websites, searching the web, clicking elements, filling forms, scrolling, screenshots, navigation, any web-based task. Simple open/search requests launch the user's own browser normally (their real profile and logged-in accounts); interactive actions (click, type, fill_form...) attach an automation browser. Always pass the 'browser' parameter when the user specifies a browser (e.g. 'open in Edge', 'use Firefox', 'open Chrome'). Multiple browsers can run simultaneously.",
+    "parameters": {
+        "type": "OBJECT",
+        "properties": {
+            "action": {
+                "type": "STRING",
+                "description": "go_to | search | click | type | scroll | fill_form | smart_click | smart_type | get_text | get_url | press | new_tab | close_tab | screenshot | back | forward | reload | switch | list_browsers | close | close_all"
+            },
+            "browser": {
+                "type": "STRING",
+                "description": "Target browser: chrome | edge | firefox | opera | operagx | brave | vivaldi | safari. Omit to use the currently active browser."
+            },
+            "url": {
+                "type": "STRING",
+                "description": "URL for go_to / new_tab action"
+            },
+            "query": {
+                "type": "STRING",
+                "description": "Search query for search action"
+            },
+            "engine": {
+                "type": "STRING",
+                "description": "Search engine: google | bing | duckduckgo | yandex (default: google)"
+            },
+            "selector": {
+                "type": "STRING",
+                "description": "CSS selector for click/type"
+            },
+            "text": {
+                "type": "STRING",
+                "description": "Text to click or type"
+            },
+            "description": {
+                "type": "STRING",
+                "description": "Element description for smart_click/smart_type"
+            },
+            "direction": {
+                "type": "STRING",
+                "description": "up | down for scroll"
+            },
+            "amount": {
+                "type": "INTEGER",
+                "description": "Scroll amount in pixels (default: 500)"
+            },
+            "key": {
+                "type": "STRING",
+                "description": "Key name for press action (e.g. Enter, Escape, F5)"
+            },
+            "path": {
+                "type": "STRING",
+                "description": "Save path for screenshot"
+            },
+            "incognito": {
+                "type": "BOOLEAN",
+                "description": "Open in private/incognito mode"
+            },
+            "clear_first": {
+                "type": "BOOLEAN",
+                "description": "Clear field before typing (default: true)"
+            }
+        },
+        "required": [
+            "action"
+        ]
+    },
+    "handler": browser_control,
+}

@@ -136,7 +136,13 @@ def main():
     parser.add_argument("--desktop", action="store_true", help="Abrir como aplicación nativa de escritorio")
     parser.add_argument("--host", type=str, default=None, help="Host a enlazar (ej. 127.0.0.1 o 0.0.0.0)")
     parser.add_argument("--port", type=int, default=None, help="Puerto a enlazar (ej. 3000 u 8000)")
+    parser.add_argument("--no-admin", action="store_true", help="Omitir elevación automática a Administrador")
     args = parser.parse_args()
+
+    # Ensure Administrator privileges on Windows for full hardware & system access
+    from app.core.admin import ensure_admin, is_admin
+    if not args.no_admin:
+        ensure_admin(force=True)
 
     # Pre-flight security and env check
     check_and_harden_env()
@@ -157,12 +163,14 @@ def main():
     if port != requested_port:
         print(f"[!] Puerto {requested_port} ocupado. Conmutando autónomamente al puerto {port}...")
 
+    admin_str = "ADMINISTRADOR (Acceso Total al Sistema)" if is_admin() else "ESTANDAR"
     banner = f"""
   +-----------------------------------------------------------+
   |              LISETH - ASISTENTE INTELIGENTE               |
   |                  Arquitectura Python 2.0                  |
   +-----------------------------------------------------------+
   [+] Estado Backend  : ONLINE
+  [+] Privilegios     : {admin_str}
   [+] Modo Operativo  : LOCAL PRIVADO (Exclusivo Santiago)
   [+] Base de Datos   : SQLite WAL (data/jarvis.db)
   [+] Acceso Local    : http://127.0.0.1:{port}

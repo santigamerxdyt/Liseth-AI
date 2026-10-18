@@ -67,6 +67,12 @@ class GoogleWorkspaceConnector(BaseConnector):
                 "sensitive": False,
             },
             {
+                "name": "google_inbox_summary",
+                "description": "Filtra inteligentemente la bandeja de entrada de Gmail, discriminando correos urgentes vs promociones y generando un resumen ejecutivo",
+                "parameters": {"maxResults": {"type": "integer", "description": "Máximo de correos a analizar"}},
+                "sensitive": False,
+            },
+            {
                 "name": "google_send_email",
                 "description": "Envía un nuevo correo electrónico a través de Gmail",
                 "parameters": {
@@ -222,6 +228,86 @@ class GoogleWorkspaceConnector(BaseConnector):
             sensitive=True,
         )
         return res
+
+    async def get_smart_inbox_summary(self, max_results: int = 10, emails: Optional[List[dict]] = None) -> str:
+        """
+        Retrieves recent unread emails, classifies them as urgent vs promo/newsletters,
+        and generates an executive voice/text summary for Santiago.
+        """
+        raw_emails = emails
+        if raw_emails is None:
+            if not self.access_token:
+                return (
+                    "Su cuenta de Google Workspace no está vinculada aún, señor Santiago. "
+                    "Puede iniciar sesión desde el menú de integraciones o configurar GOOGLE_CLIENT_ID en el archivo .env."
+                )
+            # Fetch unread emails from Gmail API
+            try:
+                import httpx
+                headers = {"Authorization": f"Bearer {self.access_token}"}
+                async with httpx.AsyncClient(timeout=8.0) as client:
+                    list_res = await client.get(
+                        f"https://gmail.googleapis.com/gmail/v1/users/me/messages?q=is:unread&maxResults={max_results}",
+                        headers=headers
+                    )
+                    if list_res.status_code == 200:
+                        msg_items = list_res.json().get("messages", [])
+                        raw_emails = []
+                        for m in msg_items[:max_results]:
+                            detail_res = await client.get(
+                                f"https://gmail.googleapis.com/gmail/v1/users/me/messages/{m['id']}?format=metadata",
+                                headers=headers
+                            )
+                            if detail_res.status_code == 200:
+                                d = detail_res.json()
+                                headers_list = d.get("payload", {}).get("headers", [])
+                                subj = next((h["value"] for h in headers_list if h["name"].lower() == "subject"), "(Sin asunto)")
+                                sender = next((h["value"] for h in headers_list if h["name"].lower() == "from"), "(Remitente desconocido)")
+                                snip = d.get("snippet", "")
+                                raw_emails.append({"id": m["id"], "subject": subj, "from": sender, "snippet": snip})
+            except Exception as e:
+                logger.error(f"[Gmail] Error al consultar Gmail API: {e}")
+                return f"No fue posible consultar su bandeja de Gmail en este momento: {e}"
+
+        if not raw_emails:
+            return "No tiene correos no leídos en su bandeja de entrada de Gmail en este momento, señor Santiago."
+
+        urgent: List[dict] = []
+        promos: List[dict] = []
+        regular: List[dict] = []
+
+        promo_patterns = ["noreply", "no-reply", "newsletter", "marketing", "promo", "oferta", "descuento", "update", "digest", "linkedin", "amazon", "news", "noticias", "invitacion"]
+        urgent_patterns = ["urgente", "urgent", "asap", "importante", "factura", "reunión", "reunion", "pago", "contrato", "deadline", "atención", "atencion", "alerta", "prioridad"]
+
+        for em in raw_emails:
+            subj = em.get("subject", "").lower()
+            sender = em.get("from", "").lower()
+            snip = em.get("snippet", "").lower()
+            full_text = f"{subj} {sender} {snip}"
+
+            if any(p in full_text for p in urgent_patterns):
+                urgent.append(em)
+            elif any(p in full_text for p in promo_patterns):
+                promos.append(em)
+            else:
+                regular.append(em)
+
+        lines = [f"Resumen de su bandeja Gmail ({len(raw_emails)} no leídos):"]
+
+        if urgent:
+            lines.append(f"\n🚨 Requieren su atención ({len(urgent)}):")
+            for u in urgent:
+                lines.append(f"- De {u.get('from', '')}: '{u.get('subject', '')}'")
+
+        if regular:
+            lines.append(f"\n📨 Mensajes generales ({len(regular)}):")
+            for r in regular:
+                lines.append(f"- {r.get('from', '')}: '{r.get('subject', '')}'")
+
+        if promos:
+            lines.append(f"\n📢 Boletines y promociones ignorados: {len(promos)} correo(s).")
+
+        return "\n".join(lines)
 
 
 google_connector = GoogleWorkspaceConnector()

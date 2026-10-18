@@ -103,9 +103,7 @@ def _execute_generated_code(code: str, player=None) -> str:
 
 def _ask_gemini_for_desktop_action(task: str) -> str:
 
-    import google.generativeai as genai
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    from google import genai as _genai
 
     desktop = str(_get_desktop())
 
@@ -143,8 +141,11 @@ Output ONLY the Python code. No explanation, no markdown, no backticks.
 Task: {task}"""
 
     try:
-        response = model.generate_content(prompt)
-        code = response.text.strip()
+        from core import gemini
+        response = gemini.call(prompt, tier=gemini.SMART, timeout_ms=30_000)
+        if response is None:
+            return "ERROR: every Gemini model on the ladder failed"
+        code = (response.text or "").strip()
         if code.startswith("```"):
             lines = code.split("\n")
             code  = "\n".join(lines[1:-1]).strip()
@@ -479,3 +480,39 @@ def desktop_control(
     except Exception as e:
         print(f"[Desktop] Error: {e}")
         return f"Desktop control error: {e}"
+
+
+# ── Tool declaration (auto-discovered by core/action_loader.py) ──────────────
+TOOL = {
+    "name": "desktop_control",
+    "description": "Controls the desktop: wallpaper, organize, clean, list, stats.",
+    "parameters": {
+        "type": "OBJECT",
+        "properties": {
+            "action": {
+                "type": "STRING",
+                "description": "wallpaper | wallpaper_url | organize | clean | list | stats | task"
+            },
+            "path": {
+                "type": "STRING",
+                "description": "Image path for wallpaper"
+            },
+            "url": {
+                "type": "STRING",
+                "description": "Image URL for wallpaper_url"
+            },
+            "mode": {
+                "type": "STRING",
+                "description": "by_type or by_date for organize"
+            },
+            "task": {
+                "type": "STRING",
+                "description": "Natural language desktop task"
+            }
+        },
+        "required": [
+            "action"
+        ]
+    },
+    "handler": desktop_control,
+}

@@ -1,15 +1,64 @@
+# ==============================================================================
+# LISETH AI - DEPENDENCIAS OFICIALES DEL SISTEMA (PYTHON 3.10+)
+# ==============================================================================
+
+# Núcleo Web, Servidor API y Configuración
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
 pydantic>=2.10.0
 pydantic-settings>=2.6.0
+python-dotenv>=1.0.1
+python-multipart>=0.0.12
+httpx>=0.28.0
+requests>=2.31.0
+
+# Base de Datos y Criptografía
 sqlalchemy>=2.0.36
 aiosqlite>=0.20.0
 cryptography>=43.0.0
-httpx>=0.28.0
-python-dotenv>=1.0.1
-apscheduler>=3.10.4
+
+# Inteligencia Artificial y Modelos LLM
+google-genai>=1.0.0
+google-generativeai>=0.8.0
+groq>=0.11.0
+
+# Motores de Voz y Audio (STT / TTS)
 edge-tts>=7.3.1
+SpeechRecognition>=3.10.0
+sounddevice>=0.5.0
+pygame>=2.5.0
+pycaw>=20240210
+pydub>=0.25.1
+comtypes>=1.4.0
+
+# Automatización de Windows, Pantalla y Hardware
 pywebview>=5.3.0
+psutil>=6.0.0
+pyautogui>=0.9.54
+pygetwindow>=0.0.9
+pyperclip>=1.8.2
+send2trash>=1.8.2
+Pillow>=10.4.0
+mss>=9.0.1
+opencv-python>=4.10.0
+wmi>=1.5.1
+pywin32>=306
+
+# Herramientas de Datos, Documentos y Multimedia
+PyPDF2>=3.0.0
+pdfplumber>=0.11.0
+python-docx>=1.1.0
+python-pptx>=1.0.0
+pandas>=2.2.0
+numpy>=1.26.0
+pyyaml>=6.0.1
+duckduckgo-search>=6.2.0
+yt-dlp>=2024.8.0
+youtube-transcript-api>=0.6.2
+
+# Planificador y Tareas en Segundo Plano
+apscheduler>=3.10.4
+
+# Suite de Pruebas Automatizadas
 pytest>=8.3.0
 pytest-asyncio>=0.24.0
-python-multipart>=0.0.12

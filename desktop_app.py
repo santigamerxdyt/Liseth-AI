@@ -38,6 +38,13 @@ def start_backend():
     )
 
 def main():
+    if "--no-admin" not in sys.argv:
+        try:
+            from app.core.admin import ensure_admin
+            ensure_admin(force=True)
+        except Exception as e:
+            print(f"[!] Advertencia al verificar privilegios de Administrador: {e}")
+
     print(f"[*] Iniciando backend de Liseth en http://127.0.0.1:{ACTIVE_PORT}...")
     backend_thread = threading.Thread(target=start_backend, daemon=True)
     backend_thread.start()

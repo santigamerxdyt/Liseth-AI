@@ -1,0 +1,1645 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R 8 0 R 9 0 R 10 0 R 11 0 R 12 0 R 13 0 R] /Count 7 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+14 0 obj
+<< /Length 6558 >>
+stream
+q
+0.12 0.35 0.55 RG 1.5 w
+42.0 806.89 m 553.28 806.89 l S
+0.3 0.3 0.3 rg
+BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
+BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
+Q
+q
+0.08 0.22 0.38 rg
+42.0 696.89 511.28 95 re f
+0.0 0.8 0.75 RG 3 w
+57.0 696.89 m 57.0 791.89 l S
+1 1 1 rg
+BT /F2 20 Tf 67.0 759.89 Td (LISETH AI - MANUAL MAESTRO DE USUARIO) Tj ET
+0.85 0.95 0.98 rg
+BT /F2 11 Tf 67.0 737.89 Td (Guia Completa de Funcionalidades, Modos y Comandos Rapidos) Tj ET
+0.7 0.8 0.9 rg
+BT /F1 9 Tf 67.0 713.89 Td (Copiloto Personal Autónomo de Señor Santiago \\| Edición Dinámica \(18 de October de 2026\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.2 Tf 42.0 667.6899999999999 Td (Bienvenido a su manual ejecutivo de Liseth. Este documento se actualiza automáticamente con cada nueva) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.2 Tf 42.0 654.6899999999999 Td (función incorporada a su asistente. En él encontrará la totalidad de herramientas disponibles divididas) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.2 Tf 42.0 641.6899999999999 Td (por categoría, su sintaxis de voz y texto con respuesta inmediata \(latencia 0 ms\) y los flujos autónomos) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.2 Tf 42.0 628.6899999999999 Td (en segundo plano.) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 597.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 597.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 604.89 Td (1. Identidad, Privilegios Elevados y Modos de Operación) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 578.89 Td (Liseth es su asistente personal ejecutiva con personalidad afectuosa, respetuosa, resolutiva y elegante.) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 566.89 Td (Cuenta con síntesis vocal de alta fidelidad \(Salomé es-CO\) optimizada para responder con cadencia rápida y) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 554.89 Td (sin pausas artificiales.) Tj ET
+Q
+q
+0.15 0.25 0.35 rg
+BT /F2 10.5 Tf 46.0 535.89 Td (Privilegios Elevados de Windows \(Modo Administrador Automático\):) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 8.5 Tf 50.0 520.39 Td (? Autoelevación UAC Obligatoria: Liseth se ejecuta siempre con privilegios de Administrador de Windows en todos) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 8.5 Tf 50.0 508.89 Td (sus lanzadores \(`iniciar_liseth.bat`, `INICIAR_ESCRITORIO.bat`, `INICIAR_WEB.bat` y `python run.py`\). ? Acceso) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 8.5 Tf 50.0 497.39 Td (Total al Sistema: Otorga control irrestricto sobre hardware, administración de servicios, control de procesos del) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 8.5 Tf 50.0 485.89 Td (sistema y acceso a rutas protegidas sin restricciones de permisos. ? Bandera de Bypass: Para entornos de prueba o) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 8.5 Tf 50.0 474.39 Td (depuración sin elevación, admite la bandera `--no-admin`.) Tj ET
+Q
+q
+0.15 0.25 0.35 rg
+BT /F2 10.5 Tf 46.0 455.39 Td (Estados del Motor de Voz:) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 8.5 Tf 50.0 439.89 Td (? Modo Reposo \(Standby\): Monitorea el micrófono con bajo consumo de CPU. Se activa al oír su nombre. ? Modo) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 8.5 Tf 50.0 428.39 Td (Activo: Conversación fluida directa sin necesidad de repetir su nombre. Tras 20s de inactividad vuelve a reposo.) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 8.5 Tf 50.0 416.89 Td (? Modo No Molestar \(DND\): Silencia cualquier aviso o notificación vocal para no interrumpir su concentración.) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 364.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 364.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 392.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 397.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 396.89 Td (\"Liseth / Liceth / Jarvis [instrucción]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 381.89 Td (Activa a Liseth desde reposo y ejecuta la orden de inmediato.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 369.89 Td (-> Transición Standby -> Active) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 312.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 312.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 340.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 345.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 344.89 Td (\"Ve a dormir / Modo reposo / Silencio\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 329.89 Td (Pone a Liseth inmediatamente en reposo sin cerrar la aplicación.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 317.89 Td (-> Modo Standby silencioso) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 260.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 260.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 288.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 293.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 292.89 Td (\"¿Eres administradora? / Estado de privilegios\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 277.89 Td (Verifica en tiempo real que Liseth cuente con privilegios elevados de Administrador.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 265.89 Td (-> Admin Privilege Check) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 230.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 230.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 237.89 Td (2. Automatización del PC y Control de Windows) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 211.89 Td (Liseth ejecuta comandos de hardware con 0 ms de latencia mediante llamadas Win32 nativas:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 159.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 159.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 187.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 192.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 191.89 Td (\"Abre [Calculadora / Chrome / Spotify / Bloc de Notas]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 176.89 Td (Inicia programas y herramientas del sistema al instante.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 164.89 Td (-> Lanzador de aplicaciones nativo) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 107.88999999999999 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 107.88999999999999 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 135.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 140.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 139.89 Td (\"Sube el volumen / Baja el volumen / Silencia\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 124.88999999999999 Td (Ajusta el sonido del sistema en incrementos o mutea el audio.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 112.88999999999999 Td (-> Control de volumen Win32) Tj ET
+Q
+q
+0.85 0.88 0.92 RG 1 w
+42.0 35 m 553.28 35 l S
+0.45 0.48 0.52 rg
+BT /F1 8 Tf 42.0 24 Td (Liseth AI \| Copiloto Personal & Autónomo \| Documento Dinámico) Tj ET
+BT /F2 8 Tf 478.28 24 Td (Pagina 1 de 7) Tj ET
+Q
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 14 0 R >>
+endobj
+15 0 obj
+<< /Length 7430 >>
+stream
+q
+0.12 0.35 0.55 RG 1.5 w
+42.0 806.89 m 553.28 806.89 l S
+0.3 0.3 0.3 rg
+BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
+BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 745.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 745.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 773.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 778.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 777.89 Td (\"Pon el volumen al [50% / 80%]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 762.89 Td (Fija el volumen en un porcentaje numérico exacto.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 750.89 Td (-> Set volumen directo) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 693.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 693.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 721.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 726.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 725.89 Td (\"Sube el brillo / Baja el brillo\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 710.89 Td (Ajusta la luminosidad de la pantalla.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 698.89 Td (-> Hardware de pantalla) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 641.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 641.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 669.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 674.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 673.89 Td (\"Toma una captura de pantalla / Pantallazo\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 658.89 Td (Captura la pantalla completa y la guarda en su carpeta de imágenes.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 646.89 Td (-> Captura instantánea) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 589.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 589.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 617.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 622.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 621.89 Td (\"Pantalla completa / F11\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 606.89 Td (Alterna la visualización a pantalla completa de la app activa.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 594.89 Td (-> Toggle fullscreen) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 537.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 537.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 565.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 570.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 569.89 Td (\"Muestra el escritorio / Minimiza todo\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 554.89 Td (Oculta todas las ventanas y despeja la pantalla de trabajo.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 542.89 Td (-> Win + D nativo) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 485.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 485.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 513.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 518.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 517.89 Td (\"Maximiza la ventana / Cierra la ventana\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 502.89 Td (Gestiona la ventana activa sin usar el ratón.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 490.89 Td (-> Gestión de ventanas) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 433.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 433.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 461.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 466.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 465.89 Td (\"Pausa la música / Siguiente canción / Anterior\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 450.89 Td (Control multimedia global sobre Spotify, navegadores o reproductores.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 438.89 Td (-> Teclas virtuales de medios) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 381.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 381.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 409.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 414.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 413.89 Td (\"Pon en Spotify [canción o artista]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 398.89 Td (Lanza Spotify en segundo plano y reproduce la pista solicitada.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 386.89 Td (-> URI spotify:search) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 329.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 329.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 357.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 362.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 361.89 Td (\"Estado de mi PC / Rendimiento del sistema\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 346.89 Td (Reporte de telemetría: carga de CPU, uso de RAM, disco y temperatura.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 334.89 Td (-> Telemetría en tiempo real) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 277.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 277.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 305.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 310.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 309.89 Td (\"Cierra tu aplicación / Apágate Liseth\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 294.89 Td (Detiene los hilos de fondo y cierra ordenadamente el programa.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 282.89 Td (-> Cierre ordenado y despedida) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 247.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 247.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 254.89 Td (3. Autonomía Completa y Tareas en Segundo Plano) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 228.89 Td (Liseth puede trabajar de forma autónoma mientras usted se concentra en otras actividades, reportando) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 216.89 Td (únicamente cuando concluye o si se requiere su atención:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 164.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 164.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 192.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 197.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 196.89 Td (\"Ejecuta en segundo plano [tarea]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 181.89 Td (Encola y ejecuta trabajos largos en hilos asíncronos sin bloquear el PC.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 169.89 Td (-> BackgroundWorkerService) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 112.88999999999999 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 112.88999999999999 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 140.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 145.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 144.89 Td (\"¿Qué tareas están en segundo plano? / Tareas activas\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 129.89 Td (Lista las tareas encoladas, en ejecución y recientemente completadas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 117.88999999999999 Td (-> Consulta de cola autónoma) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 60.889999999999986 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 60.889999999999986 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 88.88999999999999 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 93.88999999999999 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 92.88999999999999 Td (\"Cancela la tarea en segundo plano\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 77.88999999999999 Td (Detiene la tarea autónoma en ejecución o en espera.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 65.88999999999999 Td (-> Cancelación de worker) Tj ET
+Q
+q
+0.85 0.88 0.92 RG 1 w
+42.0 35 m 553.28 35 l S
+0.45 0.48 0.52 rg
+BT /F1 8 Tf 42.0 24 Td (Liseth AI \| Copiloto Personal & Autónomo \| Documento Dinámico) Tj ET
+BT /F2 8 Tf 478.28 24 Td (Pagina 2 de 7) Tj ET
+Q
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 15 0 R >>
+endobj
+16 0 obj
+<< /Length 7638 >>
+stream
+q
+0.12 0.35 0.55 RG 1.5 w
+42.0 806.89 m 553.28 806.89 l S
+0.3 0.3 0.3 rg
+BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
+BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 745.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 745.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 773.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 778.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 777.89 Td (\"¿Cómo están mis proyectos? / Estado del centinela\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 762.89 Td (Audita el estado de salud de su código fuente en segundo plano.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 750.89 Td (-> WorkspaceSentinel silencioso) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 693.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 693.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 721.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 726.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 725.89 Td (\"Escanea mis proyectos / Revisa mi código\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 710.89 Td (Fuerza un escaneo de sintaxis py_compile en busca de errores o roturas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 698.89 Td (-> Reporte de centinela) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 641.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 641.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 669.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 674.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 673.89 Td (\"Inicia mi rutina de la mañana / Rutina matutina\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 658.89 Td (Ejecuta cadena: clima de Bogotá, agenda de hoy, salud de proyectos y saludo.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 646.89 Td (-> RoutineEngine: Morning) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 589.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 589.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 617.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 622.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 621.89 Td (\"Inicia rutina de trabajo / Modo concentración\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 606.89 Td (Activa Trabajo Profundo Pomodoro \(50m\), DND y verificación de código.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 594.89 Td (-> RoutineEngine: Focus) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 537.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 537.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 565.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 570.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 569.89 Td (\"Rutina de cierre / Finalizar jornada\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 554.89 Td (Balance de compromisos, tareas en segundo plano y cierre de jornada.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 542.89 Td (-> RoutineEngine: Wrap-up) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 485.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 485.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 513.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 518.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 517.89 Td (\"¿Qué hiciste hoy, Liseth? / Resumen del día\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 502.89 Td (Reporte ejecutivo consolidado de todas las actividades autónomas del día.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 490.89 Td (-> DailyDebriefService) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 455.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 455.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 462.89 Td (4. Administración de Empresas y Modelación Financiera) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 436.89 Td (Herramientas financieras y analíticas diseñadas específicamente para su formación gerencial y proyectos de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 424.89 Td (inversión:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 372.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 372.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 400.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 405.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 404.89 Td (\"Calcula el VAN / Valor Actual Neto\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 389.89 Td (Evalúa la viabilidad financiera de proyectos según tasa de descuento y flujos.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 377.89 Td (-> Fórmula VAN / NPV con dictamen) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 320.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 320.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 348.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 353.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 352.89 Td (\"Calcula la TIR / Tasa Interna de Retorno\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 337.89 Td (Determina la tasa intrínseca de rendimiento por aproximación Newton-Raphson.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 325.89 Td (-> Cálculo matemático exacto) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 268.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 268.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 296.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 301.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 300.89 Td (\"Calcula el ROI / Retorno de Inversión\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 285.89 Td (Calcula la rentabilidad porcentual y el multiplicador de la inversión.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 273.89 Td (-> Beneficio neto / Inversión) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 216.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 216.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 244.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 249.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 248.89 Td (\"Punto de equilibrio / Break-even\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 233.89 Td (Desglosa costos fijos, precio y costo variable unitario en unidades y dinero.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 221.89 Td (-> Margen de contribución) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 164.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 164.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 192.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 197.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 196.89 Td (\"Matriz FODA / Matriz DOFA\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 181.89 Td (Genera el análisis estratégico cruzado: fortalezas, debilidades, oportunidades y amenazas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 169.89 Td (-> Estrategias FO, FA, DO, DA) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 112.88999999999999 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 112.88999999999999 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 140.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 145.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 144.89 Td (\"Modelo Canvas / Business Model Canvas\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 129.89 Td (Estructura los 9 módulos clave de un modelo de negocio escalable.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 117.88999999999999 Td (-> Lienzo estratégico Osterwalder) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 60.889999999999986 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 60.889999999999986 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 88.88999999999999 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 93.88999999999999 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 92.88999999999999 Td (\"Análisis PESTEL\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 77.88999999999999 Td (Audita los factores macroentorno: político, económico, social, tecnológico, ecológico y legal.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 65.88999999999999 Td (-> Diagnóstico de entorno) Tj ET
+Q
+q
+0.85 0.88 0.92 RG 1 w
+42.0 35 m 553.28 35 l S
+0.45 0.48 0.52 rg
+BT /F1 8 Tf 42.0 24 Td (Liseth AI \| Copiloto Personal & Autónomo \| Documento Dinámico) Tj ET
+BT /F2 8 Tf 478.28 24 Td (Pagina 3 de 7) Tj ET
+Q
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 16 0 R >>
+endobj
+17 0 obj
+<< /Length 6976 >>
+stream
+q
+0.12 0.35 0.55 RG 1.5 w
+42.0 806.89 m 553.28 806.89 l S
+0.3 0.3 0.3 rg
+BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
+BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 767.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 767.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 774.89 Td (5. Asistencia Universitaria y Normas APA 7ª Edición) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 748.89 Td (Soporte integral para sus entregas académicas, monografías y trabajos de investigación:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 696.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 696.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 724.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 729.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 728.89 Td (\"Normas APA / Formato APA\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 713.89 Td (Entrega los parámetros oficiales: márgenes 2.54 cm, tipografías válidas e interlineado doble.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 701.89 Td (-> Guía de estilo APA 7) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 644.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 644.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 672.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 677.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 676.89 Td (\"Genera cita APA / Referencia APA\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 661.89 Td (Construye referencias bibliográficas con sangría francesa y citas en el texto.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 649.89 Td (-> Libros, revistas, tesis y web) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 592.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 592.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 620.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 625.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 624.89 Td (\"Estructura de ensayo\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 609.89 Td (Entrega el esquema metodológico con distribución porcentual \(introducción, tesis, conclusiones\).) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 597.89 Td (-> Estructura académica de ensayo) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 540.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 540.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 568.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 573.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 572.89 Td (\"Estructura de informe / Informe ejecutivo\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 557.89 Td (Esquema profesional para casos de estudio, diagnósticos y propuestas empresariales.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 545.89 Td (-> Template de informe gerencial) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 510.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 510.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 517.89 Td (6. Programación y Productividad con Datos) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 491.89 Td (Herramientas para agilizar sus tareas de desarrollo de software y manipulación de datos:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 439.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 439.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 467.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 472.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 471.89 Td (\"Estadística descriptiva [datos]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 456.89 Td (Calcula media, mediana, varianza, desviación estándar y rango de una serie de números.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 444.89 Td (-> Analítica estadística 0 ms) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 387.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 387.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 415.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 420.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 419.89 Td (\"Convierte JSON a tabla Markdown\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 404.89 Td (Transforma listas de objetos JSON en tablas visuales para documentación en GitHub.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 392.89 Td (-> Formateador de datos) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 335.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 335.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 363.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 368.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 367.89 Td (\"Genera sentencias SQL desde CSV\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 352.89 Td (Genera scripts INSERT INTO listos para ejecutar en bases de datos relacionales.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 340.89 Td (-> Conversor de datos a SQL) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 283.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 283.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 311.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 316.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 315.89 Td (\"Modo trabajo profundo / Iniciar Pomodoro\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 300.89 Td (Inicia sesión de concentración de 50 min con silenciado de interrupciones.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 288.89 Td (-> DeepWork / Pomodoro Manager) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 253.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 253.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 260.89 Td (7. Visión Multimodal y Portapapeles Inteligente) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 234.89 Td (Capacidades de análisis visual y depuración de código copiadas en su memoria de portapapeles:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 182.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 182.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 210.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 215.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 214.89 Td (\"Mira mi pantalla / ¿Qué estoy viendo?\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 199.89 Td (Captura su monitor y analiza el contenido visual mediante visión multimodal Gemini.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 187.89 Td (-> Inspección de pantalla) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 130.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 130.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 158.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 163.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 162.89 Td (\"Analiza mi portapapeles / Explica lo que copié\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 147.89 Td (Detecta trazas de error, JSON o código en su portapapeles y sugiere la solución.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 135.89 Td (-> Smart Clipboard Debugger) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 100.88999999999999 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 100.88999999999999 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 107.88999999999999 Td (8. Conectividad Externa \(Gmail y Telegram\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 81.88999999999999 Td (Integración con sus canales de comunicación externos:) Tj ET
+Q
+q
+0.85 0.88 0.92 RG 1 w
+42.0 35 m 553.28 35 l S
+0.45 0.48 0.52 rg
+BT /F1 8 Tf 42.0 24 Td (Liseth AI \| Copiloto Personal & Autónomo \| Documento Dinámico) Tj ET
+BT /F2 8 Tf 478.28 24 Td (Pagina 4 de 7) Tj ET
+Q
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 17 0 R >>
+endobj
+18 0 obj
+<< /Length 7715 >>
+stream
+q
+0.12 0.35 0.55 RG 1.5 w
+42.0 806.89 m 553.28 806.89 l S
+0.3 0.3 0.3 rg
+BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
+BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 745.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 745.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 773.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 778.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 777.89 Td (\"Revisa mi correo / ¿Tengo correos urgentes?\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 762.89 Td (Filtra su bandeja Gmail separando mensajes de alta prioridad de promociones y boletines.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 750.89 Td (-> Google Workspace Connector) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 693.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 693.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 721.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 726.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 725.89 Td (\"Bot de Telegram \(@Liseth\)\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 710.89 Td (Control remoto bidireccional vía comandos \(/estado, /agenda, /resumen\) y notas de voz.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 698.89 Td (-> Telegram Long-Polling Daemon) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 663.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 663.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 670.89 Td (9. Ingeniería Inversa y Análisis de Binarios \(Motor REA\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 644.89 Td (Liseth incorpora el motor REA \(Reverse Engineer Anything v6.7.0\) junto con un analizador estático nativo) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 632.89 Td (para examinar ejecutables \(EXE, DLL, SYS\), paquetes \(APK, ASAR, ZIP, WASM, JAR\) y bases de datos sin) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 620.89 Td (necesidad de código fuente:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 568.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 568.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 596.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 601.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 600.89 Td (\"Analiza este ejecutable [ruta / archivo]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 585.89 Td (Inspección completa: arquitectura, mitigaciones \(ASLR/DEP\), entropía y secciones.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 573.89 Td (-> Inspección de binarios PE/ELF) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 516.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 516.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 544.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 549.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 548.89 Td (\"Entropía de [archivo]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 533.89 Td (Calcula la entropía de Shannon \(0-8\) para detectar empaquetadores \(UPX/Themida\) o cifrado.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 521.89 Td (-> Detección de packers/cifrado) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 464.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 464.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 492.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 497.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 496.89 Td (\"Cadenas del ejecutable [archivo]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 481.89 Td (Extrae cadenas ASCII y UTF-16LE, URLs, IPs, claves de registro y APIs sospechosas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 469.89 Td (-> Extracción de IOCs y cadenas) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 412.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 412.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 440.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 445.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 444.89 Td (\"Extrae el archivo asar [ruta]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 429.89 Td (Desempaqueta y lista el árbol de código fuente de aplicaciones Electron.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 417.89 Td (-> Inspector Electron ASAR) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 360.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 360.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 388.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 393.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 392.89 Td (\"Estado de REA / Motor de ingeniería inversa\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 377.89 Td (Reporta el estado operativo del motor REA y sus 207 herramientas MCP.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 365.89 Td (-> Telemetría de motor REA) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 330.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 330.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 337.89 Td (10. Automatización Web y Navegación Acelerada \(Motor Ego Lite\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 311.89 Td (Liseth incorpora la arquitectura de navegación autónoma Ego Lite \(v2.0\). Permite ejecutar flujos web) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 299.89 Td (completos en segundo plano mediante espacios de tarea aislados \(taskSpaces\) y snapshots semánticos) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 287.89 Td (ultraligeros que reducen en un 90% el consumo de tokens, indexando cada elemento interactivo con) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 275.89 Td (identificadores directos \([ref=1], [ref=2]\):) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 223.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 223.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 251.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 256.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 255.89 Td (\"Analiza la página [URL] / Snapshot de [URL]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 240.89 Td (Extrae un árbol semántico numerado de la web para inspección y control instantáneo.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 228.89 Td (-> Snapshot semántico token-efficient) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 171.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 171.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 199.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 204.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 203.89 Td (\"Navega a [URL] con Ego / Entra a [URL]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 188.89 Td (Abre y procesa la web en un espacio de tarea aislado sin alterar sus ventanas activas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 176.89 Td (-> Navegación background taskSpace) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 119.88999999999999 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 119.88999999999999 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 147.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 152.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 151.89 Td (\"Haz clic en [ref=N / nombre] con Ego\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 136.89 Td (Ejecuta un clic sobre el elemento interactivo identificado por su número de referencia.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 124.88999999999999 Td (-> Interacción precisa con elementos) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 67.88999999999999 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 67.88999999999999 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 95.88999999999999 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 100.88999999999999 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 99.88999999999999 Td (\"Escribe [texto] en [ref=N] con Ego\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 84.88999999999999 Td (Rellena formularios, buscadores o campos de texto directamente sin selectores complejos.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 72.88999999999999 Td (-> Entrada de datos en formularios) Tj ET
+Q
+q
+0.85 0.88 0.92 RG 1 w
+42.0 35 m 553.28 35 l S
+0.45 0.48 0.52 rg
+BT /F1 8 Tf 42.0 24 Td (Liseth AI \| Copiloto Personal & Autónomo \| Documento Dinámico) Tj ET
+BT /F2 8 Tf 478.28 24 Td (Pagina 5 de 7) Tj ET
+Q
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 18 0 R >>
+endobj
+19 0 obj
+<< /Length 7278 >>
+stream
+q
+0.12 0.35 0.55 RG 1.5 w
+42.0 806.89 m 553.28 806.89 l S
+0.3 0.3 0.3 rg
+BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
+BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 745.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 745.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 773.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 778.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 777.89 Td (\"Captura pantalla de [URL] con Ego\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 762.89 Td (Genera una captura en alta resolución de la página web renderizada en segundo plano.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 750.89 Td (-> Captura visual de página) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 693.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 693.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 721.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 726.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 725.89 Td (\"Busca en Google con Ego [consulta]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 710.89 Td (Extracción limpia de resultados orgánicos sin publicidad ni scripts invasivos.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 698.89 Td (-> Google Search Learner) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 641.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 641.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 669.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 674.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 673.89 Td (\"Estadísticas de GitHub [usuario/repo]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 658.89 Td (Consulta estrellas, forks, issues y resumen del repositorio de GitHub.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 646.89 Td (-> GitHub Repo Stats Learner) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 589.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 589.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 617.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 622.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 621.89 Td (\"Estado de Ego Browser / Espacios de tarea\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 606.89 Td (Reporta la telemetría del motor, contextos activos y herramientas aprendidas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 594.89 Td (-> Telemetría de Ego Browser) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 559.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 559.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 566.89 Td (11. Despliegue en la Nube y Optimización Frontend \(Vercel Labs Suite\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 540.89 Td (Liseth incorpora el conjunto de herramientas de desarrollo de Vercel Labs para publicar sitios web al) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 528.89 Td (instante y auditar código frontend contra más de 45 reglas de rendimiento de ingeniería de Vercel y 100) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 516.89 Td (directrices de interfaz:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 464.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 464.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 492.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 497.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 496.89 Td (\"Despliega mi aplicación / Despliega este proyecto\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 481.89 Td (Publica su proyecto web en Vercel generando URL de vista previa y panel de control.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 469.89 Td (-> Despliegue instantáneo Vercel) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 412.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 412.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 440.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 445.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 444.89 Td (\"Despliega a Vercel en producción\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 429.89 Td (Publica directamente a dominio principal y entorno de producción \(--prod\).) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 417.89 Td (-> Despliegue a Producción) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 360.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 360.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 388.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 393.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 392.89 Td (\"Audita este componente React [archivo]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 377.89 Td (Evalúa su código contra 45+ reglas Vercel: waterfalls, bundle size, re-renders y micro-optimizaciones.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 365.89 Td (-> Vercel React Best Practices) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 308.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 308.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 336.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 341.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 340.89 Td (\"Revisa el diseño web / Audita la interfaz UI\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 325.89 Td (Audita accesibilidad \(A11y\), estados de foco, etiquetas de formularios y UX móvil.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 313.89 Td (-> Web Interface Guidelines) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 256.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 256.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 284.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 289.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 288.89 Td (\"Detecta el framework del proyecto\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 273.89 Td (Identifica Next.js, Vite, Astro, React, Vue, Svelte o sitios estáticos HTML.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 261.89 Td (-> Detector de frameworks) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 204.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 204.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 232.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 237.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 236.89 Td (\"Estado de Vercel / Vercel Skills\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 221.89 Td (Muestra la versión de Vercel CLI, rutas de habilidades y reglas activas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 209.89 Td (-> Telemetría de Vercel Suite) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 174.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 174.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 181.89 Td (12. Auditoría Integral de Ciberseguridad \(Security Audit Enterprise\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 155.89 Td (Liseth incorpora un motor estático de auditoría y análisis de vulnerabilidades alineado con los estándares) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 143.89 Td (OWASP Top 10 y CWE Top 25. Examina repositorios completos, archivos y fragmentos de código \(Python,) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 131.89 Td (JavaScript, TypeScript, Bash, JSON, YAML y configuraciones\), identificando credenciales expuestas,) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 119.88999999999999 Td (inyecciones de código \(SQLi, Command Injection, NoSQLi\), vectores de Prompt Injection en LLMs,) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 107.88999999999999 Td (deserializaciones inseguras y configuraciones erróneas de seguridad con guías técnicas de remediación:) Tj ET
+Q
+q
+0.85 0.88 0.92 RG 1 w
+42.0 35 m 553.28 35 l S
+0.45 0.48 0.52 rg
+BT /F1 8 Tf 42.0 24 Td (Liseth AI \| Copiloto Personal & Autónomo \| Documento Dinámico) Tj ET
+BT /F2 8 Tf 478.28 24 Td (Pagina 6 de 7) Tj ET
+Q
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 19 0 R >>
+endobj
+20 0 obj
+<< /Length 6839 >>
+stream
+q
+0.12 0.35 0.55 RG 1.5 w
+42.0 806.89 m 553.28 806.89 l S
+0.3 0.3 0.3 rg
+BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
+BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 745.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 745.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 773.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 778.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 777.89 Td (\"Audita la seguridad de este proyecto / Audita la seguridad de [ruta]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 762.89 Td (Escaneo estático integral del repositorio con índice de seguridad \(0-100\), desglose de severidad y clasificación de riesgo.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 750.89 Td (-> Auditoría de ciberseguridad SAST) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 693.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 693.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 721.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 726.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 725.89 Td (\"Escanea vulnerabilidades en [archivo]\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 710.89 Td (Análisis exhaustivo del archivo detectando CWEs específicos, líneas afectadas y sugerencias de remediación.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 698.89 Td (-> Análisis de vulnerabilidades de archivo) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 641.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 641.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 669.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 674.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 673.89 Td (\"Busca secretos y credenciales en mi código\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 658.89 Td (Detección de claves de Google Cloud, AWS, GitHub, OpenAI y cadenas de conexión a bases de datos con ofuscación automática.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 646.89 Td (-> Detector de secretos expuestos) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 589.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 589.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 617.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 622.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 621.89 Td (\"Audita vectores OWASP / Seguridad en IA\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 606.89 Td (Inspección de riesgos en prompts de IA \(OWASP-LLM01\), deserialización pickle/yaml insegura y políticas CORS permisivas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 594.89 Td (-> Auditoría OWASP y LLM Security) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 537.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 537.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 565.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 570.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 569.89 Td (\"Estado de seguridad / Telemetría de seguridad\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 554.89 Td (Reporta el estado del motor de ciberseguridad, motores estáticos y vectores de análisis activos.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 542.89 Td (-> Telemetría Security Audit) Tj ET
+Q
+q
+0.90 0.94 0.98 rg
+42.0 507.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 507.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 514.89 Td (13. Detector y Humanizador de Textos AI \(SlopMonster & Deslop\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 488.89 Td (Liseth incorpora el motor lingüístico SlopMonster para la detección de patrones sintéticos de inteligencia) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 476.89 Td (artificial y su transformación en prosa humana ejecutiva. Evalúa textos en español e inglés mediante 5) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 464.89 Td (dimensiones de análisis \(vocabulario trillado, construcciones cliché, abuso de guiones largos, listas) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 452.89 Td (triádicas y conclusiones vacías\), reescribiendo borradores robóticos en redacción natural, persuasiva y con) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 440.89 Td (voz de autor:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 388.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 388.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 416.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 421.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 420.89 Td (\"Humaniza este texto: '[texto]' / Deslop este borrador\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 405.89 Td (Elimina muletillas y frases hechas de IA \('en el vertiginoso mundo actual', 'tapiz', 'faro'\), reescribiendo con cadencia natural y concisa.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 393.89 Td (-> Humanizador y de-slopper) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 336.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 336.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 364.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 369.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 368.89 Td (\"Analiza si este texto parece hecho por IA: '[texto]'\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 353.89 Td (Calcula el Slop Score multidimensional \(0 a 5 por categoría\), nivel de sospecha de IA y recomendaciones específicas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 341.89 Td (-> Auditoría de patrones de IA \(Slop Score\)) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 284.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 284.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 312.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 317.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 316.89 Td (\"Reescribe mi ensayo / artículo con tono humano\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 301.89 Td (Reformula ensayos académicos, correos corporativos o artículos eliminando redundancias y conclusiones artificiales.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 289.89 Td (-> Reescritura humana de textos) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 232.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 232.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 260.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 265.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 264.89 Td (\"Estado de SlopMonster / Detector de IA\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 249.89 Td (Muestra el estado del motor lingüístico, catálogo bilingüe de patrones de IA y umbrales de puntuación.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 237.89 Td (-> Telemetría SlopMonster) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 218.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 206.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+Q
+q
+0.85 0.88 0.92 RG 1 w
+42.0 35 m 553.28 35 l S
+0.45 0.48 0.52 rg
+BT /F1 8 Tf 42.0 24 Td (Liseth AI \| Copiloto Personal & Autónomo \| Documento Dinámico) Tj ET
+BT /F2 8 Tf 478.28 24 Td (Pagina 7 de 7) Tj ET
+Q
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 20 0 R >>
+endobj
+xref
+0 21
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000155 00000 n 
+0000000252 00000 n 
+0000000354 00000 n 
+0000000459 00000 n 
+0000007165 00000 n 
+0000014811 00000 n 
+0000022665 00000 n 
+0000029857 00000 n 
+0000037789 00000 n 
+0000045284 00000 n 
+0000052340 00000 n 
+0000000554 00000 n 
+0000007328 00000 n 
+0000014974 00000 n 
+0000022828 00000 n 
+0000030021 00000 n 
+0000037953 00000 n 
+0000045448 00000 n 
+trailer
+<< /Size 21 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
+startxref
+52504
+%%EOF

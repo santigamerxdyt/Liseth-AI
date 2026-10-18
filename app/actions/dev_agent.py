@@ -16,18 +16,28 @@ BASE_DIR         = get_base_dir()
 API_CONFIG_PATH  = BASE_DIR / "config" / "api_keys.json"
 PROJECTS_DIR     = Path.home() / "Desktop" / "JarvisProjects"
 MAX_FIX_ATTEMPTS = 5
-MODEL_PLANNER    = "gemini-2.5-flash"
-MODEL_WRITER     = "gemini-2.5-flash"
+# Model choice, timeout and fallback ladder all live in core/gemini.py.
+from core import gemini
+
+MODEL_PLANNER    = gemini.SMART
+MODEL_WRITER     = gemini.SMART
 
 def _get_api_key() -> str:
     with open(API_CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)["gemini_api_key"]
 
 
-def _get_model(model_name: str):
-    import google.generativeai as genai
-    genai.configure(api_key=_get_api_key())
-    return genai.GenerativeModel(model_name)
+def _get_model(model_name: str = gemini.SMART):
+    """Planning and writing whole files — the reasoning tier, and a long
+    deadline because the answer is a source file rather than a sentence."""
+    class _W:
+        def generate_content(self, contents):
+            resp = gemini.call(contents, tier=model_name, timeout_ms=60000)
+            if resp is None:
+                raise RuntimeError("every Gemini model on the ladder failed")
+            return resp
+
+    return _W()
 
 
 def _strip_fences(text: str) -> str:
@@ -319,7 +329,7 @@ def _run_project(run_command: str, project_dir: Path, timeout: int = 30) -> str:
         return f"Run error: {e}"
 
 def _try_auto_install(error_output: str, project_dir: Path) -> bool:
-    """ModuleNotFoundError varsa eksik paketi otomatik kurmaya çalışır."""
+    """If there is a ModuleNotFoundError, tries to auto-install the missing package."""
     pattern = re.compile(
         r"No module named ['\"]([a-zA-Z0-9_\-\.]+)['\"]", re.IGNORECASE
     )
@@ -595,3 +605,35 @@ def dev_agent(
         speak        = speak,
         player       = player,
     )
+
+
+# ── Tool declaration (auto-discovered by core/action_loader.py) ──────────────
+TOOL = {
+    "name": "dev_agent",
+    "description": "Builds complete multi-file projects from scratch: plans, writes files, installs deps, opens VSCode, runs and fixes errors.",
+    "parameters": {
+        "type": "OBJECT",
+        "properties": {
+            "description": {
+                "type": "STRING",
+                "description": "What the project should do"
+            },
+            "language": {
+                "type": "STRING",
+                "description": "Programming language (default: python)"
+            },
+            "project_name": {
+                "type": "STRING",
+                "description": "Optional project folder name"
+            },
+            "timeout": {
+                "type": "INTEGER",
+                "description": "Run timeout in seconds (default: 30)"
+            }
+        },
+        "required": [
+            "description"
+        ]
+    },
+    "handler": dev_agent,
+}

@@ -1,0 +1,539 @@
+"""
+PDF Generator for Liseth's Executive User Manual.
+Generates a comprehensive, professional PDF manual containing all capabilities,
+modules, and voice/text quick commands for Señor Santiago.
+
+Zero external dependencies (pure Python standard library).
+Can be executed at any time to regenerate the manual when new features are added:
+    python tools/generate_manual_pdf.py
+"""
+import datetime
+import os
+import sys
+from typing import List, Tuple
+
+
+class LisethPDFBuilder:
+    """
+    Pure Python vector PDF builder (PDF 1.4 specification).
+    Renders styled headers, paragraphs, command boxes, tables, and auto-paginates.
+    """
+
+    PAGE_WIDTH = 595.28
+    PAGE_HEIGHT = 841.89
+    MARGIN_LEFT = 42.0
+    MARGIN_RIGHT = 42.0
+    MARGIN_TOP = 50.0
+    MARGIN_BOTTOM = 50.0
+
+    def __init__(self, title: str = "Manual de Liseth"):
+        self.doc_title = title
+        self.pages_ops: List[List[str]] = []
+        self.current_page_ops: List[str] = []
+        self.current_y = self.PAGE_HEIGHT - self.MARGIN_TOP
+        self.usable_width = self.PAGE_WIDTH - self.MARGIN_LEFT - self.MARGIN_RIGHT
+        self._new_page()
+
+    def _new_page(self):
+        """Starts a fresh page and resets the cursor."""
+        if self.current_page_ops:
+            self.pages_ops.append(self.current_page_ops)
+        self.current_page_ops = []
+        self.current_y = self.PAGE_HEIGHT - self.MARGIN_TOP
+
+        # Draw running top header rule
+        self.current_page_ops.append("q")
+        self.current_page_ops.append("0.12 0.35 0.55 RG 1.5 w")  # Navy border
+        self.current_page_ops.append(f"{self.MARGIN_LEFT} {self.PAGE_HEIGHT - 35} m {self.PAGE_WIDTH - self.MARGIN_RIGHT} {self.PAGE_HEIGHT - 35} l S")
+        self.current_page_ops.append("0.3 0.3 0.3 rg")
+        self.current_page_ops.append(f"BT /F2 8 Tf {self.MARGIN_LEFT} {self.PAGE_HEIGHT - 30} Td (LISETH AI \\| COPILOTO AUTONOMO EJECUTIVO) Tj ET")
+        self.current_page_ops.append(f"BT /F3 8 Tf {self.PAGE_WIDTH - self.MARGIN_RIGHT - 110} {self.PAGE_HEIGHT - 30} Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET")
+        self.current_page_ops.append("Q")
+
+    def _check_page_break(self, height_needed: float):
+        """Creates a new page if the required vertical space is unavailable."""
+        if (self.current_y - height_needed) < self.MARGIN_BOTTOM:
+            self._new_page()
+
+    def _escape_pdf_str(self, text: str) -> str:
+        """Escapes parentheses and backslashes for PDF string literals."""
+        return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+    def add_cover_banner(self, title: str, subtitle: str, author_note: str):
+        """Renders an executive front cover banner."""
+        self._check_page_break(110)
+        y = self.current_y
+
+        # Draw filled navy card
+        self.current_page_ops.append("q")
+        self.current_page_ops.append("0.08 0.22 0.38 rg")  # Deep blue background
+        self.current_page_ops.append(f"{self.MARGIN_LEFT} {y - 95} {self.usable_width} 95 re f")
+
+        # Inner cyan accent line
+        self.current_page_ops.append("0.0 0.8 0.75 RG 3 w")
+        self.current_page_ops.append(f"{self.MARGIN_LEFT + 15} {y - 95} m {self.MARGIN_LEFT + 15} {y} l S")
+
+        # Title text (white)
+        self.current_page_ops.append("1 1 1 rg")
+        self.current_page_ops.append(f"BT /F2 20 Tf {self.MARGIN_LEFT + 25} {y - 32} Td ({self._escape_pdf_str(title)}) Tj ET")
+
+        # Subtitle
+        self.current_page_ops.append("0.85 0.95 0.98 rg")
+        self.current_page_ops.append(f"BT /F2 11 Tf {self.MARGIN_LEFT + 25} {y - 54} Td ({self._escape_pdf_str(subtitle)}) Tj ET")
+
+        # Author / Date
+        self.current_page_ops.append("0.7 0.8 0.9 rg")
+        self.current_page_ops.append(f"BT /F1 9 Tf {self.MARGIN_LEFT + 25} {y - 78} Td ({self._escape_pdf_str(author_note)}) Tj ET")
+        self.current_page_ops.append("Q")
+
+        self.current_y = y - 115
+
+    def add_section_header(self, title: str):
+        """Renders a major numbered section header."""
+        self._check_page_break(45)
+        y = self.current_y
+
+        self.current_page_ops.append("q")
+        # Pill badge background
+        self.current_page_ops.append("0.90 0.94 0.98 rg")
+        self.current_page_ops.append(f"{self.MARGIN_LEFT} {y - 24} {self.usable_width} 24 re f")
+        # Left accent stripe
+        self.current_page_ops.append("0.1 0.4 0.65 rg")
+        self.current_page_ops.append(f"{self.MARGIN_LEFT} {y - 24} 5 24 re f")
+        # Header text
+        self.current_page_ops.append("0.08 0.25 0.45 rg")
+        self.current_page_ops.append(f"BT /F2 12 Tf {self.MARGIN_LEFT + 12} {y - 17} Td ({self._escape_pdf_str(title)}) Tj ET")
+        self.current_page_ops.append("Q")
+
+        self.current_y = y - 34
+
+    def add_subsection_header(self, title: str):
+        """Renders a subsection title."""
+        self._check_page_break(25)
+        y = self.current_y
+        self.current_page_ops.append("q")
+        self.current_page_ops.append("0.15 0.25 0.35 rg")
+        self.current_page_ops.append(f"BT /F2 10.5 Tf {self.MARGIN_LEFT + 4} {y - 13} Td ({self._escape_pdf_str(title)}) Tj ET")
+        self.current_page_ops.append("Q")
+        self.current_y = y - 20
+
+    def add_paragraph(self, text: str, font: str = "F1", size: float = 9.0, leading: float = 12.0, color=(0.15, 0.15, 0.15), indent: float = 0.0):
+        """Wraps and prints text across multiple lines cleanly."""
+        words = text.split()
+        if not words:
+            return
+
+        # Approx character limit per line based on usable width and font size
+        chars_per_line = int((self.usable_width - indent) / (size * 0.52))
+
+        lines = []
+        current_line = []
+        current_len = 0
+
+        for w in words:
+            if current_len + len(w) + 1 <= chars_per_line:
+                current_line.append(w)
+                current_len += len(w) + 1
+            else:
+                lines.append(" ".join(current_line))
+                current_line = [w]
+                current_len = len(w)
+
+        if current_line:
+            lines.append(" ".join(current_line))
+
+        for line in lines:
+            self._check_page_break(leading + 2)
+            y = self.current_y
+            r, g, b = color
+            self.current_page_ops.append("q")
+            self.current_page_ops.append(f"{r} {g} {b} rg")
+            self.current_page_ops.append(f"BT /{font} {size} Tf {self.MARGIN_LEFT + indent} {y - size} Td ({self._escape_pdf_str(line)}) Tj ET")
+            self.current_page_ops.append("Q")
+            self.current_y = y - leading
+
+        self.current_y -= 3  # Gap after paragraph
+
+    def add_command_box(self, voice_command: str, description: str, result_or_shortcut: str = ""):
+        """Draws a high-visibility command card for voice/text quick execution."""
+        box_height = 36.0 if not result_or_shortcut else 46.0
+        self._check_page_break(box_height + 6)
+        y = self.current_y
+
+        self.current_page_ops.append("q")
+        # Soft background card
+        self.current_page_ops.append("0.97 0.98 0.99 rg")
+        self.current_page_ops.append(f"{self.MARGIN_LEFT + 6} {y - box_height} {self.usable_width - 12} {box_height} re f")
+
+        # Border
+        self.current_page_ops.append("0.85 0.88 0.92 RG 0.75 w")
+        self.current_page_ops.append(f"{self.MARGIN_LEFT + 6} {y - box_height} {self.usable_width - 12} {box_height} re S")
+
+        # Command tag (teal box)
+        self.current_page_ops.append("0.05 0.55 0.65 rg")
+        self.current_page_ops.append(f"{self.MARGIN_LEFT + 12} {y - 18} 65 14 re f")
+        self.current_page_ops.append("1 1 1 rg")
+        self.current_page_ops.append(f"BT /F2 7.5 Tf {self.MARGIN_LEFT + 16} {y - 13} Td (COMANDO VOZ) Tj ET")
+
+        # Command text
+        self.current_page_ops.append("0.1 0.15 0.25 rg")
+        self.current_page_ops.append(f"BT /F2 9.5 Tf {self.MARGIN_LEFT + 84} {y - 14} Td (\\\"{self._escape_pdf_str(voice_command)}\\\") Tj ET")
+
+        # Description
+        self.current_page_ops.append("0.35 0.38 0.42 rg")
+        self.current_page_ops.append(f"BT /F1 8.5 Tf {self.MARGIN_LEFT + 14} {y - 29} Td ({self._escape_pdf_str(description)}) Tj ET")
+
+        # Extra result/shortcut
+        if result_or_shortcut:
+            self.current_page_ops.append("0.12 0.45 0.35 rg")
+            self.current_page_ops.append(f"BT /F4 8 Tf {self.MARGIN_LEFT + 14} {y - 41} Td (-> {self._escape_pdf_str(result_or_shortcut)}) Tj ET")
+
+        self.current_page_ops.append("Q")
+        self.current_y = y - box_height - 6
+
+    def compile(self) -> bytes:
+        """Compiles vector objects into valid PDF 1.4 binary data."""
+        if self.current_page_ops:
+            self.pages_ops.append(self.current_page_ops)
+
+        total_pages = len(self.pages_ops)
+
+        # Append page numbers and bottom footers to all pages
+        for idx, page_ops in enumerate(self.pages_ops, start=1):
+            page_ops.append("q")
+            page_ops.append("0.85 0.88 0.92 RG 1 w")
+            page_ops.append(f"{self.MARGIN_LEFT} 35 m {self.PAGE_WIDTH - self.MARGIN_RIGHT} 35 l S")
+            page_ops.append("0.45 0.48 0.52 rg")
+            page_ops.append(f"BT /F1 8 Tf {self.MARGIN_LEFT} 24 Td (Liseth AI \\| Copiloto Personal & Autónomo \\| Documento Dinámico) Tj ET")
+            page_ops.append(f"BT /F2 8 Tf {self.PAGE_WIDTH - self.MARGIN_RIGHT - 75} 24 Td (Pagina {idx} de {total_pages}) Tj ET")
+            page_ops.append("Q")
+
+        pdf_chunks = []
+        pdf_chunks.append(b"%PDF-1.4\n")
+
+        # We will build objects:
+        # 1: Catalog
+        # 2: Pages tree
+        # 3..6: Fonts (F1: Helvetica, F2: Helvetica-Bold, F3: Helvetica-Oblique, F4: Courier)
+        # 7 .. 7 + N - 1: Page objects
+        # 7 + N .. 7 + 2N - 1: Content stream objects
+
+        num_pages = len(self.pages_ops)
+        obj_count = 6 + (2 * num_pages)
+        offsets = {}
+
+        def add_object(obj_num: int, body: bytes):
+            offsets[obj_num] = sum(len(c) for c in pdf_chunks)
+            pdf_chunks.append(f"{obj_num} 0 obj\n".encode("latin1") + body + b"\nendobj\n")
+
+        # 1: Catalog
+        add_object(1, b"<< /Type /Catalog /Pages 2 0 R >>")
+
+        # 2: Pages tree
+        page_obj_ids = [7 + i for i in range(num_pages)]
+        kids_str = " ".join(f"{pid} 0 R" for pid in page_obj_ids)
+        add_object(2, f"<< /Type /Pages /Kids [{kids_str}] /Count {num_pages} >>".encode("latin1"))
+
+        # 3..6: Standard 14 Fonts
+        add_object(3, b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>")
+        add_object(4, b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>")
+        add_object(5, b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>")
+        add_object(6, b"<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>")
+
+        font_resources = "<< /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >>"
+
+        # Content streams and Pages
+        for i in range(num_pages):
+            content_obj_id = 7 + num_pages + i
+            page_obj_id = 7 + i
+
+            # Stream body
+            raw_stream = "\n".join(self.pages_ops[i]).encode("latin1", errors="replace")
+            stream_body = f"<< /Length {len(raw_stream)} >>\nstream\n".encode("latin1") + raw_stream + b"\nendstream"
+            add_object(content_obj_id, stream_body)
+
+            # Page object
+            page_body = (
+                f"<< /Type /Page /Parent 2 0 R "
+                f"/MediaBox [0 0 {self.PAGE_WIDTH} {self.PAGE_HEIGHT}] "
+                f"/Resources {font_resources} "
+                f"/Contents {content_obj_id} 0 R >>"
+            ).encode("latin1")
+            add_object(page_obj_id, page_body)
+
+        # XREF Table
+        xref_start = sum(len(c) for c in pdf_chunks)
+        total_objs = obj_count + 1
+        pdf_chunks.append(f"xref\n0 {total_objs}\n0000000000 65535 f \n".encode("latin1"))
+        for obj_id in range(1, total_objs):
+            pdf_chunks.append(f"{offsets[obj_id]:010d} 00000 n \n".encode("latin1"))
+
+        # Trailer
+        trailer = (
+            f"trailer\n<< /Size {total_objs} /Root 1 0 R "
+            f"/Info << /Title ({self.doc_title}) /Author (Liseth AI) >> >>\n"
+            f"startxref\n{xref_start}\n%%EOF\n"
+        ).encode("latin1")
+        pdf_chunks.append(trailer)
+
+        return b"".join(pdf_chunks)
+
+
+def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
+    """
+    Compiles the complete executive manual for Liseth and writes it to disk.
+    Always includes all current features and quick commands.
+    """
+    builder = LisethPDFBuilder(title="Manual Ejecutivo de Liseth - Senor Santiago")
+
+    # Front cover banner
+    today = datetime.datetime.now().strftime("%d de %B de %Y")
+    builder.add_cover_banner(
+        title="LISETH AI - MANUAL MAESTRO DE USUARIO",
+        subtitle="Guia Completa de Funcionalidades, Modos y Comandos Rapidos",
+        author_note=f"Copiloto Personal Autónomo de Señor Santiago \\| Edición Dinámica ({today})"
+    )
+
+    builder.add_paragraph(
+        "Bienvenido a su manual ejecutivo de Liseth. Este documento se actualiza automáticamente con cada nueva "
+        "función incorporada a su asistente. En él encontrará la totalidad de herramientas disponibles divididas por "
+        "categoría, su sintaxis de voz y texto con respuesta inmediata (latencia 0 ms) y los flujos autónomos en segundo plano.",
+        size=9.2, leading=13.0
+    )
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 1: IDENTIDAD, PRIVILEGIOS Y MODOS DE OPERACIÓN
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("1. Identidad, Privilegios Elevados y Modos de Operación")
+    builder.add_paragraph(
+        "Liseth es su asistente personal ejecutiva con personalidad afectuosa, respetuosa, resolutiva y elegante. "
+        "Cuenta con síntesis vocal de alta fidelidad (Salomé es-CO) optimizada para responder con cadencia rápida y sin pausas artificiales.",
+        size=9.0
+    )
+    builder.add_subsection_header("Privilegios Elevados de Windows (Modo Administrador Automático):")
+    builder.add_paragraph(
+        "• Autoelevación UAC Obligatoria: Liseth se ejecuta siempre con privilegios de Administrador de Windows en todos sus lanzadores (`iniciar_liseth.bat`, `INICIAR_ESCRITORIO.bat`, `INICIAR_WEB.bat` y `python run.py`).\n"
+        "• Acceso Total al Sistema: Otorga control irrestricto sobre hardware, administración de servicios, control de procesos del sistema y acceso a rutas protegidas sin restricciones de permisos.\n"
+        "• Bandera de Bypass: Para entornos de prueba o depuración sin elevación, admite la bandera `--no-admin`.",
+        size=8.5, leading=11.5, indent=8.0
+    )
+    builder.add_subsection_header("Estados del Motor de Voz:")
+    builder.add_paragraph(
+        "• Modo Reposo (Standby): Monitorea el micrófono con bajo consumo de CPU. Se activa al oír su nombre.\n"
+        "• Modo Activo: Conversación fluida directa sin necesidad de repetir su nombre. Tras 20s de inactividad vuelve a reposo.\n"
+        "• Modo No Molestar (DND): Silencia cualquier aviso o notificación vocal para no interrumpir su concentración.",
+        size=8.5, leading=11.5, indent=8.0
+    )
+    builder.add_command_box("Liseth / Liceth / Jarvis [instrucción]", "Activa a Liseth desde reposo y ejecuta la orden de inmediato.", "Transición Standby -> Active")
+    builder.add_command_box("Ve a dormir / Modo reposo / Silencio", "Pone a Liseth inmediatamente en reposo sin cerrar la aplicación.", "Modo Standby silencioso")
+    builder.add_command_box("¿Eres administradora? / Estado de privilegios", "Verifica en tiempo real que Liseth cuente con privilegios elevados de Administrador.", "Admin Privilege Check")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 2: CONTROL DEL PC Y HARDWARE WINDOWS
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("2. Automatización del PC y Control de Windows")
+    builder.add_paragraph(
+        "Liseth ejecuta comandos de hardware con 0 ms de latencia mediante llamadas Win32 nativas:",
+        size=9.0
+    )
+    builder.add_command_box("Abre [Calculadora / Chrome / Spotify / Bloc de Notas]", "Inicia programas y herramientas del sistema al instante.", "Lanzador de aplicaciones nativo")
+    builder.add_command_box("Sube el volumen / Baja el volumen / Silencia", "Ajusta el sonido del sistema en incrementos o mutea el audio.", "Control de volumen Win32")
+    builder.add_command_box("Pon el volumen al [50% / 80%]", "Fija el volumen en un porcentaje numérico exacto.", "Set volumen directo")
+    builder.add_command_box("Sube el brillo / Baja el brillo", "Ajusta la luminosidad de la pantalla.", "Hardware de pantalla")
+    builder.add_command_box("Toma una captura de pantalla / Pantallazo", "Captura la pantalla completa y la guarda en su carpeta de imágenes.", "Captura instantánea")
+    builder.add_command_box("Pantalla completa / F11", "Alterna la visualización a pantalla completa de la app activa.", "Toggle fullscreen")
+    builder.add_command_box("Muestra el escritorio / Minimiza todo", "Oculta todas las ventanas y despeja la pantalla de trabajo.", "Win + D nativo")
+    builder.add_command_box("Maximiza la ventana / Cierra la ventana", "Gestiona la ventana activa sin usar el ratón.", "Gestión de ventanas")
+    builder.add_command_box("Pausa la música / Siguiente canción / Anterior", "Control multimedia global sobre Spotify, navegadores o reproductores.", "Teclas virtuales de medios")
+    builder.add_command_box("Pon en Spotify [canción o artista]", "Lanza Spotify en segundo plano y reproduce la pista solicitada.", "URI spotify:search")
+    builder.add_command_box("Estado de mi PC / Rendimiento del sistema", "Reporte de telemetría: carga de CPU, uso de RAM, disco y temperatura.", "Telemetría en tiempo real")
+    builder.add_command_box("Cierra tu aplicación / Apágate Liseth", "Detiene los hilos de fondo y cierra ordenadamente el programa.", "Cierre ordenado y despedida")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 3: AUTONOMÍA COMPLETA Y TAREAS EN SEGUNDO PLANO
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("3. Autonomía Completa y Tareas en Segundo Plano")
+    builder.add_paragraph(
+        "Liseth puede trabajar de forma autónoma mientras usted se concentra en otras actividades, "
+        "reportando únicamente cuando concluye o si se requiere su atención:",
+        size=9.0
+    )
+    builder.add_command_box("Ejecuta en segundo plano [tarea]", "Encola y ejecuta trabajos largos en hilos asíncronos sin bloquear el PC.", "BackgroundWorkerService")
+    builder.add_command_box("¿Qué tareas están en segundo plano? / Tareas activas", "Lista las tareas encoladas, en ejecución y recientemente completadas.", "Consulta de cola autónoma")
+    builder.add_command_box("Cancela la tarea en segundo plano", "Detiene la tarea autónoma en ejecución o en espera.", "Cancelación de worker")
+    builder.add_command_box("¿Cómo están mis proyectos? / Estado del centinela", "Audita el estado de salud de su código fuente en segundo plano.", "WorkspaceSentinel silencioso")
+    builder.add_command_box("Escanea mis proyectos / Revisa mi código", "Fuerza un escaneo de sintaxis py_compile en busca de errores o roturas.", "Reporte de centinela")
+    builder.add_command_box("Inicia mi rutina de la mañana / Rutina matutina", "Ejecuta cadena: clima de Bogotá, agenda de hoy, salud de proyectos y saludo.", "RoutineEngine: Morning")
+    builder.add_command_box("Inicia rutina de trabajo / Modo concentración", "Activa Trabajo Profundo Pomodoro (50m), DND y verificación de código.", "RoutineEngine: Focus")
+    builder.add_command_box("Rutina de cierre / Finalizar jornada", "Balance de compromisos, tareas en segundo plano y cierre de jornada.", "RoutineEngine: Wrap-up")
+    builder.add_command_box("¿Qué hiciste hoy, Liseth? / Resumen del día", "Reporte ejecutivo consolidado de todas las actividades autónomas del día.", "DailyDebriefService")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 4: ADMINISTRACIÓN DE EMPRESAS Y MODELACIÓN FINANCIERA
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("4. Administración de Empresas y Modelación Financiera")
+    builder.add_paragraph(
+        "Herramientas financieras y analíticas diseñadas específicamente para su formación gerencial y proyectos de inversión:",
+        size=9.0
+    )
+    builder.add_command_box("Calcula el VAN / Valor Actual Neto", "Evalúa la viabilidad financiera de proyectos según tasa de descuento y flujos.", "Fórmula VAN / NPV con dictamen")
+    builder.add_command_box("Calcula la TIR / Tasa Interna de Retorno", "Determina la tasa intrínseca de rendimiento por aproximación Newton-Raphson.", "Cálculo matemático exacto")
+    builder.add_command_box("Calcula el ROI / Retorno de Inversión", "Calcula la rentabilidad porcentual y el multiplicador de la inversión.", "Beneficio neto / Inversión")
+    builder.add_command_box("Punto de equilibrio / Break-even", "Desglosa costos fijos, precio y costo variable unitario en unidades y dinero.", "Margen de contribución")
+    builder.add_command_box("Matriz FODA / Matriz DOFA", "Genera el análisis estratégico cruzado: fortalezas, debilidades, oportunidades y amenazas.", "Estrategias FO, FA, DO, DA")
+    builder.add_command_box("Modelo Canvas / Business Model Canvas", "Estructura los 9 módulos clave de un modelo de negocio escalable.", "Lienzo estratégico Osterwalder")
+    builder.add_command_box("Análisis PESTEL", "Audita los factores macroentorno: político, económico, social, tecnológico, ecológico y legal.", "Diagnóstico de entorno")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 5: ASISTENCIA UNIVERSITARIA Y NORMAS APA 7
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("5. Asistencia Universitaria y Normas APA 7ª Edición")
+    builder.add_paragraph(
+        "Soporte integral para sus entregas académicas, monografías y trabajos de investigación:",
+        size=9.0
+    )
+    builder.add_command_box("Normas APA / Formato APA", "Entrega los parámetros oficiales: márgenes 2.54 cm, tipografías válidas e interlineado doble.", "Guía de estilo APA 7")
+    builder.add_command_box("Genera cita APA / Referencia APA", "Construye referencias bibliográficas con sangría francesa y citas en el texto.", "Libros, revistas, tesis y web")
+    builder.add_command_box("Estructura de ensayo", "Entrega el esquema metodológico con distribución porcentual (introducción, tesis, conclusiones).", "Estructura académica de ensayo")
+    builder.add_command_box("Estructura de informe / Informe ejecutivo", "Esquema profesional para casos de estudio, diagnósticos y propuestas empresariales.", "Template de informe gerencial")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 6: PROGRAMACIÓN Y PRODUCTIVIDAD DE DATOS
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("6. Programación y Productividad con Datos")
+    builder.add_paragraph(
+        "Herramientas para agilizar sus tareas de desarrollo de software y manipulación de datos:",
+        size=9.0
+    )
+    builder.add_command_box("Estadística descriptiva [datos]", "Calcula media, mediana, varianza, desviación estándar y rango de una serie de números.", "Analítica estadística 0 ms")
+    builder.add_command_box("Convierte JSON a tabla Markdown", "Transforma listas de objetos JSON en tablas visuales para documentación en GitHub.", "Formateador de datos")
+    builder.add_command_box("Genera sentencias SQL desde CSV", "Genera scripts INSERT INTO listos para ejecutar en bases de datos relacionales.", "Conversor de datos a SQL")
+    builder.add_command_box("Modo trabajo profundo / Iniciar Pomodoro", "Inicia sesión de concentración de 50 min con silenciado de interrupciones.", "DeepWork / Pomodoro Manager")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 7: VISIÓN MULTIMODAL Y PORTAPAPELES
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("7. Visión Multimodal y Portapapeles Inteligente")
+    builder.add_paragraph(
+        "Capacidades de análisis visual y depuración de código copiadas en su memoria de portapapeles:",
+        size=9.0
+    )
+    builder.add_command_box("Mira mi pantalla / ¿Qué estoy viendo?", "Captura su monitor y analiza el contenido visual mediante visión multimodal Gemini.", "Inspección de pantalla")
+    builder.add_command_box("Analiza mi portapapeles / Explica lo que copié", "Detecta trazas de error, JSON o código en su portapapeles y sugiere la solución.", "Smart Clipboard Debugger")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 8: CONECTIVIDAD EXTERNA (GMAIL Y TELEGRAM)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("8. Conectividad Externa (Gmail y Telegram)")
+    builder.add_paragraph(
+        "Integración con sus canales de comunicación externos:",
+        size=9.0
+    )
+    builder.add_command_box("Revisa mi correo / ¿Tengo correos urgentes?", "Filtra su bandeja Gmail separando mensajes de alta prioridad de promociones y boletines.", "Google Workspace Connector")
+    builder.add_command_box("Bot de Telegram (@Liseth)", "Control remoto bidireccional vía comandos (/estado, /agenda, /resumen) y notas de voz.", "Telegram Long-Polling Daemon")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 9: INGENIERÍA INVERSA Y ANÁLISIS DE BINARIOS (MOTOR REA)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("9. Ingeniería Inversa y Análisis de Binarios (Motor REA)")
+    builder.add_paragraph(
+        "Liseth incorpora el motor REA (Reverse Engineer Anything v6.7.0) junto con un analizador estático nativo "
+        "para examinar ejecutables (EXE, DLL, SYS), paquetes (APK, ASAR, ZIP, WASM, JAR) y bases de datos sin necesidad de código fuente:",
+        size=9.0
+    )
+    builder.add_command_box("Analiza este ejecutable [ruta / archivo]", "Inspección completa: arquitectura, mitigaciones (ASLR/DEP), entropía y secciones.", "Inspección de binarios PE/ELF")
+    builder.add_command_box("Entropía de [archivo]", "Calcula la entropía de Shannon (0-8) para detectar empaquetadores (UPX/Themida) o cifrado.", "Detección de packers/cifrado")
+    builder.add_command_box("Cadenas del ejecutable [archivo]", "Extrae cadenas ASCII y UTF-16LE, URLs, IPs, claves de registro y APIs sospechosas.", "Extracción de IOCs y cadenas")
+    builder.add_command_box("Extrae el archivo asar [ruta]", "Desempaqueta y lista el árbol de código fuente de aplicaciones Electron.", "Inspector Electron ASAR")
+    builder.add_command_box("Estado de REA / Motor de ingeniería inversa", "Reporta el estado operativo del motor REA y sus 207 herramientas MCP.", "Telemetría de motor REA")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 10: AUTOMATIZACIÓN WEB Y NAVEGACIÓN ACELERADA (MOTOR EGO LITE)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("10. Automatización Web y Navegación Acelerada (Motor Ego Lite)")
+    builder.add_paragraph(
+        "Liseth incorpora la arquitectura de navegación autónoma Ego Lite (v2.0). Permite ejecutar flujos web completos "
+        "en segundo plano mediante espacios de tarea aislados (taskSpaces) y snapshots semánticos ultraligeros que reducen en un 90% "
+        "el consumo de tokens, indexando cada elemento interactivo con identificadores directos ([ref=1], [ref=2]):",
+        size=9.0
+    )
+    builder.add_command_box("Analiza la página [URL] / Snapshot de [URL]", "Extrae un árbol semántico numerado de la web para inspección y control instantáneo.", "Snapshot semántico token-efficient")
+    builder.add_command_box("Navega a [URL] con Ego / Entra a [URL]", "Abre y procesa la web en un espacio de tarea aislado sin alterar sus ventanas activas.", "Navegación background taskSpace")
+    builder.add_command_box("Haz clic en [ref=N / nombre] con Ego", "Ejecuta un clic sobre el elemento interactivo identificado por su número de referencia.", "Interacción precisa con elementos")
+    builder.add_command_box("Escribe [texto] en [ref=N] con Ego", "Rellena formularios, buscadores o campos de texto directamente sin selectores complejos.", "Entrada de datos en formularios")
+    builder.add_command_box("Captura pantalla de [URL] con Ego", "Genera una captura en alta resolución de la página web renderizada en segundo plano.", "Captura visual de página")
+    builder.add_command_box("Busca en Google con Ego [consulta]", "Extracción limpia de resultados orgánicos sin publicidad ni scripts invasivos.", "Google Search Learner")
+    builder.add_command_box("Estadísticas de GitHub [usuario/repo]", "Consulta estrellas, forks, issues y resumen del repositorio de GitHub.", "GitHub Repo Stats Learner")
+    builder.add_command_box("Estado de Ego Browser / Espacios de tarea", "Reporta la telemetría del motor, contextos activos y herramientas aprendidas.", "Telemetría de Ego Browser")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 11: DESPLIEGUE EN LA NUBE Y OPTIMIZACIÓN FRONTEND (VERCEL LABS SUITE)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("11. Despliegue en la Nube y Optimización Frontend (Vercel Labs Suite)")
+    builder.add_paragraph(
+        "Liseth incorpora el conjunto de herramientas de desarrollo de Vercel Labs para publicar sitios web al instante "
+        "y auditar código frontend contra más de 45 reglas de rendimiento de ingeniería de Vercel y 100 directrices de interfaz:",
+        size=9.0
+    )
+    builder.add_command_box("Despliega mi aplicación / Despliega este proyecto", "Publica su proyecto web en Vercel generando URL de vista previa y panel de control.", "Despliegue instantáneo Vercel")
+    builder.add_command_box("Despliega a Vercel en producción", "Publica directamente a dominio principal y entorno de producción (--prod).", "Despliegue a Producción")
+    builder.add_command_box("Audita este componente React [archivo]", "Evalúa su código contra 45+ reglas Vercel: waterfalls, bundle size, re-renders y micro-optimizaciones.", "Vercel React Best Practices")
+    builder.add_command_box("Revisa el diseño web / Audita la interfaz UI", "Audita accesibilidad (A11y), estados de foco, etiquetas de formularios y UX móvil.", "Web Interface Guidelines")
+    builder.add_command_box("Detecta el framework del proyecto", "Identifica Next.js, Vite, Astro, React, Vue, Svelte o sitios estáticos HTML.", "Detector de frameworks")
+    builder.add_command_box("Estado de Vercel / Vercel Skills", "Muestra la versión de Vercel CLI, rutas de habilidades y reglas activas.", "Telemetría de Vercel Suite")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 12: AUDITORÍA INTEGRAL DE CIBERSEGURIDAD (SECURITY AUDIT ENTERPRISE)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("12. Auditoría Integral de Ciberseguridad (Security Audit Enterprise)")
+    builder.add_paragraph(
+        "Liseth incorpora un motor estático de auditoría y análisis de vulnerabilidades alineado con los estándares OWASP Top 10 y CWE Top 25. "
+        "Examina repositorios completos, archivos y fragmentos de código (Python, JavaScript, TypeScript, Bash, JSON, YAML y configuraciones), "
+        "identificando credenciales expuestas, inyecciones de código (SQLi, Command Injection, NoSQLi), vectores de Prompt Injection en LLMs, "
+        "deserializaciones inseguras y configuraciones erróneas de seguridad con guías técnicas de remediación:",
+        size=9.0
+    )
+    builder.add_command_box("Audita la seguridad de este proyecto / Audita la seguridad de [ruta]", "Escaneo estático integral del repositorio con índice de seguridad (0-100), desglose de severidad y clasificación de riesgo.", "Auditoría de ciberseguridad SAST")
+    builder.add_command_box("Escanea vulnerabilidades en [archivo]", "Análisis exhaustivo del archivo detectando CWEs específicos, líneas afectadas y sugerencias de remediación.", "Análisis de vulnerabilidades de archivo")
+    builder.add_command_box("Busca secretos y credenciales en mi código", "Detección de claves de Google Cloud, AWS, GitHub, OpenAI y cadenas de conexión a bases de datos con ofuscación automática.", "Detector de secretos expuestos")
+    builder.add_command_box("Audita vectores OWASP / Seguridad en IA", "Inspección de riesgos en prompts de IA (OWASP-LLM01), deserialización pickle/yaml insegura y políticas CORS permisivas.", "Auditoría OWASP y LLM Security")
+    builder.add_command_box("Estado de seguridad / Telemetría de seguridad", "Reporta el estado del motor de ciberseguridad, motores estáticos y vectores de análisis activos.", "Telemetría Security Audit")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 13: DETECTOR Y HUMANIZADOR DE TEXTOS AI (SLOPMONSTER & DESLOP)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("13. Detector y Humanizador de Textos AI (SlopMonster & Deslop)")
+    builder.add_paragraph(
+        "Liseth incorpora el motor lingüístico SlopMonster para la detección de patrones sintéticos de inteligencia artificial y su transformación "
+        "en prosa humana ejecutiva. Evalúa textos en español e inglés mediante 5 dimensiones de análisis (vocabulario trillado, construcciones cliché, "
+        "abuso de guiones largos, listas triádicas y conclusiones vacías), reescribiendo borradores robóticos en redacción natural, persuasiva y con voz de autor:",
+        size=9.0
+    )
+    builder.add_command_box("Humaniza este texto: '[texto]' / Deslop este borrador", "Elimina muletillas y frases hechas de IA ('en el vertiginoso mundo actual', 'tapiz', 'faro'), reescribiendo con cadencia natural y concisa.", "Humanizador y de-slopper")
+    builder.add_command_box("Analiza si este texto parece hecho por IA: '[texto]'", "Calcula el Slop Score multidimensional (0 a 5 por categoría), nivel de sospecha de IA y recomendaciones específicas.", "Auditoría de patrones de IA (Slop Score)")
+    builder.add_command_box("Reescribe mi ensayo / artículo con tono humano", "Reformula ensayos académicos, correos corporativos o artículos eliminando redundancias y conclusiones artificiales.", "Reescritura humana de textos")
+    builder.add_command_box("Estado de SlopMonster / Detector de IA", "Muestra el estado del motor lingüístico, catálogo bilingüe de patrones de IA y umbrales de puntuación.", "Telemetría SlopMonster")
+
+    # Final summary note
+    builder.add_paragraph(
+        "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "
+        "Cada vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.",
+        font="F3", size=8.0, color=(0.4, 0.4, 0.4)
+    )
+
+    pdf_bytes = builder.compile()
+
+    # Write to target path
+    out_abs = os.path.abspath(output_path)
+    os.makedirs(os.path.dirname(out_abs) if os.path.dirname(out_abs) else ".", exist_ok=True)
+    with open(out_abs, "wb") as f:
+        f.write(pdf_bytes)
+
+    logger_msg = f"[MANUAL] PDF generado exitosamente en: {out_abs} ({len(pdf_bytes):,} bytes)"
+    print(logger_msg)
+    return out_abs
+
+
+if __name__ == "__main__":
+    target = sys.argv[1] if len(sys.argv) > 1 else "Manual_Liseth.pdf"
+    generate_manual_pdf(target)

@@ -34,7 +34,7 @@ _APP_ALIASES: dict[str, dict[str, str]] = {
     "vscode":             {"Windows": "code",                    "Darwin": "Visual Studio Code",   "Linux": "code"},
     "visual studio code": {"Windows": "code",                    "Darwin": "Visual Studio Code",   "Linux": "code"},
     "code":               {"Windows": "code",                    "Darwin": "Visual Studio Code",   "Linux": "code"},
-    "terminal":           {"Windows": "wt",                      "Darwin": "Terminal",             "Linux": "gnome-terminal"},
+    "terminal":           {"Windows": "wt",                      "Darwin": "Terminal",             "Linux": "x-terminal-emulator"},
     "cmd":                {"Windows": "cmd.exe",                 "Darwin": "Terminal",             "Linux": "bash"},
     "powershell":         {"Windows": "powershell.exe",          "Darwin": "Terminal",             "Linux": "bash"},
     "postman":            {"Windows": "Postman",                 "Darwin": "Postman",              "Linux": "postman"},
@@ -62,6 +62,33 @@ _APP_ALIASES: dict[str, dict[str, str]] = {
     "steam":              {"Windows": "steam",                   "Darwin": "Steam",                "Linux": "steam"},
     "epic":               {"Windows": "EpicGamesLauncher",       "Darwin": "Epic Games Launcher",  "Linux": "legendary"},
     "epic games":         {"Windows": "EpicGamesLauncher",       "Darwin": "Epic Games Launcher",  "Linux": "legendary"},
+
+    # ── ALIASES EN ESPAÑOL ──────────────────────────────────────────────────
+    "calculadora":        {"Windows": "calc.exe",                "Darwin": "Calculator",           "Linux": "gnome-calculator"},
+    "bloc de notas":      {"Windows": "notepad.exe",             "Darwin": "TextEdit",             "Linux": "gedit"},
+    "notas":              {"Windows": "notepad.exe",             "Darwin": "TextEdit",             "Linux": "gedit"},
+    "explorador de archivos": {"Windows": "explorer.exe",        "Darwin": "Finder",               "Linux": "nautilus"},
+    "explorador":         {"Windows": "explorer.exe",            "Darwin": "Finder",               "Linux": "nautilus"},
+    "archivos":           {"Windows": "explorer.exe",            "Darwin": "Finder",               "Linux": "nautilus"},
+    "configuracion":      {"Windows": "ms-settings:",            "Darwin": "System Preferences",   "Linux": "gnome-control-center"},
+    "configuración":      {"Windows": "ms-settings:",            "Darwin": "System Preferences",   "Linux": "gnome-control-center"},
+    "ajustes":            {"Windows": "ms-settings:",            "Darwin": "System Preferences",   "Linux": "gnome-control-center"},
+    "administrador de tareas": {"Windows": "taskmgr.exe",        "Darwin": "Activity Monitor",     "Linux": "gnome-system-monitor"},
+    "simbolo del sistema":{"Windows": "cmd.exe",                 "Darwin": "Terminal",             "Linux": "bash"},
+    "musica":             {"Windows": "Spotify",                 "Darwin": "Spotify",              "Linux": "spotify"},
+    "música":             {"Windows": "Spotify",                 "Darwin": "Spotify",              "Linux": "spotify"},
+    "reproductor":        {"Windows": "wmplayer.exe",            "Darwin": "VLC",                  "Linux": "vlc"},
+    "navegador":          {"Windows": "chrome",                  "Darwin": "Google Chrome",        "Linux": "google-chrome"},
+    "camara":             {"Windows": "microsoft.windows.camera:", "Darwin": "Photo Booth",       "Linux": "cheese"},
+    "cámara":             {"Windows": "microsoft.windows.camera:", "Darwin": "Photo Booth",       "Linux": "cheese"},
+    "fotos":              {"Windows": "ms-photos:",              "Darwin": "Photos",               "Linux": "eog"},
+    "tienda":             {"Windows": "ms-windows-store:",       "Darwin": "App Store",            "Linux": "gnome-software"},
+    "reloj":              {"Windows": "ms-clock:",               "Darwin": "Clock",                "Linux": "gnome-clocks"},
+    "alarma":             {"Windows": "ms-clock:",               "Darwin": "Clock",                "Linux": "gnome-clocks"},
+    "correo":             {"Windows": "mailto:",                 "Darwin": "Mail",                 "Linux": "thunderbird"},
+    "youtube":            {"Windows": "https://youtube.com",     "Darwin": "https://youtube.com",  "Linux": "https://youtube.com"},
+    "gmail":              {"Windows": "https://mail.google.com", "Darwin": "https://mail.google.com", "Linux": "https://mail.google.com"},
+    "whatsapp web":       {"Windows": "https://web.whatsapp.com","Darwin": "https://web.whatsapp.com", "Linux": "https://web.whatsapp.com"},
 }
 
 
@@ -78,7 +105,44 @@ def _normalize(raw: str) -> str:
     return raw  
 
 def _launch_windows(app_name: str) -> bool:
+    import os
 
+    # 1. URL / Protocol handler (e.g. https://, ms-settings:, calc.exe)
+    if app_name.startswith("http://") or app_name.startswith("https://") or ":" in app_name:
+        try:
+            os.startfile(app_name)
+            time.sleep(0.5)
+            return True
+        except Exception:
+            try:
+                subprocess.Popen(f'start "" "{app_name}"', shell=True)
+                time.sleep(0.5)
+                return True
+            except Exception:
+                pass
+
+    # 2. Native os.startfile for registered Windows App Paths & executables
+    try:
+        os.startfile(app_name)
+        time.sleep(0.5)
+        return True
+    except Exception:
+        pass
+
+    # 3. Windows cmd start command
+    try:
+        subprocess.Popen(
+            f'start "" "{app_name}"',
+            shell=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        time.sleep(0.5)
+        return True
+    except Exception:
+        pass
+
+    # 4. PATH lookup with shutil.which
     if shutil.which(app_name) or shutil.which(app_name.split(".")[0]):
         try:
             subprocess.Popen(
@@ -87,28 +151,21 @@ def _launch_windows(app_name: str) -> bool:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            time.sleep(1.5)
+            time.sleep(0.5)
             return True
         except Exception as e:
             print(f"[open_app] subprocess failed: {e}")
 
-    if ":" in app_name:
-        try:
-            subprocess.Popen(f"start {app_name}", shell=True)
-            time.sleep(1.0)
-            return True
-        except Exception:
-            pass
-
+    # 5. Start Menu search fallback
     try:
         import pyautogui
-        pyautogui.PAUSE = 0.1
+        pyautogui.PAUSE = 0.05
         pyautogui.press("win")
-        time.sleep(0.7)
-        pyautogui.write(app_name, interval=0.05)
-        time.sleep(0.9)
+        time.sleep(0.4)
+        pyautogui.write(app_name, interval=0.03)
+        time.sleep(0.5)
         pyautogui.press("enter")
-        time.sleep(2.5)
+        time.sleep(1.0)
         return True
     except Exception as e:
         print(f"[open_app] Start Menu search failed: {e}")
@@ -168,7 +225,23 @@ def _launch_macos(app_name: str) -> bool:
     return False
 
 
+_LINUX_TERMINAL_FALLBACKS = [
+    "x-terminal-emulator", "gnome-terminal", "konsole", "xfce4-terminal",
+    "xterm", "lxterminal", "mate-terminal", "tilix", "alacritty", "kitty",
+]
+
 def _launch_linux(app_name: str) -> bool:
+
+    # terminal emulators: try common ones in order
+    if app_name in ("x-terminal-emulator", "gnome-terminal", "terminal"):
+        for term in _LINUX_TERMINAL_FALLBACKS:
+            if shutil.which(term):
+                try:
+                    subprocess.Popen([term], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    time.sleep(1.0)
+                    return True
+                except Exception:
+                    continue
 
     binary = (
         shutil.which(app_name) or
@@ -255,3 +328,23 @@ def open_app(
     except Exception as e:
         print(f"[open_app] Error: {e}")
         return f"Failed to open {app_name}: {e}"
+
+
+# ── Tool declaration (auto-discovered by core/action_loader.py) ──────────────
+TOOL = {
+    "name": "open_app",
+    "description": "Opens any application on the computer. Use this whenever the user asks to open, launch, or start any app, website, or program. Always call this tool — never just say you opened it.",
+    "parameters": {
+        "type": "OBJECT",
+        "properties": {
+            "app_name": {
+                "type": "STRING",
+                "description": "Exact name of the application (e.g. 'WhatsApp', 'Chrome', 'Spotify')"
+            }
+        },
+        "required": [
+            "app_name"
+        ]
+    },
+    "handler": open_app,
+}

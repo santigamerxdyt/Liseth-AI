@@ -2853,6 +2853,18 @@
       box-shadow: 0 0 14px var(--accent-glow);
     }
 
+    .hud-view-toggle-btn.has-unread {
+      color: #38ef7d !important;
+      border-color: #38ef7d !important;
+      box-shadow: 0 0 16px rgba(56, 239, 125, 0.5) !important;
+      animation: pulse-console-btn 1.6s infinite ease-in-out;
+    }
+
+    @keyframes pulse-console-btn {
+      0%, 100% { box-shadow: 0 0 8px rgba(56, 239, 125, 0.35); transform: scale(1); }
+      50% { box-shadow: 0 0 20px rgba(56, 239, 125, 0.75); transform: scale(1.03); }
+    }
+
     /* ======================================================== */
     /* MODAL: ESTUDIO DE PERSONALIZACIÓN COMPLETO               */
     /* ======================================================== */

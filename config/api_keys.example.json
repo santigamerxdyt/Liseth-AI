@@ -1,0 +1,9 @@
+{
+    "gemini_api_key": "TU_API_KEY_AQUI",
+    "os_system": "windows",
+    "camera_index": 0,
+    "home_assistant": {
+        "url": "http://homeassistant.local:8123",
+        "token": ""
+    }
+}

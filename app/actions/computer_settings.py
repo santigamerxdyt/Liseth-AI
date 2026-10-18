@@ -21,7 +21,15 @@ try:
 except ImportError:
     _PYPERCLIP = False
 
+from core import confirm
+from core.undo import push_undo
+
 _OS = platform.system()  # "Windows" | "Darwin" | "Linux"
+
+if _OS == "Windows":
+    _WIN_HIDE: dict = {"creationflags": subprocess.CREATE_NO_WINDOW}
+else:
+    _WIN_HIDE: dict = {}
 
 
 def _get_base_dir() -> Path:
@@ -82,6 +90,75 @@ def volume_mute():
         subprocess.run(["pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle"],
             capture_output=True)
 
+def volume_get() -> int | None:
+    """Current master volume 0-100, or None if this platform will not say.
+
+    Undo needs a "before" value, and reading one is cheap on every OS we
+    support. Where it is not readable the action simply is not registered as
+    undoable — a wrong undo is worse than no undo."""
+    try:
+        if _OS == "Windows":
+            import math
+            from ctypes import cast, POINTER
+            from comtypes import CLSCTX_ALL
+            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            devices   = AudioUtilities.GetSpeakers()
+            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+            vol       = cast(interface, POINTER(IAudioEndpointVolume))
+            db        = vol.GetMasterVolumeLevel()
+            if db <= -65.0:
+                return 0
+            return max(0, min(100, round(10 ** (db / 20) * 100)))
+        if _OS == "Darwin":
+            r = subprocess.run(["osascript", "-e", "output volume of (get volume settings)"],
+                               capture_output=True, text=True, timeout=5)
+            return max(0, min(100, int(r.stdout.strip())))
+        r = subprocess.run(["pactl", "get-sink-volume", "@DEFAULT_SINK@"],
+                           capture_output=True, text=True, timeout=5)
+        m = re.search(r"(\d+)%", r.stdout)
+        return max(0, min(100, int(m.group(1)))) if m else None
+    except Exception:
+        return None
+
+
+def brightness_get() -> int | None:
+    """Current brightness 0-100, or None where it cannot be read."""
+    try:
+        if _OS == "Windows":
+            r = subprocess.run(
+                ["powershell", "-Command",
+                 "(Get-WmiObject -Namespace root/wmi -Class WmiMonitorBrightness)"
+                 ".CurrentBrightness"],
+                capture_output=True, text=True, timeout=5, **_WIN_HIDE
+            )
+            return max(0, min(100, int(r.stdout.strip())))
+        if _OS == "Linux" and subprocess.run(
+                ["which", "brightnessctl"], capture_output=True).returncode == 0:
+            cur = int(subprocess.run(["brightnessctl", "get"],
+                                     capture_output=True, text=True, timeout=5).stdout.strip())
+            mx  = int(subprocess.run(["brightnessctl", "max"],
+                                     capture_output=True, text=True, timeout=5).stdout.strip())
+            return max(0, min(100, round(cur * 100 / mx))) if mx else None
+    except Exception:
+        pass
+    return None
+
+
+def brightness_set(value: int) -> None:
+    """Set brightness to an absolute percentage. Only used to restore a value
+    captured before a change, so it is undo's counterpart to the up/down pair."""
+    value = max(0, min(100, int(value)))
+    if _OS == "Windows":
+        subprocess.run(
+            ["powershell", "-Command",
+             "(Get-WmiObject -Namespace root/wmi -Class WmiMonitorBrightnessMethods)"
+             f".WmiSetBrightness(1, {value})"],
+            capture_output=True, timeout=5, **_WIN_HIDE
+        )
+    elif _OS == "Linux":
+        subprocess.run(["brightnessctl", "set", f"{value}%"], capture_output=True)
+
+
 def volume_set(value: int):
     value = max(0, min(100, int(value)))
     if _OS == "Windows":
@@ -133,7 +210,7 @@ def brightness_up():
                  "(Get-WmiObject -Namespace root/wmi -Class WmiMonitorBrightnessMethods)"
                  ".WmiSetBrightness(1, [math]::Min(100, "
                  "(Get-WmiObject -Namespace root/wmi -Class WmiMonitorBrightness).CurrentBrightness + 10))"],
-                capture_output=True, timeout=5
+                capture_output=True, timeout=5, **_WIN_HIDE
             )
         except Exception as e:
             print(f"[Settings] Brightness up failed on Windows: {e}")
@@ -162,7 +239,7 @@ def brightness_down():
                  "(Get-WmiObject -Namespace root/wmi -Class WmiMonitorBrightnessMethods)"
                  ".WmiSetBrightness(1, [math]::Max(0, "
                  "(Get-WmiObject -Namespace root/wmi -Class WmiMonitorBrightness).CurrentBrightness - 10))"],
-                capture_output=True, timeout=5
+                capture_output=True, timeout=5, **_WIN_HIDE
             )
         except Exception as e:
             print(f"[Settings] Brightness down failed on Windows: {e}")
@@ -201,7 +278,14 @@ def maximize_window():
 def snap_left():
     if _OS == "Windows":
         pyautogui.hotkey("win", "left")
-    elif _OS == "Linux":
+    elif _OS == "Darwin":
+        # macOS has no built-in snap; try Rectangle app shortcut if installed
+        try:
+            subprocess.run(["open", "-a", "Rectangle"], capture_output=True, timeout=1)
+        except Exception:
+            pass
+        pyautogui.hotkey("ctrl", "option", "left")
+    else:  # Linux
         try:
             subprocess.run(["wmctrl", "-r", ":ACTIVE:", "-e", "0,0,0,960,1080"],
                 capture_output=True)
@@ -211,7 +295,13 @@ def snap_left():
 def snap_right():
     if _OS == "Windows":
         pyautogui.hotkey("win", "right")
-    elif _OS == "Linux":
+    elif _OS == "Darwin":
+        try:
+            subprocess.run(["open", "-a", "Rectangle"], capture_output=True, timeout=1)
+        except Exception:
+            pass
+        pyautogui.hotkey("ctrl", "option", "right")
+    else:  # Linux
         try:
             subprocess.run(["wmctrl", "-r", ":ACTIVE:", "-e", "0,960,0,960,1080"],
                 capture_output=True)
@@ -243,7 +333,79 @@ def focus_search():
     if _OS == "Darwin": pyautogui.hotkey("command", "l")
     else:               pyautogui.hotkey("ctrl", "l")
 
-def pause_video():      pyautogui.press("space")
+def media_play_pause():
+    """Toggles play/pause globally via Windows virtual keys or active player."""
+    if _OS == "Windows":
+        try:
+            import ctypes
+            ctypes.windll.user32.keybd_event(0xB3, 0, 0, 0)
+            ctypes.windll.user32.keybd_event(0xB3, 0, 2, 0)
+            return "Reproducción alternada (Play/Pause)."
+        except Exception:
+            pass
+    pyautogui.press("space")
+    return "Play/Pause ejecutado."
+
+def pause_video():
+    return media_play_pause()
+
+def media_next():
+    """Skips to the next track globally."""
+    if _OS == "Windows":
+        try:
+            import ctypes
+            ctypes.windll.user32.keybd_event(0xB0, 0, 0, 0)
+            ctypes.windll.user32.keybd_event(0xB0, 0, 2, 0)
+            return "Pista siguiente reproducida."
+        except Exception:
+            pass
+    return "Pista siguiente enviada."
+
+def media_prev():
+    """Returns to the previous track globally."""
+    if _OS == "Windows":
+        try:
+            import ctypes
+            ctypes.windll.user32.keybd_event(0xB1, 0, 0, 0)
+            ctypes.windll.user32.keybd_event(0xB1, 0, 2, 0)
+            return "Pista anterior reproducida."
+        except Exception:
+            pass
+    return "Pista anterior enviada."
+
+def media_stop():
+    """Stops global media playback."""
+    if _OS == "Windows":
+        try:
+            import ctypes
+            ctypes.windll.user32.keybd_event(0xB2, 0, 0, 0)
+            ctypes.windll.user32.keybd_event(0xB2, 0, 2, 0)
+            return "Reproducción detenida."
+        except Exception:
+            pass
+    return "Stop enviado."
+
+def spotify_play(query: str = "") -> str:
+    """Launches Spotify URI or searches a track directly."""
+    import urllib.parse
+    q = (query or "").strip()
+    if q:
+        enc = urllib.parse.quote(q)
+        if _OS == "Windows":
+            os.system(f'start spotify:search:"{q}"')
+        elif _OS == "Darwin":
+            os.system(f'open "spotify:search:{enc}"')
+        else:
+            os.system(f'xdg-open "spotify:search:{enc}"')
+        return f"Buscando y reproduciendo '{q}' en Spotify, señor Santiago."
+    else:
+        if _OS == "Windows":
+            os.system("start spotify:")
+        elif _OS == "Darwin":
+            os.system("open -a Spotify")
+        else:
+            os.system("spotify &")
+        return "Spotify abierto exitosamente, señor Santiago."
 
 def refresh_page():
     if _OS == "Darwin": pyautogui.hotkey("command", "r")
@@ -470,7 +632,7 @@ def toggle_wifi():
                  "$adapter = Get-NetAdapter | Where-Object {$_.PhysicalMediaType -eq 'Native 802.11'};"
                  "if ($adapter.Status -eq 'Up') { Disable-NetAdapter -Name $adapter.Name -Confirm:$false }"
                  "else { Enable-NetAdapter -Name $adapter.Name -Confirm:$false }"],
-                capture_output=True, timeout=10
+                capture_output=True, timeout=10, **_WIN_HIDE
             )
         except Exception as e:
             print(f"[Settings] toggle_wifi Windows failed: {e}")
@@ -484,7 +646,7 @@ def toggle_wifi():
 
 def restart_computer():
     if _OS == "Windows":
-        subprocess.run(["shutdown", "/r", "/t", "10"], capture_output=True)
+        subprocess.run(["shutdown", "/r", "/t", "10"], capture_output=True, **_WIN_HIDE)
     elif _OS == "Darwin":
         subprocess.run(["osascript", "-e",
             'tell application "System Events" to restart'],
@@ -505,6 +667,7 @@ def shutdown_computer():
 ACTION_MAP: dict[str, callable] = {
     "volume_up":           volume_up,
     "volume_down":         volume_down,
+    "volume_mute":         volume_mute,
     "mute":                volume_mute,
     "unmute":              volume_mute,
     "toggle_mute":         volume_mute,
@@ -514,12 +677,21 @@ ACTION_MAP: dict[str, callable] = {
     "screen_off":          sleep_display,
     "pause_video":         pause_video,
     "play_pause":          pause_video,
+    "media_play_pause":    media_play_pause,
+    "media_next":          media_next,
+    "next_track":          media_next,
+    "media_prev":          media_prev,
+    "prev_track":          media_prev,
+    "media_stop":          media_stop,
+    "spotify_play":        spotify_play,
     "close_app":           close_app,
     "close_window":        close_window,
     "full_screen":         full_screen,
     "fullscreen":          full_screen,
     "minimize":            minimize_window,
+    "minimize_window":     minimize_window,
     "maximize":            maximize_window,
+    "maximize_window":     maximize_window,
     "snap_left":           snap_left,
     "snap_right":          snap_right,
     "switch_window":       switch_window,
@@ -564,44 +736,148 @@ ACTION_MAP: dict[str, callable] = {
     "shutdown":            shutdown_computer,
 }
 
-_DANGEROUS_ACTIONS = {"restart", "shutdown"}
+# ── What needs a human, and what just needs an undo ──────────────────────────
+#
+# The old gate was `_DANGEROUS_ACTIONS = {"restart", "shutdown"}` checked against
+# a `confirmed` parameter the MODEL filled in — so the model confirmed its own
+# shutdowns, and everything else (switching off the WiFi this assistant is
+# talking over) had no gate at all.
+#
+# Two lists now, and the split is about reversibility, not about how alarming
+# the word sounds:
+#
+#   _IRREVERSIBLE — a human presses a button on the HUD. Nothing else.
+#   everything else — done immediately, with an undo pushed if it can be undone.
+#
+# Asking before every action is what makes an assistant unusable, and every
+# question costs a round trip. Undo is both faster and safer than a prompt.
+_IRREVERSIBLE = {
+    "restart":     ("Restart this computer",
+                    "Anything unsaved will be lost. The computer restarts in 10 seconds."),
+    "shutdown":    ("Shut this computer down",
+                    "Anything unsaved will be lost. The computer powers off in 10 seconds."),
+    # Not obviously destructive, and that is exactly why it was missed: turning
+    # the WiFi off cuts the assistant's own connection to the Live API, so it
+    # cannot be asked to turn it back on.
+    "toggle_wifi": ("Switch WiFi off or on",
+                    "If this switches WiFi off, JARVIS loses its connection and "
+                    "cannot switch it back on by voice."),
+}
 
+# Kept so anything still importing the old name keeps working.
+_DANGEROUS_ACTIONS = set(_IRREVERSIBLE)
+
+
+# ── Local intent resolution ──────────────────────────────────────────────────
+#
+# This used to be an entire extra Gemini call, made INSIDE the tool: the Live
+# model called computer_settings, and computer_settings then asked a second
+# model which action was meant. Every "turn the volume down" paid for two round
+# trips — and when that second call failed, the fallback was
+# `description.lower().replace(" ", "_")`, which turns the Turkish for "turn it
+# down" into `sesi_kis`, i.e. straight to "Unknown action".
+#
+# Nothing here needs a language model. The Live model already understands the
+# sentence; it only needed the vocabulary, which the tool declaration now spells
+# out in full. What is left is spelling tolerance, and difflib does that in
+# microseconds instead of ~600 ms and a quota unit.
+_ALIASES = {
+    "volume_up":       ("louder", "raise volume", "turn it up", "increase volume",
+                        "subir volumen", "sube el volumen", "mas volumen", "más volumen", "aumentar volumen", "aumenta el volumen"),
+    "volume_down":     ("quieter", "lower volume", "turn it down", "decrease volume",
+                        "bajar volumen", "baja el volumen", "menos volumen", "disminuir volumen", "disminuye el volumen"),
+    "volume_mute":     ("silence", "sound off", "no sound", "mute",
+                        "silenciar", "mutear", "sin sonido", "silencio", "quitar sonido"),
+    "mute":            ("silence", "sound off", "no sound",
+                        "silenciar", "mutear", "sin sonido", "silencio", "quitar sonido"),
+    "brightness_up":   ("brighter", "raise brightness", "increase brightness",
+                        "subir brillo", "sube el brillo", "mas brillo", "más brillo", "aumentar brillo"),
+    "brightness_down": ("dimmer", "dim", "lower brightness", "decrease brightness",
+                        "bajar brillo", "baja el brillo", "menos brillo", "disminuir brillo"),
+    "close_window":    ("close this", "close it", "cerrar ventana", "cierra la ventana", "cierra esto", "cerrar"),
+    "full_screen":     ("fullscreen", "maximise screen", "pantalla completa", "maximizar"),
+    "minimize_window": ("minimise everything", "go to desktop", "mostrar escritorio", "muestra el escritorio", "minimizar todo", "minimiza las ventanas"),
+    "show_desktop":    ("minimise everything", "go to desktop", "mostrar escritorio", "muestra el escritorio", "minimizar todo"),
+    "lock_screen":     ("lock", "lock the pc", "lock computer",
+                        "bloquear pantalla", "bloquea la pantalla", "bloquear pc", "bloquea la pc", "bloquear equipo"),
+    "sleep_display":   ("screen off", "turn off the screen", "display off", "apagar pantalla", "apaga la pantalla"),
+    "dark_mode":       ("night mode", "light mode", "toggle theme", "modo oscuro", "modo claro"),
+    "toggle_wifi":     ("wifi", "wi-fi", "internet off", "internet on"),
+    "task_manager":    ("processes", "task list", "administrador de tareas", "procesos"),
+    "take_screenshot": ("capture screen", "take a screenshot", "snip",
+                        "captura de pantalla", "toma una captura", "screenshot", "pantallazo", "capturar pantalla"),
+    "screenshot":      ("capture screen", "take a screenshot", "snip",
+                        "captura de pantalla", "toma una captura", "screenshot", "pantallazo", "capturar pantalla"),
+    "refresh_page":    ("refresh", "reload page", "recargar", "actualizar", "refrescar"),
+    "new_tab":         ("open a tab", "open new tab", "nueva pestaña"),
+    "media_play_pause": ("pausa la musica", "pausar musica", "reanudar musica", "pausa el video", "pausar video", "play pause", "pausar"),
+    "media_next":       ("siguiente cancion", "pasa la cancion", "siguiente cancion en spotify", "siguiente pista", "next song", "next track", "pasa la musica", "siguiente"),
+    "media_prev":       ("cancion anterior", "anterior cancion", "pista anterior", "previous song", "prev track", "cancion previa", "retroceder cancion"),
+    "media_stop":       ("detener musica", "para la musica", "parar musica", "deten la musica", "stop music"),
+    "shutdown":        ("power off", "turn off the computer", "switch off the pc", "apagar equipo", "apagar la pc"),
+    "restart":         ("reboot", "restart the pc", "reiniciar equipo", "reiniciar la pc"),
+}
+
+_VALUE_ACTIONS = {"volume_set", "type_text", "press_key", "reload_n",
+                  "scroll_up", "scroll_down"}
+
+
+def _normalise(text: str) -> str:
+    return (text or "").strip().lower().replace("-", "_").replace(" ", "_")
 
 
 def _detect_action(description: str) -> dict:
+    """Resolve a free-text description to an action name, locally.
 
-    import google.generativeai as genai
-    genai.configure(api_key=_get_api_key())
-    model = genai.GenerativeModel("gemini-2.5-flash-lite")
+    Returns {"action": name, "value": ...}; `action` is "" when nothing matched,
+    which the caller turns into a message naming real candidates — one round
+    trip, and only in the case that used to cost one anyway."""
+    raw  = (description or "").strip()
+    norm = _normalise(raw)
+    if not norm:
+        return {"action": "", "value": None}
 
-    available = ", ".join(sorted(ACTION_MAP.keys())) + \
-                ", volume_set, type_text, press_key, reload_n"
+    known = set(ACTION_MAP) | _VALUE_ACTIONS
 
-    prompt = f"""You are an intent detector for a computer control assistant.
+    # 1. Already an action name.
+    if norm in known:
+        return {"action": norm, "value": None}
 
-The user issued a command (possibly in any language): "{description}"
+    low = raw.lower()
 
-Available actions: {available}
+    # 2. "set volume to 30", "pon el volumen al 50", "sesi 30 yap" — a number next to a volume word.
+    num = re.search(r"(\d{1,3})\s*%?", low)
+    if num and any(w in low for w in ("volume", "volumen", "ses", "sound", "sonido", "lautstark", "громкость")):
+        return {"action": "volume_set", "value": max(0, min(100, int(num.group(1))))}
 
-Return ONLY a valid JSON object:
-{{"action": "action_name", "value": null_or_value}}
+    # 3. Alias phrases.
+    for action, phrases in _ALIASES.items():
+        if any(_normalise(p) == norm or p in low for p in phrases):
+            return {"action": action, "value": None}
 
-Rules:
-- Pick the single best matching action from the available list.
-- For volume_set: value is an integer 0-100.
-- For type_text: value is the exact text to type.
-- For press_key: value is the key name (e.g. "f5", "tab", "enter").
-- For reload_n: value is an integer (number of times to reload).
-- If no clear match, pick the closest action.
-- Return ONLY the JSON, no explanation, no markdown."""
+    # 4. Fuzzy match on the action names — catches "fullscren", "volumeup".
+    import difflib
+    close = difflib.get_close_matches(norm, sorted(known), n=1, cutoff=0.72)
+    if close:
+        return {"action": close[0], "value": None}
 
-    try:
-        resp = model.generate_content(prompt)
-        text = re.sub(r"```(?:json)?", "", resp.text).strip().rstrip("`").strip()
-        return json.loads(text)
-    except Exception as e:
-        print(f"[Settings] Intent detection failed: {e}")
-        return {"action": description.lower().replace(" ", "_"), "value": None}
+    # 5. Substring: "increase_the_brightness" contains "brightness".
+    for action in sorted(known, key=len, reverse=True):
+        if len(action) > 4 and (action in norm or norm in action):
+            return {"action": action, "value": None}
+
+    return {"action": "", "value": None}
+
+
+def _suggest(description: str) -> str:
+    """What to tell the model when nothing matched. Names real actions so its
+    retry lands, instead of the old 'Unknown action' dead end."""
+    import difflib
+    near = difflib.get_close_matches(_normalise(description),
+                                     sorted(ACTION_MAP), n=5, cutoff=0.3)
+    hint = ", ".join(near) if near else ", ".join(sorted(ACTION_MAP)[:12])
+    return (f"I could not match '{description}' to a computer action. "
+            f"Call computer_settings again with an exact `action` from: {hint}.")
 
 def computer_settings(
     parameters: dict = None,
@@ -626,24 +902,39 @@ def computer_settings(
     action = raw_action.lower().strip().replace(" ", "_").replace("-", "_")
 
     if not action:
-        return "No action could be determined."
+        return _suggest(description or raw_action)
 
     print(f"[Settings] Action: {action}  Value: {value}  OS: {_OS}")
     if player:
         player.write_log(f"[Settings] {action}")
 
-    if action in _DANGEROUS_ACTIONS:
-        confirmed = str(params.get("confirmed", "")).lower()
-        if confirmed not in ("yes", "true", "1", "confirm"):
-            return (
-                f"This will {action} the computer. "
-                f"Please confirm by calling again with confirmed=yes."
-            )
+    # ── The gate ─────────────────────────────────────────────────────────────
+    # A human presses a button, or this does not happen. The model can no longer
+    # write its own permission slip, and the action itself is handed to the UI
+    # rather than performed here — so returning early is not "declining", it is
+    # "parked until someone says yes".
+    if action in _IRREVERSIBLE:
+        title, detail = _IRREVERSIBLE[action]
+        func = ACTION_MAP.get(action)
+        if func is None:
+            return f"Unknown action: '{raw_action}'."
+        if confirm.pending_title():
+            return ("There is already a confirmation waiting on screen. "
+                    "Ask the user to answer that one first.")
+        return confirm.request(
+            key=action, title=title, detail=detail,
+            run=lambda f=func, a=action: (f(), f"{a} done.")[1],
+        )
 
     if action == "volume_set":
         try:
-            volume_set(int(value or 50))
-            return f"Volume set to {value}%."
+            target = int(value if value is not None else 50)
+            before = volume_get()
+            volume_set(target)
+            if before is not None:
+                push_undo(f"volume {before}% → {target}%",
+                          lambda b=before: (volume_set(b), f"Back to {b}%.")[1])
+            return f"Volume set to {target}%."
         except Exception as e:
             return f"Could not set volume: {e}"
 
@@ -677,13 +968,97 @@ def computer_settings(
         scroll_down(int(value or 500))
         return "Scrolled down."
 
+    if action == "spotify_play":
+        q = str(value or params.get("query", "") or params.get("text", "")).strip()
+        return spotify_play(q)
+
     func = ACTION_MAP.get(action)
     if not func:
-        return f"Unknown action: '{raw_action}'."
+        return _suggest(raw_action or description)
+
+    # ── Capture "before" so the change can be taken back ─────────────────────
+    # Read-then-write is the whole mechanism for settings: there is no clever
+    # inverse to compute, just a value to remember. Where the platform will not
+    # tell us the current value, nothing is registered — an undo that restores
+    # a guess is worse than no undo at all.
+    _before = None
+    if action in ("volume_up", "volume_down", "mute", "unmute", "toggle_mute"):
+        _before = ("volume", volume_get())
+    elif action in ("brightness_up", "brightness_down"):
+        _before = ("brightness", brightness_get())
 
     try:
         func()
-        return f"Done: {action}."
     except Exception as e:
         print(f"[Settings] Action failed ({action}): {e}")
         return f"Action failed ({action}): {e}"
+
+    if _before:
+        kind, old = _before
+        if old is not None:
+            if kind == "volume":
+                push_undo(f"volume ({action})",
+                          lambda b=old: (volume_set(b), f"Volume back to {b}%.")[1])
+            elif kind == "brightness":
+                push_undo(f"brightness ({action})",
+                          lambda b=old: (brightness_set(b), f"Brightness back to {b}%.")[1])
+    elif action == "dark_mode":
+        # A pure toggle: calling it again is the undo.
+        push_undo("dark mode toggled",
+                  lambda: (dark_mode(), "Theme switched back.")[1])
+
+    return f"Done: {action}."
+
+
+# ── Tool declaration (auto-discovered by core/action_loader.py) ──────────────
+TOOL = {
+    "name": "computer_settings",
+    "description": "Controls the computer: volume, brightness, window management, keyboard shortcuts, typing text on screen, closing apps, fullscreen, dark mode, WiFi, restart, shutdown, scrolling, tab management, zoom, screenshots, lock screen, refresh/reload page. Use for ANY single computer control command. restart, shutdown and toggle_wifi put a confirmation on the user's screen and do NOT happen until they press it — never claim they are done. Volume, brightness and dark mode can be reversed with the `undo` tool.",
+    "parameters": {
+        "type": "OBJECT",
+        "properties": {
+            # The exact vocabulary, spelled out.
+            #
+            # This used to say only "The action to perform", so the model
+            # usually filled `description` instead — and computer_settings then
+            # made a SECOND Gemini call, inside the tool, purely to translate
+            # that sentence into one of these names. Every "turn the volume
+            # down" cost two model round trips.
+            #
+            # Naming the actions here costs ~600 characters once per session and
+            # removes a whole round trip from every computer command.
+            "action": {
+                "type": "STRING",
+                "description": (
+                    "The exact action. Prefer this over `description` — pick one of: "
+                    "volume_up | volume_down | volume_set | mute | "
+                    "brightness_up | brightness_down | sleep_display | "
+                    "pause_video | close_app | close_window | full_screen | "
+                    "minimize | maximize | snap_left | snap_right | "
+                    "switch_window | show_desktop | task_manager | focus_search | "
+                    "refresh_page | close_tab | new_tab | next_tab | prev_tab | "
+                    "go_back | go_forward | zoom_in | zoom_out | zoom_reset | "
+                    "find_on_page | scroll_up | scroll_down | scroll_top | "
+                    "scroll_bottom | page_up | page_down | copy | paste | cut | "
+                    "undo | redo | select_all | save | enter | escape | press_key | "
+                    "type_text | screenshot | lock_screen | open_settings | "
+                    "file_explorer | open_run | dark_mode | toggle_wifi | "
+                    "restart | shutdown"
+                )
+            },
+            "description": {
+                "type": "STRING",
+                "description": (
+                    "Fallback only, when no action name above fits. "
+                    "Resolved locally — no extra model call."
+                )
+            },
+            "value": {
+                "type": "STRING",
+                "description": "Optional value: volume level 0-100, text to type, key name, etc."
+            }
+        },
+        "required": []
+    },
+    "handler": computer_settings,
+}

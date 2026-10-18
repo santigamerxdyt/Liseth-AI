@@ -15,7 +15,10 @@ BASE_DIR           = get_base_dir()
 API_CONFIG_PATH    = BASE_DIR / "config" / "api_keys.json"
 DESKTOP            = Path.home() / "Desktop"
 MAX_BUILD_ATTEMPTS = 3
-GEMINI_MODEL       = "gemini-2.5-flash"
+# Model choice lives in core/gemini.py, and so does the timeout and the
+# fallback ladder. Writing a model name here is what left this file hanging
+# forever whenever that one alias was unwell.
+from core import gemini
 
 
 def _get_api_key() -> str:
@@ -23,10 +26,17 @@ def _get_api_key() -> str:
         return json.load(f)["gemini_api_key"]
 
 
-def _get_gemini(model: str = GEMINI_MODEL):
-    import google.generativeai as genai
-    genai.configure(api_key=_get_api_key())
-    return genai.GenerativeModel(model)
+def _get_gemini(tier: str = gemini.SMART):
+    """Writing and fixing code is the reasoning tier; a 60s deadline because a
+    whole file can come back."""
+    class _W:
+        def generate_content(self, contents):
+            resp = gemini.call(contents, tier=tier, timeout_ms=60000)
+            if resp is None:
+                raise RuntimeError("every Gemini model on the ladder failed")
+            return resp
+
+    return _W()
 
 
 def _clean_code(text: str) -> str:
@@ -105,43 +115,53 @@ def _image_to_base64(path: Path) -> str:
     return base64.b64encode(path.read_bytes()).decode("utf-8")
 
 
+_VALID_INTENTS = {"write", "edit", "explain", "run", "build", "screen_debug", "optimize"}
+
+
 def _detect_intent(description: str, file_path: str, code: str) -> str:
-    desc = (description or "").lower()
+    """
+    Language-independent intent detection — NO fixed keyword list.
+    Whatever language the user speaks, the description is classified by
+    Gemini. If the API is unreachable, it falls back to language-agnostic
+    structural hints (does the file exist on disk, was code provided).
+    """
+    desc        = (description or "").strip()
+    file_exists = bool(file_path) and Path(file_path).exists()
 
-    screen_kw = ["ekrandaki", "screen", "ekranda", "bu hatayı", "why am i getting",
-                 "neden hata", "what's wrong", "ne yanlış", "screenshot", "görüntü"]
-    if any(k in desc for k in screen_kw):
-        return "screen_debug"
+    if desc:
+        try:
+            ctx = []
+            if file_path:
+                ctx.append(f"a file path is provided (exists on disk: {file_exists})")
+            if code:
+                ctx.append("an inline code snippet is provided")
+            prompt = (
+                "Classify a coding assistant request into exactly ONE intent word.\n"
+                "The request may be written in ANY language.\n\n"
+                f"Request: {desc}\n"
+                + (f"Context: {'; '.join(ctx)}\n" if ctx else "")
+                + "\nIntents:\n"
+                "  write        = create new code from scratch\n"
+                "  edit         = modify an existing file\n"
+                "  explain      = describe what given code/file does\n"
+                "  run          = execute an existing file\n"
+                "  build        = write code, run it, and iterate until it works\n"
+                "  screen_debug = analyze an error currently visible on the user's screen\n"
+                "  optimize     = refactor / clean up / speed up existing code\n\n"
+                "Reply with ONLY the intent word, nothing else."
+            )
+            ans = _get_gemini().generate_content(prompt).text.strip().lower()
+            ans = ans.strip("`'\". \n")
+            if ans in _VALID_INTENTS:
+                return ans
+        except Exception as e:
+            print(f"[Code] Intent classification failed ({e}) — structural fallback")
 
-    optimize_kw = ["optimize", "refactor", "clean up", "improve", "temizle",
-                   "iyileştir", "daha iyi", "make it better", "hızlandır"]
-    if any(k in desc for k in optimize_kw) and (code or file_path):
-        return "optimize"
-
-    if file_path:
-        p = Path(file_path)
-        edit_kw  = ["edit", "update", "modify", "change", "add", "remove",
-                    "refactor", "fix", "rename", "replace", "düzenle", "değiştir"]
-        run_kw   = ["run", "execute", "launch", "start", "çalıştır"]
-        build_kw = ["build", "make it work", "try", "attempt"]
-
-        if p.exists() and any(k in desc for k in edit_kw):
-            return "edit"
-        if p.exists() and any(k in desc for k in run_kw):
-            return "run"
-        if any(k in desc for k in build_kw):
-            return "build"
-        if p.exists():
-            return "explain"
-
-    explain_kw = ["explain", "what does", "describe", "analyze", "açıkla", "ne yapıyor"]
-    if any(k in desc for k in explain_kw) and (code or file_path):
+    # Structural fallback — not tied to any language
+    if file_exists:
+        return "edit" if desc else "explain"
+    if code:
         return "explain"
-
-    build_kw = ["build", "make it work", "try and", "attempt"]
-    if any(k in desc for k in build_kw):
-        return "build"
-
     return "write"
 
 def _write(description: str, language: str, output_path: str, player=None) -> tuple[str, Path]:
@@ -441,10 +461,7 @@ def _screen_debug_action(description, file_path, player, speak=None) -> str:
             print(f"[Code] ⚠️ Could not read file: {err}")
 
     try:
-        from google import genai
         from google.genai import types
-
-        client = genai.Client(api_key=_get_api_key())
 
         image_bytes  = screenshot_path.read_bytes()
         image_base64 = _image_to_base64(screenshot_path)
@@ -472,12 +489,11 @@ Be specific and actionable. If you see an error message, quote it exactly."""
             analysis_prompt,
         ]
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=contents,
-        )
+        response = gemini.call(contents, tier=gemini.SMART, timeout_ms=45_000)
+        if response is None:
+            return "Sir, I couldn't reach Gemini to analyse that screenshot."
 
-        analysis = response.text.strip()
+        analysis = (response.text or "").strip()
         print(f"[Code] ✅ Screen analysis complete")
 
         try:
@@ -567,3 +583,51 @@ def code_helper(
 
     else:
         return f"Unknown action: '{action}'. Use write, edit, explain, run, build, optimize, or screen_debug."
+
+
+# ── Tool declaration (auto-discovered by core/action_loader.py) ──────────────
+TOOL = {
+    "name": "code_helper",
+    "description": "Writes, edits, explains, runs, or builds code files.",
+    "parameters": {
+        "type": "OBJECT",
+        "properties": {
+            "action": {
+                "type": "STRING",
+                "description": "write | edit | explain | run | build | auto (default: auto)"
+            },
+            "description": {
+                "type": "STRING",
+                "description": "What the code should do or what change to make"
+            },
+            "language": {
+                "type": "STRING",
+                "description": "Programming language (default: python)"
+            },
+            "output_path": {
+                "type": "STRING",
+                "description": "Where to save the file"
+            },
+            "file_path": {
+                "type": "STRING",
+                "description": "Path to existing file for edit/explain/run/build"
+            },
+            "code": {
+                "type": "STRING",
+                "description": "Raw code string for explain"
+            },
+            "args": {
+                "type": "STRING",
+                "description": "CLI arguments for run/build"
+            },
+            "timeout": {
+                "type": "INTEGER",
+                "description": "Execution timeout in seconds (default: 30)"
+            }
+        },
+        "required": [
+            "action"
+        ]
+    },
+    "handler": code_helper,
+}

@@ -37,3 +37,12 @@ build/
 *.spec
 *claves*.txt
 *api*key*.txt
+config/api_keys.json
+
+# Scratch y archivos temporales
+scratch/
+.coverage
+htmlcov/
+*.tmp
+*.temp
+

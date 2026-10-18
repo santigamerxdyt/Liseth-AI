@@ -76,13 +76,22 @@ class VoiceEngine:
         self.is_thinking: bool = False
         self._thread: Optional[threading.Thread] = None
         self._recognizer = sr.Recognizer()
-        self._recognizer.energy_threshold = 300
+        self._recognizer.energy_threshold = 280
         self._recognizer.dynamic_energy_threshold = True
+        self._recognizer.pause_threshold = 0.5
+        self._recognizer.non_speaking_duration = 0.3
 
         self.last_transcript: str = ""
         self.last_role: str = ""
         self.last_activity_time: float = time.time()
         self.speech_end_time: float = 0.0
+
+        # Mark-LV Self-Echo Guard
+        try:
+            from app.core.echo import EchoGuard
+            self._echo_guard = EchoGuard()
+        except Exception:
+            self._echo_guard = None
 
         # Event subscribers for real-time SSE/WebSocket
         self._subscribers: List[asyncio.Queue] = []
@@ -165,7 +174,7 @@ class VoiceEngine:
                 pygame.mixer.init()
 
             import edge_tts
-            communicate = edge_tts.Communicate(text=text, voice=voice, rate="+5%", pitch="+15Hz")
+            communicate = edge_tts.Communicate(text=text, voice=voice, rate="+10%", pitch="+10Hz")
 
             # Stream into in-memory MP3 buffer
             async def get_audio_bytes():
@@ -178,6 +187,18 @@ class VoiceEngine:
             # Run coroutine safely
             audio_bytes = asyncio.run(get_audio_bytes())
             if audio_bytes:
+                if self._echo_guard:
+                    try:
+                        sound = pygame.mixer.Sound(io.BytesIO(audio_bytes))
+                        raw_arr = pygame.sndarray.array(sound)
+                        if len(raw_arr.shape) > 1:
+                            raw_arr = raw_arr[:, 0]
+                        tail_slice = raw_arr[-int(24000 * 1.5):]
+                        level = float(np.sqrt(np.mean(tail_slice.astype(np.float32) ** 2))) / 32768.0
+                        self._echo_guard.note_output(tail_slice, 24000, level)
+                    except Exception as e:
+                        logger.debug(f"[VoiceEngine] Error registrando salida en EchoGuard: {e}")
+
                 mp3_fp = io.BytesIO(audio_bytes)
                 pygame.mixer.music.load(mp3_fp)
                 pygame.mixer.music.play()
@@ -218,16 +239,34 @@ class VoiceEngine:
         def audio_callback(indata, frames, time_info, status):
             nonlocal is_recording_speech, silence_start_time
 
-            # Acoustic echo protection: discard input if Liseth is speaking or cooling down
-            if self.is_speaking or (time.time() - self.speech_end_time < 0.45):
-                return
-
             if self.state == "off":
                 return
 
             chunk = indata[:, 0]
             # RMS amplitude
             rms = float(np.sqrt(np.mean(chunk.astype(np.float32) ** 2)))
+            level = rms / 32768.0
+
+            # ── Acoustic Echo Protection ─────────────────────────────────────
+            # 1. While Liseth is speaking through speakers, mute mic input
+            if self.is_speaking:
+                return
+
+            # 2. Echo tail window (within 0.5s of speech finishing):
+            now = time.time()
+            if (now - self.speech_end_time) < 0.50:
+                if self._echo_guard:
+                    try:
+                        if not self._echo_guard.is_user_speech(chunk, RATE, level):
+                            return
+                        # Distinct user speech detected, cancel tail immediately
+                        self.speech_end_time = 0.0
+                    except Exception:
+                        return
+                else:
+                    return
+            elif self._echo_guard and self._echo_guard._hist:
+                self._echo_guard.reset()
 
             if rms > energy_threshold:
                 if not is_recording_speech:
@@ -253,12 +292,12 @@ class VoiceEngine:
 
                     # 1. Check for silence completion of spoken phrase
                     if is_recording_speech and silence_start_time > 0.0:
-                        # Required silence duration: 1.0s in active, 1.2s in standby
-                        silence_needed = 1.0 if self.state == "active" else 1.2
+                        # Required silence duration: 0.55s in active, 0.75s in standby
+                        silence_needed = 0.55 if self.state == "active" else 0.75
                         if time.time() - silence_start_time > silence_needed:
                             is_recording_speech = False
                             silence_start_time = 0.0
-                            if len(speech_buffer) > 8:  # At least ~0.5s of audio
+                            if len(speech_buffer) >= 6:  # At least ~0.38s of audio
                                 collected = np.concatenate(speech_buffer)
                                 speech_buffer.clear()
                                 self._process_speech(collected)
@@ -307,16 +346,55 @@ class VoiceEngine:
                     if cmd and len(cmd) >= 2:
                         self._execute_user_command(cmd)
                     else:
-                        self.speak("¿Sí, Santiago? Le escucho atentamente.")
+                        greeting = "¿Sí, Santiago? Le escucho atentamente."
+                        self.broadcast_event("response", {
+                            "text": greeting,
+                            "role": "assistant"
+                        })
+                        self.speak(greeting)
+                        self._persist_turn_to_db(transcript, greeting)
                 return
 
             # --- CASO 2: EN MODO ACTIVO (CONVERSACIÓN FLUIDA) ---
             if self.state == "active":
+                norm_text = normalize_text(transcript)
+                sleep_triggers = ["duermete", "ve a dormir", "a dormir", "descansa", "modo reposo", "ponte en reposo", "silencio", "callate"]
+                if any(trig in norm_text for trig in sleep_triggers):
+                    logger.info(f"[VoiceEngine] Orden de reposo detectada: '{transcript}'")
+                    self.set_state("standby", play_chime=True)
+                    ack = "Entendido, Santiago. Quedo en modo reposo."
+                    self.broadcast_event("response", {
+                        "text": ack,
+                        "role": "assistant"
+                    })
+                    self.speak(ack)
+                    self._persist_turn_to_db(transcript, ack)
+                    return
+
                 self.last_activity_time = time.time()
                 self._execute_user_command(transcript)
 
         except Exception as e:
             logger.error(f"[VoiceEngine] Error procesando habla: {e}", exc_info=True)
+
+    def _persist_turn_to_db(self, user_text: str, assistant_text: str):
+        """Persists voice turn directly to SQLite ChatMessage database for the console."""
+        def _save():
+            try:
+                from app.core.database import AsyncSessionLocal
+                from app.core.models import ChatMessage
+
+                async def _do():
+                    async with AsyncSessionLocal() as session:
+                        session.add(ChatMessage(session_id="default", role="user", parts=[{"text": user_text}]))
+                        session.add(ChatMessage(session_id="default", role="model", parts=[{"text": assistant_text}]))
+                        await session.commit()
+
+                asyncio.run(_do())
+            except Exception as e:
+                logger.debug(f"[VoiceEngine] Error persistiendo turno en BD: {e}")
+
+        threading.Thread(target=_save, daemon=True).start()
 
     def _execute_user_command(self, text: str):
         """Sends command to BrainRouter, executes tools, and speaks response."""
@@ -352,11 +430,15 @@ class VoiceEngine:
                 self.speak(response_text)
                 self.last_activity_time = time.time()
 
+                # Persist turn to SQLite database for console
+                self._persist_turn_to_db(text, response_text)
+
             except Exception as e:
                 logger.error(f"[VoiceEngine] Error procesando orden: {e}", exc_info=True)
-                err_msg = f"Inconveniente procesando la orden: {str(e)}"
+                err_msg = f"Disculpe, Santiago, hubo un inconveniente al procesar la instrucción: {str(e)}"
                 self.broadcast_event("response", {"text": err_msg, "role": "assistant"})
                 self.speak("Disculpe, Santiago, hubo un inconveniente al procesar la instrucción.")
+                self._persist_turn_to_db(text, err_msg)
             finally:
                 self.is_thinking = False
 
