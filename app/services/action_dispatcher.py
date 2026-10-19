@@ -593,6 +593,32 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": []
         }
+    },
+    {
+        "name": "unal_pensum",
+        "description": "Copiloto académico y curricular especializado para el pensum de Administración de Empresas de la Universidad Nacional de Colombia (UNAL) - Sede Palmira (Acuerdo 19 de 2012 / Acuerdo 033 de 2007). Consulta asignaturas (códigos SIA, créditos, tipología), prerrequisitos, cadenas curriculares, núcleos temáticos, marcos normativos colombianos (CST, DIAN, Ley 80/93, Ley 99/93, etc.), fórmulas financieras y de costos, semestres (1 al 10) y auditoría de créditos para grado (166 créditos totales, 68 cr para Consultoría, 78 cr para Trabajo de Grado).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {
+                    "type": "STRING",
+                    "description": "overview | subject | prerequisites | semester | checklist | normative | status"
+                },
+                "query": {
+                    "type": "STRING",
+                    "description": "Nombre o código SIA de la asignatura (ej: Costos, Consultoría, 5000869, Finanzas, Microeconomía) o marco temático"
+                },
+                "semester": {
+                    "type": "INTEGER",
+                    "description": "Número de semestre (1 al 10)"
+                },
+                "credits_approved": {
+                    "type": "INTEGER",
+                    "description": "Créditos disciplinares o totales aprobados para auditoría de grado"
+                }
+            },
+            "required": []
+        }
     }
 ]
 
@@ -900,6 +926,11 @@ class ActionDispatcher:
             elif name in ("workspace_automation", "office_automation", "excel_tools", "spreadsheet_modeling"):
                 from app.actions.workspace_automation_action import workspace_automation_action
                 res = workspace_automation_action(parameters=args)
+                return res
+
+            elif name in ("unal_pensum", "pensum_unal", "pensum_administracion", "unal_curriculum"):
+                from app.actions.unal_pensum_action import unal_pensum_action
+                res = unal_pensum_action(parameters=args)
                 return res
 
             else:

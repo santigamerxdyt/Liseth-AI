@@ -7325,6 +7325,75 @@ Tus habilidades clave:
                  `*¿Deseas auditar una porción de código o analizar un vector de ataque específico?*`;
         }
 
+        // 13b. COPILOTO CURRICULAR UNAL PALMIRA (PENSUM ADMINISTRACIÓN DE EMPRESAS - ACUERDO 19 DE 2012)
+        if (lower.includes("pensum") || lower.includes("malla curricular") || lower.includes("unal") || lower.includes("palmira") ||
+            (lower.includes("semestre") && (lower.includes("materia") || lower.includes("asignatura") || lower.includes("credito") || lower.includes("ver"))) ||
+            lower.includes("prerrequisito") || lower.includes("creditos para grado") || lower.includes("consultoria y asesoria") ||
+            (lower.includes("materia") && (lower.includes("costo") || lower.includes("finanza") || lower.includes("consultoria") || lower.includes("talento humano") || lower.includes("investigacion de operaciones")))) {
+
+          const semMatch = lower.match(/(?:semestre\s+|materias del semestre\s+)([1-9]|10|primer|segundo|tercer|cuarto|quinto|sexto|septimo|octavo|noveno|decimo)/i);
+          if (semMatch) {
+            const semMap = { "1": 1, "primer": 1, "primero": 1, "2": 2, "segundo": 2, "3": 3, "tercer": 3, "tercero": 3, "4": 4, "cuarto": 4, "5": 5, "quinto": 5, "6": 6, "sexto": 6, "7": 7, "septimo": 7, "8": 8, "octavo": 8, "9": 9, "noveno": 9, "10": 10, "decimo": 10 };
+            const sNum = semMap[semMatch[1].toLowerCase()] || 1;
+            const semInfo = {
+              1: "Semestre 1 (16 créditos sugeridos):\n- `5000869` Introducción a la Administración (3 cr - Fundamentación)\n- `5000870` Contabilidad General (3 cr - Disciplinar)\n- `5000871` Matemáticas I (Cálculo Diferencial) (4 cr - Fundamentación)\n- `5000872` Principios de Economía (3 cr - Fundamentación)\n- `5000873` Metodología de la Investigación (3 cr - Fundamentación)",
+              2: "Semestre 2 (16 créditos sugeridos):\n- `5000875` Pensamiento Administrativo (3 cr - Fundamentación) [Req: Intro Adm]\n- `5000876` Contabilidad Financiera (3 cr - Disciplinar) [Req: Contabilidad General]\n- `5000877` Matemáticas II (Cálculo Integral y Álgebra Lineal) (4 cr - Fundamentación) [Req: Matemáticas I]\n- `5000878` Microeconomía (3 cr - Disciplinar) [Req: Principios de Economía]\n- `5000879` Comunicación Oral y Escrita (3 cr - Fundamentación)",
+              3: "Semestre 3 (17 créditos sugeridos):\n- `5000880` Teoría Organizacional (3 cr - Disciplinar) [Req: Pensamiento Administrativo]\n- `5000881` Contabilidad de Costos (3 cr - Disciplinar) [Req: Contabilidad Financiera]\n- `5000882` Estadística I (Descriptiva y Probabilidad) (4 cr - Fundamentación) [Req: Matemáticas II]\n- `5000883` Macroeconomía (3 cr - Disciplinar) [Req: Microeconomía]\n- `5000884` Derecho Constitucional y Administrativo (4 cr - Fundamentación)",
+              4: "Semestre 4 (17 créditos sugeridos):\n- `5000885` Diseño Organizacional y Procesos (3 cr - Disciplinar) [Req: Teoría Organizacional]\n- `5000886` Costos para la Toma de Decisiones (3 cr - Disciplinar) [Req: Contabilidad de Costos]\n- `5000887` Estadística II (Inferencial) (4 cr - Disciplinar) [Req: Estadística I]\n- `5000888` Fundamentos de Mercadeo (3 cr - Disciplinar) [Req: Microeconomía]\n- `5000889` Derecho Comercial y Laboral (4 cr - Disciplinar)",
+              5: "Semestre 5 (17 créditos sugeridos):\n- `5000890` Gestión del Talento Humano (3 cr - Disciplinar) [Req: Diseño Organizacional]\n- `5000891` Matemáticas Financieras (3 cr - Disciplinar) [Req: Estadística I, Contabilidad Financiera]\n- `5000892` Investigación de Operaciones I (4 cr - Disciplinar) [Req: Matemáticas II]\n- `5000893` Investigación de Mercados (4 cr - Disciplinar) [Req: Fundamentos de Mercadeo, Estadística II]\n- `5000894` Libre Elección I (3 cr)",
+              6: "Semestre 6 (17 créditos sugeridos):\n- `5000895` Desarrollo Organizacional y Cambio (3 cr - Disciplinar) [Req: Gestión del Talento Humano]\n- `5000896` Administración Financiera I (4 cr - Disciplinar) [Req: Matemáticas Financieras, Costos Decisiones]\n- `5000897` Investigación de Operaciones II (3 cr - Disciplinar) [Req: Inv Operaciones I]\n- `5000898` Estrategia de Mercados (3 cr - Disciplinar) [Req: Investigación de Mercados]\n- `5000899` Libre Elección II (4 cr)",
+              7: "Semestre 7 (17 créditos sugeridos):\n- `5000900` Administración de la Producción y Operaciones (4 cr - Disciplinar) [Req: Inv Operaciones I]\n- `5000901` Administración Financiera II (4 cr - Disciplinar) [Req: Administración Financiera I]\n- `5000902` Gestión Estratégica (4 cr - Disciplinar) [Req: Desarrollo Organizacional, Adm Financiera I]\n- `5000903` Gestión Ambiental y Sostenibilidad (2 cr - Disciplinar) [Normativa Ley 99/93]\n- `5000904` Libre Elección III (3 cr)",
+              8: "Semestre 8 (16 créditos sugeridos):\n- `5000905` Logística y Cadena de Suministro (3 cr - Disciplinar) [Req: Adm de la Producción]\n- `5000906` Formulación y Evaluación de Proyectos (4 cr - Disciplinar) [Req: Adm Financiera II, Gestión Estratégica]\n- `5000907` Negocios Internacionales (3 cr - Disciplinar) [Req: Gestión Estratégica, Estrategia Mercados]\n- `5000908` Ética y Responsabilidad Social Empresarial (3 cr - Fundamentación)\n- `5000909` Libre Elección IV (3 cr)",
+              9: "Semestre 9 (16 créditos sugeridos):\n- `5000910` Consultoría y Asesoría Empresarial (4 cr - Disciplinar) [Req: 70% créditos disciplinares aprobados = 68 cr]\n- `5000911` Gerencia Pública y Desarrollo Regional (3 cr - Disciplinar) [Normativa Ley 80/93]\n- `5000912` Emprendimiento y Creación de Empresas (3 cr - Disciplinar) [Req: Formulación Proyectos]\n- `5000913` Libre Elección V (3 cr)\n- `5000914` Libre Elección VI (3 cr)",
+              10: "Semestre 10 (17 créditos sugeridos):\n- `5000943` Trabajo de Grado / Pasantía Empresarial (6 cr - Disciplinar) [Req: 80% créditos disciplinares = 78 cr]\n- `5000915` Seminario de Actualización Gerencial (3 cr - Disciplinar)\n- `5000916` Libre Elección VII (4 cr)\n- `5000917` Libre Elección VIII (4 cr)"
+            };
+            return `### 🎓 Plan Curricular UNAL Palmira: Semestre ${sNum}\n\n` +
+                   `**Carrera:** Administración de Empresas (Acuerdo 19 de 2012)\n\n` +
+                   `${semInfo[sNum] || "Semestre no encontrado."}\n\n` +
+                   `💡 *¿Deseas conocer los prerrequisitos de alguna de estas materias o el marco normativo colombiano aplicable?*`;
+          }
+
+          if (lower.includes("prerrequisito") || lower.includes("que necesito para ver") || lower.includes("cadena")) {
+            return `### 🔗 Cadenas de Prerrequisitos Críticas - UNAL Palmira\n\n` +
+                   `Para el programa de **Administración de Empresas** (Sede Palmira):\n\n` +
+                   `1. 💰 **Línea Financiera y de Costos:**\n` +
+                   `   - Contabilidad General (1°) ➔ Contabilidad Financiera (2°) ➔ Contabilidad de Costos (3°) ➔ Costos para Decisiones (4°) ➔ Matemáticas Financieras (5°) ➔ Adm. Financiera I (6°) ➔ Adm. Financiera II (7°) ➔ Formulación de Proyectos (8°).\n\n` +
+                   `2. 📈 **Línea Cuantitativa:**\n` +
+                   `   - Matemáticas I (1°) ➔ Matemáticas II (2°) ➔ Estadística I (3°) ➔ Estadística II (4°) e Inv. Operaciones I (5°) ➔ Inv. Operaciones II (6°) ➔ Adm. Producción (7°) ➔ Logística (8°).\n\n` +
+                   `3. 🏢 **Línea Organizacional y de Talento:**\n` +
+                   `   - Intro a la Administración (1°) ➔ Pensamiento Administrativo (2°) ➔ Teoría Organizacional (3°) ➔ Diseño Organizacional (4°) ➔ Gestión del Talento Humano (5°) ➔ Desarrollo Organizacional (6°) ➔ Gestión Estratégica (7°).\n\n` +
+                   `4. 🎯 **Hitos de Grado:**\n` +
+                   `   - **Consultoría y Asesoría (9°):** Requiere **70% de créditos disciplinares** aprobados (mínimo 68 cr).\n` +
+                   `   - **Trabajo de Grado / Pasantía (10°):** Requiere **80% de créditos disciplinares** aprobados (mínimo 78 cr).`;
+          }
+
+          if (lower.includes("creditos") || lower.includes("grado") || lower.includes("auditoria") || lower.includes("requisito")) {
+            return `### 📋 Auditoría y Estructura de Créditos para Grado - UNAL Palmira\n\n` +
+                   `**Programa:** Administración de Empresas (Acuerdo 19 de 2012)\n\n` +
+                   `| Componente Curricular | Créditos Exigidos | Porcentaje |\n` +
+                   `| :--- | :---: | :---: |\n` +
+                   `| **Fundamentación** | **35 cr** | ~21.1% |\n` +
+                   `| **Disciplinar u Obligatorio** | **97 cr** | ~58.4% |\n` +
+                   `| **Libre Elección** | **34 cr** | ~20.5% |\n` +
+                   `| **TOTAL DEL PROGRAMA** | **166 cr** | **100%** |\n\n` +
+                   `📌 **Requisitos Adicionales Obligatorios de Grado:**\n` +
+                   `- **Suficiencia de Idioma Extranjero:** 12 créditos de Inglés (Inglés I a IV aprobados o examen de clasificación B1/B2).\n` +
+                   `- **Consultoría y Asesoría:** Mínimo **68 créditos disciplinares** aprobados (70%).\n` +
+                   `- **Trabajo de Grado / Pasantía:** Mínimo **78 créditos disciplinares** aprobados (80%).\n` +
+                   `- **Incompatibilidad:** No se permite cursar simultáneamente Práctica Empresarial y Trabajo de Grado en modalidad de pasantía.`;
+          }
+
+          return `### 🏛️ Copiloto Curricular: Pensum de Administración de Empresas\n\n` +
+                 `**Universidad Nacional de Colombia - Sede Palmira**\n` +
+                 `*Facultad de Ingeniería y Administración | Acuerdo 19 de 2012 / Acuerdo 033 de 2007*\n\n` +
+                 `Tienes a tu disposición el modelo curricular completo de los **10 semestres** (166 créditos académicos):\n\n` +
+                 `- 📐 **Fundamentación (35 cr):** Matemáticas, Economía, Metodología, Estadística I y Derecho Constitucional.\n` +
+                 `- 🏢 **Disciplinar (97 cr):** Cadenas de Finanzas, Costos, Producción, Mercados, Gestión Humana, Estrategia, Consultoría y Trabajo de Grado.\n` +
+                 `- 🌐 **Libre Elección (34 cr):** Asignaturas electivas interdisciplinarias de la UNAL.\n` +
+                 `- 📜 **Marcos Normativos Colombianos Integrados:** Código Sustantivo del Trabajo (CST), Estatuto Tributario (DIAN), Ley 80/1993 (Contratación Pública), Ley 99/1993 (Gestión Ambiental).\n\n` +
+                 `*¿Qué semestre, materia o cadena de prerrequisitos deseas consultar, Santiago?*`;
+        }
+
         // 14. MANUAL DE LISETH Y FUNCIONES
         if (lower.includes("manual") || lower.includes("pdf") || lower.includes("funciones") || lower.includes("que puedes hacer")) {
           return `### 📖 Manual y Capacidades de Liseth AI\n\n` +

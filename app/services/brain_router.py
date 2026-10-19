@@ -900,6 +900,70 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
             f"Diseñando la arquitectura visual de diapositivas para '{topic_slide or 'la presentación'}'..."
         )
 
+    # 33k. UNAL Palmira Business Administration Curriculum Companion (Acuerdo 19 de 2012)
+    if any(k in norm for k in ["motor curricular unal", "estado de pensum", "estado del pensum", "unal pensum status"]):
+        if any(w in norm for w in ["estado", "status", "como esta", "informacion"]):
+            return (
+                "unal_pensum",
+                {"action": "status"},
+                "Consultando estado del copiloto curricular UNAL Palmira..."
+            )
+
+    if any(k in norm for k in ["mi pensum", "pensum de administracion", "pensum unal", "malla curricular", "plan de estudios unal", "plan de estudios"]):
+        return (
+            "unal_pensum",
+            {"action": "overview"},
+            "Cargando resumen curricular completo del pensum de Administración de Empresas (UNAL Sede Palmira), señor Santiago..."
+        )
+
+    m_sem = re.search(r"(?:materias\s+(?:del\s+|de\s+)?|ver\s+en\s+el\s+)?semestre\s+([0-9]{1,2}|primer|segundo|tercer|cuarto|quinto|sexto|septimo|octavo|noveno|decimo)", norm)
+    if m_sem and ("pensum" in norm or "unal" in norm or "materia" in norm or "asignatura" in norm or "semestre" in norm):
+        sem_str = m_sem.group(1).lower()
+        num_map = {
+            "1": 1, "primer": 1, "primero": 1,
+            "2": 2, "segundo": 2,
+            "3": 3, "tercer": 3, "tercero": 3,
+            "4": 4, "cuarto": 4,
+            "5": 5, "quinto": 5,
+            "6": 6, "sexto": 6,
+            "7": 7, "septimo": 7,
+            "8": 8, "octavo": 8,
+            "9": 9, "noveno": 9,
+            "10": 10, "decimo": 10
+        }
+        sem_num = num_map.get(sem_str, 1)
+        return (
+            "unal_pensum",
+            {"action": "semester", "semester": sem_num},
+            f"Consultando asignaturas y créditos del Semestre {sem_num} del pensum UNAL Palmira..."
+        )
+
+    if any(k in norm for k in ["prerrequisitos de", "prerrequisito de", "que necesito para ver", "que pide", "cadena curricular de"]):
+        m_subj = re.sub(r"^(?:.*?(?:prerrequisitos? de|que necesito para ver|que pide|cadena curricular de))\s*", "", cleaned, flags=re.IGNORECASE).strip()
+        return (
+            "unal_pensum",
+            {"action": "prerequisites", "query": m_subj or cleaned},
+            f"Analizando cadena de prerrequisitos académicos para '{m_subj or cleaned}'..."
+        )
+
+    if any(k in norm for k in ["auditoria de creditos", "creditos para grado", "requisitos de grado", "cuantos creditos para grado", "auditoria para grado", "requisitos de grado unal"]):
+        m_cr = re.search(r"([0-9]{1,3})\s*(?:creditos|cr)", norm)
+        cr_val = int(m_cr.group(1)) if m_cr else None
+        return (
+            "unal_pensum",
+            {"action": "checklist", "credits_approved": cr_val},
+            "Realizando auditoría de créditos y requisitos de grado UNAL Palmira, señor Santiago..."
+        )
+
+    if any(k in norm for k in ["materia de ", "materia ", "asignatura de ", "asignatura ", "codigo de la materia ", "info de la materia "]):
+        if any(w in norm for w in ["costos", "finanzas", "consultoria", "gestion ambiental", "microeconomia", "macroeconomia", "derecho comercial", "derecho laboral", "gestion publica", "investigacion de operaciones", "mercadeo", "pensamiento administrativo", "talento humano", "administracion", "contabilidad"]):
+            m_sname = re.sub(r"^(?:.*?(?:materia(?: de)?|asignatura(?: de)?|codigo de la materia|info de la materia))\s*", "", cleaned, flags=re.IGNORECASE).strip()
+            return (
+                "unal_pensum",
+                {"action": "subject", "query": m_sname or cleaned},
+                f"Consultando ficha académica curricular para '{m_sname or cleaned}' en el pensum UNAL..."
+            )
+
     # 34. Open App / Program: "abre la calculadora", "abrir bloc de notas", "inicia chrome"
     m_open = _RE_OPEN_APP.match(norm)
     if m_open:

@@ -587,6 +587,26 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Estructura de informe de consultoría / Ensayo académico", "Diseña el blueprint estructurado para informes gerenciales ejecutivos (To-Be, ROI, 30-60-90 días) o ensayos universitarios.", "Blueprint de Informes y Ensayos")
     builder.add_command_box("Diapositivas para [tema] / Presentación ejecutiva", "Arquitectura visual diapositiva por diapositiva con contenidos recomendados, métricas y notas del orador (speaker notes).", "Estructurador de Presentaciones")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 19: COPILOTO CURRICULAR UNAL PALMIRA (PENSUM ADMINISTRACIÓN DE EMPRESAS)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("19. Copiloto Curricular UNAL Palmira: Pensum de Administración de Empresas")
+    builder.add_paragraph(
+        "Liseth integra la totalidad del plan de estudios oficial del programa de Administración de Empresas de la "
+        "Universidad Nacional de Colombia (Sede Palmira), regido por el Acuerdo 19 de 2012 del Consejo de Facultad "
+        "(Facultad de Ingeniería y Administración) y el Acuerdo 033 de 2007 del CSU. "
+        "Contempla los 10 semestres, 166 créditos totales (35 Fundamentación, 97 Disciplinar, 34 Libre Elección), "
+        "los 12 créditos obligatorios de suficiencia de inglés, cadenas de prerrequisitos, códigos SIA, y marcos normativos colombianos "
+        "(CST, Estatuto Tributario DIAN, Ley 80/93, Ley 99/93, ISO 14001):",
+        size=9.0
+    )
+    builder.add_command_box("Mi pensum / Malla curricular / Plan de estudios", "Muestra el resumen de distribución curricular (166 créditos), tipologías, porcentajes y rutas de profundización en Sede Palmira.", "Resumen Curricular UNAL")
+    builder.add_command_box("Materias del semestre [1-10] / Matrícula [1-10]", "Despliega la lista completa de asignaturas sugeridas por semestre con sus códigos SIA, créditos, tipología y prerrequisitos.", "Mapeo Semestral de Asignaturas")
+    builder.add_command_box("Prerrequisitos de [materia] / Qué necesito para ver [materia]", "Analiza la cadena de prerrequisitos académicos obligatorios y correquisitos (ej: Costos, Finanzas, Trabajo de Grado).", "Auditoría de Cadenas de Prerrequisitos")
+    builder.add_command_box("Info de la materia [materia] / Ficha de [materia]", "Ficha académica integral: ejes temáticos, aplicación profesional en administración, teorías clave y fórmulas cuantitativas.", "Guía Académica y Fórmulas por Asignatura")
+    builder.add_command_box("Auditoría de créditos para grado / Requisitos de grado", "Evalúa el avance académico hacia los hitos de grado: Consultoría (mínimo 68 cr disciplinares) y Trabajo de Grado/Pasantía (78 cr).", "Auditoría de Hitos de Grado")
+    builder.add_command_box("Marco normativo de [laboral / tributario / contratación / ambiental]", "Resumen ejecutivo de leyes colombianas críticas: CST (prestaciones y nómina), DIAN (Renta, IVA, ICA), Ley 80 y Ley 99.", "Legislación Empresarial Colombiana")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "
