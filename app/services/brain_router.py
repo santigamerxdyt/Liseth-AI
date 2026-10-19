@@ -489,21 +489,23 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
             "Calculando Punto de Equilibrio operativo en unidades e ingresos..."
         )
     if any(k in norm for k in ["matriz foda", "matriz dofa", "analisis foda", "analisis dofa"]):
+        m_org = re.sub(r"^(?:.*?matriz foda(?: de| para)?|.*?analisis foda(?: de| para)?)\s*", "", cleaned, flags=re.IGNORECASE).strip()
         return (
-            "business_finance",
-            {"operation": "foda"},
-            "Generando estructura de análisis estratégico FODA / DOFA..."
+            "business_strategy",
+            {"action": "foda", "organization": m_org or "Mi Empresa"},
+            "Generando estructura y cruce estratégico de análisis FODA / DOFA, señor Santiago..."
         )
     if any(k in norm for k in ["modelo canvas", "business model canvas", "lienzo canvas"]):
+        m_can = re.sub(r"^(?:.*?modelo canvas(?: de| para)?|.*?business model canvas(?: de| para)?)\s*", "", cleaned, flags=re.IGNORECASE).strip()
         return (
-            "business_finance",
-            {"operation": "canvas"},
-            "Generando plantilla estratégica de Business Model Canvas..."
+            "business_strategy",
+            {"action": "canvas", "topic": m_can or "Negocio Digital"},
+            "Generando Business Model Canvas de 9 bloques de Osterwalder, señor Santiago..."
         )
     if any(k in norm for k in ["analisis pestel", "matriz pestel"]):
         return (
-            "business_finance",
-            {"operation": "pestel"},
+            "business_strategy",
+            {"action": "porter", "industry": "Sector Empresarial"},
             "Generando análisis del macroentorno empresarial PESTEL..."
         )
 
@@ -525,6 +527,12 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
             "academic_helper",
             {"action": "estructura", "doc_type": "ensayo"},
             "Generando esquema metodológico para ensayo académico universitario..."
+        )
+    if any(k in norm for k in ["informe de consultoria", "consultoria gerencial", "blueprint de informe"]):
+        return (
+            "workspace_automation",
+            {"action": "report_blueprint", "title": cleaned, "type": "consultoria"},
+            "Generando estructura profesional para informe de consultoría gerencial..."
         )
     if any(k in norm for k in ["estructura de informe", "estructura para informe", "informe ejecutivo"]):
         return (
@@ -760,6 +768,136 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
             "git_sync",
             {"action": "stop_watcher"},
             "Deteniendo centinela de sincronización automática con GitHub..."
+        )
+
+    # 33g. Academic Research & Scientific Literature
+    if any(k in norm for k in ["motor academico", "estado de investigacion", "motor cientifico", "academic research"]):
+        if any(w in norm for w in ["estado", "status", "como esta", "informacion"]):
+            return (
+                "academic_research",
+                {"action": "status"},
+                "Consultando estado del motor de investigación académica y científica..."
+            )
+
+    if any(k in norm for k in ["estado del arte de", "estado del arte sobre", "revision bibliografica de", "revision bibliografica sobre", "sintesis academica de"]):
+        m_top = re.sub(r"^(?:estado del arte de|estado del arte sobre|revision bibliografica de|revision bibliografica sobre|sintesis academica de)\s*", "", cleaned, flags=re.IGNORECASE).strip()
+        return (
+            "academic_research",
+            {"action": "literature_review", "query": m_top or cleaned},
+            f"Elaborando Estado del Arte y revisión de literatura científica sobre '{m_top or cleaned}', señor Santiago..."
+        )
+
+    if any(k in norm for k in ["busca articulos sobre", "busca papers sobre", "articulos cientificos de", "articulos cientificos sobre", "papers cientificos de", "papers sobre"]):
+        m_q = re.sub(r"^(?:busca(?:r)? articulos sobre|busca(?:r)? papers sobre|articulos cientificos de|articulos cientificos sobre|papers cientificos de|papers sobre)\s*", "", cleaned, flags=re.IGNORECASE).strip()
+        return (
+            "academic_research",
+            {"action": "search", "query": m_q or cleaned},
+            f"Buscando artículos científicos y literatura revisada por pares para '{m_q or cleaned}'..."
+        )
+
+    # 33h. Business Strategy & Advanced Corporate Finance
+    if any(k in norm for k in ["motor de estrategia", "estado de business strategy", "estrategia empresarial"]):
+        if any(w in norm for w in ["estado", "status", "como esta", "informacion"]):
+            return (
+                "business_strategy",
+                {"action": "status"},
+                "Consultando estado del motor de estrategia empresarial y finanzas corporativas..."
+            )
+
+    if any(k in norm for k in ["matriz foda de", "analisis foda de", "matriz foda para", "foda de", "swot de", "matriz swot"]):
+        m_org = re.sub(r"^(?:matriz foda de|analisis foda de|matriz foda para|foda de|swot de|matriz swot(?:\s+de)?)\s*", "", cleaned, flags=re.IGNORECASE).strip()
+        return (
+            "business_strategy",
+            {"action": "foda", "organization": m_org or "Mi Empresa"},
+            f"Estructurando Matriz FODA y cruce estratégico para '{m_org or 'la organización'}', señor Santiago..."
+        )
+
+    if any(k in norm for k in ["5 fuerzas de porter", "cinco fuerzas de porter", "fuerzas de porter de", "fuerzas de porter para", "analisis porter"]):
+        m_ind = re.sub(r"^(?:(?:5|cinco) fuerzas de porter(?:\s+de|\s+para)?|fuerzas de porter de|fuerzas de porter para|analisis porter(?:\s+de|\s+para)?)\s*", "", cleaned, flags=re.IGNORECASE).strip()
+        return (
+            "business_strategy",
+            {"action": "porter", "industry": m_ind or "Sector Industrial"},
+            f"Analizando las 5 Fuerzas de Michael Porter para '{m_ind or 'la industria seleccionada'}'..."
+        )
+
+    if any(k in norm for k in ["modelo canvas de", "modelo canvas para", "business model canvas de", "business model canvas para", "canvas de negocio"]):
+        m_can = re.sub(r"^(?:modelo canvas de|modelo canvas para|business model canvas de|business model canvas para|canvas de negocio(?:\s+de)?)\s*", "", cleaned, flags=re.IGNORECASE).strip()
+        return (
+            "business_strategy",
+            {"action": "canvas", "topic": m_can or "Negocio Digital"},
+            f"Diseñando el Business Model Canvas de 9 bloques para '{m_can or 'el modelo de negocio'}'..."
+        )
+
+    if any(k in norm for k in ["proyeccion de flujo de caja", "flujo de caja libre", "proyecta el flujo de caja", "proyeccion financiera"]):
+        return (
+            "business_strategy",
+            {"action": "cash_flow", "revenue": 100000.0, "growth": 0.15, "margin": 0.25, "periods": 5},
+            "Calculando proyección de Estado de Resultados y Flujo de Caja Libre (FCF), señor Santiago..."
+        )
+
+    if any(k in norm for k in ["tabla de amortizacion", "amortizacion de prestamo", "amortizacion de credito", "amortizar credito", "amortizar prestamo"]):
+        sys_choice = "aleman" if "aleman" in norm else "frances"
+        return (
+            "business_strategy",
+            {"action": "amortization", "principal": 50000000.0, "rate": 18.0, "months": 12, "system": sys_choice},
+            f"Generando tabla de amortización de crédito en Sistema {sys_choice.title()}..."
+        )
+
+    if any(k in norm for k in ["calcula el wacc", "calculo del wacc", "costo de capital wacc", "wacc de la empresa"]):
+        return (
+            "business_strategy",
+            {"action": "wacc", "equity": 60000.0, "debt": 40000.0, "ke": 15.0, "kd": 10.0, "tax": 35.0},
+            "Calculando Costo Promedio Ponderado de Capital (WACC), señor Santiago..."
+        )
+
+    # 33i. Data Science & Machine Learning Toolkit
+    if any(k in norm for k in ["motor de machine learning", "motor de ciencia de datos", "data ml toolkit"]):
+        if any(w in norm for w in ["estado", "status", "como esta", "informacion"]):
+            return (
+                "data_ml_toolkit",
+                {"action": "status"},
+                "Consultando estado del motor de analítica y Machine Learning..."
+            )
+
+    if any(k in norm for k in ["script de machine learning", "codigo de machine learning", "pipeline de scikit learn", "pipeline de ml"]):
+        task_t = "regression" if "regresion" in norm else ("clustering" if "cluster" in norm else "classification")
+        return (
+            "data_ml_toolkit",
+            {"action": "code", "task": task_t},
+            f"Generando script optimizado de Machine Learning en Python ({task_t}), señor Santiago..."
+        )
+
+    # 33j. Workspace Automation & Office Productivity
+    if any(k in norm for k in ["motor de ofimatica", "motor de hojas de calculo", "workspace automation"]):
+        if any(w in norm for w in ["estado", "status", "como esta", "informacion"]):
+            return (
+                "workspace_automation",
+                {"action": "status"},
+                "Consultando estado de la suite de automatización ofimática y productividad..."
+            )
+
+    if any(k in norm for k in ["formula de excel para", "formula para excel", "como hago en excel", "formula de google sheets para", "formula en excel"]):
+        req = re.sub(r"^(?:formula(?: de)? excel para|formula para excel|como hago en excel|formula(?: de)? google sheets para|formula en excel)\s*", "", cleaned, flags=re.IGNORECASE).strip()
+        return (
+            "workspace_automation",
+            {"action": "excel_formula", "query": req or cleaned},
+            f"Generando solución y fórmula de hoja de cálculo para: '{req or cleaned}'..."
+        )
+
+    if any(k in norm for k in ["estructura de informe de consultoria", "esquema para ensayo", "blueprint de informe", "esquema de tesis"]):
+        dt = "ensayo" if "ensayo" in norm or "tesis" in norm else "consultoria"
+        return (
+            "workspace_automation",
+            {"action": "report_blueprint", "title": cleaned, "type": dt},
+            f"Estructurando esquema profesional para {dt}, señor Santiago..."
+        )
+
+    if any(k in norm for k in ["diapositivas para", "estructura de presentacion", "esquema de diapositivas", "diapositivas ejecutivas"]):
+        topic_slide = re.sub(r"^(?:diapositivas para|estructura de presentacion(?: para)?|esquema de diapositivas(?: para)?|diapositivas ejecutivas(?: para)?)\s*", "", cleaned, flags=re.IGNORECASE).strip()
+        return (
+            "workspace_automation",
+            {"action": "presentation_deck", "topic": topic_slide or "Presentación Ejecutiva", "slides": 5},
+            f"Diseñando la arquitectura visual de diapositivas para '{topic_slide or 'la presentación'}'..."
         )
 
     # 34. Open App / Program: "abre la calculadora", "abrir bloc de notas", "inicia chrome"

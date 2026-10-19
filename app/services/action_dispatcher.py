@@ -523,6 +523,76 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": []
         }
+    },
+    {
+        "name": "academic_research",
+        "description": "Investigación académica y científica: busca artículos y preprints en OpenAlex y arXiv (250M+ papers), extrae resúmenes, DOIs y PDFs abiertos, elabora revisiones sistemáticas de literatura (Estado del Arte) y genera referencias bibliográficas y citas parentéticas/narrativas en Normas APA 7ª Edición.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "search | literature_review | status"},
+                "query": {"type": "STRING", "description": "Tema de investigación académica, palabras clave o autor"},
+                "limit": {"type": "INTEGER", "description": "Número máximo de artículos a recuperar (por defecto 5)"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "business_strategy",
+        "description": "Estrategia corporativa y finanzas avanzadas para Administración de Empresas: matrices estratégicas (Matriz FODA/SWOT con cruces FO, FA, DO, DA; 5 Fuerzas de Michael Porter; PESTEL; Business Model Canvas de 9 bloques de Osterwalder) y modelos financieros cuantitativos (proyección de Flujo de Caja Libre FCF a N años, tablas de amortización de préstamos en Sistema Francés y Alemán, y cálculo del Costo Promedio Ponderado de Capital WACC).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "foda | porter | canvas | cash_flow | amortization | wacc | status"},
+                "organization": {"type": "STRING", "description": "Nombre de la empresa, proyecto o caso de estudio para FODA o Canvas"},
+                "industry": {"type": "STRING", "description": "Sector industrial o de mercado para análisis Porter o PESTEL"},
+                "revenue": {"type": "NUMBER", "description": "Ingreso base proyectado para flujo de caja"},
+                "growth": {"type": "NUMBER", "description": "Tasa de crecimiento anual esperada (ejemplo: 0.15 para 15%)"},
+                "margin": {"type": "NUMBER", "description": "Margen operativo EBIT esperado (ejemplo: 0.25 para 25%)"},
+                "principal": {"type": "NUMBER", "description": "Monto del crédito o préstamo a amortizar"},
+                "rate": {"type": "NUMBER", "description": "Tasa de interés anual en porcentaje (ejemplo: 18.0)"},
+                "months": {"type": "INTEGER", "description": "Plazo de amortización en meses (ejemplo: 12)"},
+                "system": {"type": "STRING", "description": "frances (cuota fija) | aleman (amortización constante)"},
+                "equity": {"type": "NUMBER", "description": "Patrimonio de accionistas para WACC"},
+                "debt": {"type": "NUMBER", "description": "Deuda financiera para WACC"},
+                "ke": {"type": "NUMBER", "description": "Costo del patrimonio en % para WACC"},
+                "kd": {"type": "NUMBER", "description": "Costo de la deuda en % para WACC"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "data_ml_toolkit",
+        "description": "Ciencia de datos, analítica y Machine Learning: perfilamiento y auto-limpieza de datasets tabulares/CSV (detección de nulos, inconsistencias y outliers por rango intercuartil IQR), estadística descriptiva e inferencial (matriz de correlación de Pearson), regresión lineal por mínimos cuadrados OLS (con R², MSE, RMSE y pronóstico), pronóstico de series de tiempo (suavizamiento exponencial) y generador de pipelines de código Python (Pandas y Scikit-Learn).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "profile | regression | forecast | code | status"},
+                "data": {"type": "STRING", "description": "Datos CSV o serie numérica a perfilar"},
+                "x": {"type": "STRING", "description": "Valores numéricos de variable independiente X separados por coma"},
+                "y": {"type": "STRING", "description": "Valores numéricos de variable dependiente Y separados por coma"},
+                "predict_x": {"type": "NUMBER", "description": "Valor de X para el cual se desea pronosticar Y"},
+                "series": {"type": "STRING", "description": "Valores históricos de serie de tiempo separados por coma"},
+                "periods": {"type": "INTEGER", "description": "Períodos hacia el futuro a proyectar"},
+                "task": {"type": "STRING", "description": "Tipo de modelo para código Python: classification | regression | clustering"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "workspace_automation",
+        "description": "Automatización ofimática y productividad ejecutiva: generador bilingüe de fórmulas complejas de Excel y Google Sheets (BUSCARX/XLOOKUP, INDICE/COINCIDIR, SUMAR.SI.CONJUNTO, matrices dinámicas y funciones financieras), generador de arquitecturas y esquemas estructurados para informes de consultoría gerencial y ensayos universitarios, y diseñador de diapositivas ejecutivas con notas de orador.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "excel_formula | report_blueprint | presentation_deck | status"},
+                "query": {"type": "STRING", "description": "Descripción del requerimiento o cálculo que se desea en Excel/Sheets"},
+                "title": {"type": "STRING", "description": "Título o tema del informe, ensayo o presentación"},
+                "type": {"type": "STRING", "description": "consultoria | ensayo | academico"},
+                "slides": {"type": "INTEGER", "description": "Cantidad de diapositivas para la presentación"}
+            },
+            "required": []
+        }
     }
 ]
 
@@ -810,6 +880,26 @@ class ActionDispatcher:
             elif name in ("git_sync", "sync_github", "github_sync", "git_push", "repo_sync"):
                 from app.actions.git_sync_action import git_sync_action
                 res = git_sync_action(parameters=args)
+                return res
+
+            elif name in ("academic_research", "academic_papers", "scientific_literature", "openalex", "arxiv"):
+                from app.actions.academic_research_action import academic_research_action
+                res = academic_research_action(parameters=args)
+                return res
+
+            elif name in ("business_strategy", "corporate_strategy", "strategic_matrix", "business_model"):
+                from app.actions.business_strategy_action import business_strategy_action
+                res = business_strategy_action(parameters=args)
+                return res
+
+            elif name in ("data_ml_toolkit", "data_science", "machine_learning", "data_cleaning", "predictive_analytics"):
+                from app.actions.data_ml_action import data_ml_action
+                res = data_ml_action(parameters=args)
+                return res
+
+            elif name in ("workspace_automation", "office_automation", "excel_tools", "spreadsheet_modeling"):
+                from app.actions.workspace_automation_action import workspace_automation_action
+                res = workspace_automation_action(parameters=args)
                 return res
 
             else:

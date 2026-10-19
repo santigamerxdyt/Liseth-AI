@@ -531,6 +531,62 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Detén el centinela de GitHub", "Pausa la sincronización automática en segundo plano para trabajar sin subir cambios continuos.", "Control del Centinela Git")
     builder.add_command_box("Modo Cloud Autónomo (GitHub Pages)", "https://santigamerxdyt.github.io/Liseth-AI/ \\| Operativo 24/7 sin servidor local: chat cognitivo, voz sintetizada, finanzas y APA.", "Despliegue Autónomo en la Nube")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 15: INVESTIGACIÓN CIENTÍFICA Y ESTADO DEL ARTE (ACADEMIC RESEARCHER)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("15. Investigación Científica y Estado del Arte (Academic Researcher)")
+    builder.add_paragraph(
+        "Liseth cuenta con integración directa a las bases de datos abiertas OpenAlex (250M+ publicaciones) y arXiv.org. "
+        "Permite buscar literatura revisada por pares, extraer resúmenes, DOIs y PDFs de acceso abierto, sintetizar revisiones bibliográficas "
+        "(Estado del Arte) y estructurar citas parentéticas, narrativas y bibliográficas en Normas APA 7ª Edición para sus entregas universitarias:",
+        size=9.0
+    )
+    builder.add_command_box("Busca artículos sobre [tema] / Papers de [tema]", "Recupera publicaciones científicas con autores, año, revista, resumen, métricas de citas y DOI permanente.", "Búsqueda científica OpenAlex/arXiv")
+    builder.add_command_box("Estado del arte sobre [tema] / Revisión bibliográfica", "Genera una revisión de literatura completa con tendencias conceptuales, vacíos de investigación y lista de referencias APA 7.", "Estado del Arte Universitario")
+    builder.add_command_box("Estado de Academic Research", "Reporta la telemetría del motor de investigación académica, fuentes indexadas y estándar APA activo.", "Telemetría Academic Researcher")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 16: ESTRATEGIA CORPORATIVA Y FINANZAS AVANZADAS (BUSINESS STRATEGIST)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("16. Estrategia Corporativa y Finanzas Avanzadas (Business Strategist)")
+    builder.add_paragraph(
+        "Módulo diseñado a la medida para la formación en Administración de Empresas de Santiago. "
+        "Estructura matrices de diagnóstico competitivo y modelos financieros cuantitativos para la toma de decisiones gerenciales:",
+        size=9.0
+    )
+    builder.add_command_box("Matriz FODA de [empresa] / Análisis SWOT", "Genera el diagnóstico en 4 cuadrantes y la matriz de cruce estratégico con iniciativas FO, DO, FA y DA.", "Matriz FODA y Cruce Estratégico")
+    builder.add_command_box("5 Fuerzas de Porter de [industria]", "Diagnóstico del atractivo del sector: poder de clientes/proveedores, rivalidad, barreras de entrada y sustitutos.", "Fuerzas Competitivas de Porter")
+    builder.add_command_box("Modelo Canvas de [negocio] / Business Model Canvas", "Estructura los 9 bloques de Osterwalder: propuesta de valor, clientes, canales, recursos, costos e ingresos.", "Lienzo Business Model Canvas")
+    builder.add_command_box("Proyección de flujo de caja / Flujo de caja libre", "Modela el Estado de Resultados y el Flujo de Caja Libre (FCF) proyectado a N períodos con EBITDA y CAPEX.", "Proyección Financiera Pro-Forma")
+    builder.add_command_box("Tabla de amortización de préstamo [monto]", "Calcula cronograma de crédito con cuotas mensuales, desglose de capital e intereses en Sistema Francés o Alemán.", "Amortización de Crédito")
+    builder.add_command_box("Calcula el WACC / Costo de Capital", "Calcula el Costo Promedio Ponderado de Capital con ponderación de patrimonio/deuda y escudo fiscal para definir la tasa de corte (TIR).", "Cálculo del WACC / CPPC")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 17: CIENCIA DE DATOS Y MACHINE LEARNING (DATA & ML TOOLKIT)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("17. Ciencia de Datos y Machine Learning (Data & ML Toolkit)")
+    builder.add_paragraph(
+        "Conjunto de herramientas analíticas para auditar, depurar y modelar información cuantitativa con rigor estadístico. "
+        "Permite detectar anomalías en datasets empresariales, calcular modelos de regresión y generar pipelines de código Python listos para producción:",
+        size=9.0
+    )
+    builder.add_command_box("Perfila estos datos [CSV] / Limpia este dataset", "Auditoría de calidad tabular: detección de nulos, duplicados, tipado inferido y outliers mediante rango intercuartil (IQR).", "Perfilamiento y Auto-Limpieza")
+    builder.add_command_box("Regresión lineal de X=[...] Y=[...]", "Ajusta recta de mínimos cuadrados OLS, calcula bondad de ajuste (R²), correlación de Pearson, MSE y proyecta valores futuros.", "Regresión Lineal OLS")
+    builder.add_command_box("Pronóstico de la serie [valores numéricos]", "Proyección de series temporales con Suavizamiento Exponencial Simple (SES) y medias móviles con detección de tendencia.", "Forecasting de Series de Tiempo")
+    builder.add_command_box("Script de Machine Learning para [regresión/clustering]", "Genera código modular y reproducible en Python usando Pandas, NumPy y Scikit-Learn con escalado y evaluación.", "Pipeline ML en Python")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 18: AUTOMATIZACIÓN OFIMÁTICA Y FÓRMULAS AVANZADAS (WORKSPACE AUTOMATION)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("18. Automatización Ofimática y Fórmulas Avanzadas (Workspace Automation)")
+    builder.add_paragraph(
+        "Acelera la productividad diaria en la preparación de informes, hojas de cálculo complejas y presentaciones de alto impacto:",
+        size=9.0
+    )
+    builder.add_command_box("Fórmula de Excel para [requerimiento / búsqueda]", "Genera la solución en fórmulas bilingües (BUSCARX/XLOOKUP, SUMAR.SI.CONJUNTO, matrices dinámicas) con control de errores.", "Generador de Fórmulas de Excel/Sheets")
+    builder.add_command_box("Estructura de informe de consultoría / Ensayo académico", "Diseña el blueprint estructurado para informes gerenciales ejecutivos (To-Be, ROI, 30-60-90 días) o ensayos universitarios.", "Blueprint de Informes y Ensayos")
+    builder.add_command_box("Diapositivas para [tema] / Presentación ejecutiva", "Arquitectura visual diapositiva por diapositiva con contenidos recomendados, métricas y notas del orador (speaker notes).", "Estructurador de Presentaciones")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "
