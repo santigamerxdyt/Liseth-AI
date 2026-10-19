@@ -2103,6 +2103,314 @@
       box-shadow: 0 0 22px rgba(0, 210, 255, 0.55);
     }
 
+    /* ============================================================
+       BÓVEDA CENTRAL DE AUTENTICADORES & APIS (CYBER VAULT UI)
+       ============================================================ */
+    .modal-card.vault-modal-card {
+      max-width: 840px !important;
+      width: 95% !important;
+      max-height: 90vh !important;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 22px 26px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 210, 255, 0.18);
+    }
+
+    .vault-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: rgba(14, 24, 42, 0.6);
+      border: 1px solid rgba(0, 210, 255, 0.2);
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
+
+    .vault-env-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: #9cb5d9;
+    }
+
+    .vault-env-indicator .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #38ef7d;
+      box-shadow: 0 0 8px #38ef7d;
+    }
+
+    .vault-toolbar-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .vault-tool-btn {
+      background: rgba(18, 28, 48, 0.85);
+      border: 1px solid rgba(0, 210, 255, 0.25);
+      border-radius: 6px;
+      color: #b0c4de;
+      padding: 5px 10px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .vault-tool-btn:hover {
+      background: rgba(0, 210, 255, 0.15);
+      border-color: #00d2ff;
+      color: #ffffff;
+    }
+
+    .vault-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 4px 2px 8px 2px;
+      border-bottom: 1px solid rgba(0, 210, 255, 0.2);
+      scrollbar-width: thin;
+    }
+    .vault-tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+    .vault-tabs::-webkit-scrollbar-thumb {
+      background: rgba(0, 210, 255, 0.3);
+      border-radius: 4px;
+    }
+
+    .vault-tab-btn {
+      background: rgba(13, 22, 38, 0.75);
+      border: 1px solid rgba(45, 90, 160, 0.35);
+      border-radius: 8px;
+      color: #8fa0bc;
+      padding: 8px 13px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .vault-tab-btn:hover {
+      color: #ffffff;
+      border-color: rgba(0, 210, 255, 0.5);
+      background: rgba(0, 210, 255, 0.1);
+    }
+    .vault-tab-btn.active {
+      color: #00f2fe;
+      border-color: #00d2ff;
+      background: rgba(0, 210, 255, 0.18);
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.22);
+    }
+
+    .vault-panes-container {
+      max-height: 56vh;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 4px;
+    }
+    .vault-panes-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .vault-panes-container::-webkit-scrollbar-thumb {
+      background: rgba(0, 210, 255, 0.25);
+      border-radius: 4px;
+    }
+
+    .vault-pane {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      animation: vaultFadeIn 0.25s ease forwards;
+    }
+    .vault-pane.active {
+      display: flex;
+    }
+    @keyframes vaultFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .vault-card-row {
+      background: rgba(13, 22, 38, 0.75);
+      border: 1px solid rgba(45, 90, 160, 0.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .vault-card-row:hover {
+      border-color: rgba(0, 210, 255, 0.45);
+      box-shadow: 0 0 15px rgba(0, 210, 255, 0.08);
+    }
+
+    .vault-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .vault-row-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .vault-badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .vault-badge-rec {
+      background: rgba(56, 239, 125, 0.15);
+      border: 1px solid rgba(56, 239, 125, 0.4);
+      color: #38ef7d;
+    }
+    .vault-badge-opt {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #b0c4de;
+    }
+    .vault-badge-oauth {
+      background: rgba(0, 210, 255, 0.15);
+      border: 1px solid rgba(0, 210, 255, 0.4);
+      color: #00d2ff;
+    }
+
+    .vault-row-help {
+      font-size: 0.74rem;
+      color: #8fa0bc;
+      line-height: 1.4;
+    }
+    .vault-row-help a {
+      color: #00d2ff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .vault-input-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      position: relative;
+    }
+
+    .vault-input {
+      flex: 1;
+      width: 100%;
+      background: rgba(8, 14, 26, 0.9);
+      border: 1px solid rgba(45, 90, 160, 0.45);
+      border-radius: 8px;
+      padding: 8px 36px 8px 12px;
+      color: #ffffff;
+      font-family: var(--font-mono, monospace);
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .vault-input:focus {
+      border-color: #00d2ff;
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.25);
+    }
+    .vault-input::placeholder {
+      color: #53647c;
+      font-family: var(--font-body, sans-serif);
+    }
+
+    .vault-eye-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #7d8ea6;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .vault-eye-btn:hover {
+      color: #00d2ff;
+    }
+
+    .vault-test-btn {
+      background: rgba(0, 210, 255, 0.12);
+      border: 1px solid rgba(0, 210, 255, 0.4);
+      color: #00d2ff;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .vault-test-btn:hover {
+      background: rgba(0, 210, 255, 0.25);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+    }
+    .vault-test-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .vault-test-status {
+      font-size: 0.73rem;
+      display: none;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .vault-test-status.success {
+      display: inline-flex;
+      background: rgba(56, 239, 125, 0.15);
+      color: #38ef7d;
+      border: 1px solid rgba(56, 239, 125, 0.35);
+    }
+    .vault-test-status.error {
+      display: inline-flex;
+      background: rgba(255, 77, 77, 0.15);
+      color: #ff6b6b;
+      border: 1px solid rgba(255, 77, 77, 0.35);
+    }
+    .vault-test-status.loading {
+      display: inline-flex;
+      background: rgba(0, 210, 255, 0.15);
+      color: #00d2ff;
+      border: 1px solid rgba(0, 210, 255, 0.35);
+    }
+
+
     /* Tarjetas de Ideas de Productividad */
     .productivity-grid {
       display: flex;
@@ -4082,141 +4390,704 @@
     </div>
   </div>
 
-  <!-- MODAL: AJUSTES (VOCES HUMANAS NEURONALES, GEMINI, RED, WHATSAPP) -->
+    <!-- MODAL: BÓVEDA CENTRAL DE AUTENTICADORES & APIS -->
   <div class="modal-overlay" id="api-modal">
-    <div class="modal-card">
+    <div class="modal-card vault-modal-card">
       <div class="modal-header">
-        <div class="modal-icon" style="color: var(--accent-pink); border-color: rgba(255, 102, 170, 0.4); background: rgba(255, 102, 170, 0.1);">
+        <div class="modal-icon" style="color: var(--accent-blue); border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.12);">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
         </div>
         <div class="modal-title">
-          <h2>Centro de Control • Liseth</h2>
-          <p>Voces Humanas Neuronales, IA, Persistencia y Red</p>
+          <h2>Bóveda Central de Autenticadores & APIs • Liseth</h2>
+          <p>Control integral y unificado de Inteligencia, Voz, OAuth 2.0, Mensajería, Búsqueda, Git y Seguridad</p>
         </div>
       </div>
 
-      <!-- SECCIÓN: VOCES HUMANAS ULTRA-REALISTAS -->
-      <div class="section-title">
-        <span>🎙️ Voces Femeninas Humanas (Neuronales)</span>
-        <span class="voice-badge-tag" id="active-voice-badge">Calidad Estudio</span>
-      </div>
-      
-      <div class="toggle-row">
-        <span style="font-size: 0.85rem; color: #fff;">Habla de Liseth (Voz Activa)</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="voice-enable-toggle" checked>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="voice-selection-box">
-        <div class="input-field-group">
-          <label for="voice-model-select">Seleccione una Voz Femenina Similar a Humana:</label>
-          <select id="voice-model-select">
-            <optgroup label="🌟 Voces Femeninas Neuronales (Humanas, Dulces y Armoniosas)">
-              <option value="es-CO-SalomeNeural" selected>Salomé (Colombia) • Dulce, Cálida y Melodiosa</option>
-              <option value="es-MX-DaliaNeural">Dalia (México) • Juvenil, Dulce y Expresiva (Estilo Anime)</option>
-              <option value="es-ES-ElviraNeural">Elvira (España) • Suave, Elegante y Aristocrática</option>
-              <option value="es-US-PalomaNeural">Paloma (Hispanoamérica) • Expresiva, Clara y Natural</option>
-              <option value="es-PE-CamilaNeural">Camila (Perú) • Clara, Neutra y Dulce</option>
-              <option value="es-AR-ElenaNeural">Elena (Argentina) • Cálida, Afectuosa y Natural</option>
-              <option value="ja-JP-NanamiNeural">Nanami (Japón) • Auténtica Chica Anime</option>
-            </optgroup>
-            <optgroup label="💎 Proveedores Premium Externos (Requiere tu propia API Key)">
-              <option value="elevenlabs:Rachel">ElevenLabs • Rachel (Ultra Realista)</option>
-              <option value="elevenlabs:Sarah">ElevenLabs • Sarah (Joven y Conversacional)</option>
-              <option value="elevenlabs:Nicole">ElevenLabs • Nicole (Susurrante y Dulce)</option>
-              <option value="openai:nova">OpenAI • Nova (Cálida y Afectuosa)</option>
-              <option value="openai:shimmer">OpenAI • Shimmer (Clara y Expresiva)</option>
-            </optgroup>
-          </select>
+      <!-- BARRA DE HERRAMIENTAS Y ENTORNO -->
+      <div class="vault-toolbar">
+        <div class="vault-env-indicator" id="vault-env-indicator">
+          <span class="dot"></span>
+          <span id="vault-env-label">Servidor Local Conectado (.env persistido)</span>
         </div>
-
-        <div class="voice-desc-box" id="voice-description-text">
-          Salomé (Colombia): Entonación sumamente humana, suave, tranquila, dulce y melodiosa. Transmite calidez, cercanía y perfecta armonía.
-        </div>
-
-        <div class="voice-actions-row">
-          <button class="btn-preview-voice" id="btn-preview-voice" type="button">
-            ▶ Escuchar Muestra Humana
+        <div class="vault-toolbar-actions">
+          <button class="vault-tool-btn" id="btn-vault-export" type="button" title="Descargar copia de seguridad en JSON">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Exportar Backup
           </button>
-          <span style="font-size: 0.72rem; color: #38ef7d; display: flex; align-items: center; gap: 4px;">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: #38ef7d;"></span>
-            Motor Neuronal Conectado
-          </span>
-        </div>
-      </div>
-
-      <div class="input-field-group">
-        <label>Tono / Modulación Dulce:</label>
-        <div class="slider-row">
-          <input type="range" id="voice-pitch-slider" min="-10" max="30" step="5" value="15">
-          <span class="slider-val" id="pitch-hz-val">+15Hz</span>
-        </div>
-      </div>
-
-      <div class="input-field-group">
-        <label>Velocidad de Locución:</label>
-        <div class="slider-row">
-          <input type="range" id="voice-rate-slider" min="-15" max="25" step="5" value="5">
-          <span class="slider-val" id="rate-pct-val">+5%</span>
-        </div>
-      </div>
-
-      <!-- SECCIÓN: LLAVE GEMINI -->
-      <div class="section-title"><span>🔑 Llave de Inteligencia (Google Gemini)</span></div>
-      <div class="input-field-group">
-        <label for="api-key-input">Su Clave de API</label>
-        <div class="key-input-wrapper">
-          <input type="password" id="api-key-input" placeholder="AIzaSy..." spellcheck="false" autocomplete="off" />
-          <button class="toggle-visibility-btn" id="toggle-key-visibility" type="button" title="Mostrar/Ocultar" style="position: absolute; right: 12px; background: none; border: none; color: var(--text-muted); cursor: pointer;">
-            <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
+          <button class="vault-tool-btn" id="btn-vault-import" type="button" title="Restaurar credenciales desde archivo JSON">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            Importar Backup
+          </button>
+          <input type="file" id="vault-import-file-input" accept=".json" style="display:none;" />
+          <button class="vault-tool-btn" id="btn-vault-sync" type="button" title="Recargar valores desde el servidor">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Sincronizar
+          </button>
+          <button class="vault-tool-btn" id="btn-vault-clear" type="button" title="Limpiar todas las claves guardadas" style="color: #ff8b8b; border-color: rgba(255, 77, 77, 0.3);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            Limpiar
           </button>
         </div>
       </div>
 
-      <!-- SECCIÓN: PROVEEDORES EXTERNOS OPCIONALES -->
-      <details style="font-size: 0.82rem; color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 12px;">
-        <summary style="cursor: pointer; color: var(--accent-blue);">Opcional: Claves para ElevenLabs u OpenAI &darr;</summary>
-        <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-          <div class="input-field-group">
-            <label for="elevenlabs-key-input">API Key de ElevenLabs</label>
-            <input type="password" id="elevenlabs-key-input" placeholder="xi-api-key..." style="background: rgba(18, 28, 48, 0.8); border: 1px solid rgba(45, 90, 160, 0.4); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
-          </div>
-          <div class="input-field-group">
-            <label for="openai-key-input">API Key de OpenAI</label>
-            <input type="password" id="openai-key-input" placeholder="sk-proj-..." style="background: rgba(18, 28, 48, 0.8); border: 1px solid rgba(45, 90, 160, 0.4); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 0.82rem;" />
-          </div>
-        </div>
-      </details>
-
-      <!-- SECCIÓN: PERSISTENCIA Y ACCESO EN OTROS DISPOSITIVOS -->
-      <div class="section-title"><span>🌐 Servidor Local & Acceso desde Celular</span></div>
-      <div style="background: rgba(18, 28, 48, 0.6); border: 1px solid rgba(45, 90, 160, 0.3); border-radius: 8px; padding: 10px; font-size: 0.82rem; line-height: 1.5;">
-        <div id="server-network-info">
-          <div><strong>Estado:</strong> <span id="modal-server-status">Comprobando...</span></div>
-          <div style="margin-top: 4px;"><strong>Abrir en celular/tablet (misma Wi-Fi):</strong></div>
-          <div id="local-ip-links" style="color: var(--accent-blue); font-family: var(--font-mono); margin-top: 2px;">Cargando direcciones...</div>
-        </div>
+      <!-- NAVEGACIÓN POR PESTAÑAS (7 DOMINIOS) -->
+      <div class="vault-tabs" id="vault-tabs">
+        <button class="vault-tab-btn active" data-vault-tab="tab-llm" type="button">🧠 Cerebros IA</button>
+        <button class="vault-tab-btn" data-vault-tab="tab-voice" type="button">🎙️ Voces & Habla</button>
+        <button class="vault-tab-btn" data-vault-tab="tab-google" type="button">🌐 Google Workspace</button>
+        <button class="vault-tab-btn" data-vault-tab="tab-messaging" type="button">📱 Mensajería</button>
+        <button class="vault-tab-btn" data-vault-tab="tab-search" type="button">🔍 Búsqueda & Académico</button>
+        <button class="vault-tab-btn" data-vault-tab="tab-git" type="button">🚀 Git & Nube</button>
+        <button class="vault-tab-btn" data-vault-tab="tab-security" type="button">🛡️ Seguridad & Accesos</button>
       </div>
 
-      <!-- SECCIÓN: WHATSAPP (FASE 2) -->
-      <div class="section-title"><span>📱 Recordatorios a WhatsApp (Próxima Fase)</span></div>
-      <div style="background: rgba(37, 211, 102, 0.08); border: 1px solid rgba(37, 211, 102, 0.25); border-radius: 8px; padding: 10px; font-size: 0.8rem; color: #b7efcd; line-height: 1.5;">
-        <div><strong>⚙️ Actualización en Preparación:</strong></div>
-        <p style="margin-top: 4px;">Para enviar mensajes y recordatorios automáticos a su WhatsApp se implementará el conector de sesión <strong>Baileys (Web QR)</strong> en su servidor local.</p>
-        <p style="margin-top: 4px;">Solo requerirá escanear un código QR desde su celular una vez y el servidor podrá recordarle compromisos automáticamente.</p>
+      <!-- CONTENEDOR DE PANELES -->
+      <div class="vault-panes-container">
+        
+        <!-- PESTAÑA 1: CEREBROS IA (LLMs) -->
+        <div class="vault-pane active" id="pane-tab-llm">
+          <!-- Gemini -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>✨ Google Gemini (Cerebro Primario)</span>
+                <span class="vault-badge vault-badge-rec">Recomendado</span>
+              </span>
+              <span class="vault-test-status" id="test-status-gemini"></span>
+            </div>
+            <div class="vault-row-help">
+              Motor cognitivo principal con auto-descubrimiento en tiempo real y soporte multimodal.
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Obtener clave gratis en Google AI Studio &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="api-key-input" data-key-name="GEMINI_API_KEY" placeholder="AIzaSy..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="api-key-input" title="Mostrar/Ocultar">👁️</button>
+              <button class="vault-test-btn" type="button" data-test-provider="gemini">⚡ Probar</button>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+              <label style="font-size: 0.74rem; color: #8fa0bc; min-width: 110px;">Modelo Gemini:</label>
+              <select class="vault-input" id="vault-gemini-model" data-key-name="GEMINI_MODEL" style="padding: 6px 10px;">
+                <option value="gemini-2.5-flash" selected>gemini-2.5-flash (Predeterminado • Ultra Rápido)</option>
+                <option value="gemini-2.5-pro">gemini-2.5-pro (Máxima Capacidad Analítica)</option>
+                <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Claude -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🎭 Anthropic Claude (Cerebro de Respaldo)</span>
+                <span class="vault-badge vault-badge-opt">Opcional</span>
+              </span>
+              <span class="vault-test-status" id="test-status-claude"></span>
+            </div>
+            <div class="vault-row-help">
+              Arquitectura dual: si Gemini agota cuota o sufre latencia, Claude toma el relevo automáticamente.
+              <a href="https://console.anthropic.com" target="_blank" rel="noopener">Obtener clave en Anthropic Console &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="vault-anthropic-key" data-key-name="ANTHROPIC_API_KEY" placeholder="sk-ant-api03-..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="vault-anthropic-key" title="Mostrar/Ocultar">👁️</button>
+              <button class="vault-test-btn" type="button" data-test-provider="claude">⚡ Probar</button>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+              <label style="font-size: 0.74rem; color: #8fa0bc; min-width: 110px;">Modelo Claude:</label>
+              <select class="vault-input" id="vault-anthropic-model" data-key-name="ANTHROPIC_MODEL" style="padding: 6px 10px;">
+                <option value="claude-3-5-sonnet-20241022" selected>claude-3-5-sonnet-20241022 (Máxima Calidad)</option>
+                <option value="claude-3-5-haiku-20241022">claude-3-5-haiku-20241022 (Rápido y Ligero)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Groq -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>⚡ Groq LPU (Inferencia Instantánea)</span>
+                <span class="vault-badge vault-badge-opt">Gratis / Rápido</span>
+              </span>
+              <span class="vault-test-status" id="test-status-groq"></span>
+            </div>
+            <div class="vault-row-help">
+              Procesamiento de 500+ tokens por segundo con Llama 3.3.
+              <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Obtener clave en Groq Console &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="vault-groq-key" data-key-name="GROQ_API_KEY" placeholder="gsk_..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="vault-groq-key" title="Mostrar/Ocultar">👁️</button>
+              <button class="vault-test-btn" type="button" data-test-provider="groq">⚡ Probar</button>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+              <label style="font-size: 0.74rem; color: #8fa0bc; min-width: 110px;">Modelo Groq:</label>
+              <select class="vault-input" id="vault-groq-model" data-key-name="GROQ_MODEL" style="padding: 6px 10px;">
+                <option value="llama-3.3-70b-versatile" selected>llama-3.3-70b-versatile</option>
+                <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
+                <option value="llama-3.1-8b-instant">llama-3.1-8b-instant</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- OpenAI -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🟢 OpenAI (GPT-4o & Razonamiento)</span>
+                <span class="vault-badge vault-badge-opt">Opcional</span>
+              </span>
+              <span class="vault-test-status" id="test-status-openai"></span>
+            </div>
+            <div class="vault-row-help">
+              Compatible con GPT-4o y modelos de razonamiento avanzado.
+              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">Obtener clave en OpenAI Platform &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="openai-key-input" data-key-name="OPENAI_API_KEY" placeholder="sk-proj-..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="openai-key-input" title="Mostrar/Ocultar">👁️</button>
+              <button class="vault-test-btn" type="button" data-test-provider="openai">⚡ Probar</button>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+              <label style="font-size: 0.74rem; color: #8fa0bc; min-width: 110px;">Modelo OpenAI:</label>
+              <select class="vault-input" id="vault-openai-model" data-key-name="OPENAI_MODEL" style="padding: 6px 10px;">
+                <option value="gpt-4o-mini" selected>gpt-4o-mini (Económico y Rápido)</option>
+                <option value="gpt-4o">gpt-4o (Completo Multimodal)</option>
+                <option value="o1-mini">o1-mini (Razonamiento Lógico Profundo)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Ollama Local Privado -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🦙 Ollama (IA Local Offline 100% Privada)</span>
+                <span class="vault-badge vault-badge-rec">Local / Sin Internet</span>
+              </span>
+              <label class="toggle-switch" style="transform: scale(0.85);">
+                <input type="checkbox" id="vault-ollama-enabled" data-key-name="OLLAMA_ENABLED" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="vault-row-help">
+              Permite ejecutar modelos de IA en su propio equipo (Llama 3.2, DeepSeek-R1) sin conexión a internet ni consumo de saldo.
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">URL Servidor Ollama:</label>
+                <input type="text" class="vault-input" id="vault-ollama-url" data-key-name="OLLAMA_BASE_URL" placeholder="http://localhost:11434" />
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Modelo Descargado:</label>
+                <input type="text" class="vault-input" id="vault-ollama-model" data-key-name="OLLAMA_MODEL" placeholder="llama3.2" />
+              </div>
+            </div>
+          </div>
+
+          <!-- OpenRouter -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🌐 OpenRouter (Unificador Multimodelo)</span>
+                <span class="vault-badge vault-badge-opt">Opcional</span>
+              </span>
+            </div>
+            <div class="vault-row-help">
+              Acceda a 100+ modelos unificados con una sola clave.
+              <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">Obtener clave en OpenRouter &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="vault-openrouter-key" data-key-name="OPENROUTER_API_KEY" placeholder="sk-or-v1-..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="vault-openrouter-key" title="Mostrar/Ocultar">👁️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 2: VOCES & HABLA (TTS/STT) -->
+        <div class="vault-pane" id="pane-tab-voice">
+          <!-- Voces Femeninas Neuronales (Edge TTS) -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🎙️ Voces Femeninas Neuronales (Similares a Humanas)</span>
+                <span class="voice-badge-tag" id="active-voice-badge">Calidad Estudio</span>
+              </span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="voice-enable-toggle" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="vault-row-help">
+              Síntesis de voz ultra-natural en español con modulación dulce y cálida sin costo de API.
+            </div>
+
+            <div class="input-field-group">
+              <label for="voice-model-select">Seleccione una Voz Femenina:</label>
+              <select id="voice-model-select" class="vault-input" style="padding: 8px 10px;">
+                <optgroup label="🌟 Voces Femeninas Neuronales (Humanas, Dulces y Armoniosas)">
+                  <option value="es-CO-SalomeNeural" selected>Salomé (Colombia) • Dulce, Cálida y Melodiosa</option>
+                  <option value="es-MX-DaliaNeural">Dalia (México) • Juvenil, Dulce y Expresiva (Estilo Anime)</option>
+                  <option value="es-ES-ElviraNeural">Elvira (España) • Suave, Elegante y Aristocrática</option>
+                  <option value="es-US-PalomaNeural">Paloma (Hispanoamérica) • Expresiva, Clara y Natural</option>
+                  <option value="es-PE-CamilaNeural">Camila (Perú) • Clara, Neutra y Dulce</option>
+                  <option value="es-AR-ElenaNeural">Elena (Argentina) • Cálida, Afectuosa y Natural</option>
+                  <option value="ja-JP-NanamiNeural">Nanami (Japón) • Auténtica Chica Anime</option>
+                </optgroup>
+                <optgroup label="💎 Proveedores Premium Externos (Requiere tu propia API Key)">
+                  <option value="elevenlabs:Rachel">ElevenLabs • Rachel (Ultra Realista)</option>
+                  <option value="elevenlabs:Sarah">ElevenLabs • Sarah (Joven y Conversacional)</option>
+                  <option value="elevenlabs:Nicole">ElevenLabs • Nicole (Susurrante y Dulce)</option>
+                  <option value="openai:nova">OpenAI • Nova (Cálida y Afectuosa)</option>
+                  <option value="openai:shimmer">OpenAI • Shimmer (Clara y Expresiva)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="voice-desc-box" id="voice-description-text">
+              Salomé (Colombia): Entonación sumamente humana, suave, tranquila, dulce y melodiosa. Transmite calidez, cercanía y perfecta armonía.
+            </div>
+
+            <div class="voice-actions-row">
+              <button class="btn-preview-voice" id="btn-preview-voice" type="button">
+                ▶ Escuchar Muestra Humana
+              </button>
+              <span style="font-size: 0.72rem; color: #38ef7d; display: flex; align-items: center; gap: 4px;">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: #38ef7d;"></span>
+                Motor Neuronal Conectado
+              </span>
+            </div>
+
+            <div class="input-field-group" style="margin-top: 6px;">
+              <label>Tono / Modulación Dulce:</label>
+              <div class="slider-row">
+                <input type="range" id="voice-pitch-slider" min="-10" max="30" step="5" value="15" />
+                <span class="slider-val" id="pitch-hz-val">+15Hz</span>
+              </div>
+            </div>
+
+            <div class="input-field-group">
+              <label>Velocidad de Locución:</label>
+              <div class="slider-row">
+                <input type="range" id="voice-rate-slider" min="-15" max="25" step="5" value="5" />
+                <span class="slider-val" id="rate-pct-val">+5%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ElevenLabs -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>💎 ElevenLabs (Síntesis de Voz Premium Grado Cine)</span>
+                <span class="vault-badge vault-badge-opt">Ultra-Realismo</span>
+              </span>
+              <span class="vault-test-status" id="test-status-elevenlabs"></span>
+            </div>
+            <div class="vault-row-help">
+              Clonación de voz y modulación emocional avanzada de alta gama.
+              <a href="https://elevenlabs.io" target="_blank" rel="noopener">Obtener clave en ElevenLabs &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="elevenlabs-key-input" data-key-name="ELEVENLABS_API_KEY" placeholder="xi-api-key..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="elevenlabs-key-input" title="Mostrar/Ocultar">👁️</button>
+              <button class="vault-test-btn" type="button" data-test-provider="elevenlabs">⚡ Probar</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Voice ID:</label>
+                <input type="text" class="vault-input" id="vault-elevenlabs-voice-id" data-key-name="ELEVENLABS_VOICE_ID" placeholder="21m00Tcm4TlvDq8ikWAM (Rachel)" />
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Modelo ElevenLabs:</label>
+                <input type="text" class="vault-input" id="vault-elevenlabs-model-id" data-key-name="ELEVENLABS_MODEL_ID" placeholder="eleven_multilingual_v2" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Porcupine Wake-Word -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>👂 Picovoice Porcupine (Detección Wake-Word "Liseth")</span>
+                <span class="vault-badge vault-badge-rec">Manos Libres</span>
+              </span>
+            </div>
+            <div class="vault-row-help">
+              Permite a Liseth escuchar en segundo plano y responder al decir "Liseth" sin tocar el teclado ni gastar CPU.
+              <a href="https://picovoice.ai/console" target="_blank" rel="noopener">Obtener AccessKey gratis en Picovoice &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="vault-porcupine-key" data-key-name="PORCUPINE_ACCESS_KEY" placeholder="AccessKey Picovoice..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="vault-porcupine-key" title="Mostrar/Ocultar">👁️</button>
+            </div>
+          </div>
+
+          <!-- Azure Speech -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>☁️ Microsoft Azure Speech Service</span>
+                <span class="vault-badge vault-badge-opt">Opcional</span>
+              </span>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Azure Speech Key:</label>
+                <div class="vault-input-group">
+                  <input type="password" class="vault-input" id="vault-azure-speech-key" data-key-name="AZURE_SPEECH_KEY" placeholder="Clave Azure..." spellcheck="false" autocomplete="off" />
+                  <button class="vault-eye-btn" type="button" data-target="vault-azure-speech-key" title="Mostrar/Ocultar">👁️</button>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Región:</label>
+                <input type="text" class="vault-input" id="vault-azure-speech-region" data-key-name="AZURE_SPEECH_REGION" placeholder="eastus" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 3: GOOGLE WORKSPACE & OAUTH 2.0 -->
+        <div class="vault-pane" id="pane-tab-google">
+          <!-- Google OAuth Client -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🔐 Google Cloud OAuth 2.0 (Gmail, Calendar, Drive, Docs)</span>
+                <span class="vault-badge vault-badge-oauth">OAuth 2.0</span>
+              </span>
+            </div>
+            <div class="vault-row-help">
+              Permite a Liseth leer sus correos importantes, agendar citas en Google Calendar y crear documentos.
+              <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Configurar en Google Cloud Console &rarr;</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Client ID de Google:</label>
+                <input type="text" class="vault-input" id="vault-google-client-id" data-key-name="GOOGLE_CLIENT_ID" placeholder="xxxxxxxxxxxx.apps.googleusercontent.com" spellcheck="false" />
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Client Secret de Google:</label>
+                <div class="vault-input-group">
+                  <input type="password" class="vault-input" id="vault-google-client-secret" data-key-name="GOOGLE_CLIENT_SECRET" placeholder="GOCSPX-..." spellcheck="false" autocomplete="off" />
+                  <button class="vault-eye-btn" type="button" data-target="vault-google-client-secret" title="Mostrar/Ocultar">👁️</button>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">URI de Redirección Autorizada:</label>
+                <input type="text" class="vault-input" id="vault-google-redirect-uri" data-key-name="GOOGLE_REDIRECT_URI" placeholder="http://localhost:8000/auth/google/callback" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Token Status & Action -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>📂 Estado de Permisos y Sesión (`token.json`)</span>
+              </span>
+              <span id="vault-google-token-badge" class="vault-badge vault-badge-opt">Comprobando...</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 4px;">
+              <div style="background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px; font-size: 0.75rem;">✉️ <strong>Gmail:</strong> <span id="vgt-gmail">Listo</span></div>
+              <div style="background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px; font-size: 0.75rem;">📅 <strong>Calendar:</strong> <span id="vgt-calendar">Listo</span></div>
+              <div style="background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px; font-size: 0.75rem;">📁 <strong>Drive:</strong> <span id="vgt-drive">Listo</span></div>
+              <div style="background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px; font-size: 0.75rem;">📝 <strong>Docs:</strong> <span id="vgt-docs">Listo</span></div>
+            </div>
+            <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+              <button class="vault-tool-btn" type="button" id="btn-login-google-oauth" style="background: rgba(0, 210, 255, 0.15); border-color: #00d2ff; color: #ffffff;">
+                🔑 Iniciar Autorización en Navegador
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 4: MENSAJERÍA & NOTIFICACIONES -->
+        <div class="vault-pane" id="pane-tab-messaging">
+          <!-- Telegram -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>✈️ Telegram Bot (Alertas y Notificaciones Móviles)</span>
+                <span class="vault-badge vault-badge-rec">Recomendado</span>
+              </span>
+              <span class="vault-test-status" id="test-status-telegram"></span>
+            </div>
+            <div class="vault-row-help">
+              Liseth le enviará mensajes a su Telegram personal cuando un proyecto termine o tenga citas pendientes.
+              <a href="https://t.me/BotFather" target="_blank" rel="noopener">Crear bot con @BotFather &rarr;</a>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Bot Token de Telegram:</label>
+                <div class="vault-input-group">
+                  <input type="password" class="vault-input" id="vault-telegram-token" data-key-name="TELEGRAM_BOT_TOKEN" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" spellcheck="false" autocomplete="off" />
+                  <button class="vault-eye-btn" type="button" data-target="vault-telegram-token" title="Mostrar/Ocultar">👁️</button>
+                  <button class="vault-test-btn" type="button" data-test-provider="telegram">⚡ Probar</button>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Su Chat ID Personal:</label>
+                <input type="text" class="vault-input" id="vault-telegram-chat-id" data-key-name="TELEGRAM_CHAT_ID" placeholder="123456789" />
+              </div>
+            </div>
+          </div>
+
+          <!-- WhatsApp Cloud API -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>💬 Meta WhatsApp Cloud API (Oficial)</span>
+                <span class="vault-badge vault-badge-opt">Empresarial</span>
+              </span>
+            </div>
+            <div class="vault-row-help">
+              Envío directo de plantillas y mensajes oficiales de WhatsApp sin depender de emuladores ni código QR.
+              <a href="https://developers.facebook.com" target="_blank" rel="noopener">Consola Meta for Developers &rarr;</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                  <label style="font-size: 0.74rem; color: #8fa0bc;">Phone Number ID:</label>
+                  <input type="text" class="vault-input" id="vault-meta-wa-phone-id" data-key-name="META_WA_PHONE_NUMBER_ID" placeholder="1029384756..." />
+                </div>
+                <div>
+                  <label style="font-size: 0.74rem; color: #8fa0bc;">Teléfono Destino (+57...):</label>
+                  <input type="text" class="vault-input" id="vault-meta-wa-recipient" data-key-name="META_WA_RECIPIENT_PHONE" placeholder="+573001234567" />
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Access Token Permanente (Meta Graph):</label>
+                <div class="vault-input-group">
+                  <input type="password" class="vault-input" id="vault-meta-wa-token" data-key-name="META_WA_ACCESS_TOKEN" placeholder="EAAB..." spellcheck="false" autocomplete="off" />
+                  <button class="vault-eye-btn" type="button" data-target="vault-meta-wa-token" title="Mostrar/Ocultar">👁️</button>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Verify Token Webhook:</label>
+                <input type="text" class="vault-input" id="vault-meta-wa-verify" data-key-name="META_WA_VERIFY_TOKEN" placeholder="mi_token_secreto_webhook" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 5: BÚSQUEDA & ACADÉMICO / MULTIMEDIA -->
+        <div class="vault-pane" id="pane-tab-search">
+          <!-- Búsqueda Web -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🔍 Motores de Búsqueda Web en Tiempo Real</span>
+              </span>
+            </div>
+            <div class="vault-row-help">
+              Proporciona a Liseth acceso directo a noticias e internet en vivo con extracción estructurada.
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">SerpAPI Key (Google Scraper):</label>
+                <div class="vault-input-group">
+                  <input type="password" class="vault-input" id="vault-serpapi-key" data-key-name="SERPAPI_API_KEY" placeholder="Clave SerpAPI..." spellcheck="false" autocomplete="off" />
+                  <button class="vault-eye-btn" type="button" data-target="vault-serpapi-key" title="Mostrar/Ocultar">👁️</button>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+                <div>
+                  <label style="font-size: 0.74rem; color: #8fa0bc;">Google Custom Search API Key:</label>
+                  <div class="vault-input-group">
+                    <input type="password" class="vault-input" id="vault-google-search-key" data-key-name="GOOGLE_SEARCH_API_KEY" placeholder="AIzaSy..." spellcheck="false" autocomplete="off" />
+                    <button class="vault-eye-btn" type="button" data-target="vault-google-search-key" title="Mostrar/Ocultar">👁️</button>
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 0.74rem; color: #8fa0bc;">Search Engine ID (cx):</label>
+                  <input type="text" class="vault-input" id="vault-google-cse-id" data-key-name="GOOGLE_CSE_ID" placeholder="0123456789..." />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OpenAlex (UNAL / Tesis / Investigación) -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🎓 OpenAlex Academic Research (UNAL & Artículos Científicos)</span>
+                <span class="vault-badge vault-badge-rec">100,000 req/día Gratis</span>
+              </span>
+            </div>
+            <div class="vault-row-help">
+              Pool de investigación de alta velocidad para buscar literatura académica, papers indexados y citas APA 7 sin costo.
+            </div>
+            <div>
+              <label style="font-size: 0.74rem; color: #8fa0bc;">Su Correo Electrónico (Polite Pool):</label>
+              <input type="email" class="vault-input" id="vault-openalex-email" data-key-name="OPENALEX_EMAIL" placeholder="su.correo@unal.edu.co" />
+            </div>
+          </div>
+
+          <!-- Multimedia & Clima -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🎵 Spotify, YouTube & Clima</span>
+              </span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                  <label style="font-size: 0.74rem; color: #8fa0bc;">Spotify Client ID:</label>
+                  <input type="text" class="vault-input" id="vault-spotify-client-id" data-key-name="SPOTIFY_CLIENT_ID" placeholder="Spotify Client ID" />
+                </div>
+                <div>
+                  <label style="font-size: 0.74rem; color: #8fa0bc;">Spotify Client Secret:</label>
+                  <div class="vault-input-group">
+                    <input type="password" class="vault-input" id="vault-spotify-secret" data-key-name="SPOTIFY_CLIENT_SECRET" placeholder="Spotify Secret" spellcheck="false" autocomplete="off" />
+                    <button class="vault-eye-btn" type="button" data-target="vault-spotify-secret" title="Mostrar/Ocultar">👁️</button>
+                  </div>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                  <label style="font-size: 0.74rem; color: #8fa0bc;">YouTube Data API v3 Key:</label>
+                  <div class="vault-input-group">
+                    <input type="password" class="vault-input" id="vault-youtube-key" data-key-name="YOUTUBE_API_KEY" placeholder="YouTube Key" spellcheck="false" autocomplete="off" />
+                    <button class="vault-eye-btn" type="button" data-target="vault-youtube-key" title="Mostrar/Ocultar">👁️</button>
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 0.74rem; color: #8fa0bc;">OpenWeatherMap API Key:</label>
+                  <div class="vault-input-group">
+                    <input type="password" class="vault-input" id="vault-weather-key" data-key-name="OPENWEATHER_API_KEY" placeholder="Weather Key" spellcheck="false" autocomplete="off" />
+                    <button class="vault-eye-btn" type="button" data-target="vault-weather-key" title="Mostrar/Ocultar">👁️</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 6: GIT & DESPLIEGUES NUBE -->
+        <div class="vault-pane" id="pane-tab-git">
+          <!-- GitHub -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🐙 GitHub Personal Access Token (Sincronización Automática)</span>
+                <span class="vault-badge vault-badge-rec">Esencial</span>
+              </span>
+              <span class="vault-test-status" id="test-status-github"></span>
+            </div>
+            <div class="vault-row-help">
+              Permite a Liseth hacer commits automáticos y sincronizar con su repositorio remoto en GitHub (https://github.com/santigamerxdyt/Liseth-AI.git).
+              <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Generar token en GitHub Settings &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="vault-github-token" data-key-name="GITHUB_TOKEN" placeholder="ghp_..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="vault-github-token" title="Mostrar/Ocultar">👁️</button>
+              <button class="vault-test-btn" type="button" data-test-provider="github">⚡ Probar</button>
+            </div>
+          </div>
+
+          <!-- Vercel -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>▲ Vercel CLI Token (Despliegues en Vivo)</span>
+                <span class="vault-badge vault-badge-opt">Nube</span>
+              </span>
+            </div>
+            <div class="vault-row-help">
+              Para desplegar aplicaciones, dashboards y microservicios a servidores Edge de Vercel al instante.
+              <a href="https://vercel.com/account/tokens" target="_blank" rel="noopener">Generar token en Vercel &rarr;</a>
+            </div>
+            <div class="vault-input-group">
+              <input type="password" class="vault-input" id="vault-vercel-token" data-key-name="VERCEL_TOKEN" placeholder="Token Vercel..." spellcheck="false" autocomplete="off" />
+              <button class="vault-eye-btn" type="button" data-target="vault-vercel-token" title="Mostrar/Ocultar">👁️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 7: SEGURIDAD & ACCESOS -->
+        <div class="vault-pane" id="pane-tab-security">
+          <!-- PIN Santiago -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🔒 PIN de Acceso Privado (Señor Santiago)</span>
+                <span class="vault-badge vault-badge-rec">Seguridad</span>
+              </span>
+            </div>
+            <div class="vault-row-help">
+              Código PIN numérico para desbloquear el asistente si se encuentra en modo custodia o protegido.
+            </div>
+            <div>
+              <input type="password" class="vault-input" id="vault-access-pin" data-key-name="JARVIS_ACCESS_PIN" placeholder="1234" maxlength="8" />
+            </div>
+          </div>
+
+          <!-- Criptografía -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🛡️ Claves Criptográficas del Sistema</span>
+              </span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Master Encryption Key (AES-256):</label>
+                <div class="vault-input-group">
+                  <input type="password" class="vault-input" id="vault-master-key" data-key-name="MASTER_ENCRYPTION_KEY" placeholder="Clave AES de 32 bytes..." spellcheck="false" autocomplete="off" />
+                  <button class="vault-eye-btn" type="button" data-target="vault-master-key" title="Mostrar/Ocultar">👁️</button>
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; color: #8fa0bc;">Session Secret (HMAC):</label>
+                <div class="vault-input-group">
+                  <input type="password" class="vault-input" id="vault-session-secret" data-key-name="SESSION_SECRET" placeholder="Secreto de sesión..." spellcheck="false" autocomplete="off" />
+                  <button class="vault-eye-btn" type="button" data-target="vault-session-secret" title="Mostrar/Ocultar">👁️</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cuota Diaria -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>📊 Control de Presupuesto & Límite Diario de Tokens</span>
+              </span>
+            </div>
+            <div>
+              <label style="font-size: 0.74rem; color: #8fa0bc;">Límite Preventivo Máximo:</label>
+              <input type="number" class="vault-input" id="vault-daily-limit" data-key-name="DAILY_TOKEN_LIMIT" placeholder="250000" />
+            </div>
+          </div>
+
+          <!-- Red y Servidor Local -->
+          <div class="vault-card-row">
+            <div class="vault-row-header">
+              <span class="vault-row-title">
+                <span>🌐 Servidor Local & Acceso desde Celular</span>
+              </span>
+            </div>
+            <div style="background: rgba(18, 28, 48, 0.6); border: 1px solid rgba(45, 90, 160, 0.3); border-radius: 8px; padding: 10px; font-size: 0.82rem; line-height: 1.5;">
+              <div id="server-network-info">
+                <div><strong>Estado:</strong> <span id="modal-server-status">Comprobando...</span></div>
+                <div style="margin-top: 4px;"><strong>Abrir en celular/tablet (misma Wi-Fi):</strong></div>
+                <div id="local-ip-links" style="color: var(--accent-blue); font-family: var(--font-mono); margin-top: 2px;">Cargando direcciones...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
+      <!-- BOTONES DE ACCIÓN INFERIORES -->
       <div class="modal-actions">
-        <button class="btn-secondary" id="btn-cancel-modal">Cancelar</button>
-        <button class="btn-primary" id="btn-save-key">Guardar Cambios</button>
+        <button class="btn-secondary" id="btn-cancel-modal" type="button">Cerrar</button>
+        <button class="btn-primary" id="btn-save-key" type="button">💾 Guardar Todos los Cambios</button>
       </div>
     </div>
   </div>
@@ -5469,6 +6340,7 @@ Tus habilidades clave:
         loadSavedChat();
         setupInputHandlers();
         setupFileUploadHandlers();
+      initVaultUI();
         setupModals();
         setupChips();
         setupMemoryHandlers();
@@ -6564,7 +7436,277 @@ Tus habilidades clave:
         }
       }
 
+      
+      // ============================================================
+      // BÓVEDA CENTRAL DE AUTENTICADORES & APIS - LÓGICA DE GESTIÓN
+      // ============================================================
+
+      function initVaultUI() {
+        // 1. Selector de Pestañas
+        const tabBtns = document.querySelectorAll("#vault-tabs .vault-tab-btn");
+        tabBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            const target = btn.getAttribute("data-vault-tab");
+            tabBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            document.querySelectorAll(".vault-pane").forEach(p => p.classList.remove("active"));
+            const targetPane = document.getElementById("pane-" + target);
+            if (targetPane) targetPane.classList.add("active");
+          });
+        });
+
+        // 2. Toggles de Visibilidad para Contraseñas / Claves
+        document.querySelectorAll(".vault-eye-btn").forEach(eye => {
+          eye.addEventListener("click", () => {
+            const targetId = eye.getAttribute("data-target");
+            const targetInput = document.getElementById(targetId);
+            if (targetInput) {
+              const isPass = targetInput.type === "password";
+              targetInput.type = isPass ? "text" : "password";
+              eye.textContent = isPass ? "🔒" : "👁️";
+            }
+          });
+        });
+
+        // 3. Botones de Prueba en Vivo (⚡ Probar Conexión)
+        document.querySelectorAll(".vault-test-btn").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const provider = btn.getAttribute("data-test-provider");
+            if (!provider) return;
+
+            const statusEl = document.getElementById("test-status-" + provider);
+            if (statusEl) {
+              statusEl.className = "vault-test-status loading";
+              statusEl.textContent = "Probando conexión...";
+            }
+            btn.disabled = true;
+
+            // Encontrar clave del input asociado
+            let keyVal = "";
+            if (provider === "gemini") keyVal = apiKeyInput.value.trim();
+            else if (provider === "claude") keyVal = document.getElementById("vault-anthropic-key").value.trim();
+            else if (provider === "groq") keyVal = document.getElementById("vault-groq-key").value.trim();
+            else if (provider === "openai") keyVal = openaiKeyInput.value.trim();
+            else if (provider === "elevenlabs") keyVal = elevenlabsKeyInput.value.trim();
+            else if (provider === "telegram") keyVal = document.getElementById("vault-telegram-token").value.trim();
+            else if (provider === "github") keyVal = document.getElementById("vault-github-token").value.trim();
+
+            try {
+              const res = await fetch("/api/credentials/test", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ provider: provider, key: keyVal })
+              });
+              const data = await res.json();
+              if (res.ok && data.status === "ok") {
+                if (statusEl) {
+                  statusEl.className = "vault-test-status success";
+                  statusEl.textContent = "✓ " + (data.message || "Conexión exitosa");
+                }
+                showToast("🟢 " + provider.toUpperCase() + ": " + (data.message || "Conexión 200 OK"));
+              } else {
+                if (statusEl) {
+                  statusEl.className = "vault-test-status error";
+                  statusEl.textContent = "✕ " + (data.message || "Error al conectar");
+                }
+                showToast("🔴 " + provider.toUpperCase() + ": " + (data.message || "Fallo en conexión"));
+              }
+            } catch (err) {
+              if (statusEl) {
+                statusEl.className = "vault-test-status error";
+                statusEl.textContent = "✕ Servidor no disponible";
+              }
+              showToast("⚠️ No se pudo contactar el servicio de prueba.");
+            } finally {
+              btn.disabled = false;
+            }
+          });
+        });
+
+        // 4. Exportar Backup a JSON
+        const btnExport = document.getElementById("btn-vault-export");
+        if (btnExport) {
+          btnExport.addEventListener("click", () => {
+            const backup = collectVaultData();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
+            const dlAnchor = document.createElement("a");
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "liseth-credentials-backup.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+            showToast("📥 Copia de seguridad de credenciales descargada.");
+          });
+        }
+
+        // 5. Importar Backup desde JSON
+        const btnImport = document.getElementById("btn-vault-import");
+        const fileImport = document.getElementById("vault-import-file-input");
+        if (btnImport && fileImport) {
+          btnImport.addEventListener("click", () => fileImport.click());
+          fileImport.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              try {
+                const parsed = JSON.parse(event.target.result);
+                populateVaultData(parsed);
+                showToast("📤 Credenciales importadas. Recuerde presionar Guardar.");
+              } catch (err) {
+                showToast("🔴 Error: Archivo de respaldo no válido.");
+              }
+            };
+            reader.readAsText(file);
+            fileImport.value = "";
+          });
+        }
+
+        // 6. Sincronizar desde Servidor
+        const btnSync = document.getElementById("btn-vault-sync");
+        if (btnSync) {
+          btnSync.addEventListener("click", () => {
+            loadVaultCredentials(true);
+            showToast("🔄 Sincronizando con el servidor local...");
+          });
+        }
+
+        // 7. Limpiar Todo
+        const btnClear = document.getElementById("btn-vault-clear");
+        if (btnClear) {
+          btnClear.addEventListener("click", () => {
+            if (confirm("¿Está seguro de que desea limpiar todas las claves configuradas en este navegador?")) {
+              clearAllVaultInputs();
+              showToast("🧹 Credenciales del navegador restablecidas.");
+            }
+          });
+        }
+
+        // 8. Iniciar OAuth Google
+        const btnGoogleAuth = document.getElementById("btn-login-google-oauth");
+        if (btnGoogleAuth) {
+          btnGoogleAuth.addEventListener("click", () => {
+            window.open("/auth/google/login", "_blank");
+          });
+        }
+      }
+
+      function collectVaultData() {
+        const data = {};
+        document.querySelectorAll("[data-key-name]").forEach(el => {
+          const keyName = el.getAttribute("data-key-name");
+          if (!keyName) return;
+          if (el.type === "checkbox") {
+            data[keyName] = el.checked;
+          } else {
+            const val = el.value.trim();
+            if (val && !val.includes("••••")) {
+              data[keyName] = val;
+            }
+          }
+        });
+        return data;
+      }
+
+      function populateVaultData(data) {
+        if (!data || typeof data !== "object") return;
+        document.querySelectorAll("[data-key-name]").forEach(el => {
+          const keyName = el.getAttribute("data-key-name");
+          if (keyName && data[keyName] !== undefined) {
+            if (el.type === "checkbox") {
+              el.checked = Boolean(data[keyName]);
+            } else {
+              el.value = data[keyName];
+            }
+          }
+        });
+      }
+
+      function clearAllVaultInputs() {
+        document.querySelectorAll("[data-key-name]").forEach(el => {
+          if (el.type === "checkbox") {
+            el.checked = false;
+          } else {
+            el.value = "";
+          }
+        });
+      }
+
+      async function loadVaultCredentials(force = false) {
+        // Actualizar indicador de entorno
+        const envLabel = document.getElementById("vault-env-label");
+        if (envLabel) {
+          if (isServerConnected) {
+            envLabel.textContent = "Servidor Local Conectado (.env sincronizado en disco)";
+          } else {
+            envLabel.textContent = "Liseth Cloud Activa (Almacenamiento Local Cifrado)";
+          }
+        }
+
+        // 1. Cargar desde localStorage primero
+        document.querySelectorAll("[data-key-name]").forEach(el => {
+          const keyName = el.getAttribute("data-key-name");
+          if (!keyName) return;
+          const savedLocal = localStorage.getItem("liseth_vault_" + keyName);
+          if (savedLocal !== null) {
+            if (el.type === "checkbox") {
+              el.checked = savedLocal === "true";
+            } else if (!el.value) {
+              el.value = savedLocal;
+            }
+          }
+        });
+
+        // Asegurar campos legacy
+        if (apiKeyInput && !apiKeyInput.value) apiKeyInput.value = getApiKey();
+        if (elevenlabsKeyInput && !elevenlabsKeyInput.value) elevenlabsKeyInput.value = localStorage.getItem("liseth_elevenlabs_key") || "";
+        if (openaiKeyInput && !openaiKeyInput.value) openaiKeyInput.value = localStorage.getItem("liseth_openai_key") || "";
+
+        // 2. Si hay servidor conectado, obtener del endpoint GET /api/credentials
+        if (isServerConnected) {
+          try {
+            const res = await fetch("/api/credentials");
+            if (res.ok) {
+              const inv = await res.json();
+              if (inv && inv.categories) {
+                Object.values(inv.categories).forEach(cat => {
+                  if (cat.items) {
+                    cat.items.forEach(item => {
+                      const el = document.querySelector(`[data-key-name="${item.key}"]`);
+                      if (el) {
+                        if (el.type === "checkbox") {
+                          el.checked = Boolean(item.value);
+                        } else if (item.is_set && item.masked) {
+                          if (!el.value) el.value = item.masked;
+                        } else if (item.value) {
+                          if (!el.value) el.value = item.value;
+                        }
+                      }
+                    });
+                  }
+                });
+              }
+              // Estado de Google OAuth
+              if (inv.google_oauth_status) {
+                const tokenBadge = document.getElementById("vault-google-token-badge");
+                if (tokenBadge) {
+                  if (inv.google_oauth_status.token_exists) {
+                    tokenBadge.className = "vault-badge vault-badge-rec";
+                    tokenBadge.textContent = "✓ Vinculado Activo";
+                  } else {
+                    tokenBadge.className = "vault-badge vault-badge-opt";
+                    tokenBadge.textContent = "No Vinculado";
+                  }
+                }
+              }
+            }
+          } catch(e) {}
+        }
+      }
+
       function showModal(allowCancel = true) {
+        loadVaultCredentials();
         apiKeyInput.value = getApiKey();
         elevenlabsKeyInput.value = localStorage.getItem("liseth_elevenlabs_key") || "";
         openaiKeyInput.value = localStorage.getItem("liseth_openai_key") || "";
@@ -6592,12 +7734,31 @@ Tus habilidades clave:
 
       btnSaveKey.addEventListener("click", () => {
         const val = apiKeyInput.value.trim();
-        if (val) {
+        if (val && !val.includes("••••")) {
           localStorage.setItem(STORAGE_KEY, val);
           showToast("✓ Clave de Google Gemini guardada para razonamiento en la nube.");
-        } else {
+        } else if (!val) {
           localStorage.removeItem(STORAGE_KEY);
           showToast("ℹ️ Operando con motor cognitivo embebido de Liseth Cloud.");
+        }
+
+        // Guardar todos los campos de la Bóveda en localStorage
+        const vaultData = collectVaultData();
+        Object.entries(vaultData).forEach(([k, v]) => {
+          localStorage.setItem("liseth_vault_" + k, String(v));
+        });
+
+        // Si hay servidor local conectado, enviar actualización masiva a /api/credentials
+        if (isServerConnected) {
+          fetch("/api/credentials", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ updates: vaultData })
+          }).then(res => {
+            if (res.ok) {
+              showToast("✓ Bóveda sincronizada y persistida en .env local.");
+            }
+          }).catch(() => {});
         }
 
         const eKey = elevenlabsKeyInput.value.trim();
@@ -6787,6 +7948,18 @@ Tus habilidades clave:
         setThinkingState(true);
 
         try {
+          // 1.5. Intercepción de Intención Directa: Bóveda de Credenciales & APIs
+          const normInput = (text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+          if (["menu de apis", "menu apis", "boveda de credenciales", "boveda de apis", "boveda central", "configurar apis", "configurar autenticadores", "configuracion de apis", "ajustes de apis", "boveda de autenticadores", "abrir menu de apis", "abre el menu de apis", "abre menu de apis", "abrir boveda de credenciales", "abre la boveda de credenciales", "abre boveda de credenciales", "configurar claves", "mis llaves api", "mis claves api", "panel de credenciales", "gestor de credenciales"].some(k => normInput.includes(k))) {
+            thinkingIndicator.remove();
+            setThinkingState(false);
+            const resp = "Con mucho gusto, señor Santiago. He abierto la Bóveda Central de Autenticadores y APIs para que configure y verifique todas sus conexiones y llaves del sistema.";
+            appendMessage("assistant", resp, true);
+            speakText(resp);
+            showModal(true);
+            return;
+          }
+
           // 2. Construir partes para Google Gemini
           const parts = [];
 

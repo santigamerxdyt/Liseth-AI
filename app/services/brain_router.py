@@ -964,6 +964,22 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
                 f"Consultando ficha académica curricular para '{m_sname or cleaned}' en el pensum UNAL..."
             )
 
+    # 33l. Credentials Vault & Authenticator Settings ("menú de apis", "bóveda de credenciales", "configurar autenticadores")
+    if any(k in norm for k in [
+        "menu de apis", "menu apis", "boveda de credenciales", "boveda de apis",
+        "boveda central", "configurar apis", "configurar autenticadores",
+        "configuracion de apis", "ajustes de apis", "boveda de autenticadores",
+        "abrir menu de apis", "abre el menu de apis", "abre menu de apis",
+        "abrir boveda de credenciales", "abre la boveda de credenciales",
+        "abre boveda de credenciales", "configurar claves", "mis llaves api",
+        "mis claves api", "panel de credenciales", "gestor de credenciales"
+    ]):
+        return (
+            "credentials_vault",
+            {"action": "open"},
+            "Abriendo la Bóveda Central de Autenticadores y APIs para usted, señor Santiago."
+        )
+
     # 34. Open App / Program: "abre la calculadora", "abrir bloc de notas", "inicia chrome"
     m_open = _RE_OPEN_APP.match(norm)
     if m_open:

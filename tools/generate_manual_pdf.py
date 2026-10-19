@@ -607,6 +607,30 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Auditoría de créditos para grado / Requisitos de grado", "Evalúa el avance académico hacia los hitos de grado: Consultoría (mínimo 68 cr disciplinares) y Trabajo de Grado/Pasantía (78 cr).", "Auditoría de Hitos de Grado")
     builder.add_command_box("Marco normativo de [laboral / tributario / contratación / ambiental]", "Resumen ejecutivo de leyes colombianas críticas: CST (prestaciones y nómina), DIAN (Renta, IVA, ICA), Ley 80 y Ley 99.", "Legislación Empresarial Colombiana")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 20: BÓVEDA CENTRAL DE AUTENTICADORES Y APIS (CENTRAL CREDENTIALS VAULT)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("20. Bóveda Central de Autenticadores y APIs (Central Credentials Vault)")
+    builder.add_paragraph(
+        "Liseth cuenta con un centro de control y bóveda unificada para la gestión, prueba y respaldo de todas las llaves de acceso, "
+        "tokens de autenticación y credenciales de servicios externos a través de 7 dominios estratégicos: "
+        "(1) Cerebros IA (Gemini, Claude, Groq, OpenAI, Ollama Local y OpenRouter), "
+        "(2) Voces Humanas Neuronales (Salomé, Dalia, Elvira, ElevenLabs, Picovoice Porcupine y Azure Speech), "
+        "(3) Google Cloud OAuth 2.0 (Gmail, Google Calendar, Google Drive y Google Docs), "
+        "(4) Mensajería Instantánea (Telegram Bot y Meta WhatsApp Cloud API), "
+        "(5) Búsqueda Web y Servicios Académicos (SerpAPI, Google CSE, OpenAlex 100k req/día, Spotify, YouTube y OpenWeather), "
+        "(6) Git y Despliegues en la Nube (GitHub Personal Access Token y Vercel CLI), y "
+        "(7) Seguridad y Criptografía (PIN de acceso privado de Santiago, Clave AES-256, Secreto de Sesión y Límite Diario de Tokens). "
+        "Opera con doble persistencia: sincroniza directamente con el archivo .env en disco cuando se ejecuta en el equipo local, "
+        "y con almacenamiento local seguro cuando se accede a través del despliegue en GitHub Pages:",
+        size=9.0
+    )
+    builder.add_command_box("Abre el menú de APIs / Bóveda de credenciales", "Despliega la interfaz interactiva de 7 pestañas para configurar, inspeccionar y editar cualquier clave del sistema.", "Apertura de la Bóveda Central")
+    builder.add_command_box("Configurar autenticadores / Mis claves API", "Acceso directo a la bóveda por voz o texto con respuesta inmediata de Liseth y visualización de estados.", "Acceso por Voz a Credenciales")
+    builder.add_command_box("Prueba de conexión en vivo (⚡ Probar)", "Verifica en tiempo real si su clave de Gemini, Claude, Groq, OpenAI, ElevenLabs, Telegram o GitHub responde (200 OK).", "Comprobación Activa de Servicios")
+    builder.add_command_box("Exportar / Importar Backup de Credenciales", "Descarga una copia de seguridad segura en formato JSON (liseth-credentials-backup.json) o restaura sus claves al instante.", "Respaldo y Portabilidad")
+    builder.add_command_box("Persistencia Dual (.env y LocalStorage)", "Garantiza operatividad 100% en Windows local (.env) y en la nube pública de GitHub Pages (LocalStorage).", "Doble Capa de Persistencia")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

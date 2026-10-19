@@ -619,6 +619,17 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": []
         }
+    },
+    {
+        "name": "credentials_vault",
+        "description": "Abre la Bóveda Central de Autenticadores y APIs de Liseth para configurar claves de API (Gemini, Claude, Groq, OpenAI, ElevenLabs, Telegram, GitHub, WhatsApp, Google OAuth, etc.).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "open | test | status"}
+            },
+            "required": []
+        }
     }
 ]
 
@@ -932,6 +943,13 @@ class ActionDispatcher:
                 from app.actions.unal_pensum_action import unal_pensum_action
                 res = unal_pensum_action(parameters=args)
                 return res
+
+            elif name in ("credentials_vault", "open_credentials_vault", "api_vault", "configurar_apis", "boveda_credenciales"):
+                return json.dumps({
+                    "status": "success",
+                    "action": "open_credentials_vault",
+                    "message": "He abierto la Bóveda Central de Autenticadores y APIs para usted, señor Santiago."
+                }, ensure_ascii=False)
 
             else:
                 return f"Herramienta '{name}' no reconocida."

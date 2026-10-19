@@ -24,6 +24,7 @@ from app.routers.voice_router import router as voice_router
 from app.routers.google_router import router as google_router
 from app.routers.scheduler_router import router as scheduler_router
 from app.routers.notifications_router import router as notifications_router
+from app.routers.credentials_router import router as credentials_router
 
 # Setup logger
 logging.basicConfig(
@@ -146,6 +147,8 @@ EXEMPT_API_PATHS = {
     "/api/voice/state",
     "/api/voice/events",
     "/api/voice/toggle",
+    "/api/credentials",
+    "/api/credentials/test",
 }
 
 
@@ -190,6 +193,7 @@ app.include_router(voice_router)
 app.include_router(google_router)
 app.include_router(scheduler_router)
 app.include_router(notifications_router)
+app.include_router(credentials_router)
 
 
 # Mount Static Files
@@ -211,7 +215,8 @@ async def health_check():
 @app.get("/", tags=["frontend"])
 async def serve_index():
     """Serves the main Liseth frontend HTML with fresh cache headers."""
-    index_file = settings.STATIC_DIR / "index.html"
+    root_index = BASE_DIR / "index.html"
+    index_file = root_index if root_index.exists() else (settings.STATIC_DIR / "index.html")
     if not index_file.exists():
         return JSONResponse(
             status_code=500,
