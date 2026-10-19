@@ -784,32 +784,32 @@ class ActionDispatcher:
 
             elif name in ("reverse_engineer", "reverse_engineering", "rea", "inspect_binary"):
                 from app.actions.reverse_engineering_action import reverse_engineering_action
-                res = await loop.run_in_executor(None, lambda: reverse_engineering_action(parameters=args))
+                res = reverse_engineering_action(parameters=args)
                 return res
 
             elif name in ("ego_browser", "ego", "browser_automation", "fast_browser", "ego_lite"):
                 from app.actions.ego_browser_action import ego_browser_action
-                res = await loop.run_in_executor(None, lambda: ego_browser_action(parameters=args))
+                res = ego_browser_action(parameters=args)
                 return res
 
             elif name in ("vercel_skills", "vercel", "react_best_practices", "web_design_guidelines", "deploy_app", "vercel_deploy"):
                 from app.actions.vercel_skills_action import vercel_skills_action
-                res = await loop.run_in_executor(None, lambda: vercel_skills_action(parameters=args))
+                res = vercel_skills_action(parameters=args)
                 return res
 
             elif name in ("security_audit", "security", "vulnerability_scan", "cve_audit", "owasp_audit"):
                 from app.actions.security_audit_action import security_audit_action
-                res = await loop.run_in_executor(None, lambda: security_audit_action(parameters=args))
+                res = security_audit_action(parameters=args)
                 return res
 
             elif name in ("slopmonster", "deslop", "humanize_copy", "anti_slop", "humanize_text"):
                 from app.actions.slopmonster_action import slopmonster_action
-                res = await loop.run_in_executor(None, lambda: slopmonster_action(parameters=args))
+                res = slopmonster_action(parameters=args)
                 return res
 
             elif name in ("git_sync", "sync_github", "github_sync", "git_push", "repo_sync"):
                 from app.actions.git_sync_action import git_sync_action
-                res = await loop.run_in_executor(None, lambda: git_sync_action(parameters=args))
+                res = git_sync_action(parameters=args)
                 return res
 
             else:

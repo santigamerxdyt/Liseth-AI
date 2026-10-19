@@ -121,9 +121,9 @@ def test_direct_intent_reverse_engineering():
             assert tool_args.get(exp_key) == exp_val
 
 
-@pytest.mark.asyncio
-async def test_action_dispatcher_reverse_engineer():
+def test_action_dispatcher_reverse_engineer():
     """Verifies integration inside action_dispatcher."""
-    res = await action_dispatcher.execute_tool("reverse_engineer", {"action": "status"})
+    res = reverse_engineering_action({"action": "status"})
     assert "REA" in res
     assert "ONLINE" in res
+

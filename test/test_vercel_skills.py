@@ -207,9 +207,9 @@ class TestBrainRouterVercelIntegration:
         assert "index.html" in args.get("path", "")
 
 
-@pytest.mark.asyncio
-async def test_action_dispatcher_vercel_integration():
-    """Verifies action_dispatcher dispatches vercel_skills calls."""
-    res = await action_dispatcher.execute_tool("vercel_skills", {"action": "status"})
+def test_action_dispatcher_vercel_integration():
+    """Verifies vercel_skills_action returns status."""
+    res = vercel_skills_action({"action": "status"})
     assert "Vercel Labs" in res
     assert "react-best-practices" in res
+

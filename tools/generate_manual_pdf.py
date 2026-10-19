@@ -519,16 +519,17 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     # ─────────────────────────────────────────────────────────────────────────
     builder.add_section_header("14. Sincronización Automática con GitHub y Despliegue Web (Git Sync & GitHub Pages)")
     builder.add_paragraph(
-        "Liseth cuenta con un motor nativo de sincronización automática con GitHub y despliegue web público. "
+        "Liseth cuenta con un motor nativo de sincronización automática con GitHub y despliegue web público en la nube. "
         "Permite que todas las modificaciones realizadas en el proyecto se suban y respalden en la nube con un solo comando de voz o en segundo plano "
-        "mediante su centinela automático, publicando la interfaz para que cualquier persona pueda abrirla y utilizarla directamente desde el navegador:",
+        "mediante su centinela automático, publicando la interfaz para que cualquier persona pueda abrirla y utilizarla directamente desde el navegador, "
+        "operando tanto conectada al backend local como de forma 100% autónoma en la nube (con cerebro embebido para finanzas, normas APA y voz sintetizada):",
         size=9.0
     )
     builder.add_command_box("Sincroniza con GitHub / Sube los cambios a GitHub", "Detecta archivos modificados, genera un commit semántico con fecha/hora y sube los cambios a origin main.", "Sincronización Git en la nube")
     builder.add_command_box("Estado de Git / Estado de sincronización", "Reporta la rama activa, archivos pendientes por subir y estado del repositorio remoto.", "Telemetría del repositorio")
     builder.add_command_box("Inicia el centinela de GitHub / Auto sync", "Activa el monitoreo en segundo plano que detecta cambios y los sube a GitHub automáticamente cada 5 minutos.", "Centinela de Auto-Sync")
     builder.add_command_box("Detén el centinela de GitHub", "Pausa la sincronización automática en segundo plano para trabajar sin subir cambios continuos.", "Control del Centinela Git")
-    builder.add_command_box("Acceso Web Público (GitHub Pages)", "https://santigamerxdyt.github.io/Liseth-AI/ \\| Interfaz web utilizable por cualquier persona desde el navegador con voz y chat.", "Despliegue GitHub Pages")
+    builder.add_command_box("Modo Cloud Autónomo (GitHub Pages)", "https://santigamerxdyt.github.io/Liseth-AI/ \\| Operativo 24/7 sin servidor local: chat cognitivo, voz sintetizada, finanzas y APA.", "Despliegue Autónomo en la Nube")
 
     # Final summary note
     builder.add_paragraph(

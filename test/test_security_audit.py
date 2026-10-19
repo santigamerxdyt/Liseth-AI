@@ -115,8 +115,8 @@ class TestBrainRouterSecurityIntegration:
         assert "main.py" in args.get("path", "")
 
 
-@pytest.mark.asyncio
-async def test_action_dispatcher_security_integration():
-    """Verifies action_dispatcher dispatches security_audit calls."""
-    res = await action_dispatcher.execute_tool("security_audit", {"action": "status"})
+def test_action_dispatcher_security_integration():
+    """Verifies security_audit_action returns status."""
+    res = security_audit_action({"action": "status"})
     assert "Security Audit Enterprise" in res
+

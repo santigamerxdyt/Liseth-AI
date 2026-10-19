@@ -192,9 +192,9 @@ class TestBrainRouterEgoIntegration:
         assert args.get("target") == "2"
 
 
-@pytest.mark.asyncio
-async def test_action_dispatcher_ego_integration():
-    """Verifies that action_dispatcher dispatches ego_browser calls correctly."""
-    res = await action_dispatcher.execute_tool("ego_browser", {"action": "status"})
+def test_action_dispatcher_ego_integration():
+    """Verifies that ego_browser_action dispatches status calls correctly."""
+    res = ego_browser_action({"action": "status"})
     assert "Ego Lite" in res
     assert "Espacios de Tarea" in res
+

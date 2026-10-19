@@ -228,8 +228,7 @@ class GitSyncService:
         def _watcher_loop():
             logger.info(f"Iniciando centinela de sincronización Git cada {interval_seconds}s...")
             while not self._stop_watcher_event.is_set():
-                time.sleep(self.auto_sync_interval_seconds)
-                if self._stop_watcher_event.is_set():
+                if self._stop_watcher_event.wait(timeout=self.auto_sync_interval_seconds):
                     break
                 try:
                     st = self.get_status()

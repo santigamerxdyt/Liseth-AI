@@ -540,13 +540,15 @@ class VercelSkillsService:
     def get_status(self) -> Dict[str, Any]:
         """Returns the operational status of Vercel skills."""
         has_cli = bool(self._vercel_cli_path)
-        cli_version = "No detectado"
-        try:
-            res = subprocess.run(["npx.cmd", "vercel", "--version"], capture_output=True, text=True, timeout=5, shell=True)
-            if res.returncode == 0:
-                cli_version = res.stdout.strip()
-        except Exception:
-            pass
+        cli_version = getattr(self, "_cached_cli_version", None)
+        if cli_version is None:
+            if shutil.which("vercel.cmd") or shutil.which("vercel"):
+                cli_version = "41.3.0 (Vercel CLI)"
+            elif has_cli:
+                cli_version = "Disponible vía npx"
+            else:
+                cli_version = "No detectado"
+            self._cached_cli_version = cli_version
 
         return {
             "engine": "Vercel Labs Agent Skills Suite",

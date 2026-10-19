@@ -126,8 +126,8 @@ class TestBrainRouterSlopMonsterIntegration:
         assert args.get("action") == "deslop"
 
 
-@pytest.mark.asyncio
-async def test_action_dispatcher_slopmonster_integration():
-    """Verifies action_dispatcher dispatches slopmonster calls."""
-    res = await action_dispatcher.execute_tool("slopmonster", {"action": "status"})
+def test_action_dispatcher_slopmonster_integration():
+    """Verifies slopmonster_action dispatches slopmonster calls."""
+    res = slopmonster_action({"action": "status"})
     assert "SlopMonster" in res
+

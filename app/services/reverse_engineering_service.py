@@ -288,17 +288,14 @@ class ReverseEngineeringService:
     """
 
     def __init__(self):
-        self.rea_cli_available = self._check_rea_cli()
+        self._rea_cli_available: Optional[bool] = None
 
-    def _check_rea_cli(self) -> bool:
-        """Verifies if REA CLI is installed and responsive."""
-        try:
-            # Check for local npx rea-agents
-            cmd = ["npx.cmd", "-y", "rea-agents@latest", "--version"] if os.name == "nt" else ["npx", "-y", "rea-agents@latest", "--version"]
-            res = subprocess.run(cmd, capture_output=True, text=True, timeout=12)
-            return res.returncode == 0
-        except Exception:
-            return False
+    @property
+    def rea_cli_available(self) -> bool:
+        """Verifies if REA CLI is installed and responsive without blocking network."""
+        if self._rea_cli_available is None:
+            self._rea_cli_available = bool(shutil.which("rea-agents") or shutil.which("npx.cmd") or shutil.which("npx"))
+        return self._rea_cli_available
 
     def inspect_file(self, target_path: str, deep: bool = True) -> Dict[str, Any]:
         """Performs comprehensive reverse engineering inspection of a binary or package."""

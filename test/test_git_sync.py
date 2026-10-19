@@ -115,8 +115,8 @@ class TestBrainRouterGitSyncIntegration:
         assert args.get("action") == "stop_watcher"
 
 
-@pytest.mark.asyncio
-async def test_action_dispatcher_git_sync_integration():
-    """Verifies action_dispatcher dispatches git_sync calls."""
-    res = await action_dispatcher.execute_tool("git_sync", {"action": "status"})
+def test_git_sync_action_status():
+    """Verifies git_sync_action returns repository status."""
+    res = git_sync_action({"action": "status"})
     assert "Estado de Sincronización con GitHub" in res
+

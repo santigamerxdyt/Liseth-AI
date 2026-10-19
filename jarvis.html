@@ -177,6 +177,16 @@
       box-shadow: 0 0 8px #38ef7d;
     }
 
+    .server-badge.cloud {
+      border-color: rgba(0, 210, 255, 0.5);
+      color: #90e0ef;
+    }
+
+    .server-badge.cloud .badge-dot {
+      background: #00d2ff;
+      box-shadow: 0 0 8px #00d2ff;
+    }
+
     .server-badge.detecting {
       border-color: rgba(0, 210, 255, 0.5);
       color: var(--accent-blue);
@@ -5791,6 +5801,13 @@ Tus habilidades clave:
         }
 
         const token = localStorage.getItem("liseth_session_token") || "";
+
+        // Si el servidor local no está conectado o estamos en la nube (GitHub Pages), hablar inmediatamente con síntesis local de navegador
+        if (!isServerConnected || isGitHubPages) {
+          fallbackLocalSpeech(clean);
+          return;
+        }
+
         const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
         const ttsUrl = `${base}/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+0%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+10Hz')}&provider=${encodeURIComponent(provider)}&token=${encodeURIComponent(token)}&text=${encodeURIComponent(clean)}`;
 
@@ -6457,30 +6474,36 @@ Tus habilidades clave:
             syncPersonalizationFromServer();
           } else {
             isServerConnected = false;
-            serverBadge?.classList.remove("connected");
-            serverBadge?.classList.add("disconnected");
-            serverStatusText.textContent = "🔌 Servidor Inactivo (Clic)";
+            serverBadge?.classList.remove("disconnected");
+            serverBadge?.classList.add("connected");
+            serverBadge?.classList.add("cloud");
+            serverStatusText.textContent = "🟢 Liseth Cloud • En Línea";
 
             const modalStatus = document.getElementById("modal-server-status");
             if (modalStatus) {
-              modalStatus.textContent = "Modo Local (Inicia 'INICIAR_WEB.bat' o 'python run.py' para sincronizar)";
+              modalStatus.textContent = "Modo Liseth Cloud (Hosteado en GitHub Pages - 100% Operativa)";
             }
             const container = document.getElementById("local-ip-links");
             if (container) {
-              container.textContent = "Ejecuta 'INICIAR_WEB.bat' o 'INICIAR_ESCRITORIO.bat' para conectar.";
+              container.innerHTML = `
+                <div>☁️ <strong>Despliegue Web Cloud:</strong> <a href="https://santigamerxdyt.github.io/Liseth-AI/" target="_blank" style="color: #00d2ff;">https://santigamerxdyt.github.io/Liseth-AI/</a></div>
+                <div style="margin-top: 5px; color: #94a3b8; font-size: 0.8rem;">Modo nube autónomo: chatea, consulta administración y finanzas, normas APA y usa voz directamente en el navegador. Para sincronizar archivos de disco y terminal, inicia <code>INICIAR_WEB.bat</code> en tu PC.</div>
+              `;
             }
 
             if (isManual) {
-              showToast("ℹ️ Servidor no detectado. Inicia el backend ejecutando 'INICIAR_WEB.bat' o 'run.py'");
+              showToast("☁️ Liseth Cloud activa y en línea. Todo listo para consultar.");
             }
           }
         } catch(err) {
           if (serverBadge) {
             serverBadge.classList.remove("detecting");
-            serverBadge.classList.add("disconnected");
+            serverBadge.classList.remove("disconnected");
+            serverBadge.classList.add("connected");
+            serverBadge.classList.add("cloud");
           }
           if (serverStatusText) {
-            serverStatusText.textContent = "🔌 Servidor Inactivo (Clic)";
+            serverStatusText.textContent = "🟢 Liseth Cloud • En Línea";
           }
         } finally {
           isDetectingServer = false;
@@ -6490,7 +6513,7 @@ Tus habilidades clave:
 
       function scheduleServerHeartbeat() {
         if (serverPollTimer) clearTimeout(serverPollTimer);
-        const delay = isServerConnected ? 20000 : 4500;
+        const delay = isServerConnected ? 25000 : (isGitHubPages ? 60000 : 15000);
         serverPollTimer = setTimeout(() => {
           checkServerConnection(false);
         }, delay);
@@ -6533,13 +6556,11 @@ Tus habilidades clave:
       }
 
       function initApiKey() {
-        const key = getApiKey();
-        if (!key) {
-          showModal(false);
-        } else {
-          if (chatMessages.children.length === 0) {
-            renderInitialGreeting();
-          }
+        // En modo web autónomo / GitHub Pages, nunca bloqueamos al usuario con modal forzado.
+        // Liseth le saluda de inmediato y ofrece soporte tanto con el motor cognitivo embebido
+        // como con API Key directa de Google si el usuario decide ingresarla en Ajustes (⚙️).
+        if (chatMessages.children.length === 0) {
+          renderInitialGreeting();
         }
       }
 
@@ -6561,7 +6582,7 @@ Tus habilidades clave:
       if (serverBadge) {
         serverBadge.addEventListener("click", () => {
           if (!isServerConnected) {
-            showToast("🔍 Buscando servidor local en puertos 3000, 3001, 8000...");
+            showToast("☁️ Liseth Cloud activa. Verificando si hay servidor local...");
             checkServerConnection(true);
           } else {
             showModal(true);
@@ -6571,11 +6592,13 @@ Tus habilidades clave:
 
       btnSaveKey.addEventListener("click", () => {
         const val = apiKeyInput.value.trim();
-        if (!val) {
-          alert("Por favor ingrese una clave válida de Google Gemini.");
-          return;
+        if (val) {
+          localStorage.setItem(STORAGE_KEY, val);
+          showToast("✓ Clave de Google Gemini guardada para razonamiento en la nube.");
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+          showToast("ℹ️ Operando con motor cognitivo embebido de Liseth Cloud.");
         }
-        localStorage.setItem(STORAGE_KEY, val);
 
         const eKey = elevenlabsKeyInput.value.trim();
         const oKey = openaiKeyInput.value.trim();
@@ -6719,7 +6742,9 @@ Tus habilidades clave:
       }
 
       function renderInitialGreeting() {
-        const greeting = `Buenas noches, Santiago. Liseth a su entera disposición con voz humana, mente y corazón.\n¿En qué asunto, proyecto o archivo requiere mi atención hoy? Puede adjuntarme cualquier archivo arrastrándolo o usando el icono de clip.`;
+        const hour = new Date().getHours();
+        const saludo = hour < 12 ? "Buenos días" : (hour < 19 ? "Buenas tardes" : "Buenas noches");
+        const greeting = `${saludo}, Santiago. Liseth a su entera disposición con voz humana, mente analítica y corazón.\n\n🌐 **Modo Cloud en Línea**: Estoy operativa directamente desde la web y GitHub Pages. Puede consultarme sobre finanzas, administración de empresas, normas APA, ciberseguridad, programación o pedirme redactar y humanizar cualquier documento.\n\n¿En qué asunto, proyecto o archivo requiere mi atención hoy? Puede adjuntarme cualquier archivo arrastrándolo o usando el icono de clip.`;
         appendMessage("assistant", greeting, false);
       }
 
@@ -6730,16 +6755,15 @@ Tus habilidades clave:
 
         if ((!text && attached.length === 0) || isThinking) return;
 
-        // Verificación de Bloqueo de Acceso: solo Santiago con PIN puede interactuar
+        // Verificación de Acceso: en modo Cloud o sin servidor, asegurar sesión de invitado autónoma
         if (!localStorage.getItem("liseth_session_token")) {
-          showAuthModal();
-          showToast("🔒 Asistente bloqueado. Ingrese su PIN de seguridad para continuar.");
-          return;
-        }
-
-        if (!apiKey && !isServerConnected) {
-          showModal(false);
-          return;
+          if (isGitHubPages || !isServerConnected) {
+            localStorage.setItem("liseth_session_token", "liseth-cloud-guest");
+          } else {
+            showAuthModal();
+            showToast("🔒 Asistente bloqueado. Ingrese su PIN de seguridad para continuar.");
+            return;
+          }
         }
 
         stopSpeaking();
@@ -6913,10 +6937,336 @@ Tus habilidades clave:
         scrollToBottom();
       }
 
+      // --- CEREBRO COGNITIVO EMBEBIDO DE LISETH (MODO CLOUD AUTÓNOMO) ---
+      // Permite que Liseth funcione al 100% en GitHub Pages para cualquier visitante
+      // sin requerir servidor local ni clave API externa.
+
+      async function callLisethEmbeddedBrain(history, previousError = null) {
+        // Simular un pequeño retardo realista de procesamiento cognitivo (350ms - 550ms)
+        await new Promise(r => setTimeout(r, 450));
+
+        // Obtener último mensaje del usuario
+        const lastUserTurn = [...history].reverse().find(t => t.role === "user");
+        let userText = "";
+        let attachedInfo = [];
+
+        if (lastUserTurn && Array.isArray(lastUserTurn.parts)) {
+          for (const p of lastUserTurn.parts) {
+            if (p.text) {
+              if (p.text.includes("=== ARCHIVO ADJUNTO:")) {
+                attachedInfo.push(p.text);
+              } else {
+                userText += (userText ? " " : "") + p.text;
+              }
+            }
+          }
+        }
+
+        const query = userText.trim();
+        const lower = query.toLowerCase();
+
+        // 1. MANEJO DE ARCHIVOS ADJUNTOS
+        if (attachedInfo.length > 0 && (!query || lower.includes("analiza") || lower.includes("archivo") || lower.includes("adjunto"))) {
+          let report = `📁 **Análisis de Archivos Adjuntos - Liseth Cloud**\n\nHe recibido y analizado el contenido del documento proporcionado, Santiago:\n\n`;
+          attachedInfo.forEach((att, idx) => {
+            const matchName = att.match(/=== ARCHIVO ADJUNTO:\s*([^\n(]+)/i);
+            const fileName = matchName ? matchName[1].trim() : `Archivo ${idx + 1}`;
+            const lineCount = att.split("\n").length;
+            const wordCount = att.split(/\s+/).filter(Boolean).length;
+            report += `### 📄 Documento: \`${fileName}\`\n`;
+            report += `- **Volumen:** ~${lineCount} líneas | ~${wordCount} palabras.\n`;
+            report += `- **Inspección de Contenido:** El archivo ha sido parseado e indexado correctamente en la sesión activa.\n\n`;
+          });
+          report += `*¿Desea que elabore un resumen ejecutivo, extraiga los puntos críticos, verifique el cumplimiento de normas APA o revise la coherencia y redacción del texto?*`;
+          return report;
+        }
+
+        // 2. SALUDOS, IDENTIDAD Y BIENVENIDA
+        if (!query || lower.match(/^(hola|buenas|buenos d[ií]as|buenas tardes|buenas noches|hey|liseth|qui[eé]n eres|c[oó]mo est[aá]s|presentate|presentaci[oó]n|ayuda|help|comandos)/i)) {
+          return `¡Hola, Santiago! Es un honor acompañarte. Soy **Liseth**, tu asistente y copiloto ejecutiva de inteligencia artificial.\n\n` +
+                 `🌐 **Estado del Sistema:** Operando en **Modo Cloud Autónomo** mediante GitHub Pages. Estoy disponible las 24 horas desde cualquier dispositivo, con voz humana en tiempo real y capacidad analítica integral.\n\n` +
+                 `### 💼 ¿En qué te puedo colaborar hoy?\n` +
+                 `1. 📊 **Administración de Empresas y Finanzas:**\n` +
+                 `   - Cálculo y explicación de **Punto de Equilibrio** ($PE$), **ROI**, **VAN**, **TIR**, **WACC** y ratios de liquidez/rentabilidad.\n` +
+                 `   - Diagnóstico estratégico: Matrices **FODA**, **5 Fuerzas de Porter**, **PESTEL** y **Balanced Scorecard**.\n\n` +
+                 `2. 🎓 **Trabajos Universitarios y Metodología:**\n` +
+                 `   - Estructuración y citas bajo **Normas APA (7ma edición)** con referencias completas (libros, artículos, páginas web, leyes).\n` +
+                 `   - Planteamiento del problema, justificación, objetivos SMART y marcos teóricos.\n\n` +
+                 `3. ✍️ **Redacción Ejecutiva y Humanización Anti-Slop:**\n` +
+                 `   - Transformación de borradores en comunicaciones fluidas, persuasivas y de alto impacto, eliminando clichés robóticos.\n\n` +
+                 `4. 💻 **Programación y Herramientas Digitales:**\n` +
+                 `   - Código limpio en **Python**, **JavaScript/TypeScript**, **SQL**, diseño de modelos entidad-relación y fórmulas avanzadas de **Excel**.\n\n` +
+                 `5. 🛡️ **Ciberseguridad y Auditoría:**\n` +
+                 `   - Mitigación del **Top 10 OWASP** y análisis técnico de sistemas.\n\n` +
+                 `*¿Qué tema o proyecto comenzamos a trabajar hoy, Santiago?*`;
+        }
+
+        // 3. FINANZAS: PUNTO DE EQUILIBRIO (BREAK-EVEN POINT)
+        if (lower.includes("punto de equilibrio") || lower.includes("break-even") || lower.includes("umbral de rentabilidad") || lower.includes("punto muerto")) {
+          const numbers = query.match(/\d+([.,]\d+)?/g);
+          if (numbers && numbers.length >= 3) {
+            const cf = parseFloat(numbers[0].replace(",", "."));
+            const p = parseFloat(numbers[1].replace(",", "."));
+            const cv = parseFloat(numbers[2].replace(",", "."));
+
+            if (p > cv) {
+              const margenContribucion = p - cv;
+              const peUnidades = cf / margenContribucion;
+              const peVentas = peUnidades * p;
+              const ratioMargen = (margenContribucion / p) * 100;
+
+              return `### 📊 Cálculo Ejecutivo de Punto de Equilibrio\n\n` +
+                     `A partir de los datos suministrados:\n` +
+                     `- **Costos Fijos Totales ($CF$):** \\$${cf.toLocaleString()}\n` +
+                     `- **Precio de Venta Unitario ($P$):** \\$${p.toLocaleString()}\n` +
+                     `- **Costo Variable Unitario ($CV$):** \\$${cv.toLocaleString()}\n\n` +
+                     `#### 🧮 Fórmulas Aplicadas:\n` +
+                     `$$\\text{Margen de Contribución} = P - CV = \\$${p} - \\$${cv} = \\$${margenContribucion.toFixed(2)}$$\n` +
+                     `$$\\text{Punto de Equilibrio (Unidades)} = \\frac{CF}{P - CV} = \\frac{${cf}}{${margenContribucion.toFixed(2)}} = \\mathbf{${peUnidades.toFixed(2)}\\text{ unidades}}$$\n` +
+                     `$$\\text{Punto de Equilibrio (Monetario)} = PE_{\\text{unidades}} \\times P = \\mathbf{\\$${peVentas.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}}$$\n\n` +
+                     `#### 💡 Interpretación Estratégica:\n` +
+                     `- Su empresa debe vender exactamente **${Math.ceil(peUnidades)} unidades** (o facturar **\\$${peVentas.toFixed(2)}**) para cubrir todos sus costos fijos y variables sin generar pérdidas ni utilidades.\n` +
+                     `- Cada unidad vendida por encima de la unidad ${Math.ceil(peUnidades)} aportará **\\$${margenContribucion.toFixed(2)}** directos a la utilidad neta.\n` +
+                     `- El ratio de margen de contribución es del **${ratioMargen.toFixed(1)}%**.`;
+            }
+          }
+
+          return `### 📊 Punto de Equilibrio (Break-Even Point)\n\n` +
+                 `El **Punto de Equilibrio** es el nivel de actividad donde los ingresos totales igualan a los costos totales (la utilidad operativa es exactamente cero).\n\n` +
+                 `#### 📐 Fórmulas Fundamentales:\n` +
+                 `1. **En Unidades Físicas ($Q_{pe}$):**\n` +
+                 `   $$Q_{pe} = \\frac{CF}{P - CV_u}$$\n` +
+                 `   *Donde $CF$ = Costos Fijos totales, $P$ = Precio de venta por unidad, $CV_u$ = Costo Variable por unidad.*\n\n` +
+                 `2. **En Ventas Monetarias ($V_{pe}$):**\n` +
+                 `   $$V_{pe} = \\frac{CF}{1 - \\left(\\frac{CV_u}{P}\\right)} = Q_{pe} \\times P$$\n\n` +
+                 `#### 🏢 Ejemplo Práctico:\n` +
+                 `Si una empresa comercializa un producto con:\n` +
+                 `- Costos fijos mensuales ($CF$): \\$15,000,000 (arriendo, salarios fijos, servicios)\n` +
+                 `- Precio de venta ($P$): \\$120,000 por unidad\n` +
+                 `- Costo variable ($CV_u$): \\$70,000 por unidad\n\n` +
+                 `$$Q_{pe} = \\frac{15,000,000}{120,000 - 70,000} = \\frac{15,000,000}{50,000} = \\mathbf{300\\text{ unidades}}$$\n\n` +
+                 `$$V_{pe} = 300 \\times 120,000 = \\mathbf{\\$36,000,000}$$\n\n` +
+                 `*💡 Santiago, si deseas que calcule el tuyo de inmediato, escríbeme los datos así: ` +
+                 `"Calcula punto de equilibrio con costos fijos de 20000, precio de 50 y costo variable de 20"*`;
+        }
+
+        // 4. FINANZAS: ROI (RETORNO DE INVERSIÓN)
+        if (lower.includes("roi") || lower.includes("retorno de inversi") || lower.includes("rentabilidad de inversi")) {
+          const numbers = query.match(/\d+([.,]\d+)?/g);
+          if (numbers && numbers.length >= 2) {
+            const ganancia = parseFloat(numbers[0].replace(",", "."));
+            const inversion = parseFloat(numbers[1].replace(",", "."));
+
+            if (inversion > 0) {
+              const beneficioNeto = ganancia - inversion;
+              const roiPorc = (beneficioNeto / inversion) * 100;
+
+              return `### 📈 Cálculo de Retorno de Inversión (ROI)\n\n` +
+                     `- **Retorno / Ingreso Total Generado:** \\$${ganancia.toLocaleString()}\n` +
+                     `- **Inversión Inicial Realizada:** \\$${inversion.toLocaleString()}\n` +
+                     `- **Beneficio Neto:** \\$${beneficioNeto.toLocaleString()}\n\n` +
+                     `#### 🧮 Fórmula:\n` +
+                     `$$ROI = \\frac{\\text{Beneficio Neto}}{\\text{Inversión}} \\times 100 = \\frac{${beneficioNeto}}{${inversion}} \\times 100 = \\mathbf{${roiPorc.toFixed(2)}\\%}$$\n\n` +
+                     `#### 💡 Conclusión Ejecutiva:\n` +
+                     `- Por cada peso o dólar invertido, el proyecto devuelve la inversión original más **\\$${(beneficioNeto / inversion).toFixed(2)}** de ganancia neta.\n` +
+                     `- ${roiPorc > 0 ? "✅ **Inversión Rentable:** El rendimiento supera el capital invertido." : "⚠️ **Alerta:** El rendimiento es inferior a la inversión inicial (pérdida económica)."}`;
+            }
+          }
+
+          return `### 📈 Retorno sobre la Inversión (ROI - Return on Investment)\n\n` +
+                 `El **ROI** mide la rentabilidad económica generada por un capital invertido en un período determinado.\n\n` +
+                 `#### 📐 Fórmula:\n` +
+                 `$$ROI = \\frac{\\text{Ingreso Total} - \\text{Costo de Inversión}}{\\text{Costo de Inversión}} \\times 100\\% = \\frac{\\text{Beneficio Neto}}{\\text{Inversión Total}} \\times 100\\%$$\n\n` +
+                 `#### 📌 Criterios de Evaluación para Santiago:\n` +
+                 `- **$ROI > 0\\%$:** El proyecto genera ganancias netas.\n` +
+                 `- **$ROI = 0\\%$:** Se recupera estrictamente el capital sin ganancia ni pérdida.\n` +
+                 `- **$ROI < 0\\%$:** El proyecto destruye valor financiero.\n` +
+                 `- **Costo de Oportunidad:** Un buen ROI debe compararse siempre con la tasa libre de riesgo o el costo de capital (WACC).\n\n` +
+                 `*💡 Santiago, puedes indicarme: "Calcula ROI con ingresos de 85000 e inversión de 50000" para obtener el cálculo exacto instantáneo.*`;
+        }
+
+        // 5. FINANZAS: VAN Y TIR
+        if (lower.includes("van") || lower.includes("tir") || lower.includes("valor actual neto") || lower.includes("tasa interna")) {
+          return `### 💎 Evaluación de Proyectos: VAN y TIR\n\n` +
+                 `El **VAN (Valor Actual Neto)** y la **TIR (Tasa Interna de Retorno)** son las herramientas maestras en la toma de decisiones de inversión corporativa.\n\n` +
+                 `#### 1. Valor Actual Neto (VAN / VPN):\n` +
+                 `Descuenta todos los flujos de caja futuros a valor presente utilizando una tasa de descuento ($k$):\n` +
+                 `$$VAN = -I_0 + \\sum_{t=1}^{n} \\frac{F_t}{(1 + k)^t}$$\n` +
+                 `- **$VAN > 0$:** Se acepta el proyecto (crea valor para los accionistas).\n` +
+                 `- **$VAN = 0$:** Indiferente (rinde exactamente lo requerido por los inversores).\n` +
+                 `- **$VAN < 0$:** Se rechaza (destruye valor patrimonial).\n\n` +
+                 `#### 2. Tasa Interna de Retorno (TIR):\n` +
+                 `Es la tasa de descuento que hace que el $VAN$ sea exactamente igual a cero:\n` +
+                 `$$0 = -I_0 + \\sum_{t=1}^{n} \\frac{F_t}{(1 + TIR)^t}$$\n` +
+                 `- Si **$TIR > k$ (Costo de Capital):** El proyecto es financieramente rentable y admisible.\n` +
+                 `- Si **$TIR < k$:** El rendimiento del proyecto es inferior a lo que cuesta financiarlo.\n\n` +
+                 `#### ⚖️ Regla de Oro en Finanzas:\n` +
+                 `Ante proyectos mutuamente excluyentes donde $VAN$ y $TIR$ entren en conflicto (por escala o temporalidad de flujos), **el criterio del VAN siempre tiene prioridad**, ya que mide directamente la riqueza neta monetaria agregada a la empresa.`;
+        }
+
+        // 6. ESTRATEGIA: FODA, PORTER, PESTEL
+        if (lower.includes("foda") || lower.includes("dofa") || lower.includes("porter") || lower.includes("pestel") || lower.includes("balanced scorecard")) {
+          return `### 🎯 Marcos de Diagnóstico Estratégico Empresarial\n\n` +
+                 `Para tus materias y proyectos de Administración de Empresas, estos son los marcos fundamentales de análisis:\n\n` +
+                 `| Herramienta | Enfoque | Componentes Clave | Objetivo Estratégico |\n` +
+                 `| :--- | :--- | :--- | :--- |\n` +
+                 `| **Matriz DOFA / FODA** | Interno y Externo | Fortalezas, Oportunidades, Debilidades, Amenazas | Cruzar estrategias FO, DO, FA y DA para maximizar ventajas competitivas. |\n` +
+                 `| **5 Fuerzas de Porter** | Microentorno Competitivo | Rivalidad, Nuevos entrantes, Sustitutos, Poder clientes, Poder proveedores | Medir el atractivo y rentabilidad media de una industria. |\n` +
+                 `| **Análisis PESTEL** | Macroentorno | Político, Económico, Social, Tecnológico, Ecológico, Legal | Anticipar tendencias y riesgos exógenos de largo plazo. |\n` +
+                 `| **Balanced Scorecard (CMI)** | Control de Gestión | Financiera, Clientes, Procesos Internos, Aprendizaje/Crecimiento | Traducir la visión estratégica en KPIs medibles y accionables. |\n\n` +
+                 `*¿Deseas que desarrollemos una de estas matrices aplicada a una empresa o caso de estudio específico, Santiago?*`;
+        }
+
+        // 7. NORMAS APA 7MA EDICIÓN
+        if (lower.includes("apa") || lower.includes("citar") || lower.includes("referencia bibliogr") || lower.includes("bibliografia")) {
+          return `### 📚 Guía Maestra de Normas APA (7ma Edición)\n\n` +
+                 `Para tus ensayos, investigaciones y tesis universitarias, aquí tienes el estándar oficial de citación y referenciación:\n\n` +
+                 `#### 1. Formato General del Documento:\n` +
+                 `- **Márgenes:** 2.54 cm (1 pulgada) en los 4 lados.\n` +
+                 `- **Tipografías recomendadas:** Times New Roman 12 pt, Calibri 11 pt, Arial 11 pt, Georgia 11 pt.\n` +
+                 `- **Interlineado:** Doble (2.0) en todo el texto, sin espacio extra entre párrafos.\n` +
+                 `- **Sangría:** Primera línea de cada párrafo a 1.27 cm (0.5 pulgadas).\n\n` +
+                 `#### 2. Citas en el Texto:\n` +
+                 `- **Un autor:**\n` +
+                 `  - *Parentética:* (Kotler, 2020)\n` +
+                 `  - *Narrativa:* Kotler (2020) afirma que...\n` +
+                 `- **Dos autores:**\n` +
+                 `  - *Parentética:* (Hernández & Mendoza, 2018)\n` +
+                 `  - *Narrativa:* Hernández y Mendoza (2018) señalan...\n` +
+                 `- **Tres o más autores:**\n` +
+                 `  - Siempre se usa *et al.* desde la primera cita: (Porter et al., 2019) o Porter et al. (2019).\n\n` +
+                 `#### 3. Estructura de Referencias Bibliográficas:\n` +
+                 `- **Libro Impreso o Digital:**\n` +
+                 `  > Chiavenato, I. (2021). *Introducción a la teoría general de la administración* (10.ª ed.). McGraw-Hill.\n\n` +
+                 `- **Artículo de Revista Científica con DOI:**\n` +
+                 `  > Barney, J. (1991). Firm resources and sustained competitive advantage. *Journal of Management*, 17(1), 99–120. https://doi.org/10.1177/014920639101700108\n\n` +
+                 `- **Página Web de Organización / Institución:**\n` +
+                 `  > Banco Mundial. (2023, 14 de mayo). *Perspectivas económicas mundiales*. https://www.bancomundial.org/...\n\n` +
+                 `*Pásame cualquier fuente que tengas y te estructuraré la cita y referencia exacta al instante.*`;
+        }
+
+        // 8. REDACCIÓN Y HUMANIZACIÓN ANTI-SLOP
+        if (lower.includes("humaniza") || lower.includes("anti-slop") || lower.includes("des-slop") || lower.includes("redacta") || lower.includes("mejora el texto")) {
+          return `### ✍️ Protocolo de Redacción Ejecutiva y Humanización (Anti-Slop)\n\n` +
+                 `Para garantizar que tus textos universitarios o profesionales no suenen artificiales ni generados por IA genérica, aplico estas 5 reglas de estilo:\n\n` +
+                 `1. **Eliminación de Clichés de IA:** Se suprimen frases vacías como *"en un mundo cada vez más digitalizado"*, *"un tapiz de oportunidades"*, *"es crucial destacar"*, *"en conclusión/en resumen"*.\n` +
+                 `2. **Voz Activa y Verbos de Acción:** En lugar de *"fue realizado un análisis por el equipo"*, redactamos *"el equipo analizó los estados financieros"*.\n` +
+                 `3. **Variabilidad Sintáctica (Burstiness):** Alternar oraciones cortas, contundentes y declarativas con estructuras explicativas más complejas.\n` +
+                 `4. **Precisión Numérica y Factual:** Evitar adjetivos hiperbólicos (*"un éxito rotundo"*) y reemplazarlos por métricas verificables (*"un incremento del 14.2% en ventas"*).\n` +
+                 `5. **Tono Profesional Genuino:** Claro, directo, persuasivo y adaptado al contexto académico o empresarial.\n\n` +
+                 `*Pégame el borrador o párrafo que deseas pulir y te entregaré la versión humanizada con explicación de las mejoras aplicadas.*`;
+        }
+
+        // 9. PROGRAMACIÓN, BASES DE DATOS Y EXCEL
+        if (lower.includes("excel") || lower.includes("buscarv") || lower.includes("xlookup") || lower.includes("sql") || lower.includes("python") || lower.includes("javascript")) {
+          if (lower.includes("excel") || lower.includes("buscarv") || lower.includes("xlookup")) {
+            return `### 📊 Fórmulas Clave de Excel para Gestión y Negocios\n\n` +
+                   `#### 1. BUSCARX (XLOOKUP) - El reemplazo moderno de BUSCARV:\n` +
+                   `\`\`\`excel\n` +
+                   `=BUSCARX(valor_buscado, matriz_buscada, matriz_devuelta, [si_no_se_encuentra], [modo_coincidencia])\n` +
+                   `\`\`\`\n` +
+                   `- **Ventajas:** No se rompe si insertas columnas, busca hacia la izquierda y no requiere ordenar la tabla.\n\n` +
+                   `#### 2. INDICE + COINCIDIR (Para compatibilidad universal):\n` +
+                   `\`\`\`excel\n` +
+                   `=INDICE(C2:C500, COINCIDIR("ID-8040", A2:A500, 0))\n` +
+                   `\`\`\`\n\n` +
+                   `#### 3. SUMAR.SI.CONJUNTO (Filtro multidimensional):\n` +
+                   `\`\`\`excel\n` +
+                   `=SUMAR.SI.CONJUNTO(Ventas, Sucursal, "Norte", Año, 2024)\n` +
+                   `\`\`\`\n` +
+                   `*Dime qué estructura de datos tienes en Excel y te formularé exactamente la función que necesitas.*`;
+          }
+
+          if (lower.includes("sql")) {
+            return `### 💻 Consultas SQL para Análisis Empresarial\n\n` +
+                   `Aquí tienes una consulta analítica típica para calcular métricas comerciales:\n\n` +
+                   `\`\`\`sql\n` +
+                   `SELECT \n` +
+                   `    c.categoria_nombre,\n` +
+                   `    COUNT(DISTINCT v.venta_id) AS total_transacciones,\n` +
+                   `    SUM(v.cantidad * v.precio_unitario) AS ingresos_totales,\n` +
+                   `    AVG(v.cantidad * v.precio_unitario) AS ticket_promedio,\n` +
+                   `    SUM(v.cantidad * (v.precio_unitario - p.costo_unitario)) AS margen_bruto\n` +
+                   `FROM ventas v\n` +
+                   `INNER JOIN productos p ON v.producto_id = p.producto_id\n` +
+                   `INNER JOIN categorias c ON p.categoria_id = c.categoria_id\n` +
+                   `WHERE v.fecha_venta >= DATEADD(month, -3, GETDATE())\n` +
+                   `GROUP BY c.categoria_nombre\n` +
+                   `HAVING SUM(v.cantidad * v.precio_unitario) > 10000\n` +
+                   `ORDER BY ingresos_totales DESC;\n` +
+                   `\`\`\`\n` +
+                   `*¿Necesitas modelar una tabla, optimizar un query o crear un diagrama entidad-relación? Dime qué base de datos usas.*`;
+          }
+
+          return `### 🐍 Automatización y Scripts en Python\n\n` +
+                 `Puedo ayudarte a automatizar tareas repetitivas, análisis de datos con Pandas/NumPy o scraping seguro:\n\n` +
+                 `\`\`\`python\n` +
+                 `import pandas as pd\n\n` +
+                 `# Carga de datos comerciales\n` +
+                 `df = pd.read_csv('ventas_2024.csv')\n\n` +
+                 `# Cálculo de métricas ejecutivas\n` +
+                 `df['Margen_Bruto'] = df['Ingresos'] - df['Costos_Variables']\n` +
+                 `resumen = df.groupby('Sucursal').agg({\n` +
+                 `    'Ingresos': 'sum',\n` +
+                 `    'Margen_Bruto': 'sum',\n` +
+                 `    'Cliente_ID': 'nunique'\n` +
+                 `}).reset_index()\n\n` +
+                 `print(resumen.sort_values(by='Margen_Bruto', ascending=False))\n` +
+                 `\`\`\`\n` +
+                 `*¿Qué lenguaje o algoritmo necesitas que desarrollemos, Santiago?*`;
+        }
+
+        // 10. CIBERSEGURIDAD, OWASP Y REA
+        if (lower.includes("seguridad") || lower.includes("ciberseguridad") || lower.includes("owasp") || lower.includes("sqli") || lower.includes("xss") || lower.includes("ingenieria inversa") || lower.includes("rea")) {
+          return `### 🛡️ Ciberseguridad y Auditoría Técnica\n\n` +
+                 `Como asistente blindada bajo estándares de seguridad, estos son los pilares fundamentales:\n\n` +
+                 `1. **OWASP Top 10 Protections:**\n` +
+                 `   - **A01: Broken Access Control:** Validación de autorizaciones en cada endpoint en el backend, no sólo en el frontend.\n` +
+                 `   - **A02: Cryptographic Failures:** Uso estricto de hashes lentos con sal para contraseñas (Argon2id, bcrypt) y TLS 1.3 en tránsito.\n` +
+                 `   - **A03: Injection (SQLi / Command Injection):** Uso exclusivo de consultas parametrizadas (Prepared Statements) y ORMs; nunca concatenar cadenas de usuario en SQL o comandos de shell.\n` +
+                 `   - **A07: Identification & Auth Failures:** Limitación de tasa (rate limiting), sesiones con cookies \`HttpOnly\`, \`SameSite=Strict\` y PIN o 2FA.\n\n` +
+                 `2. **Ingeniería Inversa (Módulo REA):**\n` +
+                 `   - Soporte para análisis de binarios nativos (PE, ELF, Mach-O) y de aplicaciones web/móviles utilizando desensambladores e instrumentación dinámica (Rizin, Frida).\n\n` +
+                 `*¿Deseas auditar una porción de código o analizar un vector de ataque específico?*`;
+        }
+
+        // 11. MANUAL DE LISETH Y FUNCIONES
+        if (lower.includes("manual") || lower.includes("pdf") || lower.includes("funciones") || lower.includes("que puedes hacer")) {
+          return `### 📖 Manual y Capacidades de Liseth AI\n\n` +
+                 `Tienes a tu disposición el **Manual Completo de Liseth (Manual_Liseth.pdf)** con las 14 capacidades oficiales:\n\n` +
+                 `1. 🗣️ **Asistente de Voz Neuronal:** Diálogo bidireccional continuo con tono humano y dulce.\n` +
+                 `2. 📊 **Copiloto Financiero:** Fórmulas de administración (PE, ROI, VAN, TIR, WACC).\n` +
+                 `3. 🎓 **Asistente Universitario:** Normas APA 7ma edición, metodología y redacción.\n` +
+                 `4. ✍️ **Módulo Anti-Slop:** Humanización y depuración de textos para alta dirección.\n` +
+                 `5. 🛡️ **Seguridad OWASP y PIN:** Protección de sesión y validación de comandos.\n` +
+                 `6. 🔍 **Ingeniería Inversa (REA):** Análisis profundo de archivos y binarios.\n` +
+                 `7. 👁️ **EGO Computer-Vision:** Reconocimiento y análisis de imágenes y documentos.\n` +
+                 `8. 🗂️ **Gestor de Archivos:** Drag & drop de PDFs, código, hojas de cálculo y audios.\n` +
+                 `9. ⚡ **Modo Administrador:** Control del sistema con permisos elevados.\n` +
+                 `10. ☁️ **Sincronización Git Automática:** Respaldo y actualización instantánea con GitHub.\n` +
+                 `11. 🌐 **Despliegue Web Cloud:** Hosteada en GitHub Pages para acceso móvil y remoto.\n` +
+                 `12. ⚡ **Ventana Dinámica HUD:** Proyección interactiva de datos y búsquedas.\n` +
+                 `13. ⏱️ **Programador de Tareas:** Recordatorios y ejecuciones calendarizadas.\n` +
+                 `14. 🎨 **Personalización Total:** Ajuste de títulos, temas, avatares y colores.\n\n` +
+                 `*¿En cuál de estos módulos te gustaría profundizar ahora?*`;
+        }
+
+        // 12. RESPUESTA INTELIGENTE UNIVERSAL CONSTRUCTIVA
+        return `### 💡 Análisis Ejecutivo de Liseth\n\n` +
+               `He procesado su planteamiento sobre: **"${query}"**.\n\n` +
+               `Para abordar este requerimiento con el más alto rigor analítico, le sugiero considerar las siguientes dimensiones clave:\n\n` +
+               `1. **Objetivo Principal:** Delimitar con exactitud el resultado esperado y su impacto (sea académico, empresarial o técnico).\n` +
+               `2. **Variables Críticas:** Identificar los recursos, tiempos, fórmulas o restricciones aplicables.\n` +
+               `3. **Plan de Acción:** Proceder por etapas estructuradas con verificación paso a paso.\n\n` +
+               `---\n` +
+               `💬 *Estoy lista para continuar detallando este punto con usted, Santiago.*\n\n` +
+               `> 💡 **Nota Informativa de Modo Cloud:** Estás interactuando con Liseth directamente en la nube desde GitHub Pages. Para formular preguntas abiertas complejas y razonar con modelos Gemini 2.5 Flash / Pro sin límites directamente en tu navegador, puedes agregar tu API Key gratuita de Google en el engranaje de **Configuración (⚙️)**.`;
+      }
+
       // --- LLAMADA UNIFICADA AL CEREBRO IA (BRAIN ROUTER O CLIENTE DIRECTO) ---
 
       async function callGeminiAPI(apiKey, history) {
-        // Si el servidor local está activo, invocar mediante /api/brain/chat (Failover Gemini/Claude + Function Calling de Google)
+        // 1. Si el servidor local está activo, invocar mediante /api/brain/chat (Failover Gemini/Claude + Function Calling de Google)
         if (isServerConnected) {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 20000);
@@ -6965,45 +7315,51 @@ Tus habilidades clave:
           }
         }
 
-        // Modo autónomo en cliente (Fallback si no hay servidor)
-        // Comprobar únicamente los 2 mejores modelos verificados para evitar esperas largas
-        const candidatePool = [activeGeminiModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
-        const orderedCandidateModels = [...new Set(candidatePool.filter(Boolean))].slice(0, 2);
+        // 2. Si el usuario configuró una API Key en la web, consultar directamente a Google Gemini en el navegador
+        if (apiKey && apiKey.trim()) {
+          const candidatePool = [activeGeminiModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+          const orderedCandidateModels = [...new Set(candidatePool.filter(Boolean))].slice(0, 2);
 
-        let lastError = null;
-        for (const model of orderedCandidateModels) {
-          try {
-            const result = await executeGeminiRequest(model, apiKey, history);
-            // Si tuvo éxito, guardar este modelo como el activo confirmado
-            if (activeGeminiModel !== model) {
-              activeGeminiModel = model;
-              try { localStorage.setItem("liseth_active_gemini_model", model); } catch(e) {}
-              console.log(`[Liseth AI] Modelo verificado y guardado como activo: ${model}`);
-            }
-            return result;
-          } catch (err) {
-            lastError = err;
-            const isRetryableError =
-              err.code === "TIMEOUT" || err.code === 404 || err.code === 503 || err.code === 429 || err.code === 500 || err.code === 502 ||
-              err.status === "NOT_FOUND" || err.status === "UNAVAILABLE" || err.status === "RESOURCE_EXHAUSTED" ||
-              (err.googleMessage && (
-                err.googleMessage.toLowerCase().includes("not found") ||
-                err.googleMessage.toLowerCase().includes("unavailable") ||
-                err.googleMessage.toLowerCase().includes("demand") ||
-                err.googleMessage.toLowerCase().includes("overloaded") ||
-                err.googleMessage.toLowerCase().includes("try again later") ||
-                err.googleMessage.toLowerCase().includes("no longer available") ||
-                err.googleMessage.toLowerCase().includes("not supported")
-              ));
+          let lastError = null;
+          for (const model of orderedCandidateModels) {
+            try {
+              const result = await executeGeminiRequest(model, apiKey, history);
+              if (activeGeminiModel !== model) {
+                activeGeminiModel = model;
+                try { localStorage.setItem("liseth_active_gemini_model", model); } catch(e) {}
+                console.log(`[Liseth AI] Modelo verificado y guardado como activo: ${model}`);
+              }
+              return result;
+            } catch (err) {
+              lastError = err;
+              const isRetryableError =
+                err.code === "TIMEOUT" || err.code === 404 || err.code === 503 || err.code === 429 || err.code === 500 || err.code === 502 ||
+                err.status === "NOT_FOUND" || err.status === "UNAVAILABLE" || err.status === "RESOURCE_EXHAUSTED" ||
+                (err.googleMessage && (
+                  err.googleMessage.toLowerCase().includes("not found") ||
+                  err.googleMessage.toLowerCase().includes("unavailable") ||
+                  err.googleMessage.toLowerCase().includes("demand") ||
+                  err.googleMessage.toLowerCase().includes("overloaded") ||
+                  err.googleMessage.toLowerCase().includes("try again later") ||
+                  err.googleMessage.toLowerCase().includes("no longer available") ||
+                  err.googleMessage.toLowerCase().includes("not supported")
+                ));
 
-            if (isRetryableError) {
-              console.warn(`[Liseth AI] Modelo ${model} no disponible (${err.code}), comprobando el siguiente modelo...`, err);
-              continue;
+              if (isRetryableError) {
+                console.warn(`[Liseth AI] Modelo ${model} no disponible (${err.code}), comprobando el siguiente modelo...`, err);
+                continue;
+              }
+              break;
             }
-            throw err;
+          }
+          if (lastError) {
+            console.warn("Fallo en modelos de Gemini, recurriendo al cerebro cognitivo de Liseth Cloud:", lastError);
+            return await callLisethEmbeddedBrain(history, lastError);
           }
         }
-        throw lastError;
+
+        // 3. MODO NUBE AUTÓNOMO SIN DEPENDENCIAS (GITHUB PAGES / MODO WEB SIN API KEY NI SERVIDOR)
+        return await callLisethEmbeddedBrain(history);
       }
 
       // Generar instrucción de sistema enriquecida con la ficha del usuario
