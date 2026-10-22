@@ -222,6 +222,15 @@ class HeartbeatService:
             self._thread.join(timeout=2.0)
         logger.info("[Heartbeat] Centinela autónomo detenido.")
 
+    def get_status(self) -> Dict[str, Any]:
+        """Returns current state and sensor loop health."""
+        return {
+            "active": self.is_running,
+            "interval_seconds": self.check_interval_seconds,
+            "dnd_mode": self.gatekeeper.dnd_mode if self.gatekeeper else False,
+            "last_hardware_check": self.last_hardware_check
+        }
+
     def _run_loop(self):
         """Background sensor check loop executing every check_interval_seconds."""
         logger.info(f"[Heartbeat] Bucle activo con intervalo de {self.check_interval_seconds}s.")

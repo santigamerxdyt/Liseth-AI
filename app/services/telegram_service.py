@@ -60,6 +60,14 @@ class TelegramService:
             self._thread.join(timeout=2.0)
         logger.info("[Telegram] Centinela bidireccional de Telegram detenido.")
 
+    def get_status(self) -> Dict[str, Any]:
+        """Returns the operational status of the Telegram sentinel."""
+        return {
+            "active": self.is_running,
+            "configured": bool(self.token and self.default_chat_id),
+            "chat_id": f"{self.default_chat_id[:4]}••••" if self.default_chat_id else None
+        }
+
     def _poll_loop(self):
         """Long-polling loop for Telegram updates."""
         logger.info("[Telegram] Iniciando bucle de recepción de mensajes remotos...")

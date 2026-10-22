@@ -14,6 +14,7 @@ ported from Mark-XXXIX:
 - reminder: Native Windows scheduled reminders
 """
 import asyncio
+import json
 import logging
 from typing import Any, Dict, List, Optional
 
