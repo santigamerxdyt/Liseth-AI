@@ -37,7 +37,7 @@ BT /F2 20 Tf 67.0 759.89 Td (LISETH AI - MANUAL MAESTRO DE USUARIO) Tj ET
 0.85 0.95 0.98 rg
 BT /F2 11 Tf 67.0 737.89 Td (Guia Completa de Funcionalidades, Modos y Comandos Rapidos) Tj ET
 0.7 0.8 0.9 rg
-BT /F1 9 Tf 67.0 713.89 Td (Copiloto Personal Autónomo de Señor Santiago \\| Edición Dinámica \(18 de October de 2026\)) Tj ET
+BT /F1 9 Tf 67.0 713.89 Td (Copiloto Personal Autónomo de Señor Santiago \\| Edición Dinámica \(21 de October de 2026\)) Tj ET
 Q
 q
 0.15 0.15 0.15 rg
@@ -2378,7 +2378,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 27 0 R >>
 endobj
 28 0 obj
-<< /Length 772 >>
+<< /Length 4971 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -2388,12 +2388,132 @@ BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
 BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 783.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.90 0.94 0.98 rg
+42.0 767.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 767.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 774.89 Td (21. Arquitectura de Cerebros Multi-Nivel y Motor Cognitivo Nativo) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 748.89 Td (Liseth opera con una arquitectura de failover y resiliencia cognitiva en 4 capas autónomas para garantizar) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 736.89 Td (que Señor Santiago nunca quede incomunicado ni sin asistencia: \(1\) Cerebro Primario en la Nube: Google Gemini) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 724.89 Td (3.8 Flash y 3.5 Flash-Lite con auto-curación y descubrimiento dinámico de modelos en tiempo real; \(2\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 712.89 Td (Cerebros Auxiliares de Inferencia Rápida: Groq Cloud \(LLaMA 3.3 70B a más de 500 tokens/segundo\) y Anthropic) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 700.89 Td (Claude \(razonamiento analítico profundo\); \(3\) Centinela de Telegram Bidireccional: Mantiene la misma) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 688.89 Td (inteligencia, herramientas y cascada de cerebros disponible desde su móvil en cualquier lugar; y \(4\) Motor) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 676.89 Td (Cognitivo Nativo Integrado \(EmbeddedCognitiveEngine\): 100% offline, local y de respuesta inmediata en Windows) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 664.89 Td (que opera sin consumir saldo de API ni requerir conexión a internet:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 612.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 612.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 640.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 645.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 644.89 Td (\"Cerebro Primario: Gemini 3.8 / 3.5 Flash\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 629.89 Td (Inferencia multimodal con auto-descubrimiento de modelos en caso de 404 y rotación de claves.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 617.89 Td (-> Cerebro Primario en la Nube) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 560.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 560.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 588.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 593.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 592.89 Td (\"Inferencia Ultra-Rápida con Groq \(LLaMA 3.3 70B\)\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 577.89 Td (Velocidad extrema de respuesta inmediata \(500+ tok/s\) cuando se requiere respuesta instantánea.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 565.89 Td (-> Cerebro Auxiliar Groq) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 508.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 508.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 536.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 541.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 540.89 Td (\"Centinela de Telegram Bidireccional\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 525.89 Td (Recibe y responde mensajes remotos de Santiago por Telegram con ejecución completa de acciones en el PC.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 513.89 Td (-> Control Remoto Telegram) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 456.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 456.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 484.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 489.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 488.89 Td (\"Motor Cognitivo Nativo 100% Offline\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 473.89 Td (Núcleo de respaldo que resuelve fórmulas de Excel, VAN/TIR, citas APA 7 y hardware sin internet.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 461.89 Td (-> Embedded Cognitive Engine) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 404.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 404.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 432.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 437.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 436.89 Td (\"Auto-Curación y Failover en <100ms\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 421.89 Td (Si un proveedor falla por cuota o red, Liseth conmuta de inmediato al siguiente cerebro sin error visible.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 409.89 Td (-> Resiliencia Autónoma) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 771.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 390.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 378.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -2426,7 +2546,7 @@ xref
 0000062005 00000 n 
 0000070105 00000 n 
 0000079192 00000 n 
-0000080180 00000 n 
+0000084380 00000 n 
 0000000583 00000 n 
 0000007358 00000 n 
 0000015005 00000 n 
@@ -2441,5 +2561,5 @@ xref
 trailer
 << /Size 29 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-80344
+84544
 %%EOF

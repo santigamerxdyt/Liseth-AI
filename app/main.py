@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.config import settings
+from app.config import settings, BASE_DIR
 from app.core.auth import is_authenticated
 from app.core.database import engine, init_db
 from app.core.migrator import run_migration_if_needed
@@ -139,6 +139,8 @@ async def local_only_guard_middleware(request: Request, call_next):
 # Only auth discovery and liveness checks are exempt; all operational endpoints require valid PIN session
 EXEMPT_API_PATHS = {
     "/api/status",
+    "/api/system/status",
+    "/api/config",
     "/api/auth/login",
     "/api/auth/status",
     "/api/auth/logout",
@@ -159,9 +161,10 @@ async def api_auth_middleware(request: Request, call_next):
     Returns 401 JSON if unauthorized.
     """
     path = request.url.path
+    clean_path = path.rstrip("/") or "/"
 
     # Check if request targets an API route that is not exempt
-    if path.startswith("/api") and path not in EXEMPT_API_PATHS:
+    if path.startswith("/api") and path not in EXEMPT_API_PATHS and clean_path not in EXEMPT_API_PATHS:
         # Preflight OPTIONS requests are handled by CORS middleware
         if request.method != "OPTIONS":
             if not is_authenticated(request):
@@ -227,3 +230,15 @@ async def serve_index():
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
+
+
+@app.get("/liseth.ico", include_in_schema=False)
+@app.get("/favicon.ico", include_in_schema=False)
+async def serve_favicon():
+    ico_file = BASE_DIR / "liseth.ico"
+    if not ico_file.exists():
+        ico_file = settings.STATIC_DIR / "liseth.ico"
+    if ico_file.exists():
+        return FileResponse(ico_file, media_type="image/x-icon")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+

@@ -44,6 +44,7 @@ class Settings:
         self.DESKTOP_MODE: bool = os.getenv("DESKTOP_MODE", "false").lower() in ("true", "1", "yes")
 
         # Directories
+        self.BASE_DIR: Path = BASE_DIR
         self.DATA_DIR: Path = BASE_DIR / "data"
         self.UPLOADS_DIR: Path = BASE_DIR / "uploads"
         self.ARCHIVOS_CREADOS_DIR: Path = BASE_DIR / "archivos_creados"
@@ -118,7 +119,7 @@ class Settings:
         # LLM Brains
         self.GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "").strip()
         self.ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "").strip()
-        self.GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
+        self.GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
         self.ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022").strip()
         # Auxiliary Brains (Failover Fallbacks)
         self.GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "").strip()

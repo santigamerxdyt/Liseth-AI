@@ -12,7 +12,7 @@ import unicodedata
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 import httpx
-from app.config import settings
+from app.config import BASE_DIR, settings
 from app.services.action_dispatcher import action_dispatcher, SYSTEM_TOOL_DECLARATIONS
 
 logger = logging.getLogger("jarvis.brain")
@@ -38,10 +38,14 @@ DEFAULT_RATES = {
 
 # Ranked active candidates for Gemini in order of availability and speed
 GEMINI_PRIORITY_MODELS = [
+    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.6-flash",
+    "gemini-3.1-flash-lite",
     "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
     "gemini-2.0-flash",
     "gemini-1.5-flash",
-    "gemini-2.5-flash-lite",
     "gemini-flash-latest",
 ]
 
@@ -999,10 +1003,19 @@ class BrainRouter:
         self.primary_brain: str = "gemini"
         self.active_brain: str = "gemini"
         self.forced_brain: Optional[str] = None
-        self.active_gemini_model: str = settings.GEMINI_MODEL or "gemini-2.5-flash"
+        self.active_gemini_model: str = settings.GEMINI_MODEL or "gemini-3.8-flash"
         self.last_failover: Optional[dict] = None
-        self.known_working_models: List[str] = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+        self.known_working_models: List[str] = [
+            "gemini-3.8-flash",
+            "gemini-3.5-flash-lite",
+            "gemini-3.6-flash",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-flash",
+        ]
         self._http_client: Optional[httpx.AsyncClient] = None
+        self._http_client_loop: Optional[Any] = None
+        self._invalid_keys: set = set()
+        self._pollinations_disabled: bool = False
         self.stats: dict = {
             "today_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "today": {
@@ -1018,12 +1031,24 @@ class BrainRouter:
         }
 
     def get_client(self, timeout: float = 20.0) -> httpx.AsyncClient:
-        """Returns or creates a reusable HTTP client with connection pooling."""
-        if self._http_client is None or self._http_client.is_closed:
+        """Returns or creates a reusable HTTP client safely bound to the active event loop."""
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if (
+            self._http_client is None
+            or self._http_client.is_closed
+            or self._http_client_loop is None
+            or self._http_client_loop != loop
+            or (self._http_client_loop and self._http_client_loop.is_closed())
+        ):
             self._http_client = httpx.AsyncClient(
                 timeout=httpx.Timeout(timeout, connect=5.0),
                 limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
             )
+            self._http_client_loop = loop
         return self._http_client
 
     async def close(self):
@@ -1077,20 +1102,25 @@ class BrainRouter:
         """
         url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
         try:
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                resp = await client.get(url)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    discovered = []
-                    for m in data.get("models", []):
-                        methods = m.get("supportedGenerationMethods", [])
-                        name = m.get("name", "").replace("models/", "")
-                        # Filter for text generation flash models
-                        if "generateContent" in methods and "flash" in name and not any(x in name for x in ["tts", "image", "preview-10"]):
-                            discovered.append(name)
-                    if discovered:
-                        logger.info(f"[AUTO_DISCOVERY] Modelos detectados en tiempo real: {discovered}")
-                        return discovered
+            client = self.get_client()
+            resp = await client.get(url)
+            if resp.status_code == 200:
+                data = resp.json()
+                discovered = []
+                for m in data.get("models", []):
+                    methods = m.get("supportedGenerationMethods", [])
+                    name = m.get("name", "").replace("models/", "")
+                    # Filter for text generation models excluding specialized tts/image/embeddings
+                    if "generateContent" in methods and not any(x in name for x in ["tts", "image", "embedding", "aqa", "preview-10"]):
+                        discovered.append(name)
+                if discovered:
+                    discovered.sort(key=lambda x: (
+                        0 if "flash" in x else 1,
+                        0 if ("3." in x or "3-" in x) else 1,
+                        x
+                    ))
+                    logger.info(f"[AUTO_DISCOVERY] Modelos detectados en tiempo real: {discovered}")
+                    return discovered
         except Exception as e:
             logger.warning(f"Error descubriendo modelos en vivo: {e}")
         return GEMINI_PRIORITY_MODELS
@@ -1122,69 +1152,93 @@ class BrainRouter:
 
         return results
 
-    async def call_gemini(
+    def _get_fallback_gemini_key(self) -> Optional[str]:
+        """Looks for an alternate Gemini key in SQLite or liseth_db.json."""
+        try:
+            import json, sqlite3
+            db_path = BASE_DIR / "data" / "jarvis.db"
+            if db_path.exists():
+                with sqlite3.connect(str(db_path)) as conn:
+                    cur = conn.cursor()
+                    cur.execute("SELECT value FROM app_settings WHERE key='config'")
+                    row = cur.fetchone()
+                    if row and row[0]:
+                        cfg = json.loads(row[0])
+                        k = cfg.get("apiKey", "").strip()
+                        if k and (k.startswith('AIzaSy') or k.startswith('AQ.')) and k != settings.GEMINI_API_KEY:
+                            return k
+        except Exception:
+            pass
+
+        try:
+            import json
+            json_path = BASE_DIR / "data" / "liseth_db.json"
+            if json_path.exists():
+                with open(json_path, "r", encoding="utf-8") as f:
+                    cfg = json.load(f).get("config", {})
+                    k = cfg.get("apiKey", "").strip()
+                    if k and (k.startswith('AIzaSy') or k.startswith('AQ.')) and k != settings.GEMINI_API_KEY:
+                        return k
+        except Exception:
+            pass
+        return None
+
+    async def _execute_gemini_request(
         self,
-        prompt: Optional[str] = None,
-        contents: Optional[List[dict]] = None,
-        system_prompt: Optional[str] = None,
-        tools: Optional[list] = None,
-        api_key_override: Optional[str] = None,
+        api_key: str,
+        models_to_try: List[str],
+        formatted_contents: List[dict],
+        system_prompt: Optional[str],
+        tools: Optional[list],
     ) -> dict:
-        """
-        Calls Gemini API with autonomous self-healing:
-        - Tries active model first.
-        - On 503 (high demand), applies smart 1.2s delay and retries once.
-        - If still unavailable or 404, moves through the candidate chain.
-        - If candidates fail, discovers live models from Google API.
-        - Once a working model is found, locks it in as self.active_gemini_model.
-        """
-        api_key = api_key_override or settings.GEMINI_API_KEY
-        if not api_key:
-            raise ValueError("GEMINI_API_KEY no está configurada ni en .env ni en la solicitud.")
-
-        if contents:
-            formatted_contents = contents
-        elif prompt:
-            formatted_contents = [{"role": "user", "parts": [{"text": prompt}]}]
-        else:
-            raise ValueError("Se requiere al menos un prompt o historial contents.")
-
-        # Fast model rotation: try active model, then immediate verified fallbacks
-        models_to_try = [self.active_gemini_model]
-        for m in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash-lite"]:
-            if m not in models_to_try:
-                models_to_try.append(m)
-        models_to_try = models_to_try[:4]
-
         last_error = None
-        for idx, model in enumerate(models_to_try):
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-            payload: Dict[str, Any] = {
-                "contents": formatted_contents,
-                "generationConfig": {
-                    "temperature": 0.75,
-                    "maxOutputTokens": 3000,
-                }
+        payload: Dict[str, Any] = {
+            "contents": formatted_contents,
+            "generationConfig": {
+                "temperature": 0.75,
+                "maxOutputTokens": 3000,
             }
-            if system_prompt:
-                payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
-            tools_to_use = tools if tools is not None else SYSTEM_TOOL_DECLARATIONS
-            if tools_to_use:
-                payload["tools"] = [{"functionDeclarations": tools_to_use}]
+        }
+        if system_prompt:
+            payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
+        tools_to_use = tools if tools is not None else SYSTEM_TOOL_DECLARATIONS
+        if tools_to_use:
+            payload["tools"] = [{"functionDeclarations": tools_to_use}]
 
+        attempted = set()
+        queue = list(models_to_try)
+        did_live_discovery = False
+
+        while queue:
+            model = queue.pop(0)
+            if model in attempted:
+                continue
+            attempted.add(model)
+
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
             try:
                 client = self.get_client()
                 resp = await client.post(url, json=payload)
 
-                # If model is saturated (503) or unavailable (404/429), switch immediately
+                if resp.status_code in [403, 400] and ("leaked" in resp.text.lower() or "API_KEY" in resp.text or "key" in resp.text.lower() or "forbidden" in resp.text.lower()):
+                    self._invalid_keys.add(api_key)
+                    logger.warning(f"[GEMINI] Clave {api_key[:8]}... reportada como filtrada/restringida. Desactivada de la rotación.")
+                    raise RuntimeError(f"HTTP {resp.status_code}: {resp.text[:120]}")
+
                 if resp.status_code in [503, 502, 504, 404, 429, 500]:
-                    logger.warning(f"[AUTO_HEAL] {model} devolvió HTTP {resp.status_code}. Conmutando de inmediato al siguiente modelo...")
-                    last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text}")
+                    logger.warning(f"[AUTO_HEAL] {model} devolvió HTTP {resp.status_code}. Probando siguiente modelo...")
+                    last_error = RuntimeError(f"HTTP {resp.status_code}: {resp.text[:100]}")
+                    if resp.status_code == 404 and not did_live_discovery and not queue:
+                        did_live_discovery = True
+                        logger.info("[AUTO_HEAL] Modelos candidatos iniciales agotados con 404. Consultando modelos activos para esta clave...")
+                        discovered = await self.fetch_live_gemini_models(api_key)
+                        for dm in discovered:
+                            if dm not in attempted:
+                                queue.append(dm)
                     continue
 
                 resp.raise_for_status()
                 data = resp.json()
-
                 candidates = data.get("candidates", [])
                 if not candidates:
                     last_error = ValueError(f"Gemini {model} no devolvió candidatos.")
@@ -1196,7 +1250,6 @@ class BrainRouter:
                     if "text" in p:
                         text += p["text"]
 
-                # Process native function/tool execution (Mark-XXXIX automation)
                 executed_tools = []
                 function_calls = [p["functionCall"] for p in parts if "functionCall" in p]
                 if function_calls:
@@ -1209,16 +1262,10 @@ class BrainRouter:
                             t_res = f"Error ejecutando {fn_name}: {te}"
                         executed_tools.append({"name": fn_name, "args": fn_args, "result": t_res})
 
-                    # Follow up with Gemini to synthesize a sweet, conversational voice response
                     followup_contents = list(formatted_contents)
                     followup_contents.append({"role": "model", "parts": parts})
                     followup_parts = [
-                        {
-                            "functionResponse": {
-                                "name": et["name"],
-                                "response": {"result": et["result"]}
-                            }
-                        }
+                        {"functionResponse": {"name": et["name"], "response": {"result": et["result"]}}}
                         for et in executed_tools
                     ]
                     followup_contents.append({"role": "function", "parts": followup_parts})
@@ -1243,7 +1290,6 @@ class BrainRouter:
                 out_tok = usage.get("candidatesTokenCount", 0)
                 self.record_usage("gemini", inp_tok, out_tok, model)
 
-                # Persist verified working model
                 if self.active_gemini_model != model:
                     logger.info(f"[AUTO_HEAL] ¡Éxito! Modelo confirmado y actualizado a: {model}")
                     self.active_gemini_model = model
@@ -1257,36 +1303,70 @@ class BrainRouter:
                     "executedTools": executed_tools,
                 }
             except Exception as e:
-                logger.warning(f"[AUTO_HEAL] Error o timeout con {model}: {e}. Probando siguiente modelo...")
+                if "HTTP 403" in str(e) or "HTTP 400" in str(e):
+                    raise e
+                logger.warning(f"[AUTO_HEAL] Error con {model}: {e}. Probando siguiente modelo...")
                 last_error = e
                 continue
 
-        # If primary candidates failed, try dynamic live model discovery as quick fallback
-        try:
-            logger.info("[AUTO_HEAL] Consultando API de Google para descubrir nuevos modelos en vivo...")
-            live_models = await self.fetch_live_gemini_models(api_key)
-            untested = [m for m in live_models if m not in models_to_try]
-            for model in untested[:2]:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    resp = await client.post(url, json=payload)
-                    if resp.status_code == 200:
-                        data = resp.json()
-                        parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-                        text = "".join(p.get("text", "") for p in parts)
-                        self.active_gemini_model = model
-                        logger.info(f"[AUTO_HEAL] ¡Recuperación exitosa con modelo descubierto {model}!")
-                        return {
-                            "text": text,
-                            "brain": "gemini",
-                            "model": model,
-                            "usage": {"input": 100, "output": 100},
-                            "failover": False,
-                        }
-        except Exception as disc_err:
-            logger.warning(f"Error en descubrimiento dinámico: {disc_err}")
+        raise last_error or RuntimeError("Todos los modelos de Gemini fallaron.")
 
-        raise last_error or RuntimeError("Todos los modelos de Gemini se encuentran temporalmente saturados.")
+    async def call_gemini(
+        self,
+        prompt: Optional[str] = None,
+        contents: Optional[List[dict]] = None,
+        system_prompt: Optional[str] = None,
+        tools: Optional[list] = None,
+        api_key_override: Optional[str] = None,
+        **kwargs: Any,
+    ) -> dict:
+        """Calls Gemini API with candidate key cycling and self-healing model fallback."""
+        candidate_keys = []
+        if api_key_override:
+            candidate_keys.append(api_key_override)
+        if settings.GEMINI_API_KEY and settings.GEMINI_API_KEY not in candidate_keys:
+            candidate_keys.append(settings.GEMINI_API_KEY)
+        fallback_k = self._get_fallback_gemini_key()
+        if fallback_k and fallback_k not in candidate_keys:
+            candidate_keys.append(fallback_k)
+
+        # Filter out already revoked/leaked keys
+        valid_keys = [k for k in candidate_keys if k not in self._invalid_keys]
+        if not valid_keys:
+            raise ValueError("No hay claves de Gemini operativas (la clave actual fue reportada como filtrada/revocada).")
+
+        if contents:
+            formatted_contents = contents
+        elif prompt:
+            formatted_contents = [{"role": "user", "parts": [{"text": prompt}]}]
+        else:
+            raise ValueError("Se requiere al menos un prompt o historial contents.")
+
+        models_to_try = [self.active_gemini_model]
+        for m in GEMINI_PRIORITY_MODELS:
+            if m not in models_to_try:
+                models_to_try.append(m)
+
+        last_err = None
+        for k in valid_keys:
+            try:
+                res = await self._execute_gemini_request(k, models_to_try, formatted_contents, system_prompt, tools)
+                if settings.GEMINI_API_KEY != k:
+                    settings.GEMINI_API_KEY = k
+                    try:
+                        from app.routers.credentials_router import update_env_file
+                        update_env_file({"GEMINI_API_KEY": k})
+                        logger.info("[GEMINI] Clave alternativa activada y guardada en .env.")
+                    except Exception:
+                        pass
+                return res
+            except Exception as e:
+                last_err = e
+                logger.warning(f"[GEMINI] Clave {k[:8]}... falló ({e}). Probando alternativa si existe...")
+                continue
+
+        raise last_err or RuntimeError("No se pudo conectar con Gemini con ninguna de las claves disponibles.")
+
 
     async def call_claude(
         self,
@@ -1295,13 +1375,22 @@ class BrainRouter:
         system_prompt: Optional[str] = None,
         tools: Optional[list] = None,
         api_key_override: Optional[str] = None,
+        **kwargs: Any,
     ) -> dict:
-        """Calls Anthropic Claude API using httpx."""
+        """Calls Anthropic Claude API with automatic error diagnostics and model candidates."""
         api_key = api_key_override or settings.ANTHROPIC_API_KEY
-        if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY no está configurada para failover.")
+        if not api_key or api_key in self._invalid_keys:
+            raise ValueError("ANTHROPIC_API_KEY no configurada o saldo en $0.")
 
-        model = settings.ANTHROPIC_MODEL
+        candidate_models = [
+            settings.ANTHROPIC_MODEL,
+            "claude-3-5-sonnet-20241022",
+            "claude-3-5-haiku-20241022",
+            "claude-3-haiku-20240307",
+        ]
+        seen = set()
+        models_to_try = [m for m in candidate_models if m and not (m in seen or seen.add(m))]
+
         url = "https://api.anthropic.com/v1/messages"
         headers = {
             "x-api-key": api_key,
@@ -1323,36 +1412,49 @@ class BrainRouter:
         if not claude_messages:
             claude_messages.append({"role": "user", "content": "Hola"})
 
-        payload: Dict[str, Any] = {
-            "model": model,
-            "max_tokens": 4096,
-            "messages": claude_messages,
-        }
-        if system_prompt:
-            payload["system"] = system_prompt
-
+        last_err = None
         async with httpx.AsyncClient(timeout=45.0) as client:
-            resp = await client.post(url, headers=headers, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
+            for model in models_to_try:
+                payload: Dict[str, Any] = {
+                    "model": model,
+                    "max_tokens": 4096,
+                    "messages": claude_messages,
+                }
+                if system_prompt:
+                    payload["system"] = system_prompt
 
-        text = ""
-        for block in data.get("content", []):
-            if block.get("type") == "text":
-                text += block.get("text", "")
+                resp = await client.post(url, headers=headers, json=payload)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    text = ""
+                    for block in data.get("content", []):
+                        if block.get("type") == "text":
+                            text += block.get("text", "")
 
-        usage = data.get("usage", {})
-        inp_tok = usage.get("input_tokens", 0)
-        out_tok = usage.get("output_tokens", 0)
-        self.record_usage("claude", inp_tok, out_tok, model)
+                    usage = data.get("usage", {})
+                    inp_tok = usage.get("input_tokens", 0)
+                    out_tok = usage.get("output_tokens", 0)
+                    self.record_usage("claude", inp_tok, out_tok, model)
+                    settings.ANTHROPIC_MODEL = model
 
-        return {
-            "text": text,
-            "brain": "claude",
-            "model": model,
-            "usage": {"input": inp_tok, "output": out_tok},
-            "failover": True,
-        }
+                    return {
+                        "text": text,
+                        "brain": "claude",
+                        "model": model,
+                        "usage": {"input": inp_tok, "output": out_tok},
+                        "failover": True,
+                    }
+                else:
+                    err_text = resp.text
+                    if "credit balance is too low" in err_text.lower():
+                        self._invalid_keys.add(api_key)
+                        raise RuntimeError("Anthropic Claude: El saldo de créditos de su cuenta es insuficiente ($0). Requiere recargar créditos en console.anthropic.com.")
+                    elif resp.status_code == 401:
+                        raise RuntimeError("Anthropic Claude: Clave de API inválida o no autorizada (401).")
+                    last_err = f"HTTP {resp.status_code}: {err_text[:120]}"
+                    logger.warning(f"[Claude] Modelo {model} falló: {last_err}")
+
+        raise RuntimeError(f"Claude falló: {last_err}")
 
     async def call_groq(
         self,
@@ -1361,11 +1463,12 @@ class BrainRouter:
         system_prompt: Optional[str] = None,
         tools: Optional[list] = None,
         api_key_override: Optional[str] = None,
+        **kwargs: Any,
     ) -> dict:
-        """Calls Groq API (ultra-fast Llama 3.3 70B / 3.1 8B)."""
+        """Calls Groq API with automatic model candidate fallback."""
         api_key = api_key_override or settings.GROQ_API_KEY
-        if not api_key:
-            raise ValueError("GROQ_API_KEY no está configurada.")
+        if not api_key or api_key in self._invalid_keys:
+            raise ValueError("GROQ_API_KEY no configurada o clave previamente invalidada (HTTP 401).")
 
         url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
@@ -1387,31 +1490,62 @@ class BrainRouter:
         elif prompt:
             messages.append({"role": "user", "content": prompt})
 
-        payload = {
-            "model": settings.GROQ_MODEL or "llama-3.3-70b-versatile",
-            "messages": messages,
-            "temperature": 0.7,
-            "max_tokens": 3000,
-        }
+        if not any(m.get("content") for m in messages if m.get("role") == "user"):
+            messages.append({"role": "user", "content": prompt or "Hola Liseth"})
 
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.post(url, headers=headers, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
+        # List of candidate models to try in order of capability
+        candidates = [
+            settings.GROQ_MODEL,
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "mixtral-8x7b-32768",
+            "gemma2-9b-it",
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+            "qwen/qwen3.8-27b",
+        ]
+        seen = set()
+        models_to_try = [c for c in candidates if c and not (c in seen or seen.add(c))]
 
-        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-        usage = data.get("usage", {})
-        inp_tok = usage.get("prompt_tokens", 0)
-        out_tok = usage.get("completion_tokens", 0)
-        self.record_usage("groq", inp_tok, out_tok, settings.GROQ_MODEL)
+        last_err = None
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            for model in models_to_try:
+                payload = {
+                    "model": model,
+                    "messages": messages,
+                    "temperature": 0.7,
+                    "max_tokens": 3000,
+                }
+                try:
+                    resp = await client.post(url, headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                        usage = data.get("usage", {})
+                        inp_tok = usage.get("prompt_tokens", 0)
+                        out_tok = usage.get("completion_tokens", 0)
+                        self.record_usage("groq", inp_tok, out_tok, model)
+                        settings.GROQ_MODEL = model
+                        return {
+                            "text": text,
+                            "brain": "groq",
+                            "model": model,
+                            "usage": {"input": inp_tok, "output": out_tok},
+                            "failover": True,
+                        }
+                    elif resp.status_code == 401 or "invalid_api_key" in resp.text:
+                        self._invalid_keys.add(api_key)
+                        logger.warning(f"[Groq] Clave API inválida (HTTP 401). Desactivando reintentos con Groq.")
+                        last_err = "Invalid API Key"
+                        break
+                    else:
+                        last_err = f"HTTP {resp.status_code}: {resp.text[:120]}"
+                        logger.warning(f"[Groq] Modelo {model} no disponible: {last_err}")
+                except Exception as e:
+                    last_err = str(e)
+                    logger.warning(f"[Groq] Error con modelo {model}: {e}")
 
-        return {
-            "text": text,
-            "brain": "groq",
-            "model": settings.GROQ_MODEL,
-            "usage": {"input": inp_tok, "output": out_tok},
-            "failover": True,
-        }
+        raise RuntimeError(f"Groq falló con todos los modelos candidatos: {last_err}")
 
     async def call_openai(
         self,
@@ -1420,6 +1554,7 @@ class BrainRouter:
         system_prompt: Optional[str] = None,
         tools: Optional[list] = None,
         api_key_override: Optional[str] = None,
+        **kwargs: Any,
     ) -> dict:
         """Calls OpenAI API (GPT-4o / GPT-4o-mini)."""
         api_key = api_key_override or settings.OPENAI_API_KEY
@@ -1445,6 +1580,9 @@ class BrainRouter:
                     messages.append({"role": role, "content": text_part})
         elif prompt:
             messages.append({"role": "user", "content": prompt})
+
+        if not any(m.get("content") for m in messages if m.get("role") == "user"):
+            messages.append({"role": "user", "content": prompt or "Hola Liseth"})
 
         payload = {
             "model": settings.OPENAI_MODEL or "gpt-4o-mini",
@@ -1478,6 +1616,7 @@ class BrainRouter:
         contents: Optional[List[dict]] = None,
         system_prompt: Optional[str] = None,
         tools: Optional[list] = None,
+        **kwargs: Any,
     ) -> dict:
         """Calls Local Ollama LLM (100% offline on Santiago's PC)."""
         url = f"{settings.OLLAMA_BASE_URL.rstrip('/')}/api/chat"
@@ -1519,6 +1658,50 @@ class BrainRouter:
             "failover": True,
         }
 
+    async def call_pollinations_free(
+        self,
+        prompt: Optional[str] = None,
+        contents: Optional[List[dict]] = None,
+        system_prompt: Optional[str] = None,
+        **kwargs: Any,
+    ) -> dict:
+        """Free Neural AI Inference via Pollinations AI (Zero API keys)."""
+        candidate_text = prompt
+        if not candidate_text and contents:
+            for c in reversed(contents):
+                if c.get("role") in ["user"]:
+                    parts = c.get("parts", [])
+                    candidate_text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+                    if candidate_text:
+                        break
+        if not candidate_text:
+            raise ValueError("No prompt for free neural inference")
+
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": candidate_text})
+
+        if self._pollinations_disabled:
+            raise RuntimeError("Pollinations deshabilitado por requerir pago/token.")
+
+        url = "https://text.pollinations.ai/"
+        payload = {"messages": messages, "model": "openai", "seed": 42}
+        async with httpx.AsyncClient(timeout=6.0) as client:
+            resp = await client.post(url, json=payload)
+            if resp.status_code == 200 and resp.text:
+                text = resp.text.strip()
+                return {
+                    "text": text,
+                    "brain": "pollinations-free",
+                    "model": "openai-free",
+                    "usage": {"input": len(candidate_text), "output": len(text)},
+                    "failover": True,
+                }
+            if resp.status_code in [402, 429]:
+                self._pollinations_disabled = True
+            raise RuntimeError(f"Pollinations HTTP {resp.status_code}")
+
     async def generate_response(
         self,
         prompt: Optional[str] = None,
@@ -1527,6 +1710,9 @@ class BrainRouter:
         tools: Optional[list] = None,
         api_key_gemini: Optional[str] = None,
         api_key_claude: Optional[str] = None,
+        user_id: Optional[str] = None,
+        platform: Optional[str] = None,
+        **kwargs: Any,
     ) -> dict:
         """
         Executes query on primary brain (Gemini with autonomous self-healing).
@@ -1539,6 +1725,21 @@ class BrainRouter:
         """
         if self.is_token_limit_exceeded():
             raise ValueError(f"Límite diario de tokens alcanzado ({settings.DAILY_TOKEN_LIMIT} tokens). Consulta pausada.")
+
+        # Ensure system_prompt has Liseth's soul personality if not provided
+        if not system_prompt:
+            try:
+                from app.services.soul_service import soul_service
+                if platform == "telegram":
+                    extra = (
+                        "Estás interactuando con tu creador y único administrador, el Señor Santiago, a través de Telegram. "
+                        "Responde siempre con absoluta dulzura, elegancia ejecutiva, lealtad y formato Markdown limpio (negrita, viñetas, sin bloques rotos) optimizado para mensajería móvil."
+                    )
+                    system_prompt = soul_service.build_system_instruction(extra)
+                else:
+                    system_prompt = soul_service.build_system_instruction()
+            except Exception as e:
+                logger.debug(f"[BrainRouter] Error cargando soul_service: {e}")
 
         # Zero-latency local Windows automation check
         candidate_text = prompt
@@ -1591,15 +1792,17 @@ class BrainRouter:
 
         # 1. Primary Brain: Gemini with self-healing
         gemini_err = None
+        failover_errors = []
         try:
             res = await self.call_gemini(prompt, contents, system_prompt, tools, api_key_gemini)
             self.active_brain = "gemini"
             return res
         except Exception as err:
             gemini_err = err
+            failover_errors.append(f"Google Gemini: {err}")
             logger.warning(f"[FAILOVER] Gemini no disponible ({err}). Activando cascada de cerebros auxiliares...")
 
-        # 2. Auxiliary Brain 1: Groq (ultra fast Llama 3.3)
+        # 2. Auxiliary Brain 1: Groq (ultra-rápido Llama 3.3 / GPT-OSS 120b)
         if settings.GROQ_API_KEY or hasattr(self.call_groq, "assert_awaited"):
             try:
                 res = await self.call_groq(prompt, contents, system_prompt, tools)
@@ -1607,9 +1810,10 @@ class BrainRouter:
                 self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "groq"}
                 return res
             except Exception as groq_err:
+                failover_errors.append(f"Groq Cloud: {groq_err}")
                 logger.warning(f"Groq fallback falló: {groq_err}")
 
-        # 3. Auxiliary Brain 2: Claude
+        # 3. Auxiliary Brain 2: Claude (Anthropic)
         if settings.ANTHROPIC_API_KEY or api_key_claude or hasattr(self.call_claude, "assert_awaited"):
             try:
                 res = await self.call_claude(prompt, contents, system_prompt, tools, api_key_claude)
@@ -1617,6 +1821,7 @@ class BrainRouter:
                 self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "claude"}
                 return res
             except Exception as claude_err:
+                failover_errors.append(f"Anthropic Claude: {claude_err}")
                 logger.warning(f"Claude fallback falló: {claude_err}")
 
         # 4. Auxiliary Brain 3: OpenAI
@@ -1627,6 +1832,7 @@ class BrainRouter:
                 self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "openai"}
                 return res
             except Exception as openai_err:
+                failover_errors.append(f"OpenAI: {openai_err}")
                 logger.warning(f"OpenAI fallback falló: {openai_err}")
 
         # 5. Auxiliary Brain 4: Ollama Local (Offline en Windows)
@@ -1637,11 +1843,37 @@ class BrainRouter:
                 self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "ollama (local)"}
                 return res
             except Exception as ollama_err:
+                failover_errors.append(f"Ollama Local: {ollama_err}")
                 logger.warning(f"Ollama fallback falló: {ollama_err}")
 
+        # 6. Auxiliary Brain 5: Free Public Neural AI Inference (Pollinations AI)
+        try:
+            res = await self.call_pollinations_free(prompt, contents, system_prompt)
+            self.active_brain = "pollinations-free"
+            self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "pollinations-free"}
+            return res
+        except Exception as free_err:
+            failover_errors.append(f"Pollinations Free: {free_err}")
+            logger.debug(f"Pollinations free no disponible: {free_err}")
+
+        # 7. Ultimate Safeguard: Embedded Autonomous Cognitive Engine (100% Offline & Native)
+        try:
+            from app.services.embedded_brain import embedded_engine
+            res = embedded_engine.process(
+                prompt=candidate_text or prompt or "",
+                user_name="Señor Santiago",
+                platform=platform or "general",
+            )
+            self.active_brain = "embedded-cognitive"
+            self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "embedded-engine"}
+            return res
+        except Exception as emb_err:
+            logger.error(f"[FAILOVER] Error en motor cognitivo embebido: {emb_err}")
+
         # Si ningún cerebro auxiliar está configurado o todos fallaron
+        diagnostics = "\n".join(f"• {e}" for e in failover_errors)
         return {
-            "text": "Señor Santiago, he detectado una congestión temporal de alta demanda en los servidores de Google (error 503). He probado múltiples modelos de forma autónoma. Puede activar un cerebro auxiliar en su archivo .env (GROQ_API_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY u Ollama local) para tener redundancia permanente ante caídas externas.",
+            "text": f"Señor Santiago, he intentado conectar con su cerebro principal y la cascada de cerebros auxiliares disponibles, pero se presentaron las siguientes novedades:\n\n{diagnostics}\n\nPor favor revise sus claves de API en el archivo `.env` o en el panel de configuración (⚙️) para restablecer la comunicación.",
             "brain": "system",
             "model": self.active_gemini_model,
             "usage": {"input": 0, "output": 0},

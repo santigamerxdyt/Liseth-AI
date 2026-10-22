@@ -53,7 +53,6 @@ goto FIN
 
 :MODO_WEB
 echo [*] Iniciando servidor web de Liseth...
-start http://127.0.0.1:3000
 python run.py
 goto FIN
 

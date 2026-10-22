@@ -125,12 +125,12 @@ def get_credentials(request: Request, reveal: bool = False):
                     {
                         "id": "GEMINI_API_KEY",
                         "label": "Google Gemini API Key (Cerebro Primario)",
-                        "description": "Clave de Google AI Studio para Gemini 2.5 Flash / Pro (multimodal, razonamiento y voz).",
+                        "description": "Clave de Google AI Studio para Gemini 3.8 / 3.5 Flash / Pro (multimodal, razonamiento y voz).",
                         "doc_url": "https://aistudio.google.com/app/apikey",
                         "status": format_val("GEMINI_API_KEY", settings.GEMINI_API_KEY),
                         "model_key": "GEMINI_MODEL",
                         "model_val": settings.GEMINI_MODEL,
-                        "model_options": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3-flash-preview"]
+                        "model_options": ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-3.1-flash-lite", "gemini-2.5-flash", "gemini-2.5-pro"]
                     },
                     {
                         "id": "ANTHROPIC_API_KEY",

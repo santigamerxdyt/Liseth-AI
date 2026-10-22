@@ -86,7 +86,18 @@ class TelegramService:
 
     async def handle_message(self, message: Dict[str, Any]) -> str:
         """Processes an incoming Telegram message (text, voice, or command)."""
-        chat_id = str(message.get("chat", {}).get("id", "")) or self.default_chat_id
+        sender_chat_id = str(message.get("chat", {}).get("id", ""))
+        chat_id = sender_chat_id or self.default_chat_id
+        if sender_chat_id and (not self.default_chat_id or self.default_chat_id == "8820455447"):
+            self.default_chat_id = sender_chat_id
+            settings.TELEGRAM_CHAT_ID = sender_chat_id
+            logger.info(f"[Telegram] Auto-vinculado Chat ID de Santiago: {sender_chat_id}")
+            try:
+                from app.routers.credentials_router import update_env_file
+                update_env_file({"TELEGRAM_CHAT_ID": sender_chat_id})
+            except Exception as e:
+                logger.debug(f"[Telegram] No se pudo persistir TELEGRAM_CHAT_ID en .env: {e}")
+
         text = message.get("text", "").strip()
         voice = message.get("voice")
 
@@ -100,11 +111,12 @@ class TelegramService:
             return ""
 
         # 2. Command Interception
-        cmd = text.lower().split()[0]
+        cmd = text.lower().split()[0].split("@")[0]
 
         if cmd in ["/start", "/help", "/ayuda"]:
             reply = (
-                "¡Hola, señor Santiago! Soy Liseth, su asistente personal.\n\n"
+                f"¡Hola, señor Santiago! Soy Liseth, su asistente personal.\n\n"
+                f"✓ *Canal seguro sincronizado* (Chat ID: `{chat_id}`).\n\n"
                 "Comandos rápidos disponibles:\n"
                 "• /estado - Telemetría y estado del sistema\n"
                 "• /agenda - Sus reuniones de hoy\n"
@@ -157,15 +169,22 @@ class TelegramService:
             # 3. Natural language query processed by BrainRouter
             try:
                 from app.services.brain_router import brain_router
+                from app.services.soul_service import soul_service
+                sys_inst = soul_service.build_system_instruction(
+                    "Estás respondiendo a través de Telegram a tu creador y único administrador, el Señor Santiago. "
+                    "Responde siempre con dulzura, calidez, lealtad y elegancia ejecutiva. "
+                    "Utiliza formato Markdown limpio y conciso adaptado a la lectura en dispositivos móviles."
+                )
                 res = await brain_router.generate_response(
                     prompt=text,
+                    system_prompt=sys_inst,
                     user_id=f"tg_{chat_id}",
                     platform="telegram"
                 )
                 reply = res.get("text", "He procesado su solicitud con éxito, señor Santiago.")
             except Exception as e:
                 logger.error(f"[Telegram] Error procesando con BrainRouter: {e}")
-                reply = f"Lo siento, ocurrió un error procesando su mensaje: {e}"
+                reply = f"Lo siento, señor Santiago, ocurrió un error procesando su mensaje: {e}"
 
         await self.send_message(reply, chat_id=chat_id)
         return reply
@@ -185,7 +204,7 @@ class TelegramService:
                         audio_url = f"https://api.telegram.org/file/bot{self.token}/{file_path}"
                         audio_data = await client.get(audio_url)
                         if audio_data.status_code == 200:
-                            # Send audio directly to Gemini Multimodal
+                            # Send audio to multi-brain router (Gemini multimodal with Groq/Claude/OpenAI fallback)
                             import base64
                             b64 = base64.b64encode(audio_data.content).decode("utf-8")
                             contents = [{
@@ -196,8 +215,15 @@ class TelegramService:
                                 ]
                             }]
                             from app.services.brain_router import brain_router
-                            gemini_res = await brain_router.call_gemini(contents=contents, tools=[])
-                            return gemini_res.get("text", "He recibido y procesado su nota de voz, señor Santiago.")
+                            from app.services.soul_service import soul_service
+                            sys_inst = soul_service.build_system_instruction("Respuesta por Telegram a nota de voz del Señor Santiago.")
+                            res = await brain_router.generate_response(
+                                contents=contents,
+                                system_prompt=sys_inst,
+                                user_id=f"tg_{self.default_chat_id}",
+                                platform="telegram"
+                            )
+                            return res.get("text", "He recibido y procesado su nota de voz, señor Santiago.")
         except Exception as e:
             logger.debug(f"[Telegram] Error descargando/procesando audio: {e}")
 
@@ -224,7 +250,7 @@ class TelegramService:
                 if resp.status_code == 200:
                     return True
                 # If markdown parse fails, retry without markdown
-                if "can't parse entities" in resp.text.lower():
+                if "can't parse entities" in resp.text.lower() or resp.status_code == 400:
                     payload.pop("parse_mode", None)
                     resp2 = await client.post(url, json=payload)
                     return resp2.status_code == 200

@@ -22,6 +22,7 @@ MEMORIES_DIR = BASE_DIR / "data" / "memories"
 USER_FILE = MEMORIES_DIR / "USER.md"
 MEMORY_FILE = MEMORIES_DIR / "MEMORY.md"
 SKILLS_DIR = BASE_DIR / "skills"
+AGENTS_SKILLS_DIR = BASE_DIR / ".agents" / "skills"
 
 
 class SoulService:
@@ -92,35 +93,42 @@ class SoulService:
             return self._skills_cache
 
         skills = []
-        if not SKILLS_DIR.exists():
-            return skills
+        search_dirs = [SKILLS_DIR, AGENTS_SKILLS_DIR]
+        found_ids = set()
 
-        for skill_path in SKILLS_DIR.glob("*/SKILL.md"):
-            try:
-                text = skill_path.read_text(encoding="utf-8")
-                # Parse frontmatter
-                name = skill_path.parent.name
-                desc = "Habilidad de Liseth"
-                body = text
+        for sdir in search_dirs:
+            if not sdir.exists():
+                continue
+            for skill_path in sdir.glob("*/SKILL.md"):
+                skill_id = skill_path.parent.name
+                if skill_id in found_ids:
+                    continue
+                found_ids.add(skill_id)
+                try:
+                    text = skill_path.read_text(encoding="utf-8")
+                    # Parse frontmatter
+                    name = skill_id
+                    desc = "Habilidad de Liseth"
+                    body = text
 
-                if text.startswith("---"):
-                    parts = text.split("---", 2)
-                    if len(parts) >= 3:
-                        fm = yaml.safe_load(parts[1])
-                        if isinstance(fm, dict):
-                            name = fm.get("name", name)
-                            desc = fm.get("description", desc)
-                        body = parts[2].strip()
+                    if text.startswith("---"):
+                        parts = text.split("---", 2)
+                        if len(parts) >= 3:
+                            fm = yaml.safe_load(parts[1])
+                            if isinstance(fm, dict):
+                                name = fm.get("name", name)
+                                desc = fm.get("description", desc)
+                            body = parts[2].strip()
 
-                skills.append({
-                    "id": skill_path.parent.name,
-                    "name": name,
-                    "description": desc,
-                    "procedure": body,
-                    "path": str(skill_path.relative_to(BASE_DIR)),
-                })
-            except Exception as e:
-                logger.warning(f"Error leyendo skill {skill_path}: {e}")
+                    skills.append({
+                        "id": skill_id,
+                        "name": name,
+                        "description": desc,
+                        "procedure": body,
+                        "path": str(skill_path.relative_to(BASE_DIR)),
+                    })
+                except Exception as e:
+                    logger.warning(f"Error leyendo skill {skill_path}: {e}")
 
         self._skills_cache = skills
         self._skills_cache_time = now

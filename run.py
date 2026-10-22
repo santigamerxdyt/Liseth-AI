@@ -137,6 +137,7 @@ def main():
     parser.add_argument("--host", type=str, default=None, help="Host a enlazar (ej. 127.0.0.1 o 0.0.0.0)")
     parser.add_argument("--port", type=int, default=None, help="Puerto a enlazar (ej. 3000 u 8000)")
     parser.add_argument("--no-admin", action="store_true", help="Omitir elevación automática a Administrador")
+    parser.add_argument("--no-browser", action="store_true", help="No abrir automáticamente el navegador")
     args = parser.parse_args()
 
     # Ensure Administrator privileges on Windows for full hardware & system access
@@ -188,8 +189,20 @@ def main():
         import desktop_app
         desktop_app.main()
     else:
+        if not args.no_browser:
+            import threading
+            import time
+            import webbrowser
+
+            def open_browser():
+                time.sleep(1.2)
+                webbrowser.open(f"http://127.0.0.1:{port}")
+
+            threading.Thread(target=open_browser, daemon=True).start()
+
         import uvicorn
         uvicorn.run("app.main:app", host=host, port=port, log_level="info")
+
 
 
 if __name__ == "__main__":

@@ -631,6 +631,25 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Exportar / Importar Backup de Credenciales", "Descarga una copia de seguridad segura en formato JSON (liseth-credentials-backup.json) o restaura sus claves al instante.", "Respaldo y Portabilidad")
     builder.add_command_box("Persistencia Dual (.env y LocalStorage)", "Garantiza operatividad 100% en Windows local (.env) y en la nube pública de GitHub Pages (LocalStorage).", "Doble Capa de Persistencia")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 21: ARQUITECTURA DE CEREBROS MÚLTIPLES Y MOTOR COGNITIVO NATIVO
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("21. Arquitectura de Cerebros Multi-Nivel y Motor Cognitivo Nativo")
+    builder.add_paragraph(
+        "Liseth opera con una arquitectura de failover y resiliencia cognitiva en 4 capas autónomas para garantizar que "
+        "Señor Santiago nunca quede incomunicado ni sin asistencia: "
+        "(1) Cerebro Primario en la Nube: Google Gemini 3.8 Flash y 3.5 Flash-Lite con auto-curación y descubrimiento dinámico de modelos en tiempo real; "
+        "(2) Cerebros Auxiliares de Inferencia Rápida: Groq Cloud (LLaMA 3.3 70B a más de 500 tokens/segundo) y Anthropic Claude (razonamiento analítico profundo); "
+        "(3) Centinela de Telegram Bidireccional: Mantiene la misma inteligencia, herramientas y cascada de cerebros disponible desde su móvil en cualquier lugar; y "
+        "(4) Motor Cognitivo Nativo Integrado (EmbeddedCognitiveEngine): 100% offline, local y de respuesta inmediata en Windows que opera sin consumir saldo de API ni requerir conexión a internet:",
+        size=9.0
+    )
+    builder.add_command_box("Cerebro Primario: Gemini 3.8 / 3.5 Flash", "Inferencia multimodal con auto-descubrimiento de modelos en caso de 404 y rotación de claves.", "Cerebro Primario en la Nube")
+    builder.add_command_box("Inferencia Ultra-Rápida con Groq (LLaMA 3.3 70B)", "Velocidad extrema de respuesta inmediata (500+ tok/s) cuando se requiere respuesta instantánea.", "Cerebro Auxiliar Groq")
+    builder.add_command_box("Centinela de Telegram Bidireccional", "Recibe y responde mensajes remotos de Santiago por Telegram con ejecución completa de acciones en el PC.", "Control Remoto Telegram")
+    builder.add_command_box("Motor Cognitivo Nativo 100% Offline", "Núcleo de respaldo que resuelve fórmulas de Excel, VAN/TIR, citas APA 7 y hardware sin internet.", "Embedded Cognitive Engine")
+    builder.add_command_box("Auto-Curación y Failover en <100ms", "Si un proveedor falla por cuota o red, Liseth conmuta de inmediato al siguiente cerebro sin error visible.", "Resiliencia Autónoma")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

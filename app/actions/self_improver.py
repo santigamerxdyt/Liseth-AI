@@ -81,9 +81,11 @@ def _resolve_file(filename: str) -> Path | None:
 
 def _call_gemini(system_prompt: str, user_prompt: str) -> str:
     import google.generativeai as genai
+    from app.config import settings
     genai.configure(api_key=_get_api_key())
+    target_model = getattr(settings, "GEMINI_MODEL", "gemini-3.8-flash") or "gemini-3.8-flash"
     model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash",
+        model_name=target_model,
         system_instruction=system_prompt,
     )
     response = model.generate_content(user_prompt)
