@@ -650,6 +650,26 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Motor Cognitivo Nativo 100% Offline", "Núcleo de respaldo que resuelve fórmulas de Excel, VAN/TIR, citas APA 7 y hardware sin internet.", "Embedded Cognitive Engine")
     builder.add_command_box("Auto-Curación y Failover en <100ms", "Si un proveedor falla por cuota o red, Liseth conmuta de inmediato al siguiente cerebro sin error visible.", "Resiliencia Autónoma")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 22: EXPERIENCIA MÓVIL TOTAL Y PWA (ANDROID & IOS)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("22. Experiencia Móvil de Vanguardia (Smartphone Web & PWA)")
+    builder.add_paragraph(
+        "Liseth cuenta con una interfaz web totalmente rediseñada y optimizada para ejecutarse con máxima fluidez "
+        "en cualquier teléfono inteligente (iOS Safari y Android Chrome), tanto en su red local como a través de GitHub Pages: "
+        "(1) Diseño 100% Responsivo: Se adapta dinámicamente a pantallas de 320px a 768px de ancho sin desbordamiento horizontal; "
+        "(2) Compatibilidad PWA (Progressive Web App): Permite ser instalada en la pantalla de inicio del smartphone como una app nativa a pantalla completa; "
+        "(3) Soporte de Áreas Seguras (Safe Areas): Compatible con notch, dynamic island y barras de navegación por gestos con `viewport-fit=cover`; "
+        "(4) Prevención de Zoom Forzado: Fuentes calibradas a 16px en inputs para evitar que Safari amplíe bruscamente la pantalla al escribir; "
+        "(5) Activación Táctil de Audio y Voz: Desbloqueo automático del sintetizador vocal y Web Audio Context al primer toque en el móvil; y "
+        "(6) Teclado Virtual Dinámico: Detección visual de apertura de teclado en smartphone con ajuste automático de desplazamiento sin ocultar la barra de entrada:",
+        size=9.0
+    )
+    builder.add_command_box("Modo PWA en Pantalla de Inicio", "Instalable desde Chrome/Safari ('Agregar a pantalla de inicio') con icono de alta resolución y aspecto nativo.", "PWA Standalone")
+    builder.add_command_box("Cabecera y Modales Táctiles Ultra-Compactos", "Botones de acción circulares e interfaces de diálogo que se adaptan al 96% del ancho de pantalla.", "Diseño Adaptativo Táctil")
+    builder.add_command_box("Desbloqueo Automático de Voz Móvil", "Garantiza que Liseth responda con voz dulce y fluida en su teléfono tras la primera interacción táctil.", "Voz Móvil Desbloqueada")
+    builder.add_command_box("Teclado Virtual Inteligente", "Ajusta la vista y el chat automáticamente con window.visualViewport para que la barra de texto nunca quede tapada.", "Adaptación Teclado Móvil")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

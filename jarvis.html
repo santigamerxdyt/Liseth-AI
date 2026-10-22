@@ -2,7 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Liseth">
+  <meta name="theme-color" content="#04070d">
+  <meta name="format-detection" content="telephone=no">
   <title>Liseth • Asistente Personal de Santiago</title>
   <link rel="icon" type="image/x-icon" href="liseth.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4416,8 +4422,483 @@
       box-shadow: 0 0 15px rgba(0, 240, 255, 0.18) !important;
     }
 
+  
+    /* ========================================================
+       DISPOSITIVOS MÓVILES Y RESPONSIVIDAD TOTAL (SMARTPHONE PWA)
+       Diseño fluido y adaptativo para pantallas de 320px a 768px (Android & iOS)
+       ======================================================== */
+    @media (max-width: 768px) {
+      /* 1. Viewport y Root */
+      html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        position: relative !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        -webkit-text-size-adjust: 100% !important;
+      }
+
+      /* 2. Encabezado y Barra Superior */
+      header {
+        padding: calc(6px + env(safe-area-inset-top, 0px)) 8px 4px !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .header-top {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 0 4px 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 6px !important;
+        box-sizing: border-box !important;
+      }
+
+      .server-badge {
+        font-size: 0.68rem !important;
+        padding: 5px 8px !important;
+        max-width: 125px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        flex-shrink: 1 !important;
+        border-radius: 14px !important;
+      }
+
+      .top-actions {
+        display: flex !important;
+        gap: 5px !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        max-width: calc(100% - 130px) !important;
+      }
+      .top-actions::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      /* Botones de acción superiores: micro-botones circulares en móvil */
+      .hud-deck-btn {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: relative !important;
+        flex-shrink: 0 !important;
+      }
+
+      /* Ocultar texto largo en los botones del HUD en móvil para que quepan todos */
+      .hud-deck-btn span:not(.hud-deck-icon):not(.hud-deck-badge),
+      #btn-toggle-view #toggle-view-text {
+        display: none !important;
+      }
+
+      .hud-deck-icon {
+        font-size: 1rem !important;
+        margin: 0 !important;
+      }
+
+      .hud-deck-badge {
+        position: absolute !important;
+        top: -3px !important;
+        right: -3px !important;
+        font-size: 0.55rem !important;
+        padding: 1px 4px !important;
+        border-radius: 8px !important;
+      }
+
+      .hud-view-toggle-btn {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+      }
+
+      .icon-btn {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+      }
+
+      /* Ocultar telemetría lateral de escritorio */
+      .hud-corner-telemetry {
+        display: none !important;
+      }
+
+      /* 3. Escenario Principal y Esfera */
+      .holographic-main-stage {
+        width: 100% !important;
+        max-width: 100vw !important;
+        flex: 1 !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+      }
+
+      .sphere-workspace {
+        padding: 6px 10px 10px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: space-evenly !important;
+        overflow-y: auto !important;
+      }
+
+      .voice-waves-canvas-wrapper {
+        width: 250px !important;
+        height: 250px !important;
+        max-width: 75vw !important;
+        max-height: 75vw !important;
+      }
+
+      .orb-stage-wrapper {
+        margin-bottom: 8px !important;
+        margin-top: 4px !important;
+      }
+
+      .orb-container.sphere-large {
+        width: 100px !important;
+        height: 100px !important;
+        margin-bottom: 8px !important;
+      }
+
+      .orb-container.sphere-large .orb-core {
+        width: 60px !important;
+        height: 60px !important;
+      }
+
+      .assistant-title {
+        font-size: 1.15rem !important;
+        letter-spacing: 0.12em !important;
+        margin-bottom: 2px !important;
+      }
+
+      .assistant-status {
+        font-size: 0.72rem !important;
+        max-width: 90vw !important;
+        text-align: center !important;
+      }
+
+      /* Subtítulos flotantes */
+      .hud-transcript-display {
+        width: 95% !important;
+        max-width: 95% !important;
+        padding: 10px 14px !important;
+        margin: 6px 0 !important;
+        border-radius: 14px !important;
+        box-sizing: border-box !important;
+      }
+
+      .hud-transcript-text {
+        font-size: 0.84rem !important;
+        line-height: 1.4 !important;
+        max-height: 85px !important;
+        overflow-y: auto !important;
+      }
+
+      /* Píldoras rápidas con scroll táctil suave */
+      .quick-chips {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 4px 6px !important;
+        margin: 6px 0 0 !important;
+        gap: 6px !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        box-sizing: border-box !important;
+      }
+      .quick-chips::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .chip-btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        font-size: 0.74rem !important;
+        padding: 6px 11px !important;
+        border-radius: 14px !important;
+      }
+
+      /* 4. Consola de Mensajes */
+      .console-workspace {
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+      }
+
+      #chat-container {
+        padding: 8px 8px 12px !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+        gap: 12px !important;
+      }
+
+      .chat-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .message-row {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .bubble {
+        max-width: 92% !important;
+        padding: 10px 12px !important;
+        font-size: 0.88rem !important;
+        line-height: 1.45 !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+      }
+
+      .bubble pre, .bubble code {
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        font-size: 0.78rem !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
+      .storage-warning-banner {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 8px 10px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 6px !important;
+        box-sizing: border-box !important;
+      }
+
+      /* 5. Barra Inferior y Entrada de Texto */
+      footer {
+        padding: 6px 8px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+      }
+
+      .attachments-preview-area {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 4px 6px !important;
+        box-sizing: border-box !important;
+      }
+
+      .input-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 4px 8px !important;
+        gap: 6px !important;
+        border-radius: 20px !important;
+        box-sizing: border-box !important;
+      }
+
+      /* CRÍTICO PARA IPHONE / SAFARI: font-size >= 16px previene auto-zoom molesto */
+      textarea#user-input {
+        font-size: 16px !important;
+        min-height: 38px !important;
+        max-height: 110px !important;
+        padding: 6px 2px !important;
+        line-height: 1.35 !important;
+      }
+
+      .attach-btn, .mic-btn, .send-btn {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+      }
+
+      .input-footnote {
+        display: none !important;
+      }
+
+      /* 6. Modales y Ventanas Flotantes */
+      .modal-card {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 88dvh !important;
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        box-sizing: border-box !important;
+        margin: auto !important;
+      }
+
+      .modal-card.vault-modal-card {
+        width: 96vw !important;
+        max-width: 96vw !important;
+        max-height: 90dvh !important;
+        padding: 14px 10px !important;
+        border-radius: 16px !important;
+      }
+
+      .vault-toolbar {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+      }
+
+      .vault-toolbar-actions {
+        width: 100% !important;
+        justify-content: flex-start !important;
+      }
+
+      .vault-tabs {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 4px !important;
+        padding-bottom: 6px !important;
+        flex-wrap: nowrap !important;
+        scrollbar-width: none !important;
+      }
+      .vault-tabs::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .vault-tab-btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        padding: 6px 9px !important;
+        font-size: 0.72rem !important;
+      }
+
+      .vault-panes-container {
+        max-height: 52dvh !important;
+      }
+
+      /* Ventana Central HUD */
+      .hud-deck-window {
+        width: 96vw !important;
+        max-width: 96vw !important;
+        max-height: 88dvh !important;
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        box-sizing: border-box !important;
+      }
+
+      .hud-main-title {
+        font-size: 1.1rem !important;
+      }
+
+      .hud-modules-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+
+      .hud-telemetry-bar {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 4px !important;
+        padding: 8px 10px !important;
+      }
+
+      .hud-filter-tabs {
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        padding-bottom: 4px !important;
+      }
+      .hud-filter-tabs::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .hud-tab-btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+      }
+
+      .productivity-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+
+      /* Visor Dinámico a pantalla completa en móvil */
+      .dynamic-viewer-window {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+      }
+
+      .dynamic-viewer-header {
+        padding: 8px 10px !important;
+      }
+
+      .dv-file-browser {
+        grid-template-columns: 1fr !important;
+      }
+
+      .dv-file-sidebar {
+        max-height: 160px !important;
+      }
+
+      /* Inputs y selects de modales con 16px para no provocar zoom */
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .server-badge {
+        max-width: 105px !important;
+        font-size: 0.64rem !important;
+        padding: 4px 6px !important;
+      }
+      .orb-container.sphere-large {
+        width: 90px !important;
+        height: 90px !important;
+      }
+      .orb-container.sphere-large .orb-core {
+        width: 50px !important;
+        height: 50px !important;
+      }
+      .voice-waves-canvas-wrapper {
+        width: 220px !important;
+        height: 220px !important;
+      }
+    }
+
   </style>
-  <link rel="manifest" href="/static/manifest.json">
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#04070d">
 </head>
 <body>
@@ -11941,6 +12422,47 @@ Tus habilidades clave:
             }
           }
         } catch(e) {}
+      }
+
+
+      // --- OPTIMIZACIÓN TÁCTIL Y AUDIO PARA DISPOSITIVOS MÓVILES (iOS / Android) ---
+      let isMobileAudioUnlocked = false;
+      function unlockMobileAudio() {
+        if (isMobileAudioUnlocked) return;
+        isMobileAudioUnlocked = true;
+        if ("speechSynthesis" in window) {
+          try {
+            const silent = new SpeechSynthesisUtterance("");
+            silent.volume = 0;
+            window.speechSynthesis.speak(silent);
+          } catch(e) {}
+        }
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          try {
+            const tempCtx = new AudioCtx();
+            if (tempCtx.state === "suspended") {
+              tempCtx.resume();
+            }
+          } catch(e) {}
+        }
+      }
+      document.addEventListener("touchstart", unlockMobileAudio, { passive: true, once: true });
+      document.addEventListener("touchend", unlockMobileAudio, { passive: true, once: true });
+      document.addEventListener("click", unlockMobileAudio, { passive: true, once: true });
+
+      // Adaptación de teclado virtual en smartphones (ajuste de scroll y viewport)
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", () => {
+          if (document.activeElement === userInput) {
+            setTimeout(() => {
+              userInput.scrollIntoView({ block: "nearest", behavior: "smooth" });
+              if (currentViewMode === "console") {
+                scrollToBottom();
+              }
+            }, 60);
+          }
+        });
       }
 
     })();

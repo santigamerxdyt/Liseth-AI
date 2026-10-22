@@ -1,15 +1,16 @@
 {
-  "name": "Liseth - Asistente de IA",
+  "name": "Liseth • Asistente Personal de Santiago",
   "short_name": "Liseth",
   "description": "Asistente Personal de Inteligencia Artificial para Santiago",
-  "start_url": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#04070d",
   "theme_color": "#04070d",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/static/liseth.ico",
+      "src": "liseth.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     }
