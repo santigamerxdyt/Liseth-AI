@@ -689,7 +689,8 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Malla 3D Wireframe Cuántica & Polvo Estelar", "Dodecaedro tridimensional vectorial que gira en el espacio y atrae estelas de chispas cuánticas al cursor.", "Geometría 3D & Gravedad de Partículas")
     builder.add_command_box("Alas Laterales de Telemetría Stark & Cinta Superior", "Cinta de diagnóstico en cabecera (MARK LXXXV) y paneles laterales con cronómetro digital de microsegundos.", "Stark HUD Wings & Ribbon")
     builder.add_command_box("Selector Rápido de Armaduras (Mark 85 / 50 / War Machine)", "Alterna al instante entre paletas de color cuánticas (Cian, Dorado Nanotech, Esmeralda y Plasma Violeta).", "Configuración de Armaduras")
-    builder.add_command_box("Micro-Sonidos Procedurales Web Audio API", "Efectos sonoros sutiles generados matemáticamente sin consumo de red para una experiencia inmersiva.", "Sintetizador Sonoro HUD")
+    builder.add_command_box("Micro-Sonidos Procedurales Web Audio API & Control Táctil", "Efectos sonoros sutiles generados matemáticamente sin consumo de red y conmutador táctil de silencio.", "Sintetizador Sonoro HUD")
+    builder.add_command_box("Anillo de 10 Bobinas de Inducción & Constelación", "Bobinas electromagnéticas en el reactor y red cuántica viva con haces láser entre fotones en tiempo real.", "Inductores Arc & Red Cuántica")
 
     # Final summary note
     builder.add_paragraph(

@@ -4884,6 +4884,151 @@
       animation: neuralDecodeFade 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
+
+    /* ========================================================
+       CÚSPIDE STARK HUD: BOBINAS ARC REACTOR, MEDIDORES Y CONSTELACIÓN
+       ======================================================== */
+
+    /* 1. Anillo de 10 Bobinas de Inducción Electromagnética Arc Reactor */
+    .orb-inductor-ring {
+      position: absolute;
+      inset: -6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      animation: rotateRing 28s linear infinite;
+      z-index: 2;
+    }
+
+    .reactor-coil {
+      position: absolute;
+      width: 14px;
+      height: 5.5px;
+      background: linear-gradient(90deg, #ffb700 0%, #00f0ff 100%);
+      border-radius: 2px;
+      box-shadow: 0 0 10px #00f0ff, 0 0 4px #ffb700;
+      border: 0.5px solid rgba(255, 255, 255, 0.75);
+      filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.8));
+      transform-origin: 0 0;
+    }
+
+    /* 2. Mini-Medidor Circular SVG en Ala Izquierda */
+    .hud-gauge-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0 4px;
+      padding: 6px 8px;
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 10px;
+    }
+
+    .hud-gauge-svg {
+      width: 38px;
+      height: 38px;
+      transform: rotate(-90deg);
+      flex-shrink: 0;
+    }
+
+    .hud-gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 3.5;
+    }
+
+    .hud-gauge-fill {
+      fill: none;
+      stroke: #00f0ff;
+      stroke-width: 3.5;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 8;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 4px #00f0ff);
+      animation: gaugePulse 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes gaugePulse {
+      0% { stroke-dashoffset: 12; stroke: #00f0ff; }
+      100% { stroke-dashoffset: 4; stroke: #38ef7d; }
+    }
+
+    .hud-gauge-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hud-gauge-pct {
+      font-family: var(--font-hud), sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #00f0ff;
+      letter-spacing: 0.05em;
+    }
+
+    .hud-gauge-sub {
+      font-size: 0.62rem;
+      color: rgba(139, 155, 180, 0.75);
+    }
+
+    /* 3. Ecualizador de 8 Bandas Holográfico en Ala Derecha */
+    .hud-equalizer-mini {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 20px;
+      margin-left: auto;
+    }
+
+    .eq-bar {
+      width: 2.5px;
+      background: #00f0ff;
+      border-radius: 1px;
+      box-shadow: 0 0 6px #00f0ff;
+      animation: eqBounce 1.2s ease-in-out infinite alternate;
+      height: 4px;
+    }
+    .eq-bar:nth-child(1) { animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { animation-delay: 0.35s; }
+    .eq-bar:nth-child(3) { animation-delay: 0.15s; }
+    .eq-bar:nth-child(4) { animation-delay: 0.5s; }
+    .eq-bar:nth-child(5) { animation-delay: 0.25s; }
+    .eq-bar:nth-child(6) { animation-delay: 0.4s; }
+    .eq-bar:nth-child(7) { animation-delay: 0.18s; }
+    .eq-bar:nth-child(8) { animation-delay: 0.3s; }
+
+    @keyframes eqBounce {
+      0% { height: 3px; opacity: 0.4; }
+      100% { height: 18px; opacity: 1; }
+    }
+
+    /* 4. Encabezado de Cifrado Cuántico en Burbujas del Asistente */
+    .hud-cipher-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono), monospace;
+      font-size: 0.64rem;
+      letter-spacing: 0.1em;
+      color: #00f0ff;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 6px;
+      padding: 1px 6px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .cipher-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #00f0ff;
+      box-shadow: 0 0 6px #00f0ff;
+      animation: pulseServerDot 0.8s infinite alternate;
+    }
+
     /* ========================================================
        DISPOSITIVOS MÓVILES Y RESPONSIVIDAD TOTAL (SMARTPHONE PWA)
        Diseño fluido y adaptativo para pantallas de 320px a 768px (Android & iOS)
@@ -5401,6 +5546,11 @@
       </div>
 
       <div class="top-actions">
+        <!-- BOTÓN CONMUTAR SONIDO HUD -->
+        <button class="icon-btn active" id="btn-sound-fx-toggle" title="Efectos de Sonido Táctiles HUD (Activo)">
+          <span id="sound-fx-icon" style="font-size: 0.95rem;">🔊</span>
+        </button>
+
         <!-- BOTÓN RÁPIDO ALTERNAR ARMADURA STARK -->
         <button class="hud-deck-btn" id="btn-holo-theme" title="Alternar Armadura Stark (Cyan Arc / Mark 50 Gold / War Machine Emerald / Cyberpunk)">
           <span class="hud-deck-icon">⚡</span>
@@ -12354,7 +12504,49 @@ Tus habilidades clave:
             ctx.fillText(c.text, tx, ty);
           });
 
-          // F. PARTÍCULAS CUÁNTICAS FLOTANTES
+          // F. RED DE CONSTELACIÓN CUÁNTICA (CONEXIONES ENTRE FOTONES CERCANOS)
+          for (let i = 0; i < particles.length; i++) {
+            const p1 = particles[i];
+            const px1 = cx + Math.cos(p1.angle) * p1.dist;
+            const py1 = cy + Math.sin(p1.angle) * p1.dist;
+
+            for (let j = i + 1; j < particles.length; j++) {
+              const p2 = particles[j];
+              const px2 = cx + Math.cos(p2.angle) * p2.dist;
+              const py2 = cy + Math.sin(p2.angle) * p2.dist;
+
+              const d = Math.hypot(px1 - px2, py1 - py2);
+              if (d < 56) {
+                const alpha = (1 - d / 56) * (isReactorBoosted ? 0.45 : 0.2);
+                ctx.beginPath();
+                ctx.moveTo(px1, py1);
+                ctx.lineTo(px2, py2);
+                ctx.strokeStyle = isReactorBoosted ? `rgba(255, 183, 0, ${alpha})` : `rgba(0, 240, 255, ${alpha})`;
+                ctx.lineWidth = 0.75;
+                ctx.stroke();
+              }
+            }
+          }
+
+          // OSCILOSCOPIO HOLOGRÁFICO CIRCULAR ARMÓNICO
+          ctx.beginPath();
+          const oscSegments = 90;
+          for (let s = 0; s <= oscSegments; s++) {
+            const theta = (s / oscSegments) * Math.PI * 2;
+            const waveMod = Math.sin(theta * 9 + time * (isSpeaking ? 7 : 3)) * (isSpeaking ? 10 : 3.5) +
+                            Math.cos(theta * 4 - time * 3.5) * (isSpeaking ? 6 : 2);
+            const r = baseRadius * 1.08 + waveMod;
+            const ox = cx + Math.cos(theta) * r;
+            const oy = cy + Math.sin(theta) * r;
+            if (s === 0) ctx.moveTo(ox, oy);
+            else ctx.lineTo(ox, oy);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = isReactorBoosted ? "rgba(255, 183, 0, 0.75)" : (isListening ? "rgba(56, 239, 125, 0.7)" : "rgba(0, 240, 255, 0.5)");
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+
+          // G. PARTÍCULAS CUÁNTICAS FLOTANTES
           particles.forEach(p => {
             p.angle += p.speed * (isReactorBoosted ? 3.0 : (isSpeaking ? 1.6 : 1.0));
             const px = cx + Math.cos(p.angle) * p.dist;

@@ -2616,7 +2616,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 29 0 R >>
 endobj
 30 0 obj
-<< /Length 6256 >>
+<< /Length 6833 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -2771,19 +2771,35 @@ q
 1 1 1 rg
 BT /F2 7.5 Tf 58.0 337.89 Td (COMANDO VOZ) Tj ET
 0.1 0.15 0.25 rg
-BT /F2 9.5 Tf 126.0 336.89 Td (\"Micro-Sonidos Procedurales Web Audio API\") Tj ET
+BT /F2 9.5 Tf 126.0 336.89 Td (\"Micro-Sonidos Procedurales Web Audio API & Control Táctil\") Tj ET
 0.35 0.38 0.42 rg
-BT /F1 8.5 Tf 56.0 321.89 Td (Efectos sonoros sutiles generados matemáticamente sin consumo de red para una experiencia inmersiva.) Tj ET
+BT /F1 8.5 Tf 56.0 321.89 Td (Efectos sonoros sutiles generados matemáticamente sin consumo de red y conmutador táctil de silencio.) Tj ET
 0.12 0.45 0.35 rg
 BT /F4 8 Tf 56.0 309.89 Td (-> Sintetizador Sonoro HUD) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 290.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.97 0.98 0.99 rg
+48.0 252.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 252.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 280.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 285.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 284.89 Td (\"Anillo de 10 Bobinas de Inducción & Constelación\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 269.89 Td (Bobinas electromagnéticas en el reactor y red cuántica viva con haces láser entre fotones en tiempo real.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 257.89 Td (-> Inductores Arc & Red Cuántica) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 278.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 238.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 226.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -2817,7 +2833,7 @@ xref
 0000070112 00000 n 
 0000079199 00000 n 
 0000087604 00000 n 
-0000094077 00000 n 
+0000094654 00000 n 
 0000000590 00000 n 
 0000007365 00000 n 
 0000015012 00000 n 
@@ -2833,5 +2849,5 @@ xref
 trailer
 << /Size 31 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-94241
+94818
 %%EOF
