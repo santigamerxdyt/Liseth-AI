@@ -4794,6 +4794,96 @@
       border-bottom: 2px solid #00f0ff;
     }
 
+
+    /* --- CINTA DE DIAGNÓSTICO SUPERIOR STARK HUD (MARK 85) --- */
+    .stark-hud-ribbon {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-tech), sans-serif;
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      color: rgba(139, 155, 180, 0.85);
+      background: rgba(8, 16, 32, 0.75);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      border-radius: 14px;
+      padding: 5px 14px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.12), inset 0 0 10px rgba(0, 240, 255, 0.04);
+      pointer-events: auto;
+    }
+
+    .ribbon-bracket {
+      color: #00f0ff;
+      font-weight: 700;
+    }
+
+    .ribbon-tag {
+      font-family: var(--font-hud), sans-serif;
+      font-weight: 700;
+      color: #00f0ff;
+      letter-spacing: 0.14em;
+    }
+
+    .ribbon-sep {
+      color: rgba(0, 240, 255, 0.35);
+    }
+
+    .glow-cyan { color: #00f0ff; text-shadow: 0 0 8px rgba(0, 240, 255, 0.6); }
+    .glow-green { color: #38ef7d; text-shadow: 0 0 8px rgba(56, 239, 125, 0.6); }
+    .glow-gold { color: #ffb700; text-shadow: 0 0 8px rgba(255, 183, 0, 0.6); }
+
+    @media (max-width: 960px) {
+      .stark-hud-ribbon { display: none !important; }
+    }
+
+    /* --- MODO SOBRECARGA / ARC REACTOR BOOST (HYPER-DRIVE) --- */
+    .orb-container.sphere-large.boost-mode {
+      filter: drop-shadow(0 0 60px #00f0ff) drop-shadow(0 0 95px rgba(255, 183, 0, 0.75)) !important;
+      transform: scale(1.14) !important;
+    }
+
+    .orb-container.sphere-large.boost-mode .orb-core {
+      animation: hyperBoostCore 0.5s ease-in-out infinite alternate !important;
+      filter: brightness(1.45) contrast(1.25) !important;
+    }
+
+    @keyframes hyperBoostCore {
+      0% { transform: scale(1.02); filter: drop-shadow(0 0 40px #00f0ff); }
+      100% { transform: scale(1.15); filter: drop-shadow(0 0 65px #ffb700); }
+    }
+
+    .orb-container.sphere-large.boost-mode .orb-ring.ring-1 {
+      animation: rotateRing 2.4s linear infinite !important;
+      border-color: #ffb700 !important;
+      box-shadow: 0 0 28px #ffb700, inset 0 0 18px #ffb700 !important;
+    }
+    .orb-container.sphere-large.boost-mode .orb-ring.ring-2 {
+      animation: rotateRingRev 3.2s linear infinite !important;
+      border-color: #00f0ff !important;
+      box-shadow: 0 0 32px #00f0ff, inset 0 0 20px #00f0ff !important;
+    }
+    .orb-container.sphere-large.boost-mode .orb-ring.ring-3 {
+      animation: rotateRing 1.8s linear infinite !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 25px #ffffff !important;
+    }
+    .orb-container.sphere-large.boost-mode .orb-ring.ring-4 {
+      animation: rotateRingRev 4s linear infinite !important;
+      border-color: #ffb700 !important;
+    }
+
+    /* Animación de Descompresión Neural en Respuestas del Asistente */
+    @keyframes neuralDecodeFade {
+      0% { opacity: 0; transform: translateY(8px) scale(0.98); filter: blur(5px) brightness(1.8); }
+      55% { filter: blur(1.5px) brightness(1.25); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0) brightness(1); }
+    }
+    .message-row.assistant .bubble {
+      animation: neuralDecodeFade 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
     /* ========================================================
        DISPOSITIVOS MÓVILES Y RESPONSIVIDAD TOTAL (SMARTPHONE PWA)
        Diseño fluido y adaptativo para pantallas de 320px a 768px (Android & iOS)
@@ -5311,6 +5401,12 @@
       </div>
 
       <div class="top-actions">
+        <!-- BOTÓN RÁPIDO ALTERNAR ARMADURA STARK -->
+        <button class="hud-deck-btn" id="btn-holo-theme" title="Alternar Armadura Stark (Cyan Arc / Mark 50 Gold / War Machine Emerald / Cyberpunk)">
+          <span class="hud-deck-icon">⚡</span>
+          <span>ARMADURA</span>
+        </button>
+
         <!-- BOTÓN PERSONALIZACIÓN (ESTUDIO COMPLETO) -->
         <button class="hud-deck-btn" id="btn-open-personalization" title="Estudio de Personalización (Trato, Colores, Forma de la Esfera)">
           <span class="hud-deck-icon">🎨</span>
@@ -11952,11 +12048,93 @@ Tus habilidades clave:
             gain.connect(ctx.destination);
             osc.start(now);
             osc.stop(now + 0.07);
+          } else if (type === 'reactor_boost') {
+            // Sobrecarga del Reactor Arc con armónicos de plasma
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc1.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(140, now);
+            osc1.frequency.exponentialRampToValueAtTime(950, now + 0.28);
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(70, now);
+            osc2.frequency.exponentialRampToValueAtTime(480, now + 0.28);
+            gain.gain.setValueAtTime(0.065, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(ctx.destination);
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 0.28);
+            osc2.stop(now + 0.28);
+          } else if (type === 'theme_shift') {
+            // Transformación cuántica de armadura
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.exponentialRampToValueAtTime(1500, now + 0.16);
+            gain.gain.setValueAtTime(0.045, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.16);
           }
         } catch(e) {}
       }
 
-      // --- RENDERIZADO DE RADAR HOLOGRÁFICO Y PARTÍCULAS CUÁNTICAS STARK HUD ---
+      // Variable global de sobrecarga cuántica (Boost Mode)
+      let isReactorBoosted = false;
+      let boostTimer = null;
+
+      function triggerReactorBoost() {
+        if (isReactorBoosted) return;
+        isReactorBoosted = true;
+        playHudSound('reactor_boost');
+        const orbEl = document.getElementById("orb");
+        const statusEl = document.getElementById("status-label");
+        const oldStatus = statusEl ? statusEl.textContent : "";
+
+        if (orbEl) orbEl.classList.add("boost-mode");
+        if (statusEl) {
+          statusEl.innerHTML = '<span style="color: #ffb700; text-shadow: 0 0 10px #ffb700; font-weight: 700;">[⚡ REACTOR ARC: SOBRECARGA 125% // POTENCIA COGNITIVA MÁXIMA]</span>';
+        }
+
+        const ribbonPower = document.getElementById("ribbon-power-val");
+        if (ribbonPower) ribbonPower.textContent = "4.2 GJ (OVERCHARGE)";
+
+        clearTimeout(boostTimer);
+        boostTimer = setTimeout(() => {
+          isReactorBoosted = false;
+          if (orbEl) orbEl.classList.remove("boost-mode");
+          if (statusEl) statusEl.textContent = oldStatus || "A su entera disposición, Señor Santiago";
+          if (ribbonPower) ribbonPower.textContent = "3.2 GJ";
+          playHudSound('click');
+        }, 3600);
+      }
+
+      // Alternancia Rápida de Armaduras Holográficas Stark
+      const armorThemes = ["default", "stark_gold", "matrix", "cyberpunk"];
+      let currentArmorIndex = 0;
+
+      function cycleArmorTheme() {
+        currentArmorIndex = (currentArmorIndex + 1) % armorThemes.length;
+        const selected = armorThemes[currentArmorIndex];
+        applyPersonalization({ theme: selected });
+        playHudSound("theme_shift");
+
+        const themeNames = {
+          "default": "MARK 85 (CYAN ARC REACTOR)",
+          "stark_gold": "MARK 50 (NANOTECH GOLD & CRIMSON)",
+          "matrix": "WAR MACHINE (TACTICAL EMERALD)",
+          "cyberpunk": "QUANTUM SHIELD (PLASMA VIOLET)"
+        };
+        showToast(`⚡ ARMADURA: ${themeNames[selected] || selected.toUpperCase()}`);
+      }
+
+      // --- RENDERIZADO DE RADAR HOLOGRÁFICO, MALLA 3D WIREFRAME Y POLVO ESTELAR ---
       function initVoiceWavesCanvas() {
         if (!voiceCanvas) return;
         const ctx = voiceCanvas.getContext("2d");
@@ -11964,19 +12142,46 @@ Tus habilidades clave:
 
         let time = 0;
 
-        // Generar partículas cuánticas flotantes
-        const numParticles = 46;
+        // 1. Partículas cuánticas orbitales
+        const numParticles = 48;
         const particles = [];
         for (let i = 0; i < numParticles; i++) {
           particles.push({
             angle: Math.random() * Math.PI * 2,
-            dist: 80 + Math.random() * 160,
+            dist: 85 + Math.random() * 165,
             speed: 0.003 + Math.random() * 0.008,
             size: 1 + Math.random() * 2.2,
-            alpha: 0.2 + Math.random() * 0.7,
+            alpha: 0.25 + Math.random() * 0.7,
             pulseOffset: Math.random() * 10
           });
         }
+
+        // 2. Polvo estelar interactivo con el cursor (Quantum Stardust)
+        const stardust = [];
+
+        window.addEventListener("mousemove", (e) => {
+          const rect = voiceCanvas.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          const my = e.clientY - rect.top;
+          if (Math.random() < 0.4) {
+            stardust.push({
+              x: mx,
+              y: my,
+              vx: (Math.random() - 0.5) * 1.5,
+              vy: (Math.random() - 0.5) * 1.5,
+              life: 1.0,
+              size: 1.2 + Math.random() * 2.0
+            });
+          }
+        }, { passive: true });
+
+        // 3. Vértices del Dodecaedro / Icosaedro 3D Cuántico (Wireframe Hologram Mesh)
+        const phi = (1 + Math.sqrt(5)) / 2;
+        const baseVerts = [
+          [-1,  phi, 0], [ 1,  phi, 0], [-1, -phi, 0], [ 1, -phi, 0],
+          [ 0, -1,  phi], [ 0,  1,  phi], [ 0, -1, -phi], [ 0,  1, -phi],
+          [ phi, 0, -1], [ phi, 0,  1], [-phi, 0, -1], [-phi, 0,  1]
+        ];
 
         function resizeCanvas() {
           const rect = voiceCanvas.getBoundingClientRect();
@@ -11997,14 +12202,15 @@ Tus habilidades clave:
 
           ctx.clearRect(0, 0, w, h);
 
-          time += isSpeaking ? 0.06 : (isListening ? 0.04 : 0.018);
+          const timeMult = isReactorBoosted ? 0.12 : (isSpeaking ? 0.06 : (isListening ? 0.04 : 0.018));
+          time += timeMult;
 
           const baseRadius = Math.min(w, h) * 0.24;
 
-          // 1. HAZ DE RADAR HOLOGRÁFICO GIRATORIO (SWEEPING RADAR BEAM)
-          const sweepAngle = (time * 0.85) % (Math.PI * 2);
+          // A. HAZ DE RADAR HOLOGRÁFICO GIRATORIO (SWEEPING RADAR BEAM)
+          const sweepAngle = (time * (isReactorBoosted ? 2.2 : 0.85)) % (Math.PI * 2);
           const radarGrad = ctx.createRadialGradient(cx, cy, baseRadius * 0.5, cx, cy, baseRadius * 1.55);
-          radarGrad.addColorStop(0, "rgba(0, 240, 255, 0.08)");
+          radarGrad.addColorStop(0, isReactorBoosted ? "rgba(255, 183, 0, 0.12)" : "rgba(0, 240, 255, 0.08)");
           radarGrad.addColorStop(1, "transparent");
 
           ctx.beginPath();
@@ -12014,13 +12220,70 @@ Tus habilidades clave:
           ctx.fillStyle = radarGrad;
           ctx.fill();
 
-          // 2. CORONA DE FRECUENCIAS RADIALES (STARK AUDIO EQUALIZER CROWN)
-          const numPins = 60;
+          // B. MALLA CUÁNTICA TRIDIMENSIONAL HOLOGRÁFICA (3D WIREFRAME MESH)
+          const meshScale = baseRadius * (isReactorBoosted ? 0.88 : 0.72);
+          const ax = time * 0.35;
+          const ay = time * 0.55;
+          const az = time * 0.25;
+          const fov = 350;
+
+          const projected = baseVerts.map(v => {
+            // Rotar en 3D
+            let x = v[0] * meshScale;
+            let y = v[1] * meshScale;
+            let z = v[2] * meshScale;
+
+            // Rotación X
+            let y1 = y * Math.cos(ax) - z * Math.sin(ax);
+            let z1 = y * Math.sin(ax) + z * Math.cos(ax);
+            // Rotación Y
+            let x2 = x * Math.cos(ay) + z1 * Math.sin(ay);
+            let z2 = -x * Math.sin(ay) + z1 * Math.cos(ay);
+            // Rotación Z
+            let x3 = x2 * Math.cos(az) - y1 * Math.sin(az);
+            let y3 = x2 * Math.sin(az) + y1 * Math.cos(az);
+
+            const scale = fov / (fov + z2 + 200);
+            return {
+              px: cx + x3 * scale,
+              py: cy + y3 * scale,
+              scale: scale,
+              z: z2
+            };
+          });
+
+          // Dibujar aristas entre vértices cercanos
+          ctx.beginPath();
+          for (let i = 0; i < projected.length; i++) {
+            for (let j = i + 1; j < projected.length; j++) {
+              const d = Math.hypot(baseVerts[i][0] - baseVerts[j][0], baseVerts[i][1] - baseVerts[j][1], baseVerts[i][2] - baseVerts[j][2]);
+              if (d < 2.05) {
+                ctx.moveTo(projected[i].px, projected[i].py);
+                ctx.lineTo(projected[j].px, projected[j].py);
+              }
+            }
+          }
+          ctx.strokeStyle = isReactorBoosted ? "rgba(255, 183, 0, 0.45)" : (isSpeaking ? "rgba(0, 240, 255, 0.45)" : "rgba(0, 240, 255, 0.22)");
+          ctx.lineWidth = 1.0;
+          ctx.stroke();
+
+          // Dibujar nodos luminosos en los vértices 3D
+          projected.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.px, p.py, Math.max(1, 1.8 * p.scale), 0, Math.PI * 2);
+            ctx.fillStyle = isReactorBoosted ? "#ffb700" : (isListening ? "#38ef7d" : "#00f0ff");
+            ctx.fill();
+          });
+
+          // C. CORONA DE FRECUENCIAS RADIALES (STARK AUDIO EQUALIZER CROWN)
+          const numPins = 64;
           for (let p = 0; p < numPins; p++) {
             const angle = (p / numPins) * Math.PI * 2;
             let pinAmp = 4;
 
-            if (isSpeaking) {
+            if (isReactorBoosted) {
+              pinAmp = 10 + Math.sin(angle * 8 + time * 8) * 22 + Math.cos(angle * 4 - time * 6) * 14;
+            } else if (isSpeaking) {
               pinAmp = 6 + Math.sin(angle * 7 + time * 5) * 16 + Math.cos(angle * 3 - time * 4) * 10 + Math.sin(angle * 13 + time * 8) * 6;
             } else if (isListening) {
               pinAmp = 5 + Math.sin(angle * 10 + time * 6) * 14 + Math.cos(angle * 5 - time * 3) * 8;
@@ -12039,45 +12302,42 @@ Tus habilidades clave:
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
-            ctx.strokeStyle = isListening ? "rgba(56, 239, 125, 0.85)" : "rgba(0, 240, 255, 0.8)";
+            ctx.strokeStyle = isReactorBoosted ? "rgba(255, 183, 0, 0.9)" : (isListening ? "rgba(56, 239, 125, 0.85)" : "rgba(0, 240, 255, 0.8)");
             ctx.lineWidth = 1.6;
             ctx.stroke();
 
-            // Pequeño nodo luminoso en la punta del pin de frecuencia
             ctx.beginPath();
             ctx.arc(x2, y2, 1.2, 0, Math.PI * 2);
-            ctx.fillStyle = isListening ? "#38ef7d" : "#ffffff";
+            ctx.fillStyle = isReactorBoosted ? "#ffffff" : (isListening ? "#38ef7d" : "#ffffff");
             ctx.fill();
           }
 
-          // 3. ANILLOS SEGMENTADOS COMPASS CON MARCAS DE GRADO (STARK RETICLE)
+          // D. ANILLOS SEGMENTADOS COMPASS CON MARCAS DE GRADO
           ctx.save();
           ctx.translate(cx, cy);
 
-          // Anillo interior giratorio horario
-          ctx.rotate(time * 0.15);
+          ctx.rotate(time * (isReactorBoosted ? 0.45 : 0.15));
           ctx.beginPath();
           ctx.arc(0, 0, baseRadius - 10, 0, Math.PI * 2);
           ctx.setLineDash([14, 10, 4, 10]);
-          ctx.strokeStyle = "rgba(0, 240, 255, 0.4)";
+          ctx.strokeStyle = isReactorBoosted ? "rgba(255, 183, 0, 0.6)" : "rgba(0, 240, 255, 0.4)";
           ctx.lineWidth = 1.2;
           ctx.stroke();
 
-          // Anillo exterior giratorio anti-horario
-          ctx.rotate(-time * 0.28);
+          ctx.rotate(-time * (isReactorBoosted ? 0.7 : 0.28));
           ctx.beginPath();
           ctx.arc(0, 0, baseRadius + 28, 0, Math.PI * 2);
           ctx.setLineDash([32, 18, 8, 18]);
-          ctx.strokeStyle = "rgba(0, 240, 255, 0.32)";
+          ctx.strokeStyle = isReactorBoosted ? "rgba(255, 183, 0, 0.5)" : "rgba(0, 240, 255, 0.32)";
           ctx.lineWidth = 1;
           ctx.stroke();
 
           ctx.restore();
 
-          // 4. MARCAS CARDINALES HUD (000°, 090°, 180°, 270°)
+          // E. MARCAS CARDINALES HUD (000°, 090°, 180°, 270°)
           const cardinalRadius = baseRadius + 38;
           ctx.font = "9px 'Rajdhani', sans-serif";
-          ctx.fillStyle = "rgba(0, 240, 255, 0.65)";
+          ctx.fillStyle = isReactorBoosted ? "rgba(255, 183, 0, 0.85)" : "rgba(0, 240, 255, 0.65)";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
 
@@ -12094,33 +12354,59 @@ Tus habilidades clave:
             ctx.fillText(c.text, tx, ty);
           });
 
-          // 5. PARTÍCULAS CUÁNTICAS FLOTANTES
+          // F. PARTÍCULAS CUÁNTICAS FLOTANTES
           particles.forEach(p => {
-            p.angle += p.speed * (isSpeaking ? 1.6 : 1.0);
+            p.angle += p.speed * (isReactorBoosted ? 3.0 : (isSpeaking ? 1.6 : 1.0));
             const px = cx + Math.cos(p.angle) * p.dist;
             const py = cy + Math.sin(p.angle) * p.dist;
             const alphaPulse = Math.abs(Math.sin(time * 2 + p.pulseOffset)) * p.alpha;
 
             ctx.beginPath();
             ctx.arc(px, py, p.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(0, 240, 255, ${alphaPulse})`;
-            ctx.shadowColor = "#00f0ff";
+            ctx.fillStyle = isReactorBoosted ? `rgba(255, 183, 0, ${alphaPulse})` : `rgba(0, 240, 255, ${alphaPulse})`;
+            ctx.shadowColor = isReactorBoosted ? "#ffb700" : "#00f0ff";
             ctx.shadowBlur = 8;
             ctx.fill();
             ctx.shadowBlur = 0;
           });
 
-          // 6. ONDAS DE CHOQUE ACÚSTICAS EN HABLA
-          if (isSpeaking) {
+          // G. GRAVEDAD Y FÍSICA DE POLVO ESTELAR INTERACTIVO (CURSOR SPARK TRAILS)
+          for (let i = stardust.length - 1; i >= 0; i--) {
+            const s = stardust[i];
+            const dx = cx - s.x;
+            const dy = cy - s.y;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > 10) {
+              s.vx += (dx / dist) * 0.28;
+              s.vy += (dy / dist) * 0.28;
+            }
+            s.x += s.vx;
+            s.y += s.vy;
+            s.life -= 0.022;
+
+            if (s.life <= 0 || dist < 25) {
+              stardust.splice(i, 1);
+              continue;
+            }
+
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, Math.max(0.5, s.size * s.life), 0, Math.PI * 2);
+            ctx.fillStyle = isReactorBoosted ? `rgba(255, 183, 0, ${s.life * 0.85})` : `rgba(0, 240, 255, ${s.life * 0.8})`;
+            ctx.fill();
+          }
+
+          // H. ONDAS DE CHOQUE ACÚSTICAS EN HABLA
+          if (isSpeaking || isReactorBoosted) {
             for (let ring = 0; ring < 3; ring++) {
-              const ringOffset = (time * 35 + ring * 45) % 150;
+              const ringOffset = (time * (isReactorBoosted ? 55 : 35) + ring * 45) % 160;
               const r = baseRadius + 35 + ringOffset;
-              const alpha = Math.max(0, 1 - (ringOffset / 150)) * 0.45;
+              const alpha = Math.max(0, 1 - (ringOffset / 160)) * (isReactorBoosted ? 0.7 : 0.45);
 
               ctx.beginPath();
               ctx.arc(cx, cy, r, 0, Math.PI * 2);
-              ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
-              ctx.lineWidth = 1.5;
+              ctx.strokeStyle = isReactorBoosted ? `rgba(255, 183, 0, ${alpha})` : `rgba(0, 240, 255, ${alpha})`;
+              ctx.lineWidth = 1.6;
               ctx.stroke();
             }
           }
@@ -12143,7 +12429,7 @@ Tus habilidades clave:
 
         drawWaves();
 
-        // 7. INICIALIZAR EVENTOS DE AUDIO Y PARALLAX STARK HUD
+        // Inicializar eventos de interacción y sonido Stark
         setupStarkHudInteractions();
       }
 
@@ -12158,6 +12444,18 @@ Tus habilidades clave:
         const sendBtnEl = document.getElementById("send-btn");
         if (sendBtnEl) {
           sendBtnEl.addEventListener("click", () => playHudSound("transmit"), { passive: true });
+        }
+
+        // Activador del Reactor Arc Boost Mode al hacer clic en el Orbe
+        const orbEl = document.getElementById("orb");
+        if (orbEl) {
+          orbEl.addEventListener("click", () => triggerReactorBoost());
+        }
+
+        // Botón rápido de alternancia de armadura
+        const btnHoloTheme = document.getElementById("btn-holo-theme");
+        if (btnHoloTheme) {
+          btnHoloTheme.addEventListener("click", () => cycleArmorTheme());
         }
 
         // Parallax 3D interactivo con el cursor en escritorios

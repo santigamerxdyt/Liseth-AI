@@ -2616,7 +2616,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 29 0 R >>
 endobj
 30 0 obj
-<< /Length 6174 >>
+<< /Length 6256 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -2707,11 +2707,11 @@ q
 1 1 1 rg
 BT /F2 7.5 Tf 58.0 545.89 Td (COMANDO VOZ) Tj ET
 0.1 0.15 0.25 rg
-BT /F2 9.5 Tf 126.0 544.89 Td (\"Reactor Arc Cuántico & 4 Anillos Giroscópicos\") Tj ET
+BT /F2 9.5 Tf 126.0 544.89 Td (\"Reactor Arc Cuántico & Modo Sobrecarga \(Boost\)\") Tj ET
 0.35 0.38 0.42 rg
-BT /F1 8.5 Tf 56.0 529.89 Td (Núcleo de plasma vibrante con retícula Stark que acelera su rotación y modulación al hablar.) Tj ET
+BT /F1 8.5 Tf 56.0 529.89 Td (Núcleo de plasma vibrante que entra en hiper-velocidad al tocarlo con fogueo dorado y armónicos.) Tj ET
 0.12 0.45 0.35 rg
-BT /F4 8 Tf 56.0 517.89 Td (-> Holo-Reactor Central) Tj ET
+BT /F4 8 Tf 56.0 517.89 Td (-> Holo-Reactor Central & Boost) Tj ET
 Q
 q
 0.97 0.98 0.99 rg
@@ -2723,11 +2723,11 @@ q
 1 1 1 rg
 BT /F2 7.5 Tf 58.0 493.89 Td (COMANDO VOZ) Tj ET
 0.1 0.15 0.25 rg
-BT /F2 9.5 Tf 126.0 492.89 Td (\"Alas Laterales de Telemetría en Tiempo Real\") Tj ET
+BT /F2 9.5 Tf 126.0 492.89 Td (\"Malla 3D Wireframe Cuántica & Polvo Estelar\") Tj ET
 0.35 0.38 0.42 rg
-BT /F1 8.5 Tf 56.0 477.89 Td (Muestra latencia, estado de encriptación, cronómetro de alta precisión y radar 360° en paneles de cristal.) Tj ET
+BT /F1 8.5 Tf 56.0 477.89 Td (Dodecaedro tridimensional vectorial que gira en el espacio y atrae estelas de chispas cuánticas al cursor.) Tj ET
 0.12 0.45 0.35 rg
-BT /F4 8 Tf 56.0 465.89 Td (-> Stark HUD Wings) Tj ET
+BT /F4 8 Tf 56.0 465.89 Td (-> Geometría 3D & Gravedad de Partículas) Tj ET
 Q
 q
 0.97 0.98 0.99 rg
@@ -2739,11 +2739,11 @@ q
 1 1 1 rg
 BT /F2 7.5 Tf 58.0 441.89 Td (COMANDO VOZ) Tj ET
 0.1 0.15 0.25 rg
-BT /F2 9.5 Tf 126.0 440.89 Td (\"Radar Acústico de 64 Frecuencias y Partículas\") Tj ET
+BT /F2 9.5 Tf 126.0 440.89 Td (\"Alas Laterales de Telemetría Stark & Cinta Superior\") Tj ET
 0.35 0.38 0.42 rg
-BT /F1 8.5 Tf 56.0 425.89 Td (Dibuja ondas armónicas, marcas de grados \(000°-270°\) y fotones cuánticos en Canvas a 60 FPS.) Tj ET
+BT /F1 8.5 Tf 56.0 425.89 Td (Cinta de diagnóstico en cabecera \(MARK LXXXV\) y paneles laterales con cronómetro digital de microsegundos.) Tj ET
 0.12 0.45 0.35 rg
-BT /F4 8 Tf 56.0 413.89 Td (-> Visualizador de Frecuencias) Tj ET
+BT /F4 8 Tf 56.0 413.89 Td (-> Stark HUD Wings & Ribbon) Tj ET
 Q
 q
 0.97 0.98 0.99 rg
@@ -2755,11 +2755,11 @@ q
 1 1 1 rg
 BT /F2 7.5 Tf 58.0 389.89 Td (COMANDO VOZ) Tj ET
 0.1 0.15 0.25 rg
-BT /F2 9.5 Tf 126.0 388.89 Td (\"Micro-Sonidos Procedurales Web Audio API\") Tj ET
+BT /F2 9.5 Tf 126.0 388.89 Td (\"Selector Rápido de Armaduras \(Mark 85 / 50 / War Machine\)\") Tj ET
 0.35 0.38 0.42 rg
-BT /F1 8.5 Tf 56.0 373.89 Td (Efectos sonoros sutiles generados matemáticamente sin consumo de red para una experiencia inmersiva.) Tj ET
+BT /F1 8.5 Tf 56.0 373.89 Td (Alterna al instante entre paletas de color cuánticas \(Cian, Dorado Nanotech, Esmeralda y Plasma Violeta\).) Tj ET
 0.12 0.45 0.35 rg
-BT /F4 8 Tf 56.0 361.89 Td (-> Sintetizador Sonoro HUD) Tj ET
+BT /F4 8 Tf 56.0 361.89 Td (-> Configuración de Armaduras) Tj ET
 Q
 q
 0.97 0.98 0.99 rg
@@ -2771,11 +2771,11 @@ q
 1 1 1 rg
 BT /F2 7.5 Tf 58.0 337.89 Td (COMANDO VOZ) Tj ET
 0.1 0.15 0.25 rg
-BT /F2 9.5 Tf 126.0 336.89 Td (\"Efecto Parallax 3D de Inclinación Holográfica\") Tj ET
+BT /F2 9.5 Tf 126.0 336.89 Td (\"Micro-Sonidos Procedurales Web Audio API\") Tj ET
 0.35 0.38 0.42 rg
-BT /F1 8.5 Tf 56.0 321.89 Td (Simula una proyección volumétrica tridimensional flotante en el aire respondiendo a su ratón.) Tj ET
+BT /F1 8.5 Tf 56.0 321.89 Td (Efectos sonoros sutiles generados matemáticamente sin consumo de red para una experiencia inmersiva.) Tj ET
 0.12 0.45 0.35 rg
-BT /F4 8 Tf 56.0 309.89 Td (-> Perspectiva Volumétrica 3D) Tj ET
+BT /F4 8 Tf 56.0 309.89 Td (-> Sintetizador Sonoro HUD) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
@@ -2817,7 +2817,7 @@ xref
 0000070112 00000 n 
 0000079199 00000 n 
 0000087604 00000 n 
-0000093995 00000 n 
+0000094077 00000 n 
 0000000590 00000 n 
 0000007365 00000 n 
 0000015012 00000 n 
@@ -2833,5 +2833,5 @@ xref
 trailer
 << /Size 31 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-94159
+94241
 %%EOF

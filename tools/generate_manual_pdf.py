@@ -685,11 +685,11 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
         "(6) Sintetizador Procedural de Audio Web Audio API: Micro-sonidos electrónicos futuristas en botones, transmisión cuántica al enviar mensajes y apertura de módulos:",
         size=9.0
     )
-    builder.add_command_box("Reactor Arc Cuántico & 4 Anillos Giroscópicos", "Núcleo de plasma vibrante con retícula Stark que acelera su rotación y modulación al hablar.", "Holo-Reactor Central")
-    builder.add_command_box("Alas Laterales de Telemetría en Tiempo Real", "Muestra latencia, estado de encriptación, cronómetro de alta precisión y radar 360° en paneles de cristal.", "Stark HUD Wings")
-    builder.add_command_box("Radar Acústico de 64 Frecuencias y Partículas", "Dibuja ondas armónicas, marcas de grados (000°-270°) y fotones cuánticos en Canvas a 60 FPS.", "Visualizador de Frecuencias")
+    builder.add_command_box("Reactor Arc Cuántico & Modo Sobrecarga (Boost)", "Núcleo de plasma vibrante que entra en hiper-velocidad al tocarlo con fogueo dorado y armónicos.", "Holo-Reactor Central & Boost")
+    builder.add_command_box("Malla 3D Wireframe Cuántica & Polvo Estelar", "Dodecaedro tridimensional vectorial que gira en el espacio y atrae estelas de chispas cuánticas al cursor.", "Geometría 3D & Gravedad de Partículas")
+    builder.add_command_box("Alas Laterales de Telemetría Stark & Cinta Superior", "Cinta de diagnóstico en cabecera (MARK LXXXV) y paneles laterales con cronómetro digital de microsegundos.", "Stark HUD Wings & Ribbon")
+    builder.add_command_box("Selector Rápido de Armaduras (Mark 85 / 50 / War Machine)", "Alterna al instante entre paletas de color cuánticas (Cian, Dorado Nanotech, Esmeralda y Plasma Violeta).", "Configuración de Armaduras")
     builder.add_command_box("Micro-Sonidos Procedurales Web Audio API", "Efectos sonoros sutiles generados matemáticamente sin consumo de red para una experiencia inmersiva.", "Sintetizador Sonoro HUD")
-    builder.add_command_box("Efecto Parallax 3D de Inclinación Holográfica", "Simula una proyección volumétrica tridimensional flotante en el aire respondiendo a su ratón.", "Perspectiva Volumétrica 3D")
 
     # Final summary note
     builder.add_paragraph(
