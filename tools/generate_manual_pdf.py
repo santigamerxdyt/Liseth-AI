@@ -670,6 +670,27 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Desbloqueo Automático de Voz Móvil", "Garantiza que Liseth responda con voz dulce y fluida en su teléfono tras la primera interacción táctil.", "Voz Móvil Desbloqueada")
     builder.add_command_box("Teclado Virtual Inteligente", "Ajusta la vista y el chat automáticamente con window.visualViewport para que la barra de texto nunca quede tapada.", "Adaptación Teclado Móvil")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 23: INTERFAZ HOLOGRÁFICA CINEMÁTICA STARK HUD (MARK LXXXV)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("23. Interfaz Holográfica Cinemática Stark HUD (Iron Man Mark LXXXV)")
+    builder.add_paragraph(
+        "Liseth incorpora el entorno visual cinemático más potente y avanzado, inspirado directamente en los sistemas "
+        "holográficos de Tony Stark (Iron Man Mark LXXXV y Avengers Endgame): "
+        "(1) Malla Cuántica y Haz de Escaneo Láser: Red hexagonal en el fondo con línea de barrido holográfico que recorre el sistema; "
+        "(2) Alas de Telemetría Flotantes (Stark Wings): Paneles laterales de cristal holográfico con indicadores de carga neural en vivo, modelo activo (Gemini 3.8 / Groq 70B), radar y cronómetro digital de microsegundos; "
+        "(3) Reactor Arc Cuántico Multi-Capa: Esfera central con 4 anillos giroscópicos giratorios independientes, retícula de apuntado cardinal y núcleo de plasma con filamentos de energía; "
+        "(4) Radar Acústico y Partículas Cuánticas en Canvas 2D: Corona holográfica de 64 frecuencias radiales que vibran armónicamente con la voz, haz de radar continuo y 46 fotones cuánticos en órbita gravitacional; "
+        "(5) Perspectiva Volumétrica Parallax 3D: Inclinación tridimensional de la interfaz en escritorios que sigue dinámicamente el movimiento del cursor; y "
+        "(6) Sintetizador Procedural de Audio Web Audio API: Micro-sonidos electrónicos futuristas en botones, transmisión cuántica al enviar mensajes y apertura de módulos:",
+        size=9.0
+    )
+    builder.add_command_box("Reactor Arc Cuántico & 4 Anillos Giroscópicos", "Núcleo de plasma vibrante con retícula Stark que acelera su rotación y modulación al hablar.", "Holo-Reactor Central")
+    builder.add_command_box("Alas Laterales de Telemetría en Tiempo Real", "Muestra latencia, estado de encriptación, cronómetro de alta precisión y radar 360° en paneles de cristal.", "Stark HUD Wings")
+    builder.add_command_box("Radar Acústico de 64 Frecuencias y Partículas", "Dibuja ondas armónicas, marcas de grados (000°-270°) y fotones cuánticos en Canvas a 60 FPS.", "Visualizador de Frecuencias")
+    builder.add_command_box("Micro-Sonidos Procedurales Web Audio API", "Efectos sonoros sutiles generados matemáticamente sin consumo de red para una experiencia inmersiva.", "Sintetizador Sonoro HUD")
+    builder.add_command_box("Efecto Parallax 3D de Inclinación Holográfica", "Simula una proyección volumétrica tridimensional flotante en el aire respondiendo a su ratón.", "Perspectiva Volumétrica 3D")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

@@ -4423,6 +4423,377 @@
     }
 
   
+
+    /* ========================================================
+       TONY STARK / JARVIS MARK 85 HOLOGRAPHIC HUD UPGRADES
+       ======================================================== */
+    
+    /* 1. Malla Cuántica Hexagonal y Haz de Escaneo Láser Holográfico */
+    .hologram-shield-grid {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(ellipse at 50% 50%, rgba(0, 240, 255, 0.09) 0%, transparent 68%),
+        linear-gradient(rgba(0, 240, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.035) 1px, transparent 1px);
+      background-size: 100% 100%, 38px 38px, 38px 38px;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    .hologram-scanner-beam {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(0, 240, 255, 0.2) 20%, #00f0ff 50%, rgba(0, 240, 255, 0.2) 80%, transparent 100%);
+      box-shadow: 0 0 14px #00f0ff, 0 0 28px rgba(0, 240, 255, 0.45);
+      animation: scanHoloBeam 10s linear infinite;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.55;
+    }
+
+    @keyframes scanHoloBeam {
+      0% { transform: translateY(-10px); opacity: 0; }
+      12% { opacity: 0.7; }
+      88% { opacity: 0.7; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+    /* 2. Retícula de Apuntado en las Esquinas del Orbe */
+    .orb-stage-wrapper {
+      position: relative;
+      perspective: 1000px;
+      transition: transform 0.15s ease-out;
+    }
+
+    .orb-stage-wrapper::before,
+    .orb-stage-wrapper::after {
+      content: '';
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-color: rgba(0, 240, 255, 0.75);
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 3;
+    }
+
+    .orb-stage-wrapper::before {
+      top: -16px;
+      left: 50%;
+      transform: translateX(-135px);
+      border-top: 2.5px solid #00f0ff;
+      border-left: 2.5px solid #00f0ff;
+      border-top-left-radius: 8px;
+      filter: drop-shadow(0 0 6px #00f0ff);
+    }
+
+    .orb-stage-wrapper::after {
+      top: -16px;
+      left: 50%;
+      transform: translateX(107px);
+      border-top: 2.5px solid #00f0ff;
+      border-right: 2.5px solid #00f0ff;
+      border-top-right-radius: 8px;
+      filter: drop-shadow(0 0 6px #00f0ff);
+    }
+
+    .orb-stage-wrapper:hover::before {
+      transform: translateX(-120px) scale(1.1);
+      border-color: #ffffff;
+      filter: drop-shadow(0 0 12px #00f0ff);
+    }
+
+    .orb-stage-wrapper:hover::after {
+      transform: translateX(92px) scale(1.1);
+      border-color: #ffffff;
+      filter: drop-shadow(0 0 12px #00f0ff);
+    }
+
+    /* 3. Cuarto Anillo Holográfico y Núcleo Arc Reactor Refinado */
+    .orb-ring.ring-4 {
+      position: absolute;
+      inset: -32px;
+      border-radius: 50%;
+      border: 1px dotted rgba(0, 240, 255, 0.5);
+      animation: rotateRingRev 30s linear infinite;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
+      pointer-events: none;
+    }
+
+    .orb-core-arc-grid {
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      border: 1px dashed rgba(255, 255, 255, 0.45);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(0, 240, 255, 0.6) 35%, transparent 70%);
+      animation: rotateRing 12s linear infinite;
+      pointer-events: none;
+    }
+
+    .orb-core-crosshair {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .orb-core-crosshair::before,
+    .orb-core-crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 0 6px #00f0ff;
+    }
+    .orb-core-crosshair::before { width: 14px; height: 1.5px; }
+    .orb-core-crosshair::after { width: 1.5px; height: 14px; }
+
+    /* 4. Alas de Telemetría Holográfica Flotantes (Stark Telemetry Wings) */
+    .stark-hud-wing {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 240px;
+      background: linear-gradient(135deg, rgba(8, 16, 34, 0.85) 0%, rgba(4, 9, 22, 0.9) 100%);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 14px;
+      padding: 14px 16px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 
+        0 14px 35px rgba(0, 0, 0, 0.65),
+        0 0 25px rgba(0, 240, 255, 0.15),
+        inset 0 0 15px rgba(0, 240, 255, 0.05);
+      z-index: 4;
+      pointer-events: auto;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      font-family: var(--font-tech), sans-serif;
+    }
+
+    .stark-hud-wing.wing-left {
+      left: 32px;
+      border-left: 3px solid #00f0ff;
+    }
+
+    .stark-hud-wing.wing-right {
+      right: 32px;
+      border-right: 3px solid #00f0ff;
+    }
+
+    .stark-hud-wing:hover {
+      border-color: #00f0ff;
+      box-shadow: 
+        0 18px 45px rgba(0, 0, 0, 0.8),
+        0 0 35px rgba(0, 240, 255, 0.35),
+        inset 0 0 20px rgba(0, 240, 255, 0.1);
+      transform: translateY(-53%) scale(1.02);
+    }
+
+    .hud-wing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.18);
+      padding-bottom: 4px;
+    }
+
+    .hud-wing-tag {
+      font-family: var(--font-mono), monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      color: rgba(139, 155, 180, 0.85);
+      text-transform: uppercase;
+    }
+
+    .hud-wing-status {
+      font-family: var(--font-hud), sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #38ef7d;
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 8px rgba(56, 239, 125, 0.6);
+    }
+    .hud-wing-status.gold {
+      color: #ffb700;
+      text-shadow: 0 0 8px rgba(255, 183, 0, 0.6);
+    }
+
+    .hud-wing-title {
+      font-family: var(--font-hud), sans-serif;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: #ffffff;
+      margin-bottom: 8px;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+    }
+
+    .hud-wing-data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+      font-size: 0.72rem;
+    }
+
+    .hud-wing-key {
+      color: rgba(139, 155, 180, 0.75);
+      letter-spacing: 0.05em;
+    }
+
+    .hud-wing-val {
+      font-weight: 600;
+      color: #edf2f7;
+      letter-spacing: 0.04em;
+    }
+    .hud-wing-val.highlight-cyan {
+      color: #00f0ff;
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+    }
+    .hud-wing-val.highlight-green {
+      color: #38ef7d;
+      text-shadow: 0 0 8px rgba(56, 239, 125, 0.5);
+    }
+    .hud-wing-val.highlight-gold {
+      color: #ffb700;
+      text-shadow: 0 0 8px rgba(255, 183, 0, 0.5);
+    }
+
+    .hud-wing-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin: 8px 0;
+    }
+
+    .hud-bar-track {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .hud-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7 0%, #00f0ff 100%);
+      box-shadow: 0 0 8px #00f0ff;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    .hud-radar-mini {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 4px;
+      padding: 4px 6px;
+      background: rgba(0, 240, 255, 0.06);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 8px;
+    }
+
+    .hud-radar-sweep {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid #00f0ff;
+      position: relative;
+    }
+    .hud-radar-sweep::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 7px; height: 1px;
+      background: #00f0ff;
+      transform-origin: 0 0;
+      animation: rotateRing 2s linear infinite;
+    }
+
+    .hud-radar-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: #00f0ff;
+      font-weight: 600;
+    }
+
+    .hud-wing-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.62rem;
+      color: rgba(139, 155, 180, 0.6);
+      border-top: 1px solid rgba(0, 240, 255, 0.12);
+      padding-top: 4px;
+      letter-spacing: 0.08em;
+      margin-top: 6px;
+    }
+
+    .hud-glow-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #00f0ff;
+      box-shadow: 0 0 6px #00f0ff;
+      animation: pulseServerDot 1.2s infinite alternate;
+    }
+    .hud-glow-dot.gold {
+      background: #ffb700;
+      box-shadow: 0 0 6px #ffb700;
+    }
+
+    /* Ocultar alas en pantallas menores a 920px para preservar fluidez */
+    @media (max-width: 920px) {
+      .stark-hud-wing {
+        display: none !important;
+      }
+    }
+
+    /* 5. Burbujas de Chat Holográficas con Esquinas Chamfered Cyberpunk */
+    .message-row.assistant .bubble {
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+      border: 1px solid rgba(0, 240, 255, 0.45) !important;
+      border-left: 3.5px solid #00f0ff !important;
+      box-shadow: 
+        0 12px 35px rgba(0, 0, 0, 0.75),
+        0 0 25px rgba(0, 240, 255, 0.2),
+        inset 0 0 15px rgba(0, 240, 255, 0.05) !important;
+    }
+
+    .message-row.user .bubble {
+      clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+      border: 1px solid rgba(0, 210, 255, 0.55) !important;
+      border-right: 3.5px solid #00d2ff !important;
+      box-shadow: 
+        0 12px 32px rgba(0, 20, 60, 0.6),
+        0 0 20px rgba(0, 210, 255, 0.25),
+        inset 0 0 15px rgba(0, 210, 255, 0.06) !important;
+    }
+
+    /* 6. Consola de Entrada Holográfica Flotante */
+    .input-container::before,
+    .input-container::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-color: rgba(0, 240, 255, 0.6);
+      pointer-events: none;
+    }
+    .input-container::before {
+      top: -1px; left: 16px;
+      border-top: 2px solid #00f0ff;
+    }
+    .input-container::after {
+      bottom: -1px; right: 16px;
+      border-bottom: 2px solid #00f0ff;
+    }
+
     /* ========================================================
        DISPOSITIVOS MÓVILES Y RESPONSIVIDAD TOTAL (SMARTPHONE PWA)
        Diseño fluido y adaptativo para pantallas de 320px a 768px (Android & iOS)
@@ -4905,6 +5276,8 @@
 
   <div class="ambient-grid"></div>
   <div class="ambient-scanline"></div>
+  <div class="hologram-shield-grid"></div>
+  <div class="hologram-scanner-beam"></div>
   <!-- HUD Corner Telemetry Tickers -->
   <div class="hud-corner-telemetry hud-corner-tl">SYS.LIS // NODE-01<br><span class="hud-nano-label">STATUS: NOMINAL</span></div>
   <div class="hud-corner-telemetry hud-corner-tr">PROTOCOLO: JARVIS-2.5<br><span class="hud-nano-label">LATENCIA: 12ms // ENC: AES-256</span></div>
@@ -5014,6 +5387,63 @@
   <div class="holographic-main-stage" id="holographic-main-stage">
     <!-- 1. VISTA PREDETERMINADA: ESFERA HOLOGRÁFICA CON ONDAS -->
     <div class="sphere-workspace" id="sphere-workspace">
+      <!-- ALAS DE TELEMETRÍA HOLOGRÁFICA STARK HUD (MARK 85) -->
+      <div class="stark-hud-wing wing-left" id="stark-hud-wing-left">
+        <div class="hud-wing-header">
+          <span class="hud-wing-tag">SYS.NEURAL</span>
+          <span class="hud-wing-status">ONLINE</span>
+        </div>
+        <div class="hud-wing-title">INTELIGENCIA COGNITIVA</div>
+        <div class="hud-wing-data-row">
+          <span class="hud-wing-key">CEREBRO PPAL</span>
+          <span class="hud-wing-val highlight-cyan">GEMINI 3.8 FLASH</span>
+        </div>
+        <div class="hud-wing-data-row">
+          <span class="hud-wing-key">MOTOR RÁPIDO</span>
+          <span class="hud-wing-val">GROQ LLaMA-70B</span>
+        </div>
+        <div class="hud-wing-data-row">
+          <span class="hud-wing-key">ESTADO COGNICIÓN</span>
+          <span class="hud-wing-val highlight-green">ÓPTIMO // 0 ms</span>
+        </div>
+        <div class="hud-wing-bars">
+          <div class="hud-bar-track"><div class="hud-bar-fill" id="hud-bar-cpu" style="width: 89%;"></div></div>
+          <div class="hud-bar-track"><div class="hud-bar-fill" id="hud-bar-ram" style="width: 95%;"></div></div>
+          <div class="hud-bar-track"><div class="hud-bar-fill" id="hud-bar-syn" style="width: 92%;"></div></div>
+        </div>
+        <div class="hud-wing-footer">
+          <span>PROTOCOLO SANTIAGO</span>
+          <span class="hud-glow-dot"></span>
+        </div>
+      </div>
+
+      <div class="stark-hud-wing wing-right" id="stark-hud-wing-right">
+        <div class="hud-wing-header">
+          <span class="hud-wing-tag">STARK.HUD</span>
+          <span class="hud-wing-status gold">MK-LXXXV</span>
+        </div>
+        <div class="hud-wing-title">TELEMETRÍA Y CONTROL</div>
+        <div class="hud-wing-data-row">
+          <span class="hud-wing-key">REACTOR ARC</span>
+          <span class="hud-wing-val highlight-gold">100% // 3.2 GJ/s</span>
+        </div>
+        <div class="hud-wing-data-row">
+          <span class="hud-wing-key">CENTINELA TG</span>
+          <span class="hud-wing-val highlight-green">BIDIRECCIONAL</span>
+        </div>
+        <div class="hud-wing-data-row">
+          <span class="hud-wing-key">RELOJ DIGITAL HUD</span>
+          <span class="hud-wing-val highlight-cyan" id="hud-live-clock">00:00:00.00</span>
+        </div>
+        <div class="hud-radar-mini">
+          <div class="hud-radar-sweep"></div>
+          <span class="hud-radar-label">RADAR ACTIVO // 360°</span>
+        </div>
+        <div class="hud-wing-footer">
+          <span>ACCESO ADMIN</span>
+          <span class="hud-glow-dot gold"></span>
+        </div>
+      </div>
       <!-- Canvas de ondas sonoras dinámicas -->
       <div class="voice-waves-canvas-wrapper">
         <canvas id="voice-waves-canvas" width="600" height="600"></canvas>
@@ -5027,8 +5457,12 @@
             <div class="orb-ring ring-1"></div>
             <div class="orb-ring ring-2"></div>
             <div class="orb-ring ring-3"></div>
+            <div class="orb-ring ring-4"></div>
           </div>
-          <div class="orb-core"></div>
+          <div class="orb-core">
+            <div class="orb-core-arc-grid"></div>
+            <div class="orb-core-crosshair"></div>
+          </div>
         </div>
 
         <h1 class="assistant-title" id="assistant-display-name">LISETH</h1>
@@ -11455,13 +11889,94 @@ Tus habilidades clave:
         });
       }
 
-      // --- RENDERIZADO DE ONDAS ACÚSTICAS Y RADIALES EN CANVAS ---
+// ========================================================
+      // SINTETIZADOR DE AUDIO HOLOGRÁFICO STARK HUD (WEB AUDIO API)
+      // Genera efectos de sonido futuristas cinematográficos en tiempo real
+      // ========================================================
+      let hudAudioCtx = null;
+      let hudSoundsEnabled = true;
+
+      function getHudAudioContext() {
+        if (!hudAudioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            hudAudioCtx = new AudioContextClass();
+          }
+        }
+        if (hudAudioCtx && hudAudioCtx.state === 'suspended') {
+          hudAudioCtx.resume().catch(() => {});
+        }
+        return hudAudioCtx;
+      }
+
+      function playHudSound(type = 'hover') {
+        if (!hudSoundsEnabled) return;
+        try {
+          const ctx = getHudAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+
+          if (type === 'hover') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(2200, now);
+            osc.frequency.exponentialRampToValueAtTime(2800, now + 0.022);
+            gain.gain.setValueAtTime(0.025, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.022);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.022);
+          } else if (type === 'click') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(850, now);
+            osc.frequency.exponentialRampToValueAtTime(1450, now + 0.045);
+            gain.gain.setValueAtTime(0.045, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.045);
+          } else if (type === 'transmit') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(450, now);
+            osc.frequency.exponentialRampToValueAtTime(1800, now + 0.07);
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.07);
+          }
+        } catch(e) {}
+      }
+
+      // --- RENDERIZADO DE RADAR HOLOGRÁFICO Y PARTÍCULAS CUÁNTICAS STARK HUD ---
       function initVoiceWavesCanvas() {
         if (!voiceCanvas) return;
         const ctx = voiceCanvas.getContext("2d");
         if (!ctx) return;
 
         let time = 0;
+
+        // Generar partículas cuánticas flotantes
+        const numParticles = 46;
+        const particles = [];
+        for (let i = 0; i < numParticles; i++) {
+          particles.push({
+            angle: Math.random() * Math.PI * 2,
+            dist: 80 + Math.random() * 160,
+            speed: 0.003 + Math.random() * 0.008,
+            size: 1 + Math.random() * 2.2,
+            alpha: 0.2 + Math.random() * 0.7,
+            pulseOffset: Math.random() * 10
+          });
+        }
 
         function resizeCanvas() {
           const rect = voiceCanvas.getBoundingClientRect();
@@ -11482,50 +11997,130 @@ Tus habilidades clave:
 
           ctx.clearRect(0, 0, w, h);
 
-          const computedStyle = getComputedStyle(document.documentElement);
-          const accentColor = computedStyle.getPropertyValue('--accent-blue').trim() || '#00d2ff';
-          const glowColor = computedStyle.getPropertyValue('--accent-glow').trim() || 'rgba(0, 210, 255, 0.4)';
+          time += isSpeaking ? 0.06 : (isListening ? 0.04 : 0.018);
 
-          time += isSpeaking ? 0.08 : (isListening ? 0.05 : 0.02);
+          const baseRadius = Math.min(w, h) * 0.24;
 
-          const numRings = isSpeaking ? 6 : (isListening ? 4 : 3);
-          const baseRadius = 88;
+          // 1. HAZ DE RADAR HOLOGRÁFICO GIRATORIO (SWEEPING RADAR BEAM)
+          const sweepAngle = (time * 0.85) % (Math.PI * 2);
+          const radarGrad = ctx.createRadialGradient(cx, cy, baseRadius * 0.5, cx, cy, baseRadius * 1.55);
+          radarGrad.addColorStop(0, "rgba(0, 240, 255, 0.08)");
+          radarGrad.addColorStop(1, "transparent");
 
-          for (let i = 0; i < numRings; i++) {
-            ctx.beginPath();
-            const ringOffset = (time * (isSpeaking ? 40 : 15) + i * 35) % 180;
-            const radius = baseRadius + ringOffset;
-            const alpha = Math.max(0, 1 - (ringOffset / 180));
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, baseRadius * 1.5, sweepAngle - 0.45, sweepAngle, false);
+          ctx.closePath();
+          ctx.fillStyle = radarGrad;
+          ctx.fill();
 
-            // Si está hablando, ondas sinusoidales dinámicas que vibran con la voz
+          // 2. CORONA DE FRECUENCIAS RADIALES (STARK AUDIO EQUALIZER CROWN)
+          const numPins = 60;
+          for (let p = 0; p < numPins; p++) {
+            const angle = (p / numPins) * Math.PI * 2;
+            let pinAmp = 4;
+
             if (isSpeaking) {
-              const segments = 90;
-              for (let s = 0; s <= segments; s++) {
-                const angle = (s / segments) * Math.PI * 2;
-                const waveAmp = (Math.sin(angle * 7 + time * 3) * 6 + Math.cos(angle * 3 - time * 2) * 5) * alpha;
-                const r = radius + waveAmp;
-                const x = cx + Math.cos(angle) * r;
-                const y = cy + Math.sin(angle) * r;
-                if (s === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-              }
-              ctx.closePath();
-              ctx.strokeStyle = `rgba(0, 210, 255, ${alpha * 0.7})`;
-              ctx.lineWidth = 2;
-              ctx.stroke();
-
+              pinAmp = 6 + Math.sin(angle * 7 + time * 5) * 16 + Math.cos(angle * 3 - time * 4) * 10 + Math.sin(angle * 13 + time * 8) * 6;
             } else if (isListening) {
-              // Sonar radar rings cuando el usuario habla
-              ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-              ctx.strokeStyle = `rgba(56, 239, 125, ${alpha * 0.8})`;
-              ctx.lineWidth = 2.5;
-              ctx.stroke();
-
+              pinAmp = 5 + Math.sin(angle * 10 + time * 6) * 14 + Math.cos(angle * 5 - time * 3) * 8;
             } else {
-              // Pulso suave armónico en reposo
-              ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-              ctx.strokeStyle = `rgba(0, 210, 255, ${alpha * 0.25})`;
-              ctx.lineWidth = 1.2;
+              pinAmp = 3 + Math.sin(angle * 5 + time * 1.5) * 4;
+            }
+
+            const r1 = baseRadius + 4;
+            const r2 = r1 + Math.max(2, pinAmp);
+
+            const x1 = cx + Math.cos(angle) * r1;
+            const y1 = cy + Math.sin(angle) * r1;
+            const x2 = cx + Math.cos(angle) * r2;
+            const y2 = cy + Math.sin(angle) * r2;
+
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = isListening ? "rgba(56, 239, 125, 0.85)" : "rgba(0, 240, 255, 0.8)";
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+
+            // Pequeño nodo luminoso en la punta del pin de frecuencia
+            ctx.beginPath();
+            ctx.arc(x2, y2, 1.2, 0, Math.PI * 2);
+            ctx.fillStyle = isListening ? "#38ef7d" : "#ffffff";
+            ctx.fill();
+          }
+
+          // 3. ANILLOS SEGMENTADOS COMPASS CON MARCAS DE GRADO (STARK RETICLE)
+          ctx.save();
+          ctx.translate(cx, cy);
+
+          // Anillo interior giratorio horario
+          ctx.rotate(time * 0.15);
+          ctx.beginPath();
+          ctx.arc(0, 0, baseRadius - 10, 0, Math.PI * 2);
+          ctx.setLineDash([14, 10, 4, 10]);
+          ctx.strokeStyle = "rgba(0, 240, 255, 0.4)";
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // Anillo exterior giratorio anti-horario
+          ctx.rotate(-time * 0.28);
+          ctx.beginPath();
+          ctx.arc(0, 0, baseRadius + 28, 0, Math.PI * 2);
+          ctx.setLineDash([32, 18, 8, 18]);
+          ctx.strokeStyle = "rgba(0, 240, 255, 0.32)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.restore();
+
+          // 4. MARCAS CARDINALES HUD (000°, 090°, 180°, 270°)
+          const cardinalRadius = baseRadius + 38;
+          ctx.font = "9px 'Rajdhani', sans-serif";
+          ctx.fillStyle = "rgba(0, 240, 255, 0.65)";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+
+          const cardinals = [
+            { text: "000°", angle: -Math.PI / 2 },
+            { text: "090°", angle: 0 },
+            { text: "180°", angle: Math.PI / 2 },
+            { text: "270°", angle: Math.PI }
+          ];
+
+          cardinals.forEach(c => {
+            const tx = cx + Math.cos(c.angle) * cardinalRadius;
+            const ty = cy + Math.sin(c.angle) * cardinalRadius;
+            ctx.fillText(c.text, tx, ty);
+          });
+
+          // 5. PARTÍCULAS CUÁNTICAS FLOTANTES
+          particles.forEach(p => {
+            p.angle += p.speed * (isSpeaking ? 1.6 : 1.0);
+            const px = cx + Math.cos(p.angle) * p.dist;
+            const py = cy + Math.sin(p.angle) * p.dist;
+            const alphaPulse = Math.abs(Math.sin(time * 2 + p.pulseOffset)) * p.alpha;
+
+            ctx.beginPath();
+            ctx.arc(px, py, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0, 240, 255, ${alphaPulse})`;
+            ctx.shadowColor = "#00f0ff";
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          });
+
+          // 6. ONDAS DE CHOQUE ACÚSTICAS EN HABLA
+          if (isSpeaking) {
+            for (let ring = 0; ring < 3; ring++) {
+              const ringOffset = (time * 35 + ring * 45) % 150;
+              const r = baseRadius + 35 + ringOffset;
+              const alpha = Math.max(0, 1 - (ringOffset / 150)) * 0.45;
+
+              ctx.beginPath();
+              ctx.arc(cx, cy, r, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
+              ctx.lineWidth = 1.5;
               ctx.stroke();
             }
           }
@@ -11547,6 +12142,67 @@ Tus habilidades clave:
         });
 
         drawWaves();
+
+        // 7. INICIALIZAR EVENTOS DE AUDIO Y PARALLAX STARK HUD
+        setupStarkHudInteractions();
+      }
+
+      // --- INTERACTIVIDAD STARK HUD (SONIDOS DE RETROALIMENTACIÓN Y PARALLAX 3D) ---
+      function setupStarkHudInteractions() {
+        // Asignar micro-sonidos táctiles futuristas a los botones
+        document.querySelectorAll(".chip-btn, .hud-deck-btn, .icon-btn, .send-btn, .mic-btn").forEach(btn => {
+          btn.addEventListener("mouseenter", () => playHudSound("hover"), { passive: true });
+          btn.addEventListener("click", () => playHudSound("click"), { passive: true });
+        });
+
+        const sendBtnEl = document.getElementById("send-btn");
+        if (sendBtnEl) {
+          sendBtnEl.addEventListener("click", () => playHudSound("transmit"), { passive: true });
+        }
+
+        // Parallax 3D interactivo con el cursor en escritorios
+        if (window.matchMedia("(min-width: 861px)").matches) {
+          window.addEventListener("mousemove", (e) => {
+            const xPct = (e.clientX / window.innerWidth - 0.5) * 2;
+            const yPct = (e.clientY / window.innerHeight - 0.5) * 2;
+            const rotY = xPct * 7;
+            const rotX = -yPct * 5;
+
+            const orbWrapper = document.querySelector(".orb-stage-wrapper");
+            if (orbWrapper) {
+              orbWrapper.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+            }
+
+            const leftWing = document.getElementById("stark-hud-wing-left");
+            const rightWing = document.getElementById("stark-hud-wing-right");
+            if (leftWing) {
+              leftWing.style.transform = `translateY(-50%) perspective(1000px) rotateY(${rotY * 0.5 + 8}deg) translateZ(6px)`;
+            }
+            if (rightWing) {
+              rightWing.style.transform = `translateY(-50%) perspective(1000px) rotateY(${rotY * 0.5 - 8}deg) translateZ(6px)`;
+            }
+          }, { passive: true });
+        }
+
+        // Bucle de telemetría y reloj digital en vivo
+        function updateLiveStarkHud() {
+          const clockEl = document.getElementById("hud-live-clock");
+          if (clockEl) {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+            const ss = String(now.getSeconds()).padStart(2, "0");
+            const ms = String(Math.floor(now.getMilliseconds() / 10)).padStart(2, "0");
+            clockEl.textContent = `${hh}:${mm}:${ss}.${ms}`;
+          }
+
+          const cpuBar = document.getElementById("hud-bar-cpu");
+          if (cpuBar) {
+            const base = 88 + Math.sin(Date.now() / 1400) * 8;
+            cpuBar.style.width = `${Math.min(99, Math.max(78, base)).toFixed(1)}%`;
+          }
+        }
+        setInterval(updateLiveStarkHud, 100);
       }
 
       // ========================================================
