@@ -1,7 +1,7 @@
 """
 NFC & Contactless Payment Router for JARVIS / Liseth.
 Provides API endpoints for Web NFC interaction, contactless payment generation,
-vCard digital business card beaming, and transaction ledger inspection.
+vCard digital business card beaming, electronic invoices, currency conversion, and proximity unlock.
 """
 
 from typing import Any, Dict, List, Optional
@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.services.nfc_service import nfc_service
+from app.services.invoice_service import invoice_service
 
 router = APIRouter(prefix="/api/nfc", tags=["nfc"])
 
@@ -37,6 +38,29 @@ class TapRecordRequest(BaseModel):
     records: Optional[List[Dict[str, Any]]] = Field(default=[], description="Lista de registros NDEF leídos")
     raw_text: Optional[str] = Field(default=None, description="Texto plano si no es NDEF complejo")
     simulated: bool = Field(default=False, description="True si es una simulación de escritorio")
+
+
+class InvoiceCreateRequest(BaseModel):
+    client_name: str = Field(..., description="Nombre o razón social del cliente")
+    client_id: str = Field(default="222222222222", description="Documento o NIT del cliente")
+    items: Optional[List[Dict[str, Any]]] = Field(default=None, description="Lista de ítems facturados")
+    amount: Optional[float] = Field(default=None, description="Monto total rápido si no se detallan ítems")
+    concept: Optional[str] = Field(default="Servicios Profesionales de Consultoría", description="Concepto general")
+    tax_rate: float = Field(default=0.19, description="Tasa de IVA (0.19 para 19%)")
+    retefuente_rate: float = Field(default=0.0, description="Tasa de Retención en la Fuente")
+    currency: str = Field(default="COP", description="Moneda de facturación")
+    payment_method: str = Field(default="Bre-B Contactless", description="Método de pago")
+    nfc_tx_id: Optional[str] = Field(default=None, description="ID de transacción NFC vinculada")
+
+
+class BadgeVerifyRequest(BaseModel):
+    badge_uid: str = Field(..., description="UID del tag NFC o llave de seguridad")
+
+
+class BadgeEnrollRequest(BaseModel):
+    badge_uid: str = Field(..., description="UID del tag NFC")
+    label: str = Field(default="Credencial de Santiago", description="Etiqueta descriptiva")
+    secret: Optional[str] = Field(default=None, description="Secreto opcional")
 
 
 @router.get("/status")
@@ -98,3 +122,62 @@ async def clear_nfc_history():
     """Resets the NFC transaction ledger."""
     res = nfc_service.clear_ledger()
     return res
+
+
+# ─── ENDPOINTS: FACTURACIÓN ELECTRÓNICA & RECIBOS ───
+@router.post("/invoice")
+async def create_invoice(req: InvoiceCreateRequest):
+    """Generates a pro-forma electronic invoice with CUFE hash."""
+    items = req.items
+    if not items and req.amount:
+        items = [{
+            "description": req.concept or "Servicios Profesionales",
+            "quantity": 1,
+            "unit_price": req.amount
+        }]
+
+    inv = invoice_service.generate_invoice(
+        client_name=req.client_name,
+        client_id=req.client_id,
+        items=items,
+        tax_rate=req.tax_rate,
+        retefuente_rate=req.retefuente_rate,
+        currency=req.currency,
+        payment_method=req.payment_method,
+        nfc_tx_id=req.nfc_tx_id
+    )
+    return {"ok": True, "invoice": inv}
+
+
+@router.get("/invoices")
+async def list_invoices(limit: int = Query(default=20, ge=1, le=100)):
+    """Lists recent electronic pro-forma invoices."""
+    items = invoice_service.get_invoices(limit=limit)
+    return {"ok": True, "invoices": items, "count": len(items)}
+
+
+# ─── ENDPOINTS: DIVISAS & CONVERSIÓN CRIPTO ───
+@router.get("/convert")
+async def convert_currency_endpoint(
+    amount: float = Query(default=1.0, gt=0),
+    from_curr: str = Query(default="USD"),
+    to_curr: str = Query(default="COP")
+):
+    """Converts amounts between COP, USD, EUR, USDT, BTC, and ETH."""
+    res = nfc_service.convert_currency(amount, from_curr=from_curr, to_curr=to_curr)
+    return {"ok": True, "conversion": res}
+
+
+# ─── ENDPOINTS: DESBLOQUEO POR PROXIMIDAD (STARK KEY) ───
+@router.post("/verify-badge")
+async def verify_badge_endpoint(req: BadgeVerifyRequest):
+    """Verifies if an NFC tag is an authorized security key for proximity unlock."""
+    res = nfc_service.verify_security_badge(req.badge_uid)
+    return {"ok": True, "result": res}
+
+
+@router.post("/enroll-badge")
+async def enroll_badge_endpoint(req: BadgeEnrollRequest):
+    """Enrolls an NFC tag as an authorized proximity key."""
+    res = nfc_service.enroll_security_badge(req.badge_uid, label=req.label, secret=req.secret)
+    return {"ok": True, "badge": res}

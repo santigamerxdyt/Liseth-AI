@@ -634,19 +634,22 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
     },
     {
         "name": "nfc_contactless",
-        "description": "Ecosistema NFC y Pagos por Contacto (Contactless & Beam): genera cobros y solicitudes de pago tokenizadas por proximidad (Bre-B Interoperable Colombia, Nequi, Daviplata, tarjetas contactless y cripto), transmite tarjetas de contacto digital vCard 3.0, lee etiquetas NFC/tarjetas y consulta o limpia el libro contable de transacciones por contacto.",
+        "description": "Ecosistema NFC, Pagos por Contacto y Facturación Electrónica (Contactless, Beam & Invoicing): genera cobros tokenizados por proximidad (Bre-B Interoperable Colombia, Nequi, Daviplata, tarjetas contactless y cripto), emite facturas electrónicas pro-forma DIAN con hash CUFE y desglose de IVA/Retefuente, convierte divisas (COP, USD, EUR, USDT, BTC, ETH), transmite tarjetas de contacto digital vCard 3.0, valida llaves de seguridad NFC para desbloqueo por proximidad y consulta el libro contable de transacciones.",
         "parameters": {
             "type": "OBJECT",
             "properties": {
                 "action": {
                     "type": "STRING",
-                    "description": "status | payment_request | beam_vcard | read_tag | history | clear_history"
+                    "description": "status | payment_request | beam_vcard | read_tag | invoice | convert | badge | history | clear_history"
                 },
-                "amount": {"type": "NUMBER", "description": "Monto para el cobro por contacto (ej: 25000)"},
-                "currency": {"type": "STRING", "description": "Moneda: COP, USD, EUR (por defecto COP)"},
-                "concept": {"type": "STRING", "description": "Concepto o descripción del cobro o transferencia"},
-                "recipient": {"type": "STRING", "description": "Nombre del destinatario o comercio (por defecto Santiago)"},
+                "amount": {"type": "NUMBER", "description": "Monto para el cobro, factura o conversión de divisas (ej: 25000)"},
+                "currency": {"type": "STRING", "description": "Moneda: COP, USD, EUR, USDT, BTC, ETH (por defecto COP)"},
+                "concept": {"type": "STRING", "description": "Concepto o descripción del cobro, factura o servicio"},
+                "recipient": {"type": "STRING", "description": "Nombre del destinatario, cliente o comercio"},
+                "client_id": {"type": "STRING", "description": "Documento o NIT del cliente para facturación"},
                 "method": {"type": "STRING", "description": "bre_b | nequi | daviplata | card | crypto"},
+                "from_currency": {"type": "STRING", "description": "Moneda de origen para conversión (ej: USD)"},
+                "to_currency": {"type": "STRING", "description": "Moneda de destino para conversión (ej: COP)"},
                 "name": {"type": "STRING", "description": "Nombre completo para la tarjeta digital vCard"},
                 "role": {"type": "STRING", "description": "Cargo o título para la vCard"},
                 "phone": {"type": "STRING", "description": "Número de teléfono para la vCard"},
@@ -976,7 +979,7 @@ class ActionDispatcher:
                     "message": "He abierto la Bóveda Central de Autenticadores y APIs para usted, señor Santiago."
                 }, ensure_ascii=False)
 
-            elif name in ("nfc_contactless", "nfc_pay", "contactless_payment", "nfc_beam", "pago_contacto", "nfc"):
+            elif name in ("nfc_contactless", "nfc_pay", "contactless_payment", "nfc_beam", "pago_contacto", "nfc", "factura_electronica", "digital_invoice", "convertir_divisas", "crypto_converter"):
                 from app.actions.nfc_action import nfc_action
                 res = nfc_action(parameters=args)
                 return res

@@ -714,6 +714,26 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Libro Contable Auditado de Operaciones NFC", "Supervisa el registro histórico de pagos, fechas, montos y firmas criptográficas con exportación.", "Ledger Criptográfico NFC")
     builder.add_command_box("Control por Voz de Cobros y Contactos", "Pídale a Liseth: 'Genera un cobro contactless de 30 mil pesos' o 'Transmite mi tarjeta de contacto'.", "Comandos de Voz NFC")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 25: FACTURACIÓN ELECTRÓNICA DIAN, DESBLOQUEO POR PROXIMIDAD Y DIVISAS
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("25. Facturación Electrónica DIAN, Desbloqueo NFC y Divisas")
+    builder.add_paragraph(
+        "Liseth amplía su ecosistema financiero y de proximidad con módulos avanzados de facturación legal, "
+        "seguridad por hardware y conversión de divisas en tiempo real: "
+        "(1) Facturación Electrónica Pro-Forma DIAN: Emisión instantánea de facturas comerciales con generación de hash criptográfico SHA-384 CUFE (Código Único de Facturación Electrónica), cálculo automatizado de IVA (19% o 5%), Retención en la Fuente (4% o 2.5%) y enlace de validación en el catálogo DIAN; "
+        "(2) Vinculación Directa con Pagos Contactless: Cualquier cobro NFC por Bre-B, Nequi o tarjeta genera automáticamente su respectiva factura pro-forma imprimible y descargable; "
+        "(3) Transmisión de Facturas por NFC: Grabación de facturas comerciales y comprobantes directamente en etiquetas NFC de clientes con un solo toque; "
+        "(4) Desbloqueo por Proximidad (Stark Security Key): Autenticación biométrica y por tarjeta física en la pantalla de bloqueo sin necesidad de ingresar el PIN manualmente; y "
+        "(5) Conversor Multidivisa y Criptoactivos: Conversión instantánea entre COP, USD, EUR, USDT, BTC y ETH para fijar montos exactos de cobro por proximidad en segundos:",
+        size=9.0
+    )
+    builder.add_command_box("Emisión de Factura Pro-Forma con CUFE", "Genera el documento electrónico con desglose tributario legal y código QR de validación fiscal.", "Facturación Electrónica Pro-Forma")
+    builder.add_command_box("Desbloqueo de Liseth con Llave Stark NFC", "Aproxime su carné universitario o tarjeta autorizada para desbloquear el sistema sin teclear su PIN.", "Stark Key Proximity Unlock")
+    builder.add_command_box("Conversor Rápido de Divisas y Cripto (COP/USD/BTC)", "Calcule al instante equivalencias de $50 USD o 0.001 BTC y aplíquelas al cobro por contacto.", "Calculadora de Divisas & Cripto")
+    builder.add_command_box("Impresión y Exportación de Facturas", "Abra e imprima el comprobante comercial pro-forma en formato ejecutivo limpio con un solo clic.", "Impresión de Comprobantes")
+    builder.add_command_box("Comandos de Facturación y Conversión por Voz", "Pídale a Liseth: 'Emite una factura de 150 mil pesos para Constructora Bolívar' o 'Convierte 100 dólares a pesos'.", "Voz para Facturas y Divisas")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

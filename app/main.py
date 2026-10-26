@@ -158,6 +158,11 @@ EXEMPT_API_PATHS = {
     "/api/nfc/record-tap",
     "/api/nfc/history",
     "/api/nfc/clear-history",
+    "/api/nfc/invoice",
+    "/api/nfc/invoices",
+    "/api/nfc/convert",
+    "/api/nfc/verify-badge",
+    "/api/nfc/enroll-badge",
 }
 
 

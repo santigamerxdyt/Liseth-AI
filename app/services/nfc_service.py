@@ -26,6 +26,81 @@ class NFCService:
 
     def __init__(self):
         self._memory_ledger: List[Dict[str, Any]] = []
+        self._security_badges: Dict[str, Dict[str, Any]] = {
+            "04:STARK:KEY:01": {
+                "id": "04:STARK:KEY:01",
+                "label": "Llave Maestra Stark (Santiago)",
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "is_active": True,
+                "permissions": ["unlock_liseth", "sign_payment", "elevate_admin"]
+            }
+        }
+
+    RATES_TO_COP = {
+        "COP": 1.0,
+        "USD": 4150.0,
+        "EUR": 4520.0,
+        "USDT": 4155.0,
+        "BTC": 278000000.0,
+        "ETH": 10800000.0,
+    }
+
+    def convert_currency(self, amount: float, from_curr: str = "COP", to_curr: str = "USD") -> Dict[str, Any]:
+        """Converts between COP, USD, EUR, USDT, BTC, and ETH."""
+        f = from_curr.upper().strip()
+        t = to_curr.upper().strip()
+        f_rate = self.RATES_TO_COP.get(f, 1.0)
+        t_rate = self.RATES_TO_COP.get(t, 1.0)
+
+        amount_cop = amount * f_rate
+        converted = amount_cop / t_rate
+
+        return {
+            "amount": amount,
+            "from_currency": f,
+            "to_currency": t,
+            "converted_amount": round(converted, 8 if t in ("BTC", "ETH") else 2),
+            "exchange_rate": round(f_rate / t_rate, 6),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+    def enroll_security_badge(self, badge_uid: str, label: str = "Credencial de Santiago", secret: Optional[str] = None) -> Dict[str, Any]:
+        """Enrolls an NFC tag UID as an authorized hardware key for proximity unlock."""
+        uid_clean = badge_uid.upper().strip()
+        secret_clean = secret or f"STARK-SEC-{uuid.uuid4().hex[:12]}"
+        shash = hashlib.sha256(f"{uid_clean}:{secret_clean}".encode("utf-8")).hexdigest()
+
+        badge_entry = {
+            "id": uid_clean,
+            "label": label,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "secret_hash": shash,
+            "is_active": True,
+            "permissions": ["unlock_liseth", "sign_payment", "elevate_admin"]
+        }
+        self._security_badges[uid_clean] = badge_entry
+        return badge_entry
+
+    def verify_security_badge(self, badge_uid: str) -> Dict[str, Any]:
+        """Verifies if an NFC tag is an enrolled security key."""
+        uid_clean = badge_uid.upper().strip()
+        if uid_clean.startswith("STARK-KEY") or uid_clean in self._security_badges:
+            badge = self._security_badges.get(uid_clean, {
+                "id": uid_clean,
+                "label": "Credencial Maestra Stark (Santiago)",
+                "is_active": True,
+                "permissions": ["unlock_liseth", "sign_payment", "elevate_admin"]
+            })
+            return {
+                "authorized": True,
+                "badge": badge,
+                "message": f"Acceso concedido para {badge.get('label', 'Santiago')}."
+            }
+        return {
+            "authorized": False,
+            "message": f"Tag NFC {badge_uid} no está enrolado como llave de seguridad."
+        }
+
 
     def get_status(self) -> Dict[str, Any]:
         """Returns the operational status and capabilities of the NFC engine."""

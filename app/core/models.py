@@ -121,3 +121,38 @@ class NfcTransaction(Base):
     status = Column(String(30), default="completed")  # 'completed', 'pending', 'simulated'
     payload = Column(JSON, default=dict)
 
+
+class DigitalInvoice(Base):
+    __tablename__ = "digital_invoices"
+
+    id = Column(String(100), primary_key=True)  # e.g. FAC-2026-0001
+    created_at = Column(DateTime, default=utcnow)
+    issuer_name = Column(String(200), default="Santiago Huerfano Lopez")
+    issuer_nit = Column(String(50), default="1000000000-1")
+    client_name = Column(String(200), nullable=False)
+    client_id = Column(String(50), default="222222222222")
+    currency = Column(String(10), default="COP")
+    items = Column(JSON, default=list)
+    subtotal = Column(Float, default=0.0)
+    tax_iva = Column(Float, default=0.0)
+    retention = Column(Float, default=0.0)
+    total = Column(Float, default=0.0)
+    payment_method = Column(String(50), default="Bre-B Contactless")
+    cufe_hash = Column(String(128), nullable=False)
+    qr_payload = Column(Text, nullable=True)
+    nfc_tx_id = Column(String(100), nullable=True)
+    status = Column(String(30), default="issued")
+
+
+class NfcSecurityKey(Base):
+    __tablename__ = "nfc_security_keys"
+
+    id = Column(String(100), primary_key=True)
+    label = Column(String(150), default="Credencial de Santiago")
+    created_at = Column(DateTime, default=utcnow)
+    last_used = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True)
+    secret_hash = Column(String(128), nullable=True)
+    permissions = Column(JSON, default=list)
+
+
