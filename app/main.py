@@ -175,7 +175,14 @@ EXEMPT_API_PATHS = {
     "/api/suite/focus/stop",
     "/api/suite/focus/status",
     "/api/suite/focus/purge-memory",
+    "/api/suite/projects/eval",
+    "/api/suite/risks/heatmap",
+    "/api/suite/risks/add",
+    "/api/suite/macro/indicators",
+    "/api/suite/macro/payroll",
+    "/api/suite/pitch/generate",
 }
+
 
 
 @app.middleware("http")

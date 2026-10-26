@@ -706,6 +706,76 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": []
         }
+    },
+    {
+        "name": "investment_evaluator",
+        "description": "Evaluador Financiero de Proyectos de Inversión y Presupuesto de Capital: calcula VAN (NPV), TIR (IRR con aproximación numérica), período de recuperación (Payback simple y descontado), relación Beneficio/Costo y análisis de escenarios (Base, Optimista +20%, Pesimista -20%).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "project_name": {"type": "STRING", "description": "Nombre de la iniciativa o proyecto"},
+                "initial_investment": {"type": "NUMBER", "description": "Monto de inversión inicial en COP"},
+                "cash_flows": {"type": "ARRAY", "description": "Flujos de caja proyectados anuales", "items": {"type": "NUMBER"}},
+                "discount_rate": {"type": "NUMBER", "description": "Tasa de descuento o costo de oportunidad (ejemplo: 0.12 para 12%)"},
+                "currency": {"type": "STRING", "description": "Moneda (COP por defecto)"}
+            },
+            "required": ["initial_investment"]
+        }
+    },
+    {
+        "name": "risk_matrix",
+        "description": "Matriz de Riesgos Corporativos y Mapa de Calor 5x5 (ISO 31000 / COSO): gestiona riesgos estratégicos, financieros, operacionales, legales y de ciberseguridad, calculando niveles inherentes y residuales tras controles mitigantes.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "summary | add | delete"},
+                "title": {"type": "STRING", "description": "Título o descripción del evento de riesgo"},
+                "category": {"type": "STRING", "description": "Estrategico | Financiero | Operacional | Legal | Ciberseguridad"},
+                "probability": {"type": "INTEGER", "description": "Probabilidad inherente de 1 (rara) a 5 (casi segura)"},
+                "impact": {"type": "INTEGER", "description": "Impacto inherente de 1 (insignificante) a 5 (catastrófico)"},
+                "control": {"type": "STRING", "description": "Medida o protocolo de control preventivo/detectivo"},
+                "residual_probability": {"type": "INTEGER", "description": "Probabilidad residual tras control (1-5)"},
+                "residual_impact": {"type": "INTEGER", "description": "Impacto residual tras control (1-5)"},
+                "owner": {"type": "STRING", "description": "Líder o responsable del riesgo"},
+                "risk_id": {"type": "STRING", "description": "Identificador para eliminación (ej: RSK-001)"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "colombia_macro",
+        "description": "Radar Macroeconómico de Colombia y Liquidador Laboral Pro-Forma: indicadores en tiempo real (TRM, UVT, SMLMV, Auxilio de Transporte, Tasa BanRep, IPC) y liquidación de costos laborales patronales con desglose de seguridad social, parafiscales (exoneración Art. 114-1 E.T.) y prestaciones sociales.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "indicators | payroll | uvt"},
+                "base_salary": {"type": "NUMBER", "description": "Salario base mensual en COP para liquidación"},
+                "risk_level": {"type": "INTEGER", "description": "Clase de riesgo ARL (1 a 5, por defecto 1)"},
+                "include_transport": {"type": "BOOLEAN", "description": "Forzar inclusión de auxilio de transporte"},
+                "apply_exemption_114_1": {"type": "BOOLEAN", "description": "Aplicar exoneración de aportes patronales Art. 114-1 E.T."},
+                "amount": {"type": "NUMBER", "description": "Monto para conversión UVT"},
+                "direction": {"type": "STRING", "description": "cop_to_uvt | uvt_to_cop"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "pitch_generator",
+        "description": "Generador de Presentaciones Ejecutivas y Pitch Decks de Inversión (Norma Guy Kawasaki 10/20/30 & Sequoia Capital): genera 10 diapositivas maestras (problema, solución, monetización, tecnología, TAM/SAM/SOM, go-to-market, competencia, equipo y solicitud de capital).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "business_name": {"type": "STRING", "description": "Nombre de la empresa, startup o proyecto"},
+                "industry": {"type": "STRING", "description": "tech_saas | consultoria | agroindustria | ecommerce"},
+                "problem": {"type": "STRING", "description": "Dolor o problema principal de mercado"},
+                "solution": {"type": "STRING", "description": "Propuesta de valor y solución ofrecida"},
+                "funding_ask": {"type": "NUMBER", "description": "Monto de capital solicitado a inversionistas"},
+                "currency": {"type": "STRING", "description": "Moneda (COP por defecto)"},
+                "founder": {"type": "STRING", "description": "Nombre del fundador o líder del proyecto"},
+                "city": {"type": "STRING", "description": "Ciudad y país"}
+            },
+            "required": ["business_name"]
+        }
     }
 ]
 
@@ -1045,6 +1115,26 @@ class ActionDispatcher:
             elif name in ("legal_contracts", "contratos_legales", "minutas_colombia", "nda_generator", "redactar_contrato"):
                 from app.actions.legal_contracts_action import legal_contracts_action
                 res = legal_contracts_action(parameters=args)
+                return res
+
+            elif name in ("investment_evaluator", "evaluador_proyectos", "van_tir", "evaluar_inversion", "presupuesto_capital"):
+                from app.actions.investment_evaluator_action import investment_evaluator_action
+                res = investment_evaluator_action(parameters=args)
+                return res
+
+            elif name in ("risk_matrix", "matriz_riesgos", "mapa_calor", "gestor_riesgos", "iso_31000"):
+                from app.actions.risk_matrix_action import risk_matrix_action
+                res = risk_matrix_action(parameters=args)
+                return res
+
+            elif name in ("colombia_macro", "macro_colombia", "nomina_colombia", "indicadores_macro", "costo_laboral", "liquidador_laboral"):
+                from app.actions.colombia_macro_action import colombia_macro_action
+                res = colombia_macro_action(parameters=args)
+                return res
+
+            elif name in ("pitch_generator", "generar_pitch", "presentacion_ejecutiva", "pitch_deck", "diapositivas_inversion"):
+                from app.actions.pitch_generator_action import pitch_generator_action
+                res = pitch_generator_action(parameters=args)
                 return res
 
 

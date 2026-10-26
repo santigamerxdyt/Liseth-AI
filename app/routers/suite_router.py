@@ -12,6 +12,11 @@ from app.services.personal_finance_service import personal_finance_service
 from app.services.stark_vault_service import stark_vault_service
 from app.services.legal_contracts_service import legal_contracts_service
 from app.services.focus_engine_service import focus_engine_service
+from app.services.investment_evaluator_service import investment_evaluator_service
+from app.services.risk_matrix_service import risk_matrix_service
+from app.services.colombia_macro_service import colombia_macro_service
+from app.services.pitch_generator_service import pitch_generator_service
+
 
 router = APIRouter(prefix="/api/suite", tags=["suite"])
 
@@ -121,3 +126,114 @@ async def get_focus_status_endpoint():
 async def purge_memory_endpoint():
     res = focus_engine_service.purge_system_memory()
     return {"ok": True, "result": res}
+
+
+# ─── EVALUACIÓN DE PROYECTOS DE INVERSIÓN (VAN, TIR, PAYBACK) ───
+class InvestmentEvalRequest(BaseModel):
+    name: str = Field(default="Iniciativa Estratégica", description="Nombre del proyecto")
+    initial_investment: float = Field(..., gt=0, description="Inversión inicial")
+    cash_flows: List[float] = Field(..., description="Flujos proyectados anuales")
+    discount_rate: float = Field(default=0.12, ge=0.0, le=1.0, description="Tasa de descuento")
+    currency: str = Field(default="COP", description="Moneda")
+
+
+@router.post("/projects/eval")
+async def evaluate_project_endpoint(req: InvestmentEvalRequest):
+    res = investment_evaluator_service.evaluate_project(
+        name=req.name,
+        initial_investment=req.initial_investment,
+        cash_flows=req.cash_flows,
+        discount_rate=req.discount_rate,
+        currency=req.currency
+    )
+    return {"ok": True, "evaluation": res}
+
+
+# ─── MATRIZ DE RIESGOS CORPORATIVOS & MAPA DE CALOR 5x5 ───
+class RiskAddRequest(BaseModel):
+    title: str = Field(..., description="Título del evento de riesgo")
+    category: str = Field(default="Estrategico", description="Categoría")
+    probability: int = Field(default=3, ge=1, le=5)
+    impact: int = Field(default=3, ge=1, le=5)
+    control: str = Field(default="Protocolo de mitigación preventiva")
+    residual_probability: int = Field(default=2, ge=1, le=5)
+    residual_impact: int = Field(default=2, ge=1, le=5)
+    owner: str = Field(default="Santiago / CEO")
+
+
+@router.get("/risks/heatmap")
+async def get_risk_heatmap_endpoint():
+    return risk_matrix_service.get_heatmap_5x5()
+
+
+@router.post("/risks/add")
+async def add_risk_endpoint(req: RiskAddRequest):
+    res = risk_matrix_service.add_risk(
+        title=req.title,
+        category=req.category,
+        probability=req.probability,
+        impact=req.impact,
+        control=req.control,
+        residual_probability=req.residual_probability,
+        residual_impact=req.residual_impact,
+        owner=req.owner
+    )
+    return {"ok": True, "risk": res}
+
+
+@router.delete("/risks/{risk_id}")
+async def delete_risk_endpoint(risk_id: str):
+    ok = risk_matrix_service.delete_risk(risk_id)
+    return {"ok": ok, "risk_id": risk_id}
+
+
+# ─── RADAR MACROECONÓMICO & LIQUIDADOR LABORAL COLOMBIA ───
+class PayrollCalcRequest(BaseModel):
+    base_salary: float = Field(..., gt=0, description="Salario base en COP")
+    risk_level: int = Field(default=1, ge=1, le=5, description="Nivel ARL (1 a 5)")
+    include_transport: Optional[bool] = Field(default=None, description="Inclusión de auxilio de transporte")
+    apply_exemption_114_1: Optional[bool] = Field(default=None, description="Exoneración Art. 114-1 E.T.")
+
+
+@router.get("/macro/indicators")
+async def get_macro_indicators_endpoint():
+    return colombia_macro_service.get_macro_indicators()
+
+
+@router.post("/macro/payroll")
+async def calculate_payroll_endpoint(req: PayrollCalcRequest):
+    res = colombia_macro_service.liquidate_payroll(
+        base_salary=req.base_salary,
+        risk_level=req.risk_level,
+        include_transport=req.include_transport,
+        apply_exemption_114_1=req.apply_exemption_114_1
+    )
+    return {"ok": True, "payroll": res}
+
+
+# ─── GENERADOR DE PITCH DECKS DE INVERSIÓN ───
+class PitchDeckRequest(BaseModel):
+    business_name: str = Field(..., description="Nombre del negocio o proyecto")
+    industry: str = Field(default="tech_saas", description="tech_saas, consultoria, agroindustria, ecommerce")
+    problem: Optional[str] = Field(default=None, description="Problema central")
+    solution: Optional[str] = Field(default=None, description="Solución propuesta")
+    funding_ask: float = Field(default=250000000.0, gt=0, description="Capital solicitado")
+    currency: str = Field(default="COP", description="Moneda")
+    founder: str = Field(default="Santiago Huerfano Lopez", description="Fundador")
+    city: str = Field(default="Palmira / Cali, Colombia", description="Ciudad")
+
+
+@router.post("/pitch/generate")
+async def generate_pitch_deck_endpoint(req: PitchDeckRequest):
+    res = pitch_generator_service.generate_deck(
+        business_name=req.business_name,
+        industry=req.industry,
+        problem_statement=req.problem,
+        solution_value=req.solution,
+        funding_ask=req.funding_ask,
+        currency=req.currency,
+        founder_name=req.founder,
+        city=req.city
+    )
+    return {"ok": True, "deck": res}
+

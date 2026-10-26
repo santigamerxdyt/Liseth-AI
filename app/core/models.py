@@ -198,4 +198,41 @@ class LegalContract(Base):
     status = Column(String(30), default="draft")  # 'draft', 'signed', 'active', 'archived'
 
 
+class CorporateRisk(Base):
+    __tablename__ = "corporate_risks"
+
+    id = Column(String(100), primary_key=True)
+    created_at = Column(DateTime, default=utcnow)
+    title = Column(String(200), nullable=False)
+    category = Column(String(50), default="Estrategico")  # Estrategico, Financiero, Operacional, Legal, Ciberseguridad
+    probability = Column(Integer, default=3)  # 1 a 5
+    impact = Column(Integer, default=3)  # 1 a 5
+    inherent_risk = Column(Integer, default=9)  # P * I
+    control_description = Column(String(255), default="Controles preventivos y detectivos estándar")
+    residual_probability = Column(Integer, default=2)
+    residual_impact = Column(Integer, default=2)
+    residual_risk = Column(Integer, default=4)
+    owner = Column(String(100), default="Santiago / CEO")
+    status = Column(String(30), default="active")  # active, mitigated, accepted, archived
+
+
+class InvestmentProject(Base):
+    __tablename__ = "investment_projects"
+
+    id = Column(String(100), primary_key=True)
+    created_at = Column(DateTime, default=utcnow)
+    name = Column(String(200), nullable=False)
+    initial_investment = Column(Float, nullable=False)
+    discount_rate = Column(Float, default=0.12)
+    cash_flows = Column(JSON, default=list)
+    npv = Column(Float, default=0.0)
+    irr = Column(Float, default=0.0)
+    payback_years = Column(Float, default=0.0)
+    discounted_payback_years = Column(Float, default=0.0)
+    benefit_cost_ratio = Column(Float, default=0.0)
+    decision = Column(String(50), default="VIABLE")
+    details = Column(JSON, default=dict)
+
+
+
 
