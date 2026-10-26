@@ -20,6 +20,11 @@ from app.services.logistics_inventory_service import logistics_inventory_service
 from app.services.negotiation_engine_service import negotiation_engine_service
 from app.services.dian_tax_service import dian_tax_service
 from app.services.bsc_okrs_service import bsc_okrs_service
+from app.services.tax_payment_service import tax_payment_service
+from app.services.business_valuation_service import business_valuation_service
+from app.services.fleet_routes_service import fleet_routes_service
+from app.services.biocognitive_habits_service import biocognitive_habits_service
+
 
 
 
@@ -372,5 +377,145 @@ async def get_okrs_dashboard_endpoint():
 async def update_okr_progress_endpoint(req: OkrUpdateRequest):
     ok = bsc_okrs_service.update_kr_progress(req.kr_id, req.value)
     return {"ok": ok, "kr_id": req.kr_id, "new_value": req.value}
+
+
+# ─── LIQUIDACIÓN Y PAGO DE IMPUESTOS DIAN (FORMULARIO 490 & PSE) ───
+class TaxSettleRequest(BaseModel):
+    concept: str = Field(default="retefuente")
+    year: int = Field(default=2026)
+    period: str = Field(default="01")
+    nit: str = Field(default="901.884.221-3")
+    amount: float = Field(..., gt=0)
+    due_date: Optional[str] = None
+    payment_date: Optional[str] = None
+
+
+class PsePaymentRequest(BaseModel):
+    receipt_id: str = Field(...)
+    bank_name: str = Field(default="Bancolombia")
+
+
+@router.post("/tax-payment/settle")
+async def settle_tax_endpoint(req: TaxSettleRequest):
+    res = tax_payment_service.settle_form_490(
+        concept_key=req.concept,
+        tax_year=req.year,
+        period=req.period,
+        nit=req.nit,
+        base_tax_amount=req.amount,
+        due_date_str=req.due_date,
+        payment_date_str=req.payment_date
+    )
+    return {"ok": True, "settlement": res}
+
+
+@router.post("/tax-payment/pse")
+async def create_pse_payment_endpoint(req: PsePaymentRequest):
+    # Retrieve or build intent
+    settlement = tax_payment_service.settle_form_490(
+        concept_key="retefuente",
+        tax_year=2026,
+        period="01",
+        nit="901.884.221-3",
+        base_tax_amount=1500000.0
+    )
+    settlement["receipt_id"] = req.receipt_id
+    intent = tax_payment_service.generate_pse_intent(settlement, bank_name=req.bank_name)
+    tax_payment_service.confirm_payment(settlement, req.bank_name, intent["cus_code"])
+    return {"ok": True, "intent": intent}
+
+
+@router.get("/tax-payment/history")
+async def get_tax_history_endpoint():
+    return tax_payment_service.get_payment_history()
+
+
+# ─── VALUACIÓN FINANCIERA DE EMPRESAS (DCF & MÚLTIPLOS) ───
+class DcfValuationRequest(BaseModel):
+    cash_flows: List[float] = Field(...)
+    wacc: float = Field(default=0.12, ge=0.01, le=1.0)
+    terminal_growth_g: float = Field(default=0.03, ge=0.0, le=0.15)
+    cash: float = Field(default=0.0, ge=0.0)
+    debt: float = Field(default=0.0, ge=0.0)
+    currency: str = Field(default="COP")
+
+
+class MultiplesValuationRequest(BaseModel):
+    ebitda: float = Field(..., ge=0)
+    annual_revenue: float = Field(..., ge=0)
+    industry: str = Field(default="tech_saas")
+    currency: str = Field(default="COP")
+
+
+@router.post("/valuation/dcf")
+async def valuation_dcf_endpoint(req: DcfValuationRequest):
+    res = business_valuation_service.valuation_dcf(
+        projected_flows=req.cash_flows,
+        wacc_discount_rate=req.wacc,
+        terminal_growth_g=req.terminal_growth_g,
+        cash_balance=req.cash,
+        total_debt=req.debt,
+        currency=req.currency
+    )
+    return {"ok": True, "valuation": res}
+
+
+@router.post("/valuation/multiples")
+async def valuation_multiples_endpoint(req: MultiplesValuationRequest):
+    res = business_valuation_service.valuation_multiples(
+        ebitda=req.ebitda,
+        annual_revenue=req.annual_revenue,
+        industry_key=req.industry,
+        currency=req.currency
+    )
+    return {"ok": True, "valuation": res}
+
+
+# ─── OPTIMIZACIÓN DE RUTAS & FLETES COLOMBIA ───
+class FreightRouteRequest(BaseModel):
+    route: str = Field(default="palmira_cali")
+    vehicle: str = Field(default="turbo_4_ton")
+    distance_km: Optional[float] = None
+    fuel_price: float = Field(default=16500.0)
+    cargo_weight: Optional[float] = None
+
+
+@router.post("/fleet/freight")
+async def calculate_freight_endpoint(req: FreightRouteRequest):
+    res = fleet_routes_service.calculate_freight(
+        route_key=req.route,
+        vehicle_key=req.vehicle,
+        custom_distance_km=req.distance_km,
+        fuel_price_gallon=req.fuel_price,
+        cargo_weight_tons=req.cargo_weight
+    )
+    return {"ok": True, "freight": res}
+
+
+# ─── TELEMETRÍA BIOCOGNITIVA & HÁBITOS CEO ───
+class BiohabitsLogRequest(BaseModel):
+    sleep_hours: float = Field(default=7.5, ge=0.0, le=24.0)
+    water_glasses: int = Field(default=8, ge=0, le=30)
+    deep_work_hours: float = Field(default=4.0, ge=0.0, le=24.0)
+    energy_rating: int = Field(default=8, ge=1, le=10)
+    chronotype: str = Field(default="matutino_alondra")
+
+
+@router.post("/biohabits/eval")
+async def evaluate_biohabits_endpoint(req: BiohabitsLogRequest):
+    res = biocognitive_habits_service.evaluate_habits(
+        sleep_hours=req.sleep_hours,
+        water_glasses=req.water_glasses,
+        deep_work_hours=req.deep_work_hours,
+        energy_rating=req.energy_rating,
+        chronotype=req.chronotype
+    )
+    return {"ok": True, "biocognitive": res}
+
+
+@router.get("/biohabits/status")
+async def get_biohabits_status_endpoint():
+    return biocognitive_habits_service.get_latest_status()
+
 
 

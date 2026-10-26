@@ -845,6 +845,80 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": []
         }
+    },
+    {
+        "name": "tax_payment",
+        "description": "Asistente Oficial de Liquidación y Pago de Impuestos DIAN (Formulario 490): liquida el recibo oficial de pago de tributos nacionales (Renta, Retención en la fuente, IVA, Anticipo RST, ICA), calcula intereses moratorios diarios exactos (Art. 635 E.T. tasa de usura), sanción por extemporaneidad (Art. 641 E.T. mínimo 10 UVT), genera el botón/enlace de pago seguro PSE con CUS bancario y registra el paz y salvo.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "settle | pse_link | history"},
+                "concept": {"type": "STRING", "description": "renta_pj | renta_pn | retefuente | iva | rst_anticipo | ica_municipal"},
+                "year": {"type": "INTEGER", "description": "Año gravable (ej: 2026)"},
+                "period": {"type": "STRING", "description": "Período fiscal: mes (01-12) o bimestre (01-06)"},
+                "nit": {"type": "STRING", "description": "NIT o cédula del contribuyente"},
+                "amount": {"type": "NUMBER", "description": "Monto del impuesto a pagar en COP"},
+                "due_date": {"type": "STRING", "description": "Fecha límite oficial de vencimiento (AAAA-MM-DD)"},
+                "payment_date": {"type": "STRING", "description": "Fecha real proyectada de pago (AAAA-MM-DD)"},
+                "bank": {"type": "STRING", "description": "Banco para pasarela PSE (Bancolombia, Davivienda, Nequi, etc.)"}
+            },
+            "required": ["concept", "amount"]
+        }
+    },
+    {
+        "name": "business_valuation",
+        "description": "Valuador Financiero de Empresas y Startups: valora compañías mediante Flujo de Caja Libre Descontado (DCF) con Valor Terminal Gordon-Shapiro (EV y Equity Value), Múltiplos Comparables de Mercado (EV/EBITDA y EV/Sales por industria) y Método Venture Capital (Post-money, Pre-money y dilución de socios).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "method": {"type": "STRING", "description": "dcf | multiples | vc"},
+                "cash_flows": {"type": "ARRAY", "description": "Lista de flujos de caja libre proyectados anuales", "items": {"type": "NUMBER"}},
+                "wacc": {"type": "NUMBER", "description": "Costo de capital promedio ponderado (ej: 0.12 para 12%)"},
+                "terminal_growth_g": {"type": "NUMBER", "description": "Tasa de crecimiento a perpetuidad (ej: 0.03 para 3%)"},
+                "cash": {"type": "NUMBER", "description": "Saldo en caja y equivalentes en COP"},
+                "debt": {"type": "NUMBER", "description": "Deuda financiera total en COP"},
+                "ebitda": {"type": "NUMBER", "description": "EBITDA anual en COP para múltiplos"},
+                "annual_revenue": {"type": "NUMBER", "description": "Ventas o ingresos brutos anuales en COP"},
+                "industry": {"type": "STRING", "description": "tech_saas | consultoria | agroindustria | retail_ecommerce"},
+                "target_exit_value": {"type": "NUMBER", "description": "Valor esperado de venta de la startup para método VC"},
+                "years_to_exit": {"type": "INTEGER", "description": "Años hasta la salida del inversionista"},
+                "required_roi_multiple": {"type": "NUMBER", "description": "Múltiplo de retorno exigido (ej: 5.0 para 5x)"},
+                "investment_amount": {"type": "NUMBER", "description": "Monto de inversión solicitada en COP"},
+                "currency": {"type": "STRING", "description": "Moneda (COP por defecto)"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "fleet_routes",
+        "description": "Optimizador de Rutas y Fletes Logísticos en Colombia: liquida el costo de fletes de transporte de carga y distribución regional (Cali, Palmira, Yumbo, Buenaventura, Bogotá, Medellín, Eje Cafetero), calcula galones de combustible, peajes INVIAS, viáticos de conductor, desgaste por km y huella de carbono CO2.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "route": {"type": "STRING", "description": "palmira_cali | palmira_yumbo | palmira_buenaventura | palmira_pereira | palmira_bogota | palmira_medellin"},
+                "vehicle": {"type": "STRING", "description": "van_urbana | turbo_4_ton | sencillo_8_ton | tractomula_32_ton"},
+                "distance_km": {"type": "NUMBER", "description": "Distancia personalizada en km si es otra ruta"},
+                "fuel_price": {"type": "NUMBER", "description": "Precio por galón de combustible en COP"},
+                "cargo_weight": {"type": "NUMBER", "description": "Peso de la carga en toneladas"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "biocognitive_habits",
+        "description": "Centro de Telemetría Biocognitiva y Hábitos Ejecutivos del CEO: evalúa el descanso nocturno, hidratación, bloques de trabajo profundo, nivel de energía, cronotipo (alondra vs búho) e Índice de Rendimiento Biocognitivo con sugerencias ergonómicas y neuro-productivas.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "status | log"},
+                "sleep_hours": {"type": "NUMBER", "description": "Horas de descanso nocturno (ej: 7.5)"},
+                "water_glasses": {"type": "INTEGER", "description": "Vasos de agua consumidos en el día"},
+                "deep_work_hours": {"type": "NUMBER", "description": "Horas dedicadas a trabajo profundo / estudio"},
+                "energy_rating": {"type": "INTEGER", "description": "Vigor y claridad mental percibida de 1 a 10"},
+                "chronotype": {"type": "STRING", "description": "matutino_alondra | vespertino_buho"}
+            },
+            "required": []
+        }
     }
 ]
 
@@ -1225,6 +1299,27 @@ class ActionDispatcher:
                 from app.actions.bsc_okrs_action import bsc_okrs_action
                 res = bsc_okrs_action(parameters=args)
                 return res
+
+            elif name in ("tax_payment", "pago_impuestos", "formulario_490", "pagar_dian", "intereses_moratorios", "pago_pse_dian"):
+                from app.actions.tax_payment_action import tax_payment_action
+                res = tax_payment_action(parameters=args)
+                return res
+
+            elif name in ("business_valuation", "valuacion_empresas", "valor_empresa", "dcf", "multiplos_ebitda", "venture_capital_valuation"):
+                from app.actions.business_valuation_action import business_valuation_action
+                res = business_valuation_action(parameters=args)
+                return res
+
+            elif name in ("fleet_routes", "rutas_colombia", "fletes_colombia", "costo_transporte", "logistica_flotas"):
+                from app.actions.fleet_routes_action import fleet_routes_action
+                res = fleet_routes_action(parameters=args)
+                return res
+
+            elif name in ("biocognitive_habits", "habitos_ejecutivos", "telemetria_ceo", "energia_cognitiva", "cronotipo"):
+                from app.actions.biocognitive_habits_action import biocognitive_habits_action
+                res = biocognitive_habits_action(parameters=args)
+                return res
+
 
 
 

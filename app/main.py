@@ -190,7 +190,16 @@ EXEMPT_API_PATHS = {
     "/api/suite/tax/calendar",
     "/api/suite/okrs/dashboard",
     "/api/suite/okrs/update",
+    "/api/suite/tax-payment/settle",
+    "/api/suite/tax-payment/pse",
+    "/api/suite/tax-payment/history",
+    "/api/suite/valuation/dcf",
+    "/api/suite/valuation/multiples",
+    "/api/suite/fleet/freight",
+    "/api/suite/biohabits/eval",
+    "/api/suite/biohabits/status",
 }
+
 
 
 
