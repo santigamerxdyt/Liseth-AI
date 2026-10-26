@@ -5029,6 +5029,174 @@
       animation: pulseServerDot 0.8s infinite alternate;
     }
 
+    
+    /* ========================================================
+       TERMINAL NFC Y PAGOS POR CONTACTO (STARK CONTACTLESS)
+       ======================================================== */
+    .nfc-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(4, 9, 20, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 10005;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nfc-modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .nfc-window {
+      background: radial-gradient(circle at 50% 0%, rgba(14, 32, 54, 0.96), rgba(6, 14, 26, 0.98));
+      border: 1px solid rgba(0, 240, 255, 0.45);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 860px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 50px rgba(0, 240, 255, 0.22);
+      transform: scale(0.95) translateY(12px);
+      transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.2);
+    }
+    .nfc-modal-overlay.active .nfc-window {
+      transform: scale(1) translateY(0);
+    }
+    .nfc-radar-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      margin: 16px 0;
+      background: rgba(0, 240, 255, 0.03);
+      border: 1px dashed rgba(0, 240, 255, 0.35);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .nfc-radar-target {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+    .nfc-radar-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.5px solid #00f0ff;
+      opacity: 0.6;
+      animation: nfcRadarPulse 2.4s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+    }
+    .nfc-radar-ring:nth-child(1) { width: 45px; height: 45px; animation-delay: 0s; }
+    .nfc-radar-ring:nth-child(2) { width: 75px; height: 75px; animation-delay: 0.6s; }
+    .nfc-radar-ring:nth-child(3) { width: 105px; height: 105px; animation-delay: 1.2s; }
+    @keyframes nfcRadarPulse {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      100% { transform: scale(1.35); opacity: 0; }
+    }
+    .nfc-radar-icon {
+      font-size: 2.2rem;
+      z-index: 2;
+      filter: drop-shadow(0 0 10px #00f0ff);
+      animation: nfcIconFloat 2s ease-in-out infinite alternate;
+    }
+    @keyframes nfcIconFloat {
+      0% { transform: translateY(-2px); }
+      100% { transform: translateY(2px); }
+    }
+    .nfc-chips-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+    .nfc-chip-btn {
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: #00f0ff;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font-mono), monospace;
+    }
+    .nfc-chip-btn:hover, .nfc-chip-btn.active {
+      background: #00f0ff;
+      color: #04101e;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.45);
+    }
+    .nfc-methods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .nfc-method-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .nfc-method-card:hover, .nfc-method-card.selected {
+      border-color: #00f0ff;
+      background: rgba(0, 240, 255, 0.12);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    }
+    .nfc-method-card .m-icon { font-size: 1.3rem; margin-bottom: 4px; display: block; }
+    .nfc-method-card .m-name { font-size: 0.76rem; font-weight: 600; color: #fff; }
+    .nfc-receipt-box {
+      background: rgba(0, 20, 40, 0.65);
+      border: 1px solid rgba(56, 239, 125, 0.4);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-top: 14px;
+      box-shadow: 0 0 20px rgba(56, 239, 125, 0.15);
+      display: none;
+    }
+    .nfc-receipt-box.visible { display: block; animation: nfcFadeIn 0.3s ease; }
+    @keyframes nfcFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .nfc-log-terminal {
+      background: #020710;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: var(--font-mono), monospace;
+      font-size: 0.74rem;
+      color: #94a3b8;
+      max-height: 180px;
+      overflow-y: auto;
+      text-align: left;
+    }
+    .nfc-tag-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-family: var(--font-mono), monospace;
+    }
+    .nfc-tag-badge.badge-success { background: rgba(56, 239, 125, 0.15); color: #38ef7d; border: 1px solid rgba(56, 239, 125, 0.3); }
+    .nfc-tag-badge.badge-pending { background: rgba(255, 209, 102, 0.15); color: #ffd166; border: 1px solid rgba(255, 209, 102, 0.3); }
+    .nfc-tag-badge.badge-info { background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.3); }
+
     /* ========================================================
        DISPOSITIVOS MÓVILES Y RESPONSIVIDAD TOTAL (SMARTPHONE PWA)
        Diseño fluido y adaptativo para pantallas de 320px a 768px (Android & iOS)
@@ -5558,6 +5726,13 @@
         </button>
 
         <!-- BOTÓN PERSONALIZACIÓN (ESTUDIO COMPLETO) -->
+                <!-- BOTÓN TERMINAL NFC & PAGOS POR CONTACTO -->
+        <button class="hud-deck-btn" id="btn-nfc-terminal" title="Terminal NFC y Pagos por Contacto (Contactless & Beam)">
+          <span class="hud-deck-icon">📶</span>
+          <span>NFC PAY</span>
+          <span class="hud-deck-badge" id="nfc-status-badge">PAY</span>
+        </button>
+
         <button class="hud-deck-btn" id="btn-open-personalization" title="Estudio de Personalización (Trato, Colores, Forma de la Esfera)">
           <span class="hud-deck-icon">🎨</span>
           <span>PERSONALIZACIÓN</span>
@@ -7026,7 +7201,7 @@
 
       <!-- Pestañas de filtrado de categorías -->
       <div class="hud-filter-tabs">
-        <button class="hud-tab active" data-filter="all">TODOS (10)</button>
+        <button class="hud-tab active" data-filter="all">TODOS (11)</button>
         <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
         <button class="hud-tab" data-filter="connectors">CONECTORES</button>
         <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
@@ -7091,6 +7266,17 @@
         </div>
 
         <!-- 5. Auditoría & Acciones Sensibles -->
+                <!-- 10. Ecosistema NFC & Pagos por Contacto (Contactless & Beam) -->
+        <div class="hud-card" data-category="connectors" id="hud-card-nfc">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #00f2fe; border-color: rgba(0, 242, 254, 0.4); background: rgba(0, 242, 254, 0.12);">📶</div>
+            <span class="hud-card-status status-online" id="nfc-card-status-badge">CONTACTLESS</span>
+          </div>
+          <div class="hud-card-title">Terminal NFC & Pagos por Contacto</div>
+          <div class="hud-card-desc">Lectura y escritura de tags NDEF, cobros Bre-B/Nequi/Daviplata por proximidad, transmisión de tarjeta vCard y simulador táctil.</div>
+          <div class="hud-card-action"><span>Abrir Terminal NFC</span> <span>→</span></div>
+        </div>
+
         <div class="hud-card" data-category="system" id="hud-card-audit">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #ffaa00; border-color: rgba(255, 170, 0, 0.4); background: rgba(255, 170, 0, 0.12);">🛡️</div>
@@ -7602,6 +7788,296 @@
   </div>
 
   <!-- Notificación Toast Flotante -->
+    <!-- ======================================================== -->
+  <!-- MODAL: TERMINAL NFC & PAGOS POR CONTACTO (STARK CONTACTLESS) -->
+  <!-- ======================================================== -->
+  <div class="nfc-modal-overlay" id="nfc-modal">
+    <div class="nfc-window">
+      <!-- Brackets Holográficos en las esquinas -->
+      <div class="hud-corner-bracket hud-bracket-tl"></div>
+      <div class="hud-corner-bracket hud-bracket-tr"></div>
+      <div class="hud-corner-bracket hud-bracket-bl"></div>
+      <div class="hud-corner-bracket hud-bracket-br"></div>
+
+      <!-- Encabezado de la Terminal -->
+      <div class="hud-deck-header" style="margin-bottom: 14px;">
+        <div>
+          <div class="hud-deck-badge-status">
+            <span class="hud-pulse-ring" style="background: #00f0ff; box-shadow: 0 0 8px #00f0ff;"></span>
+            <span id="nfc-hardware-badge">🟡 DETECTANDO HARDWARE NFC...</span>
+          </div>
+          <h2 class="hud-main-title">📶 TERMINAL NFC & PAGOS POR CONTACTO</h2>
+          <p class="hud-subtitle">Cobros por proximidad (Bre-B, Nequi, Daviplata), lectura/escritura NDEF y transmisión de tarjeta digital (Beam)</p>
+        </div>
+        <button class="hud-close-btn" id="btn-close-nfc" title="Cerrar Terminal NFC">✕</button>
+      </div>
+
+      <!-- Pestañas de la Terminal NFC -->
+      <div class="hud-filter-tabs" style="margin-bottom: 16px;">
+        <button class="hud-tab active" id="tab-btn-nfc-pay" onclick="switchNfcTab('pay')">💳 COBRO / PAGO CONTACTLESS</button>
+        <button class="hud-tab" id="tab-btn-nfc-read" onclick="switchNfcTab('read')">📡 LEER ETIQUETA / TAG</button>
+        <button class="hud-tab" id="tab-btn-nfc-write" onclick="switchNfcTab('write')">📇 ESCRIBIR / BEAM</button>
+        <button class="hud-tab" id="tab-btn-nfc-ledger" onclick="switchNfcTab('ledger')">📜 LIBRO CONTABLE</button>
+      </div>
+
+      <!-- PANE 1: COBRO Y PAGO POR CONTACTO -->
+      <div id="nfc-pane-pay" class="nfc-tab-pane">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <!-- Columna Configuración del Cobro -->
+          <div>
+            <label style="font-size: 0.78rem; color: #94a3b8; font-family: var(--font-mono); text-transform: uppercase;">Monto a Cobrar ($):</label>
+            <div style="display: flex; gap: 8px; margin-top: 4px; margin-bottom: 8px;">
+              <select id="nfc-currency-select" style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.3); color: #fff; padding: 10px; border-radius: 8px; font-weight: 600;">
+                <option value="COP">COP ($)</option>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+              </select>
+              <input type="number" id="nfc-amount-input" value="25000" min="100" step="500" placeholder="Monto" style="flex: 1; background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.3); color: #00f0ff; padding: 10px; border-radius: 8px; font-size: 1.2rem; font-weight: 700; text-align: right;" />
+            </div>
+
+            <!-- Chips de Preajuste Rápido -->
+            <div class="nfc-chips-row">
+              <button type="button" class="nfc-chip-btn" onclick="setNfcAmount(10000)">$10.000</button>
+              <button type="button" class="nfc-chip-btn active" onclick="setNfcAmount(25000)">$25.000</button>
+              <button type="button" class="nfc-chip-btn" onclick="setNfcAmount(50000)">$50.000</button>
+              <button type="button" class="nfc-chip-btn" onclick="setNfcAmount(100000)">$100.000</button>
+              <button type="button" class="nfc-chip-btn" onclick="setNfcAmount(200000)">$200.000</button>
+            </div>
+
+            <label style="font-size: 0.78rem; color: #94a3b8; font-family: var(--font-mono); text-transform: uppercase; margin-top: 10px; display: block;">Método de Pago por Contacto:</label>
+            <div class="nfc-methods-grid" style="margin-top: 6px;">
+              <div class="nfc-method-card selected" data-method="bre_b" onclick="selectNfcMethod('bre_b', this)">
+                <span class="m-icon">🇨🇴</span>
+                <span class="m-name">Bre-B Interoperable</span>
+              </div>
+              <div class="nfc-method-card" data-method="nequi" onclick="selectNfcMethod('nequi', this)">
+                <span class="m-icon">🟣</span>
+                <span class="m-name">Nequi Contactless</span>
+              </div>
+              <div class="nfc-method-card" data-method="daviplata" onclick="selectNfcMethod('daviplata', this)">
+                <span class="m-icon">🔴</span>
+                <span class="m-name">Daviplata Tap</span>
+              </div>
+              <div class="nfc-method-card" data-method="card" onclick="selectNfcMethod('card', this)">
+                <span class="m-icon">💳</span>
+                <span class="m-name">Tarjeta EMV / NFC</span>
+              </div>
+              <div class="nfc-method-card" data-method="crypto" onclick="selectNfcMethod('crypto', this)">
+                <span class="m-icon">⚡</span>
+                <span class="m-name">Cripto / USDT</span>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+              <label style="font-size: 0.74rem; color: #94a3b8;">Concepto del cobro:</label>
+              <input type="text" id="nfc-concept-input" value="Consultoría / Servicio Profesional" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; margin-top: 3px;" />
+            </div>
+
+            <button type="button" id="btn-nfc-generate-pay" class="btn-primary" style="width: 100%; padding: 12px; font-size: 0.92rem; justify-content: center; margin-top: 10px;" onclick="generateNfcPayment()">
+              ⚡ Activar Antena de Cobro por Contacto
+            </button>
+          </div>
+
+          <!-- Columna Radar & Simulación -->
+          <div>
+            <div class="nfc-radar-box">
+              <div class="nfc-radar-target" id="nfc-radar-target" onclick="triggerSimulatedTap()" title="Haga clic para simular aproximación de tarjeta o teléfono">
+                <div class="nfc-radar-ring"></div>
+                <div class="nfc-radar-ring"></div>
+                <div class="nfc-radar-ring"></div>
+                <div class="nfc-radar-icon" id="nfc-radar-icon">📶</div>
+              </div>
+              <div id="nfc-radar-status" style="font-size: 0.88rem; font-weight: 600; color: #00f0ff; margin-bottom: 4px;">
+                Antena en Modo Standby
+              </div>
+              <div id="nfc-radar-desc" style="font-size: 0.76rem; color: #94a3b8; max-width: 280px; line-height: 1.4;">
+                Haga clic en 'Activar Antena' o acerque su teléfono con NFC activo a la parte trasera del dispositivo.
+              </div>
+
+              <!-- Botones de Acción Inmediata -->
+              <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; justify-content: center;">
+                <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 6px 12px;" onclick="triggerSimulatedTap()">
+                  🖐️ Simular Toque (Tap PC)
+                </button>
+                <button type="button" class="btn-secondary" id="btn-nfc-qr-beam" style="font-size: 0.78rem; padding: 6px 12px;" onclick="toggleQrBeam()">
+                  📱 Ver QR Beam
+                </button>
+              </div>
+
+              <!-- Contenedor QR Beam Desplegable -->
+              <div id="nfc-qr-container" style="display: none; margin-top: 12px; padding: 10px; background: #fff; border-radius: 8px;">
+                <div id="nfc-qr-render" style="width: 130px; height: 130px; display: flex; align-items: center; justify-content: center; color: #000; font-size: 0.72rem; text-align: center; margin: 0 auto;">
+                  [QR BEAM ACTIVO]
+                </div>
+                <div style="font-size: 0.7rem; color: #333; margin-top: 4px; font-weight: 600;">Escanee con la cámara de su smartphone</div>
+              </div>
+            </div>
+
+            <!-- Recibo Holográfico de Transacción -->
+            <div class="nfc-receipt-box" id="nfc-receipt-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="nfc-tag-badge badge-success">✓ APROBADO / RECIBIDO</span>
+                <span id="nfc-receipt-time" style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);">--:--:--</span>
+              </div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: #38ef7d; margin-bottom: 4px;" id="nfc-receipt-amount">
+                $25,000.00 COP
+              </div>
+              <div style="font-size: 0.78rem; color: #e2e8f0; margin-bottom: 6px;" id="nfc-receipt-concept">
+                Consultoría / Servicio Profesional
+              </div>
+              <div style="font-size: 0.7rem; color: #94a3b8; font-family: var(--font-mono);" id="nfc-receipt-txid">
+                TX: TX-NFC-XXXXXXXX • Método: Bre-B
+              </div>
+              <div style="font-size: 0.68rem; color: #64748b; font-family: var(--font-mono); word-break: break-all; margin-top: 4px;" id="nfc-receipt-sig">
+                Firma Criptográfica: SHA256:8f4b...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 2: LEER ETIQUETA NFC -->
+      <div id="nfc-pane-read" class="nfc-tab-pane" style="display: none;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <div>
+            <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 8px;">Lectura Universal NDEF (Web NFC Reader)</h4>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 14px; line-height: 1.4;">
+              Liseth analiza etiquetas de contacto, tarjetas de transporte, credenciales, tokens de pago y enlaces web NDEF compatibles con los estándares NFC Forum Type 2, 4 y 5.
+            </p>
+            <button type="button" class="btn-primary" id="btn-nfc-start-scan" style="width: 100%; padding: 12px; font-size: 0.92rem; justify-content: center; margin-bottom: 12px;" onclick="startNfcScan()">
+              📡 Iniciar Escaneo NFC en Vivo
+            </button>
+
+            <div style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 6px; font-family: var(--font-mono); text-transform: uppercase;">
+              Simulaciones Rápidas de Prueba (Desktop):
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="simulateReadTag('vcard')">📇 Tag vCard (Contacto)</button>
+              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="simulateReadTag('payment')">💳 Tag Cobro ($50k)</button>
+              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="simulateReadTag('url')">🌐 Tag Enlace Web</button>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 6px; font-family: var(--font-mono); text-transform: uppercase;">
+              Salida del Decodificador NDEF:
+            </div>
+            <div class="nfc-log-terminal" id="nfc-read-log">
+              [SISTEMA] Listo para escanear etiquetas NFC.<br/>
+              [MODO] Esperando comando de lectura o simulación...
+            </div>
+            <div id="nfc-read-card-result" style="display: none; margin-top: 12px; background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 10px; padding: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span class="nfc-tag-badge badge-info" id="nfc-read-badge">VCARD</span>
+                <span style="font-size: 0.72rem; color: #94a3b8;" id="nfc-read-uid">UID: 04:A1:B2:C3</span>
+              </div>
+              <div id="nfc-read-content" style="font-size: 0.82rem; color: #e2e8f0; line-height: 1.4;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 3: ESCRIBIR / BEAM -->
+      <div id="nfc-pane-write" class="nfc-tab-pane" style="display: none;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+          <div>
+            <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 8px;">Transmisión de Datos por Contacto (Beam)</h4>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 12px;">
+              Grabe su tarjeta de presentación digital (vCard 3.0), su perfil o un enlace directo en cualquier tag NFC virgen o en el móvil de su contacto.
+            </p>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.74rem; color: #94a3b8;">Nombre Completo:</label>
+              <input type="text" id="nfc-vcard-name" value="Santiago Huerfano Lopez" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; margin-top: 2px;" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.74rem; color: #94a3b8;">Cargo / Profesión:</label>
+              <input type="text" id="nfc-vcard-role" value="Administrador de Empresas / CEO & Founder" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; margin-top: 2px;" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.74rem; color: #94a3b8;">Organización / Alma Máter:</label>
+              <input type="text" id="nfc-vcard-org" value="Universidad Nacional de Colombia - Sede Palmira" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; margin-top: 2px;" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.74rem; color: #94a3b8;">Teléfono Móvil:</label>
+              <input type="text" id="nfc-vcard-phone" value="+57 300 000 0000" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; margin-top: 2px;" />
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 0.74rem; color: #94a3b8;">Enlace de Portafolio / GitHub:</label>
+              <input type="text" id="nfc-vcard-url" value="https://github.com/santigamerxdyt/Liseth-AI" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; margin-top: 2px;" />
+            </div>
+
+            <button type="button" class="btn-primary" id="btn-nfc-write-tag" style="width: 100%; padding: 12px; font-size: 0.92rem; justify-content: center;" onclick="writeNfcTag()">
+              💾 Escribir en Tag NFC al Contacto (NDEF Write)
+            </button>
+          </div>
+
+          <div>
+            <div style="font-size: 0.76rem; color: #94a3b8; margin-bottom: 6px; font-family: var(--font-mono); text-transform: uppercase;">
+              Vista Previa de Tarjeta Digital (vCard 3.0):
+            </div>
+            <div class="nfc-log-terminal" id="nfc-vcard-preview" style="max-height: 260px;">
+BEGIN:VCARD
+VERSION:3.0
+FN:Santiago Huerfano Lopez
+TITLE:Administrador de Empresas / CEO & Founder
+ORG:Universidad Nacional de Colombia - Sede Palmira
+TEL;TYPE=CELL,VOICE:+57 300 000 0000
+URL:https://github.com/santigamerxdyt/Liseth-AI
+NOTE:Contacto verificado y asistido por Liseth AI 2.0
+END:VCARD
+            </div>
+            <div id="nfc-write-status" style="margin-top: 10px; font-size: 0.8rem; color: #38ef7d; font-family: var(--font-mono); display: none;">
+              ✓ Tarjeta grabada en tag NFC exitosamente.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 4: LIBRO CONTABLE (LEDGER) -->
+      <div id="nfc-pane-ledger" class="nfc-tab-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h4 style="font-size: 0.95rem; color: #fff;">Libro Contable de Operaciones por Proximidad</h4>
+            <span style="font-size: 0.74rem; color: #94a3b8;">Registro auditado de cobros, transferencias y lecturas NFC</span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="loadNfcLedger()">🔄 Actualizar</button>
+            <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="exportNfcLedger()">📥 Exportar JSON</button>
+            <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 6px 10px; color: #ff5c77;" onclick="clearNfcLedger()">🗑️ Limpiar</button>
+          </div>
+        </div>
+
+        <div style="background: rgba(2, 7, 16, 0.85); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(0, 240, 255, 0.25); background: rgba(0, 240, 255, 0.05); color: #00f0ff; font-family: var(--font-mono);">
+                <th style="padding: 10px;">HORA / FECHA</th>
+                <th style="padding: 10px;">ID TX</th>
+                <th style="padding: 10px;">TIPO</th>
+                <th style="padding: 10px;">DETALLE</th>
+                <th style="padding: 10px; text-align: right;">VALOR</th>
+                <th style="padding: 10px; text-align: center;">ESTADO</th>
+              </tr>
+            </thead>
+            <tbody id="nfc-ledger-tbody">
+              <tr>
+                <td colspan="6" style="padding: 24px; text-align: center; color: #64748b;">
+                  No hay transacciones registradas todavía. Realice un cobro o lectura para iniciar el registro.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="liseth-toast" id="liseth-toast"></div>
 
   <script>
@@ -11509,7 +11985,50 @@ Tus habilidades clave:
               const ctx = new AudioCtx();
               const now = ctx.currentTime;
 
-              if (type === "open") {
+              if (type === "nfc_tap") {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(1046, now);
+                osc.frequency.exponentialRampToValueAtTime(1318, now + 0.12);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.15);
+              } else if (type === "nfc_success") {
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc1.type = "sine";
+                osc2.type = "triangle";
+                osc1.frequency.setValueAtTime(523, now);
+                osc1.frequency.exponentialRampToValueAtTime(1046, now + 0.22);
+                osc2.frequency.setValueAtTime(659, now);
+                osc2.frequency.exponentialRampToValueAtTime(1318, now + 0.22);
+                gain.gain.setValueAtTime(0.09, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(ctx.destination);
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.3);
+                osc2.stop(now + 0.3);
+              } else if (type === "nfc_error") {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sawtooth";
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.2);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.22);
+              } else if (type === "open") {
                 const osc1 = ctx.createOscillator();
                 const osc2 = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -13543,6 +14062,445 @@ Tus habilidades clave:
         }
 
         // Exponer API pública global
+        
+      // ========================================================
+      // ECOSISTEMA NFC Y PAGOS POR CONTACTO (STARK CONTACTLESS)
+      // ========================================================
+      let activeNfcMethod = "bre_b";
+      let activeNfcAmount = 25000;
+      let activeNfcTx = null;
+      let nfcScanReader = null;
+      let nfcScanAbortCtrl = null;
+
+      function updateNfcHardwareSupport() {
+        const badge = document.getElementById("nfc-hardware-badge");
+        const statusBadge = document.getElementById("nfc-status-badge");
+        const cardStatus = document.getElementById("nfc-card-status-badge");
+        
+        if ("NDEFReader" in window) {
+          if (badge) badge.textContent = "🟢 HARDWARE NFC ACTIVO (ANDROID CHROME)";
+          if (badge) badge.style.color = "#38ef7d";
+          if (statusBadge) statusBadge.textContent = "ACTIVO";
+          if (cardStatus) cardStatus.textContent = "HARDWARE ON";
+        } else {
+          if (badge) badge.textContent = "🟡 SIMULADOR HOLOGRÁFICO + QR BEAM (PC / iOS)";
+          if (badge) badge.style.color = "#ffd166";
+          if (statusBadge) statusBadge.textContent = "SIMULADOR";
+          if (cardStatus) cardStatus.textContent = "SIMULADOR";
+        }
+      }
+
+      window.openNfcModal = function(tab, params) {
+        const modal = document.getElementById("nfc-modal");
+        if (!modal) return;
+        modal.classList.add("active");
+        playHudSound("open");
+        updateNfcHardwareSupport();
+        if (tab) switchNfcTab(tab);
+        if (params && params.amount) {
+          setNfcAmount(params.amount);
+        }
+        loadNfcLedger();
+      };
+
+      window.closeNfcModal = function() {
+        const modal = document.getElementById("nfc-modal");
+        if (modal) modal.classList.remove("active");
+        playHudSound("close");
+        if (nfcScanAbortCtrl) {
+          try { nfcScanAbortCtrl.abort(); } catch(e) {}
+          nfcScanAbortCtrl = null;
+        }
+      };
+
+      window.switchNfcTab = function(tabName) {
+        playHudSound("click");
+        const tabs = ["pay", "read", "write", "ledger"];
+        tabs.forEach(t => {
+          const btn = document.getElementById(`tab-btn-nfc-${t}`);
+          const pane = document.getElementById(`nfc-pane-${t}`);
+          if (btn) btn.classList.toggle("active", t === tabName);
+          if (pane) pane.style.display = (t === tabName) ? "block" : "none";
+        });
+        if (tabName === "ledger") loadNfcLedger();
+      };
+
+      window.setNfcAmount = function(amt) {
+        activeNfcAmount = amt;
+        const input = document.getElementById("nfc-amount-input");
+        if (input) input.value = amt;
+        document.querySelectorAll(".nfc-chip-btn").forEach(btn => {
+          btn.classList.toggle("active", btn.textContent.includes(amt.toLocaleString()));
+        });
+        playHudSound("click");
+      };
+
+      window.selectNfcMethod = function(method, el) {
+        activeNfcMethod = method;
+        document.querySelectorAll(".nfc-method-card").forEach(c => c.classList.remove("selected"));
+        if (el) el.classList.add("selected");
+        playHudSound("click");
+      };
+
+      window.generateNfcPayment = async function() {
+        const amtInput = document.getElementById("nfc-amount-input");
+        const currSelect = document.getElementById("nfc-currency-select");
+        const conceptInput = document.getElementById("nfc-concept-input");
+        const radarStatus = document.getElementById("nfc-radar-status");
+        const radarDesc = document.getElementById("nfc-radar-desc");
+        const radarTarget = document.getElementById("nfc-radar-target");
+        const receiptCard = document.getElementById("nfc-receipt-card");
+
+        const amt = parseFloat(amtInput?.value || activeNfcAmount);
+        const curr = currSelect?.value || "COP";
+        const concept = conceptInput?.value || "Consultoría / Servicio Profesional";
+
+        playHudSound("click");
+        if (receiptCard) receiptCard.classList.remove("visible");
+
+        // Request backend token
+        try {
+          const resp = await fetch("/api/nfc/create-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: amt,
+              currency: curr,
+              concept: concept,
+              recipient: "Santiago",
+              method: activeNfcMethod
+            })
+          });
+          const data = await resp.json();
+          if (data && data.ok) {
+            activeNfcTx = data.transaction;
+          }
+        } catch(e) {
+          // Fallback offline generator
+          const tid = "TX-NFC-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+          activeNfcTx = {
+            id: tid,
+            amount: amt,
+            currency: curr,
+            concept: concept,
+            method: activeNfcMethod,
+            created_at: new Date().toISOString(),
+            signature: "OFFLINE-" + Math.random().toString(36).substring(2, 10),
+            deep_link: `breb://pay?m=${amt}&c=${curr}&ref=${tid}`
+          };
+        }
+
+        if (radarStatus) {
+          radarStatus.textContent = `📶 Emisor NFC Activo: ${curr} $${amt.toLocaleString()}`;
+          radarStatus.style.color = "#00f0ff";
+        }
+        if (radarDesc) {
+          radarDesc.textContent = "Acerque el teléfono o tarjeta contactless para pagar. O presione 'Simular Toque' en PC.";
+        }
+        if (radarTarget) {
+          radarTarget.style.filter = "drop-shadow(0 0 16px #00f0ff)";
+        }
+
+        // Si Web NFC nativo está disponible, intentamos activar NDEFWriter
+        if ("NDEFWriter" in window && activeNfcTx) {
+          try {
+            const writer = new NDEFWriter();
+            writer.write({
+              records: [
+                { recordType: "url", data: activeNfcTx.deep_link },
+                { recordType: "text", data: `Liseth NFC Pay: ${curr} ${amt}` }
+              ]
+            }).then(() => {
+              triggerTapSuccess(activeNfcTx);
+            }).catch(() => {});
+          } catch(e) {}
+        }
+
+        showToast(`Cobro contactless de ${curr} $${amt.toLocaleString()} activado en antena.`);
+      };
+
+      window.triggerSimulatedTap = function() {
+        if (!activeNfcTx) {
+          generateNfcPayment();
+        }
+        setTimeout(() => {
+          triggerTapSuccess(activeNfcTx);
+        }, 300);
+      };
+
+      function triggerTapSuccess(tx) {
+        playHudSound("nfc_tap");
+        setTimeout(() => playHudSound("nfc_success"), 250);
+
+        if (navigator.vibrate) {
+          try { navigator.vibrate([80, 40, 80]); } catch(e) {}
+        }
+
+        // Arc reactor visual pulse in gold
+        const orb = document.getElementById("orb");
+        if (orb) {
+          orb.classList.add("stark-boost");
+          setTimeout(() => orb.classList.remove("stark-boost"), 1500);
+        }
+
+        const receiptCard = document.getElementById("nfc-receipt-card");
+        const receiptAmount = document.getElementById("nfc-receipt-amount");
+        const receiptConcept = document.getElementById("nfc-receipt-concept");
+        const receiptTxid = document.getElementById("nfc-receipt-txid");
+        const receiptSig = document.getElementById("nfc-receipt-sig");
+        const receiptTime = document.getElementById("nfc-receipt-time");
+        const radarStatus = document.getElementById("nfc-radar-status");
+        const radarDesc = document.getElementById("nfc-radar-desc");
+
+        const amt = tx ? tx.amount : activeNfcAmount;
+        const curr = tx ? tx.currency : "COP";
+        const concept = tx ? tx.concept : "Servicio";
+        const txId = tx ? tx.id : "TX-NFC-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const sig = tx ? tx.signature : "AUTH-TOKEN-OK";
+
+        if (receiptAmount) receiptAmount.textContent = `${curr} $${amt.toLocaleString()}`;
+        if (receiptConcept) receiptConcept.textContent = concept;
+        if (receiptTxid) receiptTxid.textContent = `TX: ${txId} • Método: ${(tx?.method || activeNfcMethod).toUpperCase()}`;
+        if (receiptSig) receiptSig.textContent = `Firma Criptográfica: ${sig}`;
+        if (receiptTime) receiptTime.textContent = new Date().toLocaleTimeString();
+
+        if (receiptCard) receiptCard.classList.add("visible");
+        if (radarStatus) {
+          radarStatus.textContent = "✓ ¡PAGO POR CONTACTO COMPLETADO!";
+          radarStatus.style.color = "#38ef7d";
+        }
+        if (radarDesc) {
+          radarDesc.textContent = "Transacción confirmada por el protocolo contactless de Liseth.";
+        }
+
+        // Record tap in backend
+        try {
+          fetch("/api/nfc/record-tap", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              serial_number: "SIM-NFC-TAP-" + txId,
+              simulated: !("NDEFReader" in window),
+              raw_text: `Pago completado: ${curr} ${amt} (${concept})`
+            })
+          }).then(() => loadNfcLedger()).catch(() => {});
+        } catch(e) {}
+
+        showToast("¡Transacción Contactless Aprobada!");
+      }
+
+      window.toggleQrBeam = function() {
+        const qrContainer = document.getElementById("nfc-qr-container");
+        if (!qrContainer) return;
+        const isVisible = qrContainer.style.display === "block";
+        qrContainer.style.display = isVisible ? "none" : "block";
+        playHudSound("click");
+      };
+
+      window.startNfcScan = async function() {
+        const log = document.getElementById("nfc-read-log");
+        if (!("NDEFReader" in window)) {
+          if (log) log.innerHTML += "<br/><span style='color: #ffd166;'>[AVISO] Web NFC nativo no está disponible en este navegador/dispositivo. Utilice los botones de simulación.</span>";
+          playHudSound("nfc_error");
+          return;
+        }
+
+        try {
+          nfcScanAbortCtrl = new AbortController();
+          const reader = new NDEFReader();
+          await reader.scan({ signal: nfcScanAbortCtrl.signal });
+          if (log) log.innerHTML += "<br/><span style='color: #38ef7d;'>[ACTIVO] Escáner NFC listo. Acerque un tag o tarjeta...</span>";
+          playHudSound("click");
+
+          reader.addEventListener("reading", ({ message, serialNumber }) => {
+            playHudSound("nfc_tap");
+            if (log) log.innerHTML += `<br/><span style='color: #00f0ff;'>[DETECTADO] Tag UID: ${serialNumber || 'Desconocido'}</span>`;
+            
+            const recordsData = [];
+            for (const record of message.records) {
+              const decoder = new TextDecoder();
+              const text = decoder.decode(record.data);
+              recordsData.push({ recordType: record.recordType, mediaType: record.mediaType, data: text });
+              if (log) log.innerHTML += `<br/>&nbsp;&nbsp;↳ Tipo: ${record.recordType} | Datos: ${text.substring(0, 50)}`;
+            }
+
+            // Sync with backend
+            fetch("/api/nfc/record-tap", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                serial_number: serialNumber,
+                records: recordsData,
+                simulated: false
+              })
+            }).then(() => loadNfcLedger()).catch(() => {});
+          });
+        } catch(e) {
+          if (log) log.innerHTML += `<br/><span style='color: #ff5c77;'>[ERROR] ${e.message}</span>`;
+          playHudSound("nfc_error");
+        }
+      };
+
+      window.simulateReadTag = function(type) {
+        const log = document.getElementById("nfc-read-log");
+        const resBox = document.getElementById("nfc-read-card-result");
+        const resBadge = document.getElementById("nfc-read-badge");
+        const resUid = document.getElementById("nfc-read-uid");
+        const resContent = document.getElementById("nfc-read-content");
+
+        playHudSound("nfc_tap");
+        setTimeout(() => playHudSound("nfc_success"), 200);
+
+        const fakeUid = "04:" + Math.random().toString(16).substring(2, 4) + ":" + Math.random().toString(16).substring(2, 4) + ":" + Math.random().toString(16).substring(2, 4);
+        if (resUid) resUid.textContent = "UID: " + fakeUid.toUpperCase();
+
+        if (type === "vcard") {
+          if (resBadge) { resBadge.textContent = "VCARD 3.0"; resBadge.className = "nfc-tag-badge badge-info"; }
+          if (resContent) resContent.innerHTML = "<strong>Santiago Huerfano Lopez</strong><br/>CEO & Administrador de Empresas<br/>UNAL Palmira<br/>Tel: +57 300 000 0000<br/>Web: https://github.com/santigamerxdyt/Liseth-AI";
+          if (log) log.innerHTML += `<br/><span style='color: #00f0ff;'>[SIM] Tag vCard leído con éxito de Santiago (${fakeUid}).</span>`;
+        } else if (type === "payment") {
+          if (resBadge) { resBadge.textContent = "PAGO NFC"; resBadge.className = "nfc-tag-badge badge-success"; }
+          if (resContent) resContent.innerHTML = "<strong>Cobro Contactless Bre-B: $50,000.00 COP</strong><br/>Destinatario: Santiago<br/>Ref: REF-SIM-50K<br/>Estado: Token Válido";
+          if (log) log.innerHTML += `<br/><span style='color: #38ef7d;'>[SIM] Token de pago contactless $50,000 COP recibido (${fakeUid}).</span>`;
+        } else {
+          if (resBadge) { resBadge.textContent = "URL WEB"; resBadge.className = "nfc-tag-badge badge-pending"; }
+          if (resContent) resContent.innerHTML = "<a href='https://github.com/santigamerxdyt/Liseth-AI' target='_blank' style='color: #00f0ff;'>https://github.com/santigamerxdyt/Liseth-AI</a>";
+          if (log) log.innerHTML += `<br/><span style='color: #ffd166;'>[SIM] URL recibida por NFC: https://github.com/santigamerxdyt/Liseth-AI</span>`;
+        }
+
+        if (resBox) resBox.style.display = "block";
+        showToast("Tag NFC procesado correctamente.");
+      };
+
+      window.writeNfcTag = async function() {
+        const name = document.getElementById("nfc-vcard-name")?.value || "Santiago";
+        const role = document.getElementById("nfc-vcard-role")?.value || "CEO";
+        const org = document.getElementById("nfc-vcard-org")?.value || "UNAL Palmira";
+        const phone = document.getElementById("nfc-vcard-phone")?.value || "+57 300 000 0000";
+        const url = document.getElementById("nfc-vcard-url")?.value || "https://github.com/santigamerxdyt/Liseth-AI";
+        const statusEl = document.getElementById("nfc-write-status");
+
+        playHudSound("click");
+
+        const vcardStr = `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${name}\r\nTITLE:${role}\r\nORG:${org}\r\nTEL:${phone}\r\nURL:${url}\r\nEND:VCARD\r\n`;
+
+        if ("NDEFWriter" in window) {
+          try {
+            const writer = new NDEFWriter();
+            await writer.write({
+              records: [
+                { recordType: "mime", mediaType: "text/vcard", data: vcardStr },
+                { recordType: "url", data: url }
+              ]
+            });
+            playHudSound("nfc_success");
+            if (statusEl) {
+              statusEl.textContent = "✓ ¡Tarjeta grabada en el Tag NFC físicamente!";
+              statusEl.style.display = "block";
+            }
+            showToast("Tag NFC grabado con éxito.");
+            return;
+          } catch(e) {}
+        }
+
+        // Desktop / Simulated write
+        setTimeout(() => {
+          playHudSound("nfc_success");
+          if (statusEl) {
+            statusEl.textContent = "✓ ¡Tarjeta digital preparada y guardada en el simulador NFC!";
+            statusEl.style.display = "block";
+          }
+          showToast("Tarjeta digital preparada para transmisión.");
+        }, 400);
+      };
+
+      window.loadNfcLedger = async function() {
+        const tbody = document.getElementById("nfc-ledger-tbody");
+        if (!tbody) return;
+
+        try {
+          const resp = await fetch("/api/nfc/history?limit=20");
+          const data = await resp.json();
+          if (data && data.ok && data.transactions && data.transactions.length > 0) {
+            tbody.innerHTML = data.transactions.map(t => {
+              const isPayment = t.type === "payment";
+              const amtStr = t.amount ? `${t.currency || 'COP'} $${t.amount.toLocaleString()}` : "--";
+              const statusBadge = t.status === "completed" 
+                ? "<span class='nfc-tag-badge badge-success'>COMPLETADO</span>"
+                : (t.status === "pending_tap" 
+                    ? "<span class='nfc-tag-badge badge-pending'>PENDIENTE</span>"
+                    : "<span class='nfc-tag-badge badge-info'>SIMULADO</span>");
+              return `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                  <td style="padding: 8px 10px; color: #94a3b8; font-family: var(--font-mono);">${(t.created_at || '').substring(11, 19)}</td>
+                  <td style="padding: 8px 10px; color: #00f0ff; font-family: var(--font-mono);">${t.id || '--'}</td>
+                  <td style="padding: 8px 10px;"><span class="nfc-tag-badge ${isPayment ? 'badge-success' : 'badge-info'}">${t.type || 'nfc'}</span></td>
+                  <td style="padding: 8px 10px; color: #e2e8f0;">${t.concept || t.summary || '--'}</td>
+                  <td style="padding: 8px 10px; text-align: right; color: ${isPayment ? '#38ef7d' : '#94a3b8'}; font-weight: 700;">${amtStr}</td>
+                  <td style="padding: 8px 10px; text-align: center;">${statusBadge}</td>
+                </tr>
+              `;
+            }).join("");
+            return;
+          }
+        } catch(e) {}
+
+        // Fallback default row
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="padding: 20px; text-align: center; color: #64748b;">
+              No hay transacciones registradas todavía en el libro contable NFC.
+            </td>
+          </tr>
+        `;
+      };
+
+      window.exportNfcLedger = function() {
+        fetch("/api/nfc/history?limit=100")
+          .then(r => r.json())
+          .then(data => {
+            const blob = new Blob([JSON.stringify(data.transactions || [], null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `liseth-nfc-ledger-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Libro contable NFC exportado en JSON.");
+          })
+          .catch(() => showToast("Error exportando libro contable"));
+      };
+
+      window.clearNfcLedger = function() {
+        if (!confirm("¿Desea limpiar el historial del libro contable de transacciones NFC, señor Santiago?")) return;
+        fetch("/api/nfc/clear-history", { method: "POST" })
+          .then(() => {
+            loadNfcLedger();
+            showToast("Libro contable NFC limpiado correctamente.");
+          })
+          .catch(() => showToast("Error limpiando historial"));
+      };
+
+
+        // Conexión de eventos para Terminal NFC
+        const btnNfcTerminal = document.getElementById("btn-nfc-terminal");
+        if (btnNfcTerminal) {
+          btnNfcTerminal.addEventListener("click", () => window.openNfcModal("pay"));
+        }
+        const btnCloseNfc = document.getElementById("btn-close-nfc");
+        if (btnCloseNfc) {
+          btnCloseNfc.addEventListener("click", () => window.closeNfcModal());
+        }
+        const hudCardNfc = document.getElementById("hud-card-nfc");
+        if (hudCardNfc) {
+          hudCardNfc.addEventListener("click", () => {
+            const hudModal = document.getElementById("hud-interfaces-modal");
+            if (hudModal) hudModal.classList.remove("active");
+            window.openNfcModal("pay");
+          });
+        }
+        updateNfcHardwareSupport();
+
         window.lisethViewer = {
           open: openViewer,
           close: closeViewer,

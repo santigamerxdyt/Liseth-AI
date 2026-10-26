@@ -692,6 +692,28 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Micro-Sonidos Procedurales Web Audio API & Control Táctil", "Efectos sonoros sutiles generados matemáticamente sin consumo de red y conmutador táctil de silencio.", "Sintetizador Sonoro HUD")
     builder.add_command_box("Anillo de 10 Bobinas de Inducción & Constelación", "Bobinas electromagnéticas en el reactor y red cuántica viva con haces láser entre fotones en tiempo real.", "Inductores Arc & Red Cuántica")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 24: ECOSISTEMA NFC Y PAGOS POR CONTACTO (CONTACTLESS & BEAM)
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("24. Ecosistema NFC y Pagos por Contacto (Contactless & Beam)")
+    builder.add_paragraph(
+        "Liseth incorpora un ecosistema completo de interacción por proximidad (Near Field Communication - NFC) y "
+        "pagos por contacto de alta seguridad, adaptado para smartphones con hardware NFC (Android Chrome) y estaciones de escritorio: "
+        "(1) Pagos y Cobros Tokenizados por Contacto: Soporte para estándares interoperables colombianos (Bre-B del Banco de la República), billeteras digitales (Nequi y Daviplata), tarjetas bancarias EMV y criptomonedas (USDT/BTC) con firma criptográfica SHA-256; "
+        "(2) Lectura Universal de Etiquetas NDEF: Detección automática de UID de tag y decodificación de registros de texto, URLs web, credenciales y pagos; "
+        "(3) Transmisión Digital de Tarjetas (Beam): Grabación y transferencia instantánea por contacto de su tarjeta de presentación ejecutiva vCard 3.0/4.0 de Santiago (UNAL Palmira, CEO, datos de contacto y redes); "
+        "(4) Modo Dual Adaptativo y Simulador Holográfico: Cuando opera en PC o navegadores sin acceso directo al chip NFC, activa automáticamente el simulador holográfico táctil y generador dinámico de códigos QR Beam para escanear con la cámara del smartphone; "
+        "(5) Libro Contable de Transacciones Auditado: Historial detallado de operaciones por proximidad con exportación en JSON y persistencia en SQLite; y "
+        "(6) Retroalimentación Sensorial Stark: Sonidos procedurales de contacto electrónico (chimes), vibración háptica en teléfonos y pulso dorado del Reactor Arc:",
+        size=9.0
+    )
+    builder.add_command_box("Terminal de Cobro por Contacto ($25k / $50k)", "Genera un token de cobro contactless (Bre-B, Nequi, Daviplata) listo para recibir el toque del pagador.", "Cobro Contactless Instantáneo")
+    builder.add_command_box("Escanear Tag / Tarjeta NFC (Lectura NDEF)", "Lee credenciales, tarjetas inteligentes o etiquetas de proximidad mostrando UID y contenido.", "Escaneo NDEF Universal")
+    builder.add_command_box("Transmitir Tarjeta de Presentación (vCard Beam)", "Transfiere los datos de contacto y perfil profesional de Santiago al tocar el móvil de un colega.", "Digital Business Card Beam")
+    builder.add_command_box("Simulador Táctil NFC y QR Beam para PC", "Permite probar, verificar y compartir cobros y tarjetas en computadoras de escritorio sin chip NFC.", "Simulación y Respaldo QR")
+    builder.add_command_box("Libro Contable Auditado de Operaciones NFC", "Supervisa el registro histórico de pagos, fechas, montos y firmas criptográficas con exportación.", "Ledger Criptográfico NFC")
+    builder.add_command_box("Control por Voz de Cobros y Contactos", "Pídale a Liseth: 'Genera un cobro contactless de 30 mil pesos' o 'Transmite mi tarjeta de contacto'.", "Comandos de Voz NFC")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

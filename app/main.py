@@ -25,6 +25,7 @@ from app.routers.google_router import router as google_router
 from app.routers.scheduler_router import router as scheduler_router
 from app.routers.notifications_router import router as notifications_router
 from app.routers.credentials_router import router as credentials_router
+from app.routers.nfc_router import router as nfc_router
 
 # Setup logger
 logging.basicConfig(
@@ -151,6 +152,12 @@ EXEMPT_API_PATHS = {
     "/api/voice/toggle",
     "/api/credentials",
     "/api/credentials/test",
+    "/api/nfc/status",
+    "/api/nfc/create-payment",
+    "/api/nfc/create-vcard",
+    "/api/nfc/record-tap",
+    "/api/nfc/history",
+    "/api/nfc/clear-history",
 }
 
 
@@ -197,6 +204,7 @@ app.include_router(google_router)
 app.include_router(scheduler_router)
 app.include_router(notifications_router)
 app.include_router(credentials_router)
+app.include_router(nfc_router)
 
 
 # Mount Static Files

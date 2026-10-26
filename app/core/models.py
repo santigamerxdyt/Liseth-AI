@@ -104,3 +104,20 @@ class AppSetting(Base):
 
     key = Column(String(100), primary_key=True)
     value = Column(JSON, nullable=False)
+
+
+class NfcTransaction(Base):
+    __tablename__ = "nfc_transactions"
+
+    id = Column(String(100), primary_key=True)
+    created_at = Column(DateTime, default=utcnow)
+    type = Column(String(50), nullable=False)  # 'payment', 'vcard', 'text', 'url', 'token'
+    direction = Column(String(20), default="outgoing")  # 'outgoing' (emitted/beamed) or 'incoming' (read/received)
+    amount = Column(Float, nullable=True)
+    currency = Column(String(10), default="COP")
+    recipient = Column(String(200), nullable=True)
+    sender = Column(String(200), nullable=True)
+    concept = Column(String(255), nullable=True)
+    status = Column(String(30), default="completed")  # 'completed', 'pending', 'simulated'
+    payload = Column(JSON, default=dict)
+
