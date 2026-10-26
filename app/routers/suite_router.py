@@ -16,6 +16,11 @@ from app.services.investment_evaluator_service import investment_evaluator_servi
 from app.services.risk_matrix_service import risk_matrix_service
 from app.services.colombia_macro_service import colombia_macro_service
 from app.services.pitch_generator_service import pitch_generator_service
+from app.services.logistics_inventory_service import logistics_inventory_service
+from app.services.negotiation_engine_service import negotiation_engine_service
+from app.services.dian_tax_service import dian_tax_service
+from app.services.bsc_okrs_service import bsc_okrs_service
+
 
 
 router = APIRouter(prefix="/api/suite", tags=["suite"])
@@ -236,4 +241,136 @@ async def generate_pitch_deck_endpoint(req: PitchDeckRequest):
         city=req.city
     )
     return {"ok": True, "deck": res}
+
+
+# ─── GESTIÓN DE CADENA DE SUMINISTRO & INVENTARIOS (EOQ & ROP) ───
+class EoqRequest(BaseModel):
+    annual_demand: float = Field(..., gt=0)
+    order_cost: float = Field(..., gt=0)
+    holding_cost: float = Field(..., gt=0)
+    unit_cost: float = Field(default=0.0, ge=0.0)
+
+
+class RopRequest(BaseModel):
+    daily_demand: float = Field(..., gt=0)
+    lead_time_days: float = Field(..., gt=0)
+    service_level_pct: float = Field(default=95.0, ge=50.0, le=99.9)
+    std_dev_daily_demand: float = Field(default=0.0, ge=0.0)
+
+
+class AbcClassificationRequest(BaseModel):
+    items: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+@router.post("/logistics/eoq")
+async def calculate_eoq_endpoint(req: EoqRequest):
+    res = logistics_inventory_service.calculate_eoq(
+        annual_demand=req.annual_demand,
+        order_cost=req.order_cost,
+        holding_cost=req.holding_cost,
+        unit_cost=req.unit_cost
+    )
+    return {"ok": True, "eoq": res}
+
+
+@router.post("/logistics/rop")
+async def calculate_rop_endpoint(req: RopRequest):
+    res = logistics_inventory_service.calculate_rop(
+        daily_demand=req.daily_demand,
+        lead_time_days=req.lead_time_days,
+        service_level_pct=req.service_level_pct,
+        std_dev_daily_demand=req.std_dev_daily_demand
+    )
+    return {"ok": True, "rop": res}
+
+
+@router.post("/logistics/abc")
+async def calculate_abc_endpoint(req: AbcClassificationRequest):
+    res = logistics_inventory_service.classify_abc(items=req.items)
+    return {"ok": True, "abc": res}
+
+
+# ─── NEGOCIACIÓN ESTRATÉGICA (MODELO HARVARD: ZOPA & BATNA) ───
+class NegotiationRequest(BaseModel):
+    buyer_reservation_price: float = Field(..., gt=0)
+    seller_reservation_price: float = Field(..., gt=0)
+    buyer_target_price: Optional[float] = None
+    seller_target_price: Optional[float] = None
+    buyer_batna: Optional[str] = None
+    seller_batna: Optional[str] = None
+    currency: str = Field(default="COP")
+
+
+@router.post("/negotiation/eval")
+async def evaluate_negotiation_endpoint(req: NegotiationRequest):
+    res = negotiation_engine_service.evaluate_negotiation(
+        buyer_reservation_price=req.buyer_reservation_price,
+        seller_reservation_price=req.seller_reservation_price,
+        buyer_target_price=req.buyer_target_price,
+        seller_target_price=req.seller_target_price,
+        buyer_batna=req.buyer_batna,
+        seller_batna=req.seller_batna,
+        currency=req.currency
+    )
+    return {"ok": True, "negotiation": res}
+
+
+# ─── AUDITORÍA TRIBUTARIA DIAN & RÉGIMEN SIMPLE ───
+class RstCompareRequest(BaseModel):
+    gross_annual_income: float = Field(..., gt=0)
+    deductible_expenses: float = Field(..., ge=0)
+    activity_type: str = Field(default="servicios_profesionales")
+
+
+class RentaCheckRequest(BaseModel):
+    patrimonio_bruto: float = Field(default=0.0)
+    ingresos_brutos: float = Field(default=0.0)
+    consumos_tarjeta: float = Field(default=0.0)
+    compras_totales: float = Field(default=0.0)
+    consignaciones_bancarias: float = Field(default=0.0)
+
+
+@router.post("/tax/rst-compare")
+async def compare_rst_endpoint(req: RstCompareRequest):
+    res = dian_tax_service.simulate_rst_vs_ordinario(
+        gross_annual_income=req.gross_annual_income,
+        deductible_expenses=req.deductible_expenses,
+        activity_type=req.activity_type
+    )
+    return {"ok": True, "simulation": res}
+
+
+@router.post("/tax/renta-check")
+async def check_renta_endpoint(req: RentaCheckRequest):
+    res = dian_tax_service.check_renta_obligation(
+        patrimonio_bruto=req.patrimonio_bruto,
+        ingresos_brutos=req.ingresos_brutos,
+        consumos_tarjeta=req.consumos_tarjeta,
+        compras_totales=req.compras_totales,
+        consignaciones_bancarias=req.consignaciones_bancarias
+    )
+    return {"ok": True, "audit": res}
+
+
+@router.get("/tax/calendar")
+async def get_tax_calendar_endpoint(nit: str = Query(default="12345678")):
+    return dian_tax_service.get_tax_deadlines(nit_or_cedula=nit)
+
+
+# ─── BALANCED SCORECARD & OKRS CORPORATIVOS ───
+class OkrUpdateRequest(BaseModel):
+    kr_id: str = Field(...)
+    value: float = Field(...)
+
+
+@router.get("/okrs/dashboard")
+async def get_okrs_dashboard_endpoint():
+    return bsc_okrs_service.get_dashboard()
+
+
+@router.post("/okrs/update")
+async def update_okr_progress_endpoint(req: OkrUpdateRequest):
+    ok = bsc_okrs_service.update_kr_progress(req.kr_id, req.value)
+    return {"ok": ok, "kr_id": req.kr_id, "new_value": req.value}
+
 

@@ -776,6 +776,75 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": ["business_name"]
         }
+    },
+    {
+        "name": "logistics_inventory",
+        "description": "Gestión de Cadena de Suministro e Inventarios: calcula el Lote Económico de Pedido (EOQ / Modelo de Wilson), el Punto de Reorden (ROP) con Stock de Seguridad (SS) y realiza la clasificación ABC de inventarios según la Ley de Pareto 80/20.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "eoq | rop | abc"},
+                "annual_demand": {"type": "NUMBER", "description": "Demanda anual en unidades (D)"},
+                "order_cost": {"type": "NUMBER", "description": "Costo por emitir una orden de compra en COP (S)"},
+                "holding_cost": {"type": "NUMBER", "description": "Costo anual de almacenamiento por unidad en COP (H)"},
+                "unit_cost": {"type": "NUMBER", "description": "Costo de compra unitario en COP (C)"},
+                "daily_demand": {"type": "NUMBER", "description": "Demanda promedio diaria (d)"},
+                "lead_time": {"type": "NUMBER", "description": "Tiempo de entrega del proveedor en días (L)"},
+                "service_level": {"type": "NUMBER", "description": "Nivel de servicio exigido en % (ej: 95)"},
+                "std_dev": {"type": "NUMBER", "description": "Desviación estándar de la demanda diaria (sigma)"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "negotiation_engine",
+        "description": "Simulador de Negociación Estratégica y Resolución de Conflictos (Modelo Harvard): analiza el rango de acuerdo ZOPA (Zone of Possible Agreement), evalúa los precios de reserva y BATNA (MAAN) del comprador y vendedor, y genera tácticas basadas en intereses objetivos.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "buyer_reservation_price": {"type": "NUMBER", "description": "Precio máximo que el comprador está dispuesto a pagar"},
+                "seller_reservation_price": {"type": "NUMBER", "description": "Precio mínimo que el vendedor está dispuesto a aceptar"},
+                "buyer_target_price": {"type": "NUMBER", "description": "Precio ideal deseado por el comprador"},
+                "seller_target_price": {"type": "NUMBER", "description": "Precio ideal deseado por el vendedor"},
+                "buyer_batna": {"type": "STRING", "description": "Mejor alternativa del comprador si no hay acuerdo"},
+                "seller_batna": {"type": "STRING", "description": "Mejor alternativa del vendedor si no hay acuerdo"},
+                "currency": {"type": "STRING", "description": "Moneda (COP por defecto)"}
+            },
+            "required": ["buyer_reservation_price", "seller_reservation_price"]
+        }
+    },
+    {
+        "name": "dian_tax",
+        "description": "Auditor Tributario y Calendario Fiscal DIAN (Colombia 2026): verifica causales de obligación para declarar renta persona natural (topes UVT), simula y compara la carga impositiva del Régimen Simple (RST) vs Régimen Ordinario, y consulta fechas de vencimiento según los últimos dígitos del NIT/Cédula.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "rst_vs_ordinario | renta_check | calendar"},
+                "patrimonio_bruto": {"type": "NUMBER", "description": "Patrimonio bruto en COP para prueba de renta"},
+                "ingresos_brutos": {"type": "NUMBER", "description": "Ingresos brutos anuales en COP para prueba de renta"},
+                "consumos_tarjeta": {"type": "NUMBER", "description": "Consumos con tarjeta de crédito en COP"},
+                "compras_totales": {"type": "NUMBER", "description": "Compras y consumos totales en COP"},
+                "consignaciones": {"type": "NUMBER", "description": "Consignaciones bancarias en COP"},
+                "ingresos": {"type": "NUMBER", "description": "Ingresos anuales para comparador RST vs Ordinario"},
+                "costos": {"type": "NUMBER", "description": "Costos y deducciones deducibles para comparador"},
+                "actividad": {"type": "STRING", "description": "servicios_profesionales | comercio_al_por_mayor_menor | actividades_industriales | tiendas_minimercados"},
+                "nit": {"type": "STRING", "description": "NIT o cédula para consultar calendario tributario"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "bsc_okrs",
+        "description": "Cuadro de Mando Integral (Balanced Scorecard) y Matriz de OKRs Corporativos: evalúa el cumplimiento en las 4 perspectivas de Kaplan & Norton (Financiera, Clientes, Procesos Internos, Aprendizaje/Crecimiento) y calcula el Índice Global de Salud Corporativa con semáforos.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "dashboard | update"},
+                "kr_id": {"type": "STRING", "description": "Identificador del Resultado Clave (ej: KR-01)"},
+                "value": {"type": "NUMBER", "description": "Nuevo valor actual alcanzado"}
+            },
+            "required": []
+        }
     }
 ]
 
@@ -1136,6 +1205,27 @@ class ActionDispatcher:
                 from app.actions.pitch_generator_action import pitch_generator_action
                 res = pitch_generator_action(parameters=args)
                 return res
+
+            elif name in ("logistics_inventory", "eoq", "inventarios", "cadena_suministro", "rop_wilson", "clasificacion_abc"):
+                from app.actions.logistics_inventory_action import logistics_inventory_action
+                res = logistics_inventory_action(parameters=args)
+                return res
+
+            elif name in ("negotiation_engine", "negociacion_harvard", "zopa", "batna", "simulador_negociacion"):
+                from app.actions.negotiation_engine_action import negotiation_engine_action
+                res = negotiation_engine_action(parameters=args)
+                return res
+
+            elif name in ("dian_tax", "impuestos_dian", "regimen_simple", "rst_vs_ordinario", "calendario_tributario", "declaracion_renta"):
+                from app.actions.dian_tax_action import dian_tax_action
+                res = dian_tax_action(parameters=args)
+                return res
+
+            elif name in ("bsc_okrs", "balanced_scorecard", "okrs_corporativos", "cuadro_mando", "metas_estrategicas"):
+                from app.actions.bsc_okrs_action import bsc_okrs_action
+                res = bsc_okrs_action(parameters=args)
+                return res
+
 
 
 

@@ -3354,7 +3354,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 35 0 R >>
 endobj
 36 0 obj
-<< /Length 3090 >>
+<< /Length 7677 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -3432,12 +3432,136 @@ BT /F1 8.5 Tf 56.0 591.89 Td (Disena presentaciones de inversion estructuradas p
 BT /F4 8 Tf 56.0 579.89 Td (-> Pitch Decks de Inversion) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 560.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.90 0.94 0.98 rg
+42.0 544.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 544.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 551.89 Td (28. Cadena de Suministro EOQ/ROP, Negociacion Harvard, Tributario DIAN y OKRs) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 525.89 Td (Liseth alcanza su maxima expresion operativa directiva para Senor Santiago con cuatro nuevos motores) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 513.89 Td (estrategicos: \(1\) Gestion de Cadena de Suministro e Inventarios: Optimizacion cuantitativa del Lote Economico) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 501.89 Td (de Pedido \(EOQ / Modelo Wilson\), calculo de Punto de Reorden \(ROP\) con Stock de Seguridad \(SS\) multi-nivel de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 489.89 Td (servicio \(Z = 90% a 99%\) y clasificacion ABC por Ley de Pareto 80/20; \(2\) Simulador de Negociacion) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 477.89 Td (Estrategica \(Modelo Harvard\): Cuantificacion precisa de la Zona de Posible Acuerdo \(ZOPA\), excedente) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 465.89 Td (negociable, punto medio equitativo de Nash, identificacion de brechas de impasse y matriz de tacticas basadas) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 453.89 Td (en intereses objetivos frente a BATNA / MAAN; \(3\) Auditor Tributario DIAN y Regimen Simple \(RST\): Semaforo) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 441.89 Td (preventivo para obligacion de declarar Renta Persona Natural \(topes UVT en patrimonio, ingresos, consumos y) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 429.89 Td (consignaciones\), comparador financiero de carga impositiva RST vs Regimen Ordinario 35% con ahorro fiscal) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 417.89 Td (neto y calendario tributario 2026; y \(4\) Cuadro de Mando Integral \(Balanced Scorecard\) y OKRs Corporativos:) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 405.89 Td (Medicion sistematica del progreso en las cuatro perspectivas de Kaplan & Norton \(Financiera, Clientes,) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 393.89 Td (Procesos Internos, Aprendizaje & Crecimiento\), seguimiento dinamico de Resultados Clave \(KRs\) e Indice Global) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 381.89 Td (de Salud Corporativa:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 329.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 329.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 357.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 362.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 361.89 Td (\"Optimizacion de Inventarios EOQ & ROP\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 346.89 Td (Pida a Liseth: 'Calcula el lote economico EOQ para demanda de 10000 unidades y costo de pedido de 50000' o calcule el punto de reorden en el HUD.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 334.89 Td (-> Logistica & Cadena de Suministro) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 277.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 277.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 305.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 310.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 309.89 Td (\"Simulador de Negociacion ZOPA / Harvard\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 294.89 Td (Evalue un acuerdo comercial indicando precio maximo del comprador y minimo del vendedor para conocer la ZOPA y el punto de Nash.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 282.89 Td (-> Negociacion Directiva) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 225.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 225.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 253.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 258.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 257.89 Td (\"Auditoria Tributaria DIAN & Regimen Simple\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 242.89 Td (Compare la carga fiscal del Regimen Simple frente al Ordinario y verifique si supera los topes de renta en UVT 2026.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 230.89 Td (-> Estrategia Tributaria DIAN) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 173.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 173.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 201.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 206.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 205.89 Td (\"Cuadro de Mando Balanced Scorecard & OKRs\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 190.89 Td (Consulte el Indice Global de Salud Corporativa y el avance de los Resultados Clave en las 4 perspectivas directivas.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 178.89 Td (-> OKRs & Balanced Scorecard) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 548.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 159.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 147.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -3474,7 +3598,7 @@ xref
 0000096773 00000 n 
 0000104998 00000 n 
 0000114229 00000 n 
-0000117536 00000 n 
+0000122123 00000 n 
 0000000611 00000 n 
 0000007386 00000 n 
 0000015033 00000 n 
@@ -3493,5 +3617,5 @@ xref
 trailer
 << /Size 37 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-117700
+122287
 %%EOF

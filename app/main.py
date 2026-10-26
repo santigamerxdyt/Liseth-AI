@@ -181,7 +181,17 @@ EXEMPT_API_PATHS = {
     "/api/suite/macro/indicators",
     "/api/suite/macro/payroll",
     "/api/suite/pitch/generate",
+    "/api/suite/logistics/eoq",
+    "/api/suite/logistics/rop",
+    "/api/suite/logistics/abc",
+    "/api/suite/negotiation/eval",
+    "/api/suite/tax/rst-compare",
+    "/api/suite/tax/renta-check",
+    "/api/suite/tax/calendar",
+    "/api/suite/okrs/dashboard",
+    "/api/suite/okrs/update",
 }
+
 
 
 
