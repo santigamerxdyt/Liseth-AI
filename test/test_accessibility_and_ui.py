@@ -1,6 +1,6 @@
 """
 Test suite verifying the Stark Mark 85 Universal Accessibility (WCAG 2.1 AA/AAA)
-and Visual HUD Enhancements for Liseth.
+and Visual HUD Enhancements for Liseth (34 Tactical Modules).
 """
 from pathlib import Path
 import re
@@ -108,7 +108,7 @@ def test_hud_modules_prominence_and_chips():
 
     # Quick chip in main view
     assert 'id="btn-quick-hud-modules"' in content
-    assert '30 Módulos HUD' in content
+    assert '34 Módulos HUD' in content
 
     # Responsive styles
     assert "max-width: 1480px" in content
@@ -116,7 +116,7 @@ def test_hud_modules_prominence_and_chips():
 
 
 def test_hud_modules_search_and_finance_tab():
-    """Verify search input, finance tab, and all 30 cards availability."""
+    """Verify search input, finance tab, and all 34 cards availability."""
     content = JARVIS_HTML.read_text(encoding="utf-8")
     assert 'id="hud-modules-search"' in content
     assert 'id="hud-visible-count-pill"' in content
@@ -124,6 +124,18 @@ def test_hud_modules_search_and_finance_tab():
     assert "window.openHudModal" in content
     assert "filterHudModules" in content
 
-    # Verify all 30 cards exist
+    # Verify all 34 cards exist
     cards = re.findall(r'id="(hud-card-[^"]*)"', content)
-    assert len(cards) == 30, f"Expected 30 cards, found {len(cards)}"
+    assert len(cards) == 34, f"Expected 34 cards, found {len(cards)}"
+
+    # Specific check for newly added modules
+    assert 'id="hud-card-marketing"' in content
+    assert 'id="hud-card-talent"' in content
+    assert 'id="hud-card-forex"' in content
+    assert 'id="hud-card-a11y"' in content
+    assert 'id="marketing-modal"' in content
+    assert 'id="talent-modal"' in content
+    assert 'id="forex-modal"' in content
+    assert "window.openMarketingModal" in content
+    assert "window.openTalentModal" in content
+    assert "window.openForexModal" in content

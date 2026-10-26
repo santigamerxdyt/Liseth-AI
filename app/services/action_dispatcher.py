@@ -905,6 +905,49 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
         }
     },
     {
+        "name": "marketing_growth",
+        "description": "Motor de Crecimiento & Unit Economics 360: CAC, LTV, ratio LTV/CAC, Payback, Churn mensual y anual, auditoría de embudos (funnels) y atribución de pauta publicitaria multicanal (ROAS).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action_type": {"type": "STRING", "description": "unit_economics | funnel | roas"},
+                "cac": {"type": "NUMBER", "description": "Costo de Adquisición de Clientes en COP o USD"},
+                "arpu": {"type": "NUMBER", "description": "Ingreso Promedio por Usuario mensual"},
+                "churn_monthly_pct": {"type": "NUMBER", "description": "Porcentaje de churn mensual (ej: 3.5)"},
+                "gross_margin_pct": {"type": "NUMBER", "description": "Margen bruto en porcentaje (ej: 80.0)"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "talent_management",
+        "description": "Gestión Estratégica de Talento Humano & Clima Organizacional: Evaluación de colaboradores en la Matriz 9-Box (Desempeño vs Potencial), cálculo de eNPS de clima y costo de rotación (turnover) con normativa colombiana.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action_type": {"type": "STRING", "description": "9box | enps | turnover"},
+                "employee_name": {"type": "STRING", "description": "Nombre del colaborador"},
+                "performance_score": {"type": "NUMBER", "description": "Desempeño 1.0 a 3.0"},
+                "potential_score": {"type": "NUMBER", "description": "Potencial 1.0 a 3.0"},
+                "role": {"type": "STRING", "description": "Cargo del colaborador"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "forex_radar",
+        "description": "Radar Cambiario, Arbitraje de Divisas y Cobertura Forward: TRM oficial Banco de la República, Dólar Cripto USDT P2P, Dólar Tarjeta, EUR/COP, spreads bancarios y simulador de contratos Forward para importaciones.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action_type": {"type": "STRING", "description": "radar | hedge"},
+                "amount_usd": {"type": "NUMBER", "description": "Monto en dólares a convertir o cubrir"},
+                "days_forward": {"type": "INTEGER", "description": "Días de plazo para la cobertura Forward (ej: 90)"}
+            },
+            "required": []
+        }
+    },
+    {
         "name": "biocognitive_habits",
         "description": "Centro de Telemetría Biocognitiva y Hábitos Ejecutivos del CEO: evalúa el descanso nocturno, hidratación, bloques de trabajo profundo, nivel de energía, cronotipo (alondra vs búho) e Índice de Rendimiento Biocognitivo con sugerencias ergonómicas y neuro-productivas.",
         "parameters": {
@@ -1323,6 +1366,21 @@ class ActionDispatcher:
 
 
 
+
+            elif name in ("marketing_growth", "saas_metrics", "unit_economics", "cac_ltv", "embudo_ventas", "roas"):
+                from app.actions.marketing_growth_action import marketing_growth_action
+                res = marketing_growth_action(parameters=args)
+                return res
+
+            elif name in ("talent_management", "matriz_9box", "nine_box", "clima_laboral", "enps", "rotacion_personal"):
+                from app.actions.talent_management_action import talent_management_action
+                res = talent_management_action(parameters=args)
+                return res
+
+            elif name in ("forex_radar", "radar_cambiario", "trm_colombia", "dolar_colombia", "forward_hedging", "cobertura_divisas"):
+                from app.actions.forex_radar_action import forex_radar_action
+                res = forex_radar_action(parameters=args)
+                return res
 
             else:
                 return f"Herramienta '{name}' no reconocida."

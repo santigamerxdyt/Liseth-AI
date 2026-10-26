@@ -3715,7 +3715,7 @@ q
 0.1 0.4 0.65 rg
 42.0 448.89 5 24 re f
 0.08 0.25 0.45 rg
-BT /F2 12 Tf 54.0 455.89 Td (30. Centro de Accesibilidad Universal, Catalogo de 30 Modulos HUD y Atajos) Tj ET
+BT /F2 12 Tf 54.0 455.89 Td (30. Centro de Accesibilidad Universal, Catalogo de 34 Modulos HUD y Atajos) Tj ET
 Q
 q
 0.15 0.15 0.15 rg
@@ -3723,7 +3723,7 @@ BT /F1 9.0 Tf 42.0 429.89 Td (Liseth incorpora una arquitectura integral de ergo
 Q
 q
 0.15 0.15 0.15 rg
-BT /F1 9.0 Tf 42.0 417.89 Td (a sus 30 modulos tacticos: \(1\) Acceso Frontal y Busqueda en Vivo a los 30 Modulos HUD: El boton de modulos se) Tj ET
+BT /F1 9.0 Tf 42.0 417.89 Td (a sus 34 modulos tacticos: \(1\) Acceso Frontal y Busqueda en Vivo a los 34 Modulos HUD: El boton de modulos se) Tj ET
 Q
 q
 0.15 0.15 0.15 rg
@@ -3731,7 +3731,7 @@ BT /F1 9.0 Tf 42.0 405.89 Td (posiciona como prioridad absoluta \(#1\) en la bar
 Q
 q
 0.15 0.15 0.15 rg
-BT /F1 9.0 Tf 42.0 393.89 Td (complementado con una pildora central '30 Modulos HUD' en el panel principal bajo la esfera y atajo Alt+H; la) Tj ET
+BT /F1 9.0 Tf 42.0 393.89 Td (complementado con una pildora central '34 Modulos HUD' en el panel principal bajo la esfera y atajo Alt+H; la) Tj ET
 Q
 q
 0.15 0.15 0.15 rg
@@ -3787,9 +3787,9 @@ q
 1 1 1 rg
 BT /F2 7.5 Tf 58.0 242.89 Td (COMANDO VOZ) Tj ET
 0.1 0.15 0.25 rg
-BT /F2 9.5 Tf 126.0 241.89 Td (\"Catalogo Completo 30 Modulos HUD \(Alt+H\)\") Tj ET
+BT /F2 9.5 Tf 126.0 241.89 Td (\"Catalogo Completo 34 Modulos HUD \(Alt+H\)\") Tj ET
 0.35 0.38 0.42 rg
-BT /F1 8.5 Tf 56.0 226.89 Td (Haga clic en '30 MODULOS HUD' en el encabezado, presione la pildora central o Alt+H para desplegar y filtrar los 30 modulos.) Tj ET
+BT /F1 8.5 Tf 56.0 226.89 Td (Haga clic en '30 MODULOS HUD' en el encabezado, presione la pildora central o Alt+H para desplegar y filtrar los 34 modulos.) Tj ET
 0.12 0.45 0.35 rg
 BT /F4 8 Tf 56.0 214.89 Td (-> Centro de Control HUD Stark) Tj ET
 Q
@@ -3838,7 +3838,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 39 0 R >>
 endobj
 40 0 obj
-<< /Length 1334 >>
+<< /Length 5624 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -3864,12 +3864,124 @@ BT /F1 8.5 Tf 56.0 762.89 Td (Presione la tecla Escape en cualquier momento para
 BT /F4 8 Tf 56.0 750.89 Td (-> Atajos Globales de Seguridad) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 731.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.90 0.94 0.98 rg
+42.0 715.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 715.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 722.89 Td (31. Crecimiento MKT \(CAC/LTV\), Talento 9-Box y Radar Cambiario \(TRM BanRep\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 696.89 Td (Liseth expande su suite directiva incorporando tres modulos de alto impacto en gestion empresarial,) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 684.89 Td (escalamiento y finanzas internacionales: \(1\) Motor de Crecimiento & Unit Economics 360 \(MKT\): Determinacion) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 672.89 Td (matematica del Costo de Adquisicion de Clientes \(CAC\), Lifetime Value \(LTV\), ratio LTV/CAC \(benchmark ideal >) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 660.89 Td (3.0x\), periodo de recuperacion del CAC \(Payback en meses\), tasa de churn mensual y anualizada, auditoria de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 648.89 Td (conversion en las 4 etapas del embudo comercial \(Atraccion, Captura MQL, Calificacion SQL y Cierre Won\) y) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 636.89 Td (atribucion de pauta publicitaria multicanal \(ROAS\); \(2\) Gestion Estrategica de Talento Humano & Matriz 9-Box:) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 624.89 Td (Clasificacion cientifica de colaboradores en los 9 cuadrantes de Desempeno vs Potencial \(Estrellas, Futuros) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 612.89 Td (Lideres, Profesionales Clave, Especialistas y Dilemas\), diseno de planes de sucesion y retencion, medicion de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 600.89 Td (clima organizacional eNPS y diagnostico financiero del costo oculto de rotacion de personal \(turnover\) bajo) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 588.89 Td (el regimen laboral del Codigo Sustantivo del Trabajo de Colombia; y \(3\) Radar Cambiario de Divisas &) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 576.89 Td (Cobertura Forward \(Hedging\): Monitoreo en tiempo real de la TRM oficial de la Superintendencia Financiera /) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 564.89 Td (BanRep, Dolar Cripto USDT \(P2P\), Dolar Tarjeta de Credito con sobretasas bancarias, paridad Euro/COP y) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 552.89 Td (simulador de contratos de cobertura cambiaria Forward bajo la Paridad de Tasas de Interes \(IRP\) para blindar) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 540.89 Td (el margen de importaciones y exportaciones frente a la volatilidad del peso colombiano:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 488.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 488.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 516.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 521.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 520.89 Td (\"Diagnostico Unit Economics & CAC/LTV\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 505.89 Td (Pida a Liseth: 'Calcula los unit economics con CAC de 120.000 COP, ARPU de 65.000 COP y churn del 3%' para auditar la viabilidad de escalamiento.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 493.89 Td (-> Marketing 360 & SaaS) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 436.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 436.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 464.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 469.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 468.89 Td (\"Evaluacion de Colaboradores en Matriz 9-Box\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 453.89 Td (Pida a Liseth: 'Evalua a Juan Perez en la matriz 9-box con desempeno 2.8 y potencial 2.9' para obtener el plan de retencion y sucesion.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 441.89 Td (-> Talento Humano & 9-Box) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 384.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 384.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 412.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 417.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 416.89 Td (\"Radar Cambiario TRM & Cobertura Forward\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 401.89 Td (Pida a Liseth: 'Muestrame el radar de divisas TRM y simula cobertura Forward de 25.000 USD a 90 dias' para proteger compras internacionales.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 389.89 Td (-> Finanzas & Divisas BanRep) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 719.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 370.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 358.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -3908,7 +4020,7 @@ xref
 0000114243 00000 n 
 0000123092 00000 n 
 0000131950 00000 n 
-0000133501 00000 n 
+0000137791 00000 n 
 0000000625 00000 n 
 0000007400 00000 n 
 0000015047 00000 n 
@@ -3929,5 +4041,5 @@ xref
 trailer
 << /Size 41 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-133665
+137955
 %%EOF
