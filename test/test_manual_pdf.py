@@ -26,3 +26,5 @@ def test_generate_manual_pdf_produces_valid_file():
             assert b"APA" in content
             assert b"VAN" in content or b"NPV" in content
             assert b"Segundo Plano" in content or b"Background" in content
+            assert b"Formulario 490" in content or b"Impuestos DIAN" in content
+            assert b"Accesibilidad" in content or b"WCAG" in content

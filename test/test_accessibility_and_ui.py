@@ -1,0 +1,91 @@
+"""
+Test suite verifying the Stark Mark 85 Universal Accessibility (WCAG 2.1 AA/AAA)
+and Visual HUD Enhancements for Liseth.
+"""
+from pathlib import Path
+import pytest
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+JARVIS_HTML = ROOT_DIR / "jarvis.html"
+INDEX_HTML = ROOT_DIR / "index.html"
+STATIC_INDEX_HTML = ROOT_DIR / "app" / "static" / "index.html"
+
+
+def test_html_files_byte_identical():
+    """Verify jarvis.html, index.html, and app/static/index.html are 100% in sync."""
+    content_jarvis = JARVIS_HTML.read_bytes()
+    content_index = INDEX_HTML.read_bytes()
+    content_static = STATIC_INDEX_HTML.read_bytes()
+    assert content_jarvis == content_index, "index.html is out of sync with jarvis.html"
+    assert content_jarvis == content_static, "app/static/index.html is out of sync with jarvis.html"
+
+
+def test_skip_links_present():
+    """Verify WCAG 2.4.1 Bypass Blocks via skip-links for keyboard navigation."""
+    content = JARVIS_HTML.read_text(encoding="utf-8")
+    assert '<a href="#user-input" class="skip-link">Saltar al campo de entrada de chat (Alt+K)</a>' in content
+    assert '<a href="#btn-hud-menu" class="skip-link">Saltar al Centro de Módulos HUD (Alt+H)</a>' in content
+    assert ".skip-link" in content
+    assert ".skip-link:focus" in content
+
+
+def test_wcag_focus_visible_and_reduced_motion():
+    """Verify keyboard focus rings and reduced-motion media query."""
+    content = JARVIS_HTML.read_text(encoding="utf-8")
+    # WCAG 2.4.7 Focus Visible
+    assert ":focus-visible" in content
+    assert "outline: 2px solid" in content
+    # WCAG 2.3.3 Animation from Interactions / Reduced motion
+    assert "@media (prefers-reduced-motion: reduce)" in content
+    assert "body.a11y-reduced-motion" in content
+
+
+def test_high_contrast_stark_mode():
+    """Verify WCAG 1.4.6 High Contrast (Enhanced) mode definitions."""
+    content = JARVIS_HTML.read_text(encoding="utf-8")
+    assert "body.a11y-high-contrast" in content
+    assert "#000000" in content
+    assert "#00f0ff" in content
+
+
+def test_touch_target_and_typography_scaling():
+    """Verify minimum touch targets (44px) and scalable typography."""
+    content = JARVIS_HTML.read_text(encoding="utf-8")
+    assert "min-height: 44px" in content
+    assert "min-width: 44px" in content
+    assert "body.a11y-font-lg" in content
+    assert "body.a11y-font-xl" in content
+    assert "body.a11y-dyslexia" in content
+
+
+def test_accessibility_modal_and_controls():
+    """Verify presence of Accessibility Panel modal and trigger button."""
+    content = JARVIS_HTML.read_text(encoding="utf-8")
+    assert 'id="btn-a11y-panel"' in content
+    assert 'id="a11y-modal"' in content
+    assert 'role="dialog"' in content
+    assert 'aria-modal="true"' in content
+    assert 'id="btn-toggle-high-contrast"' in content
+    assert 'id="btn-toggle-motion"' in content
+    assert 'id="btn-toggle-dyslexia"' in content
+    assert "setA11yFontSize" in content
+
+
+def test_keyboard_shortcuts_and_persistence_js():
+    """Verify keyboard shortcuts and localStorage persistence in JS engine."""
+    content = JARVIS_HTML.read_text(encoding="utf-8")
+    # Check hotkey handling
+    assert "liseth_a11y_fontsize" in content
+    assert "liseth_a11y_contrast" in content
+    assert "liseth_a11y_motion" in content
+    assert "liseth_a11y_dyslexia" in content
+    assert "window.openA11yModal" in content
+    assert "window.closeA11yModal" in content
+    # Shortcuts Alt + A, Alt + H, Alt + K, Alt + M, Alt + V, Esc
+    assert "Alt + A" in content
+    assert "Alt + H" in content
+    assert "Alt + K" in content
+    assert "Alt + M" in content
+    assert "Alt + V" in content
+    assert 'e.key === "Escape"' in content
+    assert 'e.altKey && (e.key === "m" || e.key === "M")' in content
