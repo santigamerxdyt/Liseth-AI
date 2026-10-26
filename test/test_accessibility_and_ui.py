@@ -3,6 +3,7 @@ Test suite verifying the Stark Mark 85 Universal Accessibility (WCAG 2.1 AA/AAA)
 and Visual HUD Enhancements for Liseth.
 """
 from pathlib import Path
+import re
 import pytest
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -89,3 +90,40 @@ def test_keyboard_shortcuts_and_persistence_js():
     assert "Alt + V" in content
     assert 'e.key === "Escape"' in content
     assert 'e.altKey && (e.key === "m" || e.key === "M")' in content
+
+
+def test_hud_modules_prominence_and_chips():
+    """Verify that btn-hud-menu is at the front of .top-actions, quick chip exists, and header is responsive."""
+    content = JARVIS_HTML.read_text(encoding="utf-8")
+    # Exactly one button with id btn-hud-menu
+    assert content.count('id="btn-hud-menu"') == 1
+    # Check that btn-hud-menu is the very first button inside top-actions
+    top_actions_idx = content.find('<div class="top-actions">')
+    hud_menu_idx = content.find('id="btn-hud-menu"')
+    assert top_actions_idx != -1 and hud_menu_idx != -1
+    between = content[top_actions_idx:hud_menu_idx]
+    # No other <button> before btn-hud-menu inside top-actions
+    assert '<button' in between
+    assert between.count('<button') == 1
+
+    # Quick chip in main view
+    assert 'id="btn-quick-hud-modules"' in content
+    assert '30 Módulos HUD' in content
+
+    # Responsive styles
+    assert "max-width: 1480px" in content
+    assert "overflow-x: auto" in content
+
+
+def test_hud_modules_search_and_finance_tab():
+    """Verify search input, finance tab, and all 30 cards availability."""
+    content = JARVIS_HTML.read_text(encoding="utf-8")
+    assert 'id="hud-modules-search"' in content
+    assert 'id="hud-visible-count-pill"' in content
+    assert 'data-filter="finance"' in content
+    assert "window.openHudModal" in content
+    assert "filterHudModules" in content
+
+    # Verify all 30 cards exist
+    cards = re.findall(r'id="(hud-card-[^"]*)"', content)
+    assert len(cards) == 30, f"Expected 30 cards, found {len(cards)}"

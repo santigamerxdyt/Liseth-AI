@@ -824,30 +824,26 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Telemetria Biocognitiva del CEO", "Supervise su vigor diario, cronotipo y horas pico de enfoque para programar decisiones directivas en su momento de maxima claridad mental.", "Salud y Alto Rendimiento CEO")
 
     # ───
-    # SECCIÓN 30: CENTRO DE ACCESIBILIDAD UNIVERSAL (A11Y), DISEÑO VISUAL MARK 85 Y ATAJOS DE TECLADO
+    # SECCIÓN 30: CENTRO DE ACCESIBILIDAD UNIVERSAL, CATÁLOGO DE 30 MÓDULOS HUD Y ATAJOS
     # ───
-    builder.add_section_header("30. Centro de Accesibilidad Universal (A11Y), Diseno Visual Mark 85 y Atajos")
+    builder.add_section_header("30. Centro de Accesibilidad Universal, Catalogo de 30 Modulos HUD y Atajos")
     builder.add_paragraph(
-        "Liseth incorpora una arquitectura integral de ergonomia y diseno inclusivo bajo los estandares internacionales WCAG 2.1 nivel AA y AAA, "
-        "combinando la estetica futurista Stark Iron Man Mark 85 con maxima accesibilidad visual, motriz y cognitiva: "
-        "(1) Navegacion Accesible por Teclado y Skip Links: Incorporacion de enlaces de omision (.skip-link) para saltar de inmediato al campo de texto del chat "
-        "o a la cuadricula de modulos HUD sin necesidad de tabulacion exhaustiva; anillos de enfoque de alta visibilidad (:focus-visible) con contorno neon y "
-        "desplazamiento de seguridad en todos los elementos interactivos; "
-        "(2) Modo de Alto Contraste Stark (WCAG AAA): Activacion de paleta de maximo contraste con fondo negro absoluto (#000000), texto blanco puro y "
-        "bordes de acento cian (#00f0ff) y oro (#ffd700), garantizando una relacion de contraste superior a 7:1 para personas con baja vision o condiciones de alta luminosidad; "
-        "(3) Escalabilidad Tipografica y Soporte de Dislexia: Selector de tamano de fuente dinamico (100%, 115% y 130%), complementado con un modo de "
-        "fuente de alta legibilidad sin remates con mayor interletreado e interlineado para usuarios con dislexia o fatiga visual ejecutiva; "
-        "(4) Modo de Reduccion de Movimiento y Ergonomia Tactil: Respeto automatico de la preferencia de sistema prefers-reduced-motion y switch manual para "
-        "desactivar rotaciones, pulsaciones 3D y destellos estroboscopicos (prevencion de trastornos vestibulares); dimension minima de toques tactiles de 44x44px "
-        "en todos los botones e iconos de la interfaz movil; y "
-        "(5) Matriz Ejecutiva de Atajos de Teclado Stark: Operacion ultra rapida sin raton mediante combinaciones globales (Esc para cerrar modales, Alt+A para el "
-        "Centro de Accesibilidad, Alt+H para el Centro de Modulos HUD, Alt+K para enfocar el chat, Alt+M para el microfono y Alt+V para la voz de Liseth), "
-        "con persistencia automatica en localStorage del navegador:",
+        "Liseth incorpora una arquitectura integral de ergonomia, diseno inclusivo WCAG 2.1 AA/AAA y acceso inmediato a sus 30 modulos tacticos: "
+        "(1) Acceso Frontal y Busqueda en Vivo a los 30 Modulos HUD: El boton de modulos se posiciona como prioridad absoluta (#1) en la barra superior "
+        "con distintivo neon resplandeciente, complementado con una pildora central '30 Modulos HUD' en el panel principal bajo la esfera y atajo Alt+H; "
+        "la ventana de modulos integra un buscador reactivo en vivo que filtra instantaneamente por titulo o funcion ('impuestos', 'fletes', 'nfc', 'valuacion', 'pc'...) "
+        "y pestanas tematicas que incluyen la categoria dedicada 'FINANZAS & ESTRATEGIA (8)'; "
+        "(2) Navegacion Accesible por Teclado y Skip Links: Enlaces de omision (.skip-link) para saltar de inmediato al chat o a la cuadricula de modulos, "
+        "junto a anillos de enfoque (:focus-visible) de alta visibilidad con contorno neon y desplazamiento de seguridad en cada control; "
+        "(3) Modo de Alto Contraste Stark (WCAG AAA): Paleta de contraste absoluto con fondo negro (#000000) y acentos cian/oro con ratio superior a 7:1; "
+        "(4) Escalabilidad Tipografica y Dislexia: Tamano ajustable a 100%, 115% y 130%, y tipografia de alta legibilidad sin remates con mayor interlineado; "
+        "(5) Reduccion de Movimiento y Toques Ergonomicos: Suspension de animaciones complejas segun prefers-reduced-motion y areas tactiles minimas de 44x44px; y "
+        "(6) Matriz Ejecutiva de Atajos Globales: Esc para cerrar modales, Alt+A para Accesibilidad, Alt+H para Modulos HUD, Alt+K para el chat, Alt+M para microfono y Alt+V para voz:",
         size=9.0
     )
-    builder.add_command_box("Centro de Accesibilidad Stark (Alt+A)", "Haga clic en el boton 'ACCESIBILIDAD' del encabezado o presione Alt+A para personalizar tamano de fuente, alto contraste y animaciones.", "Accesibilidad Universal WCAG")
-    builder.add_command_box("Modo Alto Contraste (WCAG AAA)", "Active el modo de alto contraste para un fondo negro profundo y acentos cian/oro de maxima visibilidad y cero reflejo.", "Modo Stark Visibilidad Extrema")
-    builder.add_command_box("Navegacion sin Raton y Skip Links", "Navegue usando Tab y presione Enter en los Skip Links para saltar directamente al chat (Alt+K) o a los modulos HUD (Alt+H).", "Ergonomia y Teclado Ejecutivo")
+    builder.add_command_box("Catalogo Completo 30 Modulos HUD (Alt+H)", "Haga clic en '30 MODULOS HUD' en el encabezado, presione la pildora central o Alt+H para desplegar y filtrar los 30 modulos.", "Centro de Control HUD Stark")
+    builder.add_command_box("Buscador en Vivo de Modulos", "Escriba en la barra de busqueda dentro del modal ('impuestos', 'fletes', 'nfc'...) para filtrar en tiempo real con contador reactivo.", "Filtro Reactivo de Modulos")
+    builder.add_command_box("Centro de Accesibilidad Stark (Alt+A)", "Haga clic en 'ACCESIBILIDAD' o presione Alt+A para personalizar tamano de fuente, alto contraste y animaciones.", "Accesibilidad Universal WCAG")
     builder.add_command_box("Cierre Instantaneo de Modales (Esc)", "Presione la tecla Escape en cualquier momento para cerrar cualquier modal, visor de documentos, pasarela o panel activo.", "Atajos Globales de Seguridad")
 
     # Final summary note

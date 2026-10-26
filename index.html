@@ -259,17 +259,18 @@
     }
 
     .header-top {
-      width: 100%;
-      max-width: 900px;
+      width: calc(100% - 32px);
+      max-width: 1480px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: absolute;
-      top: 12px;
+      top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 0 20px;
+      padding: 0 16px;
       pointer-events: none;
+      gap: 12px;
     }
 
     .server-badge {
@@ -350,7 +351,18 @@
     .top-actions {
       pointer-events: auto;
       display: flex;
+      align-items: center;
       gap: 8px;
+      max-width: calc(100% - 190px);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 4px 6px;
+      border-radius: 20px;
+    }
+    .top-actions::-webkit-scrollbar {
+      display: none;
     }
 
     .icon-btn {
@@ -1618,7 +1630,7 @@
       border: 1px solid rgba(0, 210, 255, 0.45);
       border-radius: 20px;
       width: 100%;
-      max-width: 980px;
+      max-width: 1120px;
       max-height: 90vh;
       overflow-y: auto;
       padding: 26px 28px;
@@ -5958,6 +5970,12 @@
       </div>
 
       <div class="top-actions">
+        <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES (ACCESO DIRECTO PRIORITARIO #1) -->
+        <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 30 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
+          <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
+          <span style="color: #ffffff; letter-spacing: 0.04em;">30 MÓDULOS HUD</span>
+          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">30</span>
+        </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
         <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal (Escala de texto, Alto contraste, Lector y Atajos) - Alt+A">
           <span class="hud-deck-icon">♿</span>
@@ -5996,12 +6014,7 @@
           <span class="hud-deck-badge" id="dynamic-viewer-badge" style="display: none;">1</span>
         </button>
 
-        <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES -->
-        <button class="hud-deck-btn" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (HUD)">
-          <span class="hud-deck-icon">◈</span>
-          <span>MÓDULOS</span>
-          <span class="hud-deck-badge">HUD</span>
-        </button>
+
 
         <!-- BOTÓN ALTERNAR VISTA: ESFERA HOLOGRÁFICA vs CONSOLA -->
         <button class="hud-view-toggle-btn active" id="btn-toggle-view" title="Cambiar modo de visualización: Esfera Holográfica / Consola Historial">
@@ -6157,6 +6170,9 @@
 
       <!-- Píldoras de Acciones Rápidas -->
       <div class="quick-chips" style="margin-top: 18px;">
+        <button class="chip-btn" id="btn-quick-hud-modules" style="border: 1.5px solid #00f0ff; background: rgba(0, 240, 255, 0.18); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); font-weight: 700; color: #ffffff;" title="Abrir catálogo completo de los 30 módulos tácticos de Liseth">
+          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 30 Módulos HUD
+        </button>
         <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
           <span>⚡</span> Automatizar mi día
         </button>
@@ -7450,9 +7466,22 @@
         </div>
       </div>
 
+      <!-- Barra de Búsqueda Rápida y Contador de Módulos Activos -->
+      <div class="hud-search-filter-container" style="display: flex; gap: 12px; align-items: center; margin-bottom: 14px; width: 100%;">
+        <div style="position: relative; flex: 1;">
+          <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: #00d2ff; pointer-events: none;">🔍</span>
+          <input type="text" id="hud-modules-search" placeholder="Buscar módulo por nombre o función (ej: Impuestos, Fletes, Valuación, NFC, Google, PC, Finanzas...)" style="width: 100%; padding: 11px 40px 11px 42px; background: rgba(10, 18, 36, 0.85); border: 1.5px solid rgba(0, 210, 255, 0.45); border-radius: 12px; color: #ffffff; font-size: 0.9rem; outline: none; transition: all 0.25s;" onfocus="this.style.borderColor='#00f0ff'; this.style.boxShadow='0 0 18px rgba(0,240,255,0.4)';" onblur="this.style.borderColor='rgba(0, 210, 255, 0.45)'; this.style.boxShadow='none';">
+          <button type="button" id="hud-search-clear" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;" title="Limpiar búsqueda">&times;</button>
+        </div>
+        <div class="hud-count-pill" id="hud-visible-count-pill" style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); padding: 9px 16px; border-radius: 10px; color: #00d2ff; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; white-space: nowrap; box-shadow: 0 0 10px rgba(0,210,255,0.2);">
+          30 / 30 MÓDULOS
+        </div>
+      </div>
+
       <!-- Pestañas de filtrado de categorías -->
       <div class="hud-filter-tabs">
         <button class="hud-tab active" data-filter="all">TODOS (30)</button>
+        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (8)</button>
         <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
         <button class="hud-tab" data-filter="connectors">CONECTORES</button>
         <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
@@ -7605,7 +7634,7 @@
         </div>
 
                 <!-- 13. Finanzas Personales & Flujo de Caja -->
-        <div class="hud-card" data-category="automation" id="hud-card-finances">
+        <div class="hud-card" data-category="automation finance" id="hud-card-finances">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">📊</div>
             <span class="hud-card-status status-online">PRESUPUESTO</span>
@@ -7627,7 +7656,7 @@
         </div>
 
         <!-- 15. Contratos Comerciales & Minutas Legales -->
-        <div class="hud-card" data-category="connectors" id="hud-card-contracts">
+        <div class="hud-card" data-category="connectors finance" id="hud-card-contracts">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.12);">📜</div>
             <span class="hud-card-status status-online">LEGAL CO</span>
@@ -7649,7 +7678,7 @@
         </div>
 
         <!-- 17. Evaluador de Proyectos de Inversión (VAN, TIR, Payback) -->
-        <div class="hud-card" data-category="intelligence" id="hud-card-investment">
+        <div class="hud-card" data-category="intelligence finance" id="hud-card-investment">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #00f0ff; border-color: rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.12);">📊</div>
             <span class="hud-card-status status-online">FINANZAS UNAL</span>
@@ -7671,7 +7700,7 @@
         </div>
 
         <!-- 19. Radar Macroeconómico & Nómina Colombia -->
-        <div class="hud-card" data-category="automation" id="hud-card-macro">
+        <div class="hud-card" data-category="automation finance" id="hud-card-macro">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.12);">🇨🇴</div>
             <span class="hud-card-status status-online">COLOMBIA 2026</span>
@@ -7693,7 +7722,7 @@
         </div>
 
         <!-- 21. Cadena de Suministro & Logística de Inventarios (EOQ & ROP) -->
-        <div class="hud-card" data-category="automation" id="hud-card-logistics">
+        <div class="hud-card" data-category="automation finance" id="hud-card-logistics">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">📦</div>
             <span class="hud-card-status status-online">EOQ & ROP</span>
@@ -7715,7 +7744,7 @@
         </div>
 
         <!-- 23. Auditor Tributario DIAN & Régimen Simple -->
-        <div class="hud-card" data-category="system" id="hud-card-tax">
+        <div class="hud-card" data-category="system finance" id="hud-card-tax">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.12);">🏛️</div>
             <span class="hud-card-status status-online">DIAN 2026</span>
@@ -7737,7 +7766,7 @@
         </div>
 
         <!-- 25. Asistente y Pasarela de Pago de Impuestos DIAN (Form 490 & PSE) -->
-        <div class="hud-card" data-category="automation" id="hud-card-tax-pay">
+        <div class="hud-card" data-category="automation finance" id="hud-card-tax-pay">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.12);">🧾</div>
             <span class="hud-card-status status-online">PAGO DIAN PSE</span>
@@ -7748,7 +7777,7 @@
         </div>
 
         <!-- 26. Valuación Financiera de Empresas (DCF & Múltiplos) -->
-        <div class="hud-card" data-category="intelligence" id="hud-card-valuation">
+        <div class="hud-card" data-category="intelligence finance" id="hud-card-valuation">
           <div class="hud-card-top">
             <div class="hud-card-icon" style="color: #00f0ff; border-color: rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.12);">💎</div>
             <span class="hud-card-status status-online">VALUACIÓN DCF</span>
@@ -13900,11 +13929,82 @@ Tus habilidades clave:
             } catch(e) {}
           }
 
-          if (btnHudMenu && hudModal) {
-            btnHudMenu.addEventListener("click", () => {
-              playHudSound("open");
-              hudModal.classList.add("active");
-              updateHudTelemetry();
+          // Función maestra global para abrir el Centro de Módulos HUD
+          window.openHudModal = function() {
+            if (!hudModal) return;
+            playHudSound("open");
+            hudModal.classList.add("active");
+            updateHudTelemetry();
+
+            // Resetear búsqueda y restaurar todos los módulos
+            const searchInput = document.getElementById("hud-modules-search");
+            if (searchInput) {
+              searchInput.value = "";
+              filterHudModules("");
+            }
+            // Activar pestaña 'TODOS'
+            const allTab = document.querySelector('.hud-filter-tabs .hud-tab[data-filter="all"]');
+            if (allTab) {
+              document.querySelectorAll(".hud-filter-tabs .hud-tab").forEach(t => t.classList.remove("active"));
+              allTab.classList.add("active");
+            }
+            // Asegurar despliegue de todas las tarjetas
+            document.querySelectorAll(".hud-modules-grid .hud-card").forEach(card => {
+              card.style.display = "flex";
+            });
+          };
+
+          if (btnHudMenu) {
+            btnHudMenu.addEventListener("click", () => window.openHudModal());
+          }
+
+          const btnQuickHud = document.getElementById("btn-quick-hud-modules");
+          if (btnQuickHud) {
+            btnQuickHud.addEventListener("click", () => window.openHudModal());
+          }
+
+          // Motor de filtrado por búsqueda en tiempo real
+          function filterHudModules(query) {
+            const cleanQ = (query || "").trim().toLowerCase();
+            const hudCards = document.querySelectorAll(".hud-modules-grid .hud-card");
+            const countPill = document.getElementById("hud-visible-count-pill");
+            const clearBtn = document.getElementById("hud-search-clear");
+            if (clearBtn) clearBtn.style.display = cleanQ ? "block" : "none";
+
+            let visibleCount = 0;
+            hudCards.forEach(card => {
+              const title = (card.querySelector(".hud-card-title")?.textContent || "").toLowerCase();
+              const desc = (card.querySelector(".hud-card-desc")?.textContent || "").toLowerCase();
+              const cat = (card.getAttribute("data-category") || "").toLowerCase();
+
+              const matches = !cleanQ || title.includes(cleanQ) || desc.includes(cleanQ) || cat.includes(cleanQ);
+              if (matches) {
+                card.style.display = "flex";
+                visibleCount++;
+              } else {
+                card.style.display = "none";
+              }
+            });
+
+            if (countPill) {
+              countPill.textContent = `${visibleCount} / 30 MÓDULOS`;
+              countPill.style.color = visibleCount > 0 ? "#00d2ff" : "#ef4444";
+              countPill.style.borderColor = visibleCount > 0 ? "rgba(0, 210, 255, 0.45)" : "rgba(239, 68, 68, 0.5)";
+            }
+          }
+
+          const searchInputEl = document.getElementById("hud-modules-search");
+          if (searchInputEl) {
+            searchInputEl.addEventListener("input", (e) => filterHudModules(e.target.value));
+          }
+          const clearSearchBtn = document.getElementById("hud-search-clear");
+          if (clearSearchBtn) {
+            clearSearchBtn.addEventListener("click", () => {
+              if (searchInputEl) {
+                searchInputEl.value = "";
+                filterHudModules("");
+                searchInputEl.focus();
+              }
             });
           }
 
@@ -13927,8 +14027,8 @@ Tus habilidades clave:
               const filter = tab.getAttribute("data-filter");
 
               hudCards.forEach(card => {
-                const cat = card.getAttribute("data-category");
-                if (filter === "all" || cat === filter) {
+                const cat = (card.getAttribute("data-category") || "").split(" ");
+                if (filter === "all" || cat.includes(filter)) {
                   card.style.display = "flex";
                   card.style.animation = "none";
                   void card.offsetWidth;
@@ -13937,6 +14037,10 @@ Tus habilidades clave:
                   card.style.display = "none";
                 }
               });
+              // Actualizar píldora de conteo
+              const visibleNow = document.querySelectorAll(".hud-modules-grid .hud-card:not([style*='display: none'])").length;
+              const pill = document.getElementById("hud-visible-count-pill");
+              if (pill) pill.textContent = `${visibleNow} / 30 MÓDULOS`;
             });
           });
 
