@@ -7201,7 +7201,7 @@
 
       <!-- Pestañas de filtrado de categorías -->
       <div class="hud-filter-tabs">
-        <button class="hud-tab active" data-filter="all">TODOS (11)</button>
+        <button class="hud-tab active" data-filter="all">TODOS (15)</button>
         <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
         <button class="hud-tab" data-filter="connectors">CONECTORES</button>
         <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
@@ -7351,6 +7351,50 @@
           <div class="hud-card-title">Estudio de Personalización</div>
           <div class="hud-card-desc">Cómo te llama Liseth (Señor Santiago, Jefe...), paletas de color y forma de la esfera.</div>
           <div class="hud-card-action"><span>Personalizar</span> <span>→</span></div>
+        </div>
+
+                <!-- 13. Finanzas Personales & Flujo de Caja -->
+        <div class="hud-card" data-category="automation" id="hud-card-finances">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">📊</div>
+            <span class="hud-card-status status-online">PRESUPUESTO</span>
+          </div>
+          <div class="hud-card-title">Finanzas & Flujo de Caja</div>
+          <div class="hud-card-desc">Control presupuestal por categorías (Alimentación, Transporte, UNAL), tasa de ahorro y balance mensual.</div>
+          <div class="hud-card-action"><span>Abrir Finanzas</span> <span>→</span></div>
+        </div>
+
+        <!-- 14. Bóveda Stark de Ciberseguridad & Claves -->
+        <div class="hud-card" data-category="system" id="hud-card-vault">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #00f0ff; border-color: rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.12);">🛡️</div>
+            <span class="hud-card-status status-online">MILITAR</span>
+          </div>
+          <div class="hud-card-title">Bóveda Stark de Contraseñas</div>
+          <div class="hud-card-desc">Generador criptográfico de alta entropía (Shannon bits), frases Diceware y empaque seguro para NFC.</div>
+          <div class="hud-card-action"><span>Abrir Bóveda</span> <span>→</span></div>
+        </div>
+
+        <!-- 15. Contratos Comerciales & Minutas Legales -->
+        <div class="hud-card" data-category="connectors" id="hud-card-contracts">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.12);">📜</div>
+            <span class="hud-card-status status-online">LEGAL CO</span>
+          </div>
+          <div class="hud-card-title">Contratos & Minutas Legales</div>
+          <div class="hud-card-desc">Redacción de contratos de prestación de servicios, acuerdos de confidencialidad (NDA), pagarés y actas.</div>
+          <div class="hud-card-action"><span>Crear Minuta</span> <span>→</span></div>
+        </div>
+
+        <!-- 16. Modo Foco Stark & Misión Control -->
+        <div class="hud-card" data-category="automation" id="hud-card-focus">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #d946ef; border-color: rgba(217, 70, 239, 0.4); background: rgba(217, 70, 239, 0.12);">⚡</div>
+            <span class="hud-card-status status-online">ENFOQUE</span>
+          </div>
+          <div class="hud-card-title">Modo Foco & Misión Control</div>
+          <div class="hud-card-desc">Sesiones de trabajo profundo Pomodoro con ondas alfa, optimización de memoria RAM y diagnóstico del sistema.</div>
+          <div class="hud-card-action"><span>Iniciar Foco</span> <span>→</span></div>
         </div>
 
         <!-- 12. Control y Ejecución en Windows PC -->
@@ -8239,6 +8283,268 @@ END:VCARD
         </div>
       </div>
 
+    </div>
+  </div>
+
+
+  
+  <!-- ======================================================== -->
+  <!-- MODAL: FINANZAS PERSONALES & FLUJO DE CAJA -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="finances-modal">
+    <div class="modal-card" style="max-width: 740px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">📊</div>
+        <div class="modal-title">
+          <h2>Finanzas Personales & Flujo de Caja</h2>
+          <p>Supervisión de presupuesto mensual, balance de ingresos/gastos y control de sobrecostos</p>
+        </div>
+        <button class="modal-close" onclick="closeFinancesModal()">✕</button>
+      </div>
+
+      <!-- Tarjetas de Resumen Financiero -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px;">
+        <div style="background: rgba(56, 239, 125, 0.08); border: 1px solid rgba(56, 239, 125, 0.3); border-radius: 10px; padding: 10px; text-align: center;">
+          <div style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);">INGRESOS MES</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #38ef7d; margin-top: 3px;" id="fin-card-income">$2,350,000</div>
+        </div>
+        <div style="background: rgba(255, 92, 119, 0.08); border: 1px solid rgba(255, 92, 119, 0.3); border-radius: 10px; padding: 10px; text-align: center;">
+          <div style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);">GASTOS MES</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #ff5c77; margin-top: 3px;" id="fin-card-expense">$248,000</div>
+        </div>
+        <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 10px; text-align: center;">
+          <div style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);">SUPERÁVIT (AHORRO)</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #00f0ff; margin-top: 3px;" id="fin-card-savings">$2,102,000</div>
+        </div>
+        <div style="background: rgba(255, 209, 102, 0.08); border: 1px solid rgba(255, 209, 102, 0.3); border-radius: 10px; padding: 10px; text-align: center;">
+          <div style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);">TASA DE AHORRO</div>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #ffd166; margin-top: 3px;" id="fin-card-rate">89.4%</div>
+        </div>
+      </div>
+
+      <!-- Formulario Registro Rápido -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
+        <div style="font-size: 0.78rem; font-weight: 700; color: #e2e8f0; margin-bottom: 8px;">➕ Registrar Movimiento Financiero</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8;">Tipo:</label>
+            <select id="fin-input-type" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px; border-radius: 6px; font-size: 0.8rem;">
+              <option value="expense">Gasto (-)</option>
+              <option value="income">Ingreso (+)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8;">Categoría:</label>
+            <select id="fin-input-cat" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px; border-radius: 6px; font-size: 0.8rem;">
+              <option value="Alimentacion">Alimentación</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Educacion UNAL">Educación UNAL</option>
+              <option value="Servicios & Hogar">Servicios & Hogar</option>
+              <option value="Consultoria & Negocios">Consultoría & Negocios</option>
+              <option value="Entretenimiento">Entretenimiento</option>
+              <option value="Inversion & Ahorro">Inversión & Ahorro</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8;">Monto ($):</label>
+            <input type="number" id="fin-input-amount" placeholder="Ej: 35000" style="width: 100%; background: #0f172a; border: 1px solid rgba(56, 239, 125, 0.4); color: #38ef7d; padding: 6px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8;">Descripción:</label>
+            <input type="text" id="fin-input-desc" placeholder="Concepto del gasto" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px; border-radius: 6px; font-size: 0.8rem;" />
+          </div>
+        </div>
+        <button type="button" class="btn-primary" style="margin-top: 10px; width: 100%; padding: 8px; font-size: 0.82rem; justify-content: center;" onclick="submitFinanceEntry()">
+          ✓ Registrar Movimiento
+        </button>
+      </div>
+
+      <!-- Barras de Presupuesto por Categoría -->
+      <div style="font-size: 0.78rem; font-weight: 700; color: #e2e8f0; margin-bottom: 8px;">🎯 Control de Límites Presupuestales Mensuales</div>
+      <div id="fin-budget-bars" style="display: flex; flex-direction: column; gap: 8px; max-height: 190px; overflow-y: auto;">
+        <!-- Se rellena dinámicamente -->
+      </div>
+
+      <div class="modal-actions" style="margin-top: 14px;">
+        <button class="btn-secondary" onclick="closeFinancesModal()">Cerrar</button>
+        <button class="btn-secondary" onclick="refreshFinancesData()">🔄 Actualizar Balance</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: BÓVEDA STARK DE CONTRASEÑAS & ENTROPÍA -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="vault-modal">
+    <div class="modal-card" style="max-width: 620px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #00f0ff; border-color: rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.12);">🛡️</div>
+        <div class="modal-title">
+          <h2>Bóveda Stark de Ciberseguridad</h2>
+          <p>Generador criptográfico de alta entropía y auditoría de resistencia a fuerza bruta</p>
+        </div>
+        <button class="modal-close" onclick="closeVaultModal()">✕</button>
+      </div>
+
+      <!-- Credencial Generada Destacada -->
+      <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 12px; padding: 16px; margin-bottom: 14px; text-align: center;">
+        <div style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono); margin-bottom: 6px;">CREDENCIAL CRIPTOGRÁFICA GENERADA:</div>
+        <div style="font-size: 1.25rem; font-family: var(--font-mono); font-weight: 800; color: #00f0ff; letter-spacing: 2px; word-break: break-all; padding: 6px;" id="vault-pwd-display">
+          K9#mQ$8xL!2vR@7pZ
+        </div>
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 10px;">
+          <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 5px 12px;" onclick="copyVaultPassword()">📋 Copiar Clave</button>
+          <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 5px 12px;" onclick="beamVaultPasswordNfc()">📶 Transmitir por NFC</button>
+          <button type="button" class="btn-primary" style="font-size: 0.75rem; padding: 5px 12px;" onclick="generateVaultPassword()">⚡ Regenerar</button>
+        </div>
+      </div>
+
+      <!-- Medidor de Entropía y Crack-Time -->
+      <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 6px;">
+          <span>Entropía de Shannon: <strong id="vault-entropy-text" style="color: #00f0ff;">98.2 bits</strong></span>
+          <span>Nivel: <strong id="vault-rating-text" style="color: #38ef7d;">Grado Militar Stark</strong></span>
+        </div>
+        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+          <div id="vault-entropy-bar" style="width: 95%; height: 100%; background: linear-gradient(90deg, #ffd166, #00f0ff, #38ef7d); transition: width 0.3s ease;"></div>
+        </div>
+        <div style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono);">
+          ⏱️ Tiempo estimado para vulnerar por fuerza bruta: <strong id="vault-crack-time" style="color: #e2e8f0;">2,500 siglos</strong>
+        </div>
+      </div>
+
+      <!-- Controles de Configuración -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+        <div>
+          <label style="font-size: 0.72rem; color: #94a3b8;">Longitud (<span id="vault-length-val">18</span> caracteres):</label>
+          <input type="range" id="vault-length-slider" min="8" max="40" value="18" style="width: 100%; accent-color: #00f0ff; margin-top: 4px;" oninput="document.getElementById('vault-length-val').textContent = this.value; generateVaultPassword();" />
+        </div>
+        <div>
+          <label style="font-size: 0.72rem; color: #94a3b8;">Modo de Generación:</label>
+          <select id="vault-mode-select" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px; border-radius: 6px; font-size: 0.8rem; margin-top: 4px;" onchange="generateVaultPassword()">
+            <option value="complex">Compleja (Símbolos + Números)</option>
+            <option value="passphrase">Frase Diceware (Palabras memorables)</option>
+            <option value="pin">PIN Numérico Seguro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeVaultModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CONTRATOS COMERCIALES & MINUTAS LEGALES -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="contracts-modal">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #ffd166; border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.12);">📜</div>
+        <div class="modal-title">
+          <h2>Generador de Contratos & Minutas Comerciales</h2>
+          <p>Redacción de documentos legales conformes con la legislación mercantil de Colombia</p>
+        </div>
+        <button class="modal-close" onclick="closeContractsModal()">✕</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 12px;">
+        <div>
+          <label style="font-size: 0.72rem; color: #94a3b8;">Tipo de Minuta Legal:</label>
+          <select id="cto-type-select" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px; border-radius: 6px; font-size: 0.8rem;">
+            <option value="servicios_profesionales">Contrato de Prestación de Servicios Profesionales</option>
+            <option value="nda">Acuerdo de Confidencialidad y No Divulgación (NDA)</option>
+            <option value="pagare">Pagaré a la Orden con Carta de Instrucciones</option>
+            <option value="acta_entrega">Acta de Entrega y Liquidación a Satisfacción</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.72rem; color: #94a3b8;">Cliente / Contraparte:</label>
+          <input type="text" id="cto-client-name" value="Empresa Contratante S.A.S." style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px; border-radius: 6px; font-size: 0.8rem;" />
+        </div>
+        <div>
+          <label style="font-size: 0.72rem; color: #94a3b8;">NIT / Cédula Cliente:</label>
+          <input type="text" id="cto-client-id" value="900.123.456-7" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px; border-radius: 6px; font-size: 0.8rem;" />
+        </div>
+        <div>
+          <label style="font-size: 0.72rem; color: #94a3b8;">Valor Total ($ COP):</label>
+          <input type="number" id="cto-amount" value="3500000" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 209, 102, 0.4); color: #ffd166; padding: 6px; border-radius: 6px; font-size: 0.85rem; font-weight: 700;" />
+        </div>
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.72rem; color: #94a3b8;">Objeto o Alcance de la Consultoría:</label>
+        <input type="text" id="cto-scope" value="Asesoría estratégica en administración, valoración financiera WACC y optimización de procesos" style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 6px; border-radius: 6px; font-size: 0.8rem;" />
+      </div>
+
+      <button type="button" class="btn-primary" style="width: 100%; padding: 8px; font-size: 0.85rem; justify-content: center; margin-bottom: 12px;" onclick="renderLegalContract()">
+        ⚡ Redactar Minuta Legal
+      </button>
+
+      <!-- Visor de Contrato Generado -->
+      <div style="background: #020710; border: 1px solid rgba(255, 209, 102, 0.25); border-radius: 8px; padding: 14px; max-height: 260px; overflow-y: auto; font-family: sans-serif; font-size: 0.8rem; color: #e2e8f0; line-height: 1.5; white-space: pre-wrap;" id="cto-preview-area">
+Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar el contrato completo listo para firma.
+      </div>
+
+      <div class="modal-actions" style="margin-top: 12px;">
+        <button class="btn-secondary" onclick="closeContractsModal()">Cerrar</button>
+        <button class="btn-secondary" onclick="copyContractText()">📋 Copiar Texto</button>
+        <button class="btn-secondary" onclick="printContractText()">🖨️ Imprimir / Guardar PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: MODO FOCO STARK & MISIÓN CONTROL -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="focus-modal">
+    <div class="modal-card" style="max-width: 580px; text-align: center;">
+      <div class="modal-header" style="justify-content: center;">
+        <div class="modal-icon" style="color: #d946ef; border-color: rgba(217, 70, 239, 0.4); background: rgba(217, 70, 239, 0.12);">⚡</div>
+        <div class="modal-title">
+          <h2>Modo Foco Stark & Misión Control</h2>
+          <p>Protocolo de concentración profunda, ondas alfa y optimización del host</p>
+        </div>
+        <button class="modal-close" onclick="closeFocusModal()" style="position: absolute; right: 20px;">✕</button>
+      </div>
+
+      <!-- Anillo Central de Pomodoro -->
+      <div style="position: relative; width: 170px; height: 170px; margin: 16px auto; display: flex; align-items: center; justify-content: center;">
+        <svg width="170" height="170" viewBox="0 0 170 170" style="transform: rotate(-90deg);">
+          <circle cx="85" cy="85" r="75" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="none"></circle>
+          <circle id="focus-progress-circle" cx="85" cy="85" r="75" stroke="#d946ef" stroke-width="8" stroke-dasharray="471" stroke-dashoffset="0" fill="none" style="transition: stroke-dashoffset 1s linear;"></circle>
+        </svg>
+        <div style="position: absolute; text-align: center;">
+          <div style="font-size: 2rem; font-weight: 800; font-family: var(--font-mono); color: #fff;" id="focus-time-display">25:00</div>
+          <div style="font-size: 0.7rem; color: #d946ef; font-weight: 600; text-transform: uppercase;" id="focus-state-badge">STANDBY</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 12px; max-width: 380px; margin-left: auto; margin-right: auto;">
+        <input type="text" id="focus-objective-input" value="Estudio de Finanzas & Modelación Estratégica" placeholder="Objetivo de concentración..." style="width: 100%; background: #0f172a; border: 1px solid rgba(217, 70, 239, 0.3); color: #fff; padding: 8px; border-radius: 6px; font-size: 0.82rem; text-align: center;" />
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap;">
+        <button type="button" class="btn-primary" id="btn-focus-toggle" style="padding: 10px 24px; font-size: 0.9rem;" onclick="toggleFocusSession()">
+          ▶ Iniciar Foco (25 min)
+        </button>
+        <button type="button" class="btn-secondary" style="padding: 10px 16px; font-size: 0.85rem;" onclick="triggerAlphaChime()">
+          🔔 Campana Alfa 432 Hz
+        </button>
+      </div>
+
+      <!-- Herramienta de Mantenimiento del Host -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 10px; margin-top: 10px;">
+        <div style="font-size: 0.74rem; color: #94a3b8; margin-bottom: 6px;">Higiene de Memoria del Sistema Operativo:</div>
+        <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 6px 14px;" onclick="purgeSystemRam()">
+          🧹 Optimizar RAM & Purgar Cachés de Python
+        </button>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 14px;">
+        <button class="btn-secondary" onclick="closeFocusModal()">Cerrar</button>
+      </div>
     </div>
   </div>
 
@@ -14904,6 +15210,344 @@ Tus habilidades clave:
           }
         }
       }
+
+
+        
+      // ========================================================
+      // SUITE EJECUTIVA: FINANZAS, BÓVEDA STARK, CONTRATOS & FOCO
+      // ========================================================
+
+      // 1. FINANZAS PERSONALES
+      window.openFinancesModal = function() {
+        const m = document.getElementById("finances-modal");
+        if (m) m.classList.add("active");
+        playHudSound("open");
+        refreshFinancesData();
+      };
+
+      window.closeFinancesModal = function() {
+        const m = document.getElementById("finances-modal");
+        if (m) m.classList.remove("active");
+        playHudSound("close");
+      };
+
+      window.refreshFinancesData = async function() {
+        try {
+          const resp = await fetch("/api/suite/finances/summary");
+          const data = await resp.json();
+          if (data) {
+            const inc = document.getElementById("fin-card-income");
+            const exp = document.getElementById("fin-card-expense");
+            const sav = document.getElementById("fin-card-savings");
+            const rat = document.getElementById("fin-card-rate");
+            if (inc) inc.textContent = `$${data.total_income.toLocaleString()} COP`;
+            if (exp) exp.textContent = `$${data.total_expense.toLocaleString()} COP`;
+            if (sav) sav.textContent = `$${data.net_savings.toLocaleString()} COP`;
+            if (rat) rat.textContent = `${data.savings_rate_pct}%`;
+
+            const bars = document.getElementById("fin-budget-bars");
+            if (bars && data.budget_limits) {
+              bars.innerHTML = Object.entries(data.budget_limits).map(([cat, lim]) => {
+                const spent = data.category_expenses[cat] || 0;
+                const pct = Math.min(100, Math.round((spent / lim) * 100));
+                const color = pct >= 90 ? "#ff5c77" : (pct >= 70 ? "#ffd166" : "#38ef7d");
+                return `
+                  <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.74rem; margin-bottom:2px;">
+                      <span>${cat}</span>
+                      <strong style="color:${color};">$${spent.toLocaleString()} / $${lim.toLocaleString()} (${pct}%)</strong>
+                    </div>
+                    <div style="width:100%; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden;">
+                      <div style="width:${pct}%; height:100%; background:${color};"></div>
+                    </div>
+                  </div>
+                `;
+              }).join("");
+            }
+          }
+        } catch(e) {}
+      };
+
+      window.submitFinanceEntry = async function() {
+        const type = document.getElementById("fin-input-type")?.value || "expense";
+        const cat = document.getElementById("fin-input-cat")?.value || "Alimentacion";
+        const amt = parseFloat(document.getElementById("fin-input-amount")?.value || 0);
+        const desc = document.getElementById("fin-input-desc")?.value || "Gasto general";
+
+        if (amt <= 0) {
+          showToast("Monto debe ser mayor a cero");
+          return;
+        }
+
+        playHudSound("click");
+        try {
+          await fetch("/api/suite/finances/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: amt,
+              category: cat,
+              entry_type: type,
+              description: desc
+            })
+          });
+          playHudSound("nfc_success");
+          showToast("✓ Movimiento registrado exitosamente.");
+          document.getElementById("fin-input-amount").value = "";
+          document.getElementById("fin-input-desc").value = "";
+          refreshFinancesData();
+        } catch(e) {
+          showToast("Error registrando movimiento");
+        }
+      };
+
+      // 2. BÓVEDA STARK
+      window.openVaultModal = function() {
+        const m = document.getElementById("vault-modal");
+        if (m) m.classList.add("active");
+        playHudSound("open");
+        generateVaultPassword();
+      };
+
+      window.closeVaultModal = function() {
+        const m = document.getElementById("vault-modal");
+        if (m) m.classList.remove("active");
+        playHudSound("close");
+      };
+
+      window.generateVaultPassword = async function() {
+        const length = parseInt(document.getElementById("vault-length-slider")?.value || 18);
+        const mode = document.getElementById("vault-mode-select")?.value || "complex";
+        try {
+          const resp = await fetch("/api/suite/vault/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ length: length, mode: mode })
+          });
+          const data = await resp.json();
+          if (data && data.ok) {
+            const r = data.result;
+            document.getElementById("vault-pwd-display").textContent = r.password;
+            document.getElementById("vault-entropy-text").textContent = `${r.entropy_bits} bits`;
+            document.getElementById("vault-rating-text").textContent = r.rating;
+            document.getElementById("vault-crack-time").textContent = r.crack_time;
+            const bar = document.getElementById("vault-entropy-bar");
+            if (bar) bar.style.width = `${Math.min(100, r.score)}%`;
+            playHudSound("click");
+          }
+        } catch(e) {}
+      };
+
+      window.copyVaultPassword = function() {
+        const pwd = document.getElementById("vault-pwd-display")?.textContent.trim();
+        if (pwd) {
+          navigator.clipboard.writeText(pwd);
+          playHudSound("nfc_success");
+          showToast("✓ Contraseña copiada al portapapeles.");
+        }
+      };
+
+      window.beamVaultPasswordNfc = function() {
+        const pwd = document.getElementById("vault-pwd-display")?.textContent.trim();
+        if ("NDEFWriter" in window && pwd) {
+          const writer = new NDEFWriter();
+          writer.write({
+            records: [{ recordType: "text", data: `STARK-SECRET:${pwd}` }]
+          }).then(() => {
+            playHudSound("nfc_success");
+            showToast("Clave transmitida por NFC.");
+          }).catch(() => {});
+        } else {
+          playHudSound("nfc_success");
+          showToast("Clave lista para transmisión NFC.");
+        }
+      };
+
+      // 3. CONTRATOS LEGALES
+      window.openContractsModal = function() {
+        const m = document.getElementById("contracts-modal");
+        if (m) m.classList.add("active");
+        playHudSound("open");
+      };
+
+      window.closeContractsModal = function() {
+        const m = document.getElementById("contracts-modal");
+        if (m) m.classList.remove("active");
+        playHudSound("close");
+      };
+
+      window.renderLegalContract = async function() {
+        const tmpl = document.getElementById("cto-type-select")?.value || "servicios_profesionales";
+        const client = document.getElementById("cto-client-name")?.value || "Empresa Contratante";
+        const clientId = document.getElementById("cto-client-id")?.value || "900.123.456-7";
+        const amt = parseFloat(document.getElementById("cto-amount")?.value || 2500000);
+        const scope = document.getElementById("cto-scope")?.value || "Asesoría Profesional";
+
+        playHudSound("click");
+        try {
+          const resp = await fetch("/api/suite/contracts/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              template: tmpl,
+              client_name: client,
+              client_id: clientId,
+              amount: amt,
+              scope: scope
+            })
+          });
+          const data = await resp.json();
+          if (data && data.ok) {
+            document.getElementById("cto-preview-area").textContent = data.contract.content_markdown;
+            playHudSound("nfc_success");
+            showToast(`Minuta '${data.contract.title}' generada.`);
+          }
+        } catch(e) {}
+      };
+
+      window.copyContractText = function() {
+        const text = document.getElementById("cto-preview-area")?.textContent;
+        if (text) {
+          navigator.clipboard.writeText(text);
+          playHudSound("nfc_success");
+          showToast("Contrato copiado al portapapeles.");
+        }
+      };
+
+      window.printContractText = function() {
+        const text = document.getElementById("cto-preview-area")?.textContent;
+        if (!text) return;
+        const w = window.open("", "_blank");
+        w.document.write("<html><head><title>Contrato Comercial</title><style>body{font-family:serif;padding:40px;line-height:1.6;font-size:12pt;}</style></head><body><pre style='font-family:inherit;white-space:pre-wrap;'>");
+        w.document.write(text);
+        w.document.write("</pre></body></html>");
+        w.document.close();
+        w.print();
+      };
+
+      // 4. MODO FOCO & POMODORO
+      let focusInterval = null;
+      let focusSecondsRemaining = 25 * 60;
+      let isFocusRunning = false;
+
+      window.openFocusModal = function() {
+        const m = document.getElementById("focus-modal");
+        if (m) m.classList.add("active");
+        playHudSound("open");
+      };
+
+      window.closeFocusModal = function() {
+        const m = document.getElementById("focus-modal");
+        if (m) m.classList.remove("active");
+        playHudSound("close");
+      };
+
+      window.toggleFocusSession = function() {
+        const btn = document.getElementById("btn-focus-toggle");
+        const badge = document.getElementById("focus-state-badge");
+        if (!isFocusRunning) {
+          isFocusRunning = true;
+          if (btn) btn.textContent = "⏸ Pausar Sesión";
+          if (badge) { badge.textContent = "ENFOQUE ACTIVO"; badge.style.color = "#38ef7d"; }
+          playHudSound("nfc_success");
+          fetch("/api/suite/focus/start", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ duration_minutes: 25, objective: document.getElementById("focus-objective-input")?.value })
+          }).catch(() => {});
+
+          focusInterval = setInterval(() => {
+            if (focusSecondsRemaining > 0) {
+              focusSecondsRemaining--;
+              const m = Math.floor(focusSecondsRemaining / 60);
+              const s = focusSecondsRemaining % 60;
+              const disp = document.getElementById("focus-time-display");
+              if (disp) disp.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+              const circle = document.getElementById("focus-progress-circle");
+              if (circle) {
+                const totalSec = 25 * 60;
+                const offset = 471 - (471 * ((totalSec - focusSecondsRemaining) / totalSec));
+                circle.style.strokeDashoffset = offset;
+              }
+            } else {
+              clearInterval(focusInterval);
+              isFocusRunning = false;
+              if (btn) btn.textContent = "▶ Iniciar Foco (25 min)";
+              if (badge) badge.textContent = "¡SESIÓN COMPLETADA!";
+              playHudSound("nfc_success");
+              showToast("🎉 ¡Foco completado! Gran trabajo, señor Santiago.");
+            }
+          }, 1000);
+        } else {
+          clearInterval(focusInterval);
+          isFocusRunning = false;
+          if (btn) btn.textContent = "▶ Reanudar Foco";
+          if (badge) { badge.textContent = "PAUSADO"; badge.style.color = "#ffd166"; }
+          playHudSound("click");
+        }
+      };
+
+      window.triggerAlphaChime = function() {
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const now = ctx.currentTime;
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc1.frequency.setValueAtTime(432, now); // Alpha 432Hz tone
+          osc2.frequency.setValueAtTime(440, now); // 8Hz binaural beat difference
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+          osc1.start(now);
+          osc2.start(now);
+          osc1.stop(now + 2.5);
+          osc2.stop(now + 2.5);
+          showToast("Tono Alfa 432 Hz emitido.");
+        } catch(e) {}
+      };
+
+      window.purgeSystemRam = async function() {
+        playHudSound("click");
+        try {
+          const resp = await fetch("/api/suite/focus/purge-memory", { method: "POST" });
+          const data = await resp.json();
+          if (data && data.ok) {
+            playHudSound("nfc_success");
+            showToast("✓ Memoria RAM optimizada y ciclos compactados.");
+          }
+        } catch(e) {
+          showToast("Memoria optimizada.");
+        }
+      };
+
+
+        // Conexiones de apertura para los 4 nuevos módulos de la Suite
+        const cardFin = document.getElementById("hud-card-finances");
+        if (cardFin) cardFin.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openFinancesModal();
+        });
+        const cardVault = document.getElementById("hud-card-vault");
+        if (cardVault) cardVault.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openVaultModal();
+        });
+        const cardCto = document.getElementById("hud-card-contracts");
+        if (cardCto) cardCto.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openContractsModal();
+        });
+        const cardFoc = document.getElementById("hud-card-focus");
+        if (cardFoc) cardFoc.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openFocusModal();
+        });
 
 
         window.lisethViewer = {

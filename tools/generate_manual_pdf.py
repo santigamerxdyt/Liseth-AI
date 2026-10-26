@@ -734,6 +734,25 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Impresión y Exportación de Facturas", "Abra e imprima el comprobante comercial pro-forma en formato ejecutivo limpio con un solo clic.", "Impresión de Comprobantes")
     builder.add_command_box("Comandos de Facturación y Conversión por Voz", "Pídale a Liseth: 'Emite una factura de 150 mil pesos para Constructora Bolívar' o 'Convierte 100 dólares a pesos'.", "Voz para Facturas y Divisas")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # SECCIÓN 26: GESTIÓN DE PATRIMONIO, BÓVEDA STARK, MINUTAS LEGALES Y FOCO
+    # ─────────────────────────────────────────────────────────────────────────
+    builder.add_section_header("26. Gestión de Patrimonio, Bóveda Stark, Minutas Legales y Foco")
+    builder.add_paragraph(
+        "Liseth completa su ecosistema ejecutivo de alta dirección con cuatro módulos estratégicos diseñados "
+        "para la administración patrimonial, la ciberseguridad avanzada y la productividad personal de Señor Santiago: "
+        "(1) Finanzas Personales y Flujo de Caja Mensual: Registro y supervisión de gastos e ingresos clasificados por categorías estratégicas (Alimentación, Transporte, Educación UNAL, Consultoría, etc.), cálculo automático de superávit neto, tasa de ahorro y alertas preventivas cuando una categoría supera el 80% o 100% de su límite presupuestal; "
+        "(2) Bóveda Criptográfica Stark de Contraseñas: Generador de credenciales seguras con modos Complejo, Frase Diceware (palabras memorables) y PIN, con cálculo matemático de Entropía de Shannon (bits) y estimación de tiempo para ataque de fuerza bruta (desde segundos hasta siglos de invulnerabilidad); "
+        "(3) Generador de Contratos Comerciales y Minutas Legales Colombianas: Redacción automatizada de contratos de prestación de servicios profesionales independientes, acuerdos de confidencialidad (NDA), pagarés a la orden ejecutivos y actas de liquidación a satisfacción conforme al Código de Comercio; y "
+        "(4) Modo Foco Stark y Misión Control: Temporizador Pomodoro de 25 minutos con emisión de ondas binaurales alfa a 432 Hz para máxima concentración mental y optimización de memoria RAM con purga de ciclos:",
+        size=9.0
+    )
+    builder.add_command_box("Balance de Finanzas Personales y Presupuesto", "Consulta ingresos, gastos, tasa de ahorro y alertas de consumo mensual por voz o en el modal HUD.", "Flujo de Caja y Presupuesto")
+    builder.add_command_box("Generador de Contraseñas y Auditoría de Entropía", "Crea credenciales militares Stark y audita cualquier contraseña calculando su entropía de Shannon.", "Bóveda Criptográfica Stark")
+    builder.add_command_box("Redacción de Contratos y NDAs Colombianos", "Genera minutas legales listas para imprimir o copiar: servicios profesionales, NDAs y pagarés.", "Ingeniería Legal Comercial")
+    builder.add_command_box("Activación del Modo Foco y Campana Alfa 432 Hz", "Inicia bloques de 25 min de concentración profunda con audiofrecuencia binaural alfa y pulso visual.", "Stark Deep Work & Pomodoro")
+    builder.add_command_box("Optimización de Memoria RAM del Sistema", "Libera memoria del host, ejecuta recolección de basura y compacta ciclos en un solo toque.", "Higiene y Purgado del Host")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

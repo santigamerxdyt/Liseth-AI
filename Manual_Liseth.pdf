@@ -3104,7 +3104,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 33 0 R >>
 endobj
 34 0 obj
-<< /Length 1334 >>
+<< /Length 6393 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -3130,12 +3130,152 @@ BT /F1 8.5 Tf 56.0 762.89 Td (Pídale a Liseth: 'Emite una factura de 150 mil pes
 BT /F4 8 Tf 56.0 750.89 Td (-> Voz para Facturas y Divisas) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 731.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.90 0.94 0.98 rg
+42.0 715.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 715.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 722.89 Td (26. Gestión de Patrimonio, Bóveda Stark, Minutas Legales y Foco) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 696.89 Td (Liseth completa su ecosistema ejecutivo de alta dirección con cuatro módulos estratégicos diseñados para la) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 684.89 Td (administración patrimonial, la ciberseguridad avanzada y la productividad personal de Señor Santiago: \(1\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 672.89 Td (Finanzas Personales y Flujo de Caja Mensual: Registro y supervisión de gastos e ingresos clasificados por) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 660.89 Td (categorías estratégicas \(Alimentación, Transporte, Educación UNAL, Consultoría, etc.\), cálculo automático de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 648.89 Td (superávit neto, tasa de ahorro y alertas preventivas cuando una categoría supera el 80% o 100% de su límite) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 636.89 Td (presupuestal; \(2\) Bóveda Criptográfica Stark de Contraseñas: Generador de credenciales seguras con modos) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 624.89 Td (Complejo, Frase Diceware \(palabras memorables\) y PIN, con cálculo matemático de Entropía de Shannon \(bits\) y) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 612.89 Td (estimación de tiempo para ataque de fuerza bruta \(desde segundos hasta siglos de invulnerabilidad\); \(3\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 600.89 Td (Generador de Contratos Comerciales y Minutas Legales Colombianas: Redacción automatizada de contratos de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 588.89 Td (prestación de servicios profesionales independientes, acuerdos de confidencialidad \(NDA\), pagarés a la orden) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 576.89 Td (ejecutivos y actas de liquidación a satisfacción conforme al Código de Comercio; y \(4\) Modo Foco Stark y) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 564.89 Td (Misión Control: Temporizador Pomodoro de 25 minutos con emisión de ondas binaurales alfa a 432 Hz para máxima) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 552.89 Td (concentración mental y optimización de memoria RAM con purga de ciclos:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 500.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 500.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 528.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 533.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 532.89 Td (\"Balance de Finanzas Personales y Presupuesto\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 517.89 Td (Consulta ingresos, gastos, tasa de ahorro y alertas de consumo mensual por voz o en el modal HUD.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 505.89 Td (-> Flujo de Caja y Presupuesto) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 448.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 448.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 476.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 481.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 480.89 Td (\"Generador de Contraseñas y Auditoría de Entropía\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 465.89 Td (Crea credenciales militares Stark y audita cualquier contraseña calculando su entropía de Shannon.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 453.89 Td (-> Bóveda Criptográfica Stark) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 396.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 396.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 424.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 429.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 428.89 Td (\"Redacción de Contratos y NDAs Colombianos\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 413.89 Td (Genera minutas legales listas para imprimir o copiar: servicios profesionales, NDAs y pagarés.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 401.89 Td (-> Ingeniería Legal Comercial) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 344.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 344.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 372.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 377.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 376.89 Td (\"Activación del Modo Foco y Campana Alfa 432 Hz\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 361.89 Td (Inicia bloques de 25 min de concentración profunda con audiofrecuencia binaural alfa y pulso visual.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 349.89 Td (-> Stark Deep Work & Pomodoro) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 292.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 292.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 320.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 325.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 324.89 Td (\"Optimización de Memoria RAM del Sistema\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 309.89 Td (Libera memoria del host, ejecuta recolección de basura y compacta ciclos en un solo toque.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 297.89 Td (-> Higiene y Purgado del Host) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 719.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 278.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 266.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -3171,7 +3311,7 @@ xref
 0000087618 00000 n 
 0000096766 00000 n 
 0000104991 00000 n 
-0000106542 00000 n 
+0000111601 00000 n 
 0000000604 00000 n 
 0000007379 00000 n 
 0000015026 00000 n 
@@ -3189,5 +3329,5 @@ xref
 trailer
 << /Size 35 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-106706
+111765
 %%EOF

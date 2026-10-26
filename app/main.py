@@ -26,6 +26,8 @@ from app.routers.scheduler_router import router as scheduler_router
 from app.routers.notifications_router import router as notifications_router
 from app.routers.credentials_router import router as credentials_router
 from app.routers.nfc_router import router as nfc_router
+from app.routers.suite_router import router as suite_router
+
 
 # Setup logger
 logging.basicConfig(
@@ -163,6 +165,16 @@ EXEMPT_API_PATHS = {
     "/api/nfc/convert",
     "/api/nfc/verify-badge",
     "/api/nfc/enroll-badge",
+    "/api/suite/finances/summary",
+    "/api/suite/finances/add",
+    "/api/suite/finances/budget",
+    "/api/suite/vault/generate",
+    "/api/suite/vault/audit",
+    "/api/suite/contracts/generate",
+    "/api/suite/focus/start",
+    "/api/suite/focus/stop",
+    "/api/suite/focus/status",
+    "/api/suite/focus/purge-memory",
 }
 
 
@@ -210,6 +222,8 @@ app.include_router(scheduler_router)
 app.include_router(notifications_router)
 app.include_router(credentials_router)
 app.include_router(nfc_router)
+app.include_router(suite_router)
+
 
 
 # Mount Static Files

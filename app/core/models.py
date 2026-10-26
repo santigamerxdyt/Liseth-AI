@@ -156,3 +156,46 @@ class NfcSecurityKey(Base):
     permissions = Column(JSON, default=list)
 
 
+class PersonalFinanceEntry(Base):
+    __tablename__ = "personal_finance_entries"
+
+    id = Column(String(100), primary_key=True)
+    created_at = Column(DateTime, default=utcnow)
+    date = Column(String(20), nullable=False)
+    type = Column(String(20), nullable=False)  # 'expense' (gasto) or 'income' (ingreso)
+    category = Column(String(50), nullable=False)  # 'Alimentacion', 'Transporte', 'Educacion', 'Servicios', 'Consultoria', 'Entretenimiento', 'Inversion'
+    amount = Column(Float, nullable=False)
+    currency = Column(String(10), default="COP")
+    description = Column(String(255), nullable=False)
+    payment_method = Column(String(50), default="Efectivo / Contactless")
+    nfc_ref = Column(String(100), nullable=True)
+    invoice_ref = Column(String(100), nullable=True)
+
+
+class BudgetPlan(Base):
+    __tablename__ = "budget_plans"
+
+    category = Column(String(50), primary_key=True)
+    monthly_limit = Column(Float, nullable=False)
+    alert_threshold_pct = Column(Integer, default=80)
+    currency = Column(String(10), default="COP")
+    updated_at = Column(DateTime, default=utcnow)
+
+
+class LegalContract(Base):
+    __tablename__ = "legal_contracts"
+
+    id = Column(String(100), primary_key=True)  # e.g. CONTRATO-2026-XXXX
+    created_at = Column(DateTime, default=utcnow)
+    type = Column(String(50), nullable=False)  # 'servicios_profesionales', 'nda', 'pagare', 'acta_entrega'
+    title = Column(String(255), nullable=False)
+    party_a = Column(String(200), default="Santiago Huerfano Lopez")  # Prestador / Emisor
+    party_b = Column(String(200), nullable=False)  # Contratante / Cliente
+    total_value = Column(Float, default=0.0)
+    currency = Column(String(10), default="COP")
+    city = Column(String(100), default="Palmira, Valle del Cauca, Colombia")
+    content_markdown = Column(Text, nullable=False)
+    status = Column(String(30), default="draft")  # 'draft', 'signed', 'active', 'archived'
+
+
+

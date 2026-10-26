@@ -658,6 +658,54 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": []
         }
+    },
+    {
+        "name": "personal_finances",
+        "description": "Gestor de Finanzas Personales, Presupuesto y Flujo de Caja: registra gastos e ingresos clasificados por categorías (Alimentación, Transporte, Educación UNAL, etc.), calcula el balance mensual, superávit/déficit, tasa de ahorro y alertas preventivas de sobrecosto.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "summary | add_expense | add_income | set_budget"},
+                "amount": {"type": "NUMBER", "description": "Monto en pesos (COP)"},
+                "category": {"type": "STRING", "description": "Categoría: Alimentacion | Transporte | Educacion UNAL | Servicios & Hogar | Consultoria & Negocios | Entretenimiento | Inversion & Ahorro"},
+                "description": {"type": "STRING", "description": "Descripción o concepto del gasto o ingreso"},
+                "method": {"type": "STRING", "description": "Método de pago (Contactless, Nequi, Daviplata, Efectivo)"},
+                "limit": {"type": "NUMBER", "description": "Tope mensual asignado al configurar presupuesto"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "stark_vault",
+        "description": "Bóveda Stark de Ciberseguridad: genera contraseñas de alta entropía, frases de paso memorables (Diceware) y tokens PIN, evalúa la entropía de Shannon y resistencia a ataques de fuerza bruta en segundos/años, y empaqueta credenciales seguras para transmisión por NFC.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "generate | audit | package_nfc"},
+                "length": {"type": "INTEGER", "description": "Longitud de la contraseña a generar (ej: 18)"},
+                "mode": {"type": "STRING", "description": "complex | passphrase | pin"},
+                "password": {"type": "STRING", "description": "Contraseña a auditar y calcular entropía"},
+                "secret": {"type": "STRING", "description": "Texto o secreto a empaquetar para NFC"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "legal_contracts",
+        "description": "Generador de Contratos Comerciales y Minutas Legales Colombianas: redacta contratos de prestación de servicios profesionales independientes, acuerdos de confidencialidad y no divulgación (NDA), pagarés a la orden y actas de entrega/liquidación con plena validez legal comercial.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {"type": "STRING", "description": "draft | templates"},
+                "template": {"type": "STRING", "description": "servicios_profesionales | nda | pagare | acta_entrega"},
+                "client": {"type": "STRING", "description": "Nombre o razón social de la contraparte"},
+                "client_id": {"type": "STRING", "description": "NIT o cédula de la contraparte"},
+                "amount": {"type": "NUMBER", "description": "Valor económico del contrato o pagaré"},
+                "scope": {"type": "STRING", "description": "Objeto o alcance de las actividades contratadas"},
+                "city": {"type": "STRING", "description": "Ciudad de suscripción (ej: Palmira, Valle del Cauca)"}
+            },
+            "required": []
+        }
     }
 ]
 
@@ -983,6 +1031,22 @@ class ActionDispatcher:
                 from app.actions.nfc_action import nfc_action
                 res = nfc_action(parameters=args)
                 return res
+
+            elif name in ("personal_finances", "finanzas_personales", "presupuesto", "flujo_caja", "gastos"):
+                from app.actions.personal_finance_action import personal_finance_action
+                res = personal_finance_action(parameters=args)
+                return res
+
+            elif name in ("stark_vault", "vault_generator", "generador_claves", "boveda_stark", "password_generator"):
+                from app.actions.stark_vault_action import stark_vault_action
+                res = stark_vault_action(parameters=args)
+                return res
+
+            elif name in ("legal_contracts", "contratos_legales", "minutas_colombia", "nda_generator", "redactar_contrato"):
+                from app.actions.legal_contracts_action import legal_contracts_action
+                res = legal_contracts_action(parameters=args)
+                return res
+
 
 
             else:
