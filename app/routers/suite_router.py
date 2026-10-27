@@ -40,6 +40,8 @@ from app.services.esg_governance_service import esg_governance_service
 from app.services.treasury_working_capital_service import treasury_working_capital_service
 from app.services.dupont_altman_service import dupont_altman_service
 from app.services.lean_six_sigma_service import lean_six_sigma_service
+from app.services.meeting_minutes_service import meeting_minutes_service
+from app.services.executive_prioritizer_service import executive_prioritizer_service
 
 
 
@@ -1015,3 +1017,55 @@ async def evaluate_lean_six_sigma_endpoint(req: LeanSixSigmaRequest):
         process_std_dev=req.process_std_dev
     )
     return {"ok": True, "lean_six_sigma": res}
+
+
+# ─── CINTA BURSÁTIL & MACRO EN TIEMPO REAL (TICKER TAPE) ───
+@router.get("/market/ticker")
+async def get_market_ticker_endpoint():
+    return {
+        "ok": True,
+        "ticker_items": [
+            {"symbol": "TRM USD/COP", "value": "$4.185,50", "change": "+0.42%", "trend": "up", "category": "forex"},
+            {"symbol": "EUR/COP", "value": "$4.522,10", "change": "-0.18%", "trend": "down", "category": "forex"},
+            {"symbol": "BITCOIN", "value": "$67.420 USD", "change": "+2.15%", "trend": "up", "category": "crypto"},
+            {"symbol": "ECOPETROL", "value": "$2.450 COP", "change": "+1.24%", "trend": "up", "category": "bvc"},
+            {"symbol": "BANCOLOMBIA", "value": "$34.800 COP", "change": "+0.87%", "trend": "up", "category": "bvc"},
+            {"symbol": "S&P 500", "value": "5.815,20 pts", "change": "+0.54%", "trend": "up", "category": "global"},
+            {"symbol": "TASA BANREP", "value": "9,75% E.A.", "change": "Estable", "trend": "neutral", "category": "macro"},
+            {"symbol": "INFLACIÓN IPC", "value": "5,81% Anual", "change": "-0.25%", "trend": "down", "category": "macro"}
+        ]
+    }
+
+
+# ─── ACTAS DE REUNIÓN CON IA & COMPROMISOS (MÓDULO 47) ───
+class MeetingMinutesRequest(BaseModel):
+    meeting_title: str = Field(default="Comité de Dirección & Estrategia")
+    attendees: Optional[str] = Field(default="Santiago Huerfano (CEO), Equipo Directivo")
+    notes: Optional[str] = Field(default="")
+
+
+@router.post("/meetings/minutes")
+async def extract_meeting_minutes_endpoint(req: MeetingMinutesRequest):
+    res = meeting_minutes_service.extract_minutes_and_actions(
+        meeting_title=req.meeting_title,
+        attendees=req.attendees,
+        raw_notes_or_transcript=req.notes or ""
+    )
+    return {"ok": True, "minutes": res}
+
+
+# ─── MATRIZ DE PRIORIZACIÓN CEO EISENHOWER 2.0 (MÓDULO 48) ───
+class ExecutivePrioritiesRequest(BaseModel):
+    ceo_name: str = Field(default="Santiago Huerfano")
+    working_hours_day: float = Field(default=9.0, gt=0, le=24)
+    items: Optional[List[Dict[str, Any]]] = None
+
+
+@router.post("/priorities/evaluate")
+async def evaluate_executive_priorities_endpoint(req: ExecutivePrioritiesRequest):
+    res = executive_prioritizer_service.evaluate_priorities(
+        ceo_name=req.ceo_name,
+        items=req.items,
+        working_hours_day=req.working_hours_day
+    )
+    return {"ok": True, "priorities": res}

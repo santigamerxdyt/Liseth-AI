@@ -16,6 +16,126 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
+    /* ─── CINTA BURSÁTIL & MACRO EN TIEMPO REAL (TICKER TAPE) ─── */
+    .executive-ticker-tape {
+      width: 100%;
+      background: rgba(4, 7, 13, 0.95);
+      border-bottom: 1px solid rgba(0, 210, 255, 0.25);
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+      z-index: 50;
+      padding: 6px 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+    .ticker-tape-track {
+      display: inline-flex;
+      gap: 28px;
+      animation: tickerScroll 40s linear infinite;
+      padding-left: 100%;
+    }
+    .executive-ticker-tape:hover .ticker-tape-track {
+      animation-play-state: paused;
+    }
+    @keyframes tickerScroll {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.76rem;
+      font-family: var(--font-mono);
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ticker-item:hover {
+      color: #00f0ff;
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+    }
+    .ticker-symbol {
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+    .ticker-val {
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .ticker-trend-up {
+      color: #10b981;
+      font-weight: 700;
+    }
+    .ticker-trend-down {
+      color: #ef4444;
+      font-weight: 700;
+    }
+    .ticker-trend-neutral {
+      color: #ffd166;
+      font-weight: 700;
+    }
+
+    /* ─── CONTENEDOR AVATAR 3D HOLOGRÁFICO (WEBGL) ─── */
+    .liseth-3d-avatar-container {
+      width: 250px;
+      height: 250px;
+      margin: 0 auto 12px;
+      position: relative;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(14, 24, 46, 0.95) 0%, rgba(4, 7, 13, 0.98) 75%);
+      border: 2px solid rgba(0, 210, 255, 0.65);
+      box-shadow: 0 0 35px rgba(0, 210, 255, 0.35), inset 0 0 25px rgba(0, 210, 255, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .liseth-3d-avatar-container:hover {
+      border-color: #00f0ff;
+      box-shadow: 0 0 45px rgba(0, 240, 255, 0.55), inset 0 0 35px rgba(0, 240, 255, 0.3);
+      transform: scale(1.02);
+    }
+    .liseth-3d-avatar-container.speaking {
+      animation: avatar3dPulse 1.2s infinite ease-in-out;
+      border-color: #a855f7;
+      box-shadow: 0 0 45px rgba(168, 85, 247, 0.55), inset 0 0 35px rgba(168, 85, 247, 0.35);
+    }
+    @keyframes avatar3dPulse {
+      0%, 100% { transform: scale(1.0); }
+      50% { transform: scale(1.03); }
+    }
+    #liseth-3d-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 50%;
+    }
+    .avatar-3d-hud-overlay {
+      position: absolute;
+      bottom: 8px;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .avatar-3d-badge {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      background: rgba(0, 210, 255, 0.2);
+      border: 1px solid rgba(0, 210, 255, 0.5);
+      color: #00f0ff;
+      padding: 2px 8px;
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
+    }
+
     :root {
       --bg-primary: #04070d;
       --bg-secondary: #090f1d;
@@ -6341,6 +6461,8 @@
   </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#04070d">
+  <script src="app/static/js/three.min.js"></script>
+  <script>if(!window.THREE){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
 </head>
 <body>
 <!-- Saltos de Teclado Accesibles (WCAG 2.1) -->
@@ -6388,8 +6510,8 @@
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES (ACCESO DIRECTO PRIORITARIO #1) -->
         <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 44 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
           <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
-          <span style="color: #ffffff; letter-spacing: 0.04em;">46 MÓDULOS HUD</span>
-          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">44</span>
+          <span style="color: #ffffff; letter-spacing: 0.04em;">48 MÓDULOS HUD</span>
+          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">48</span>
         </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
         <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal (Escala de texto, Alto contraste, Lector y Atajos) - Alt+A">
@@ -6483,6 +6605,20 @@
     </div>
   </header>
 
+  <!-- CINTA BURSÁTIL & MACRO EN TIEMPO REAL (TICKER TAPE EJECUTIVO) -->
+  <div class="executive-ticker-tape" id="executive-ticker-tape" title="Cinta bursátil ejecutiva en vivo • Clic en cualquier cotización para análisis detallado">
+    <div class="ticker-tape-track" id="ticker-tape-track">
+      <div class="ticker-item" onclick="openForexModal()"><span class="ticker-symbol">TRM USD/COP:</span> <span class="ticker-val">$4.185,50</span> <span class="ticker-trend-up">▲ +0.42%</span></div>
+      <div class="ticker-item" onclick="openForexModal()"><span class="ticker-symbol">EUR/COP:</span> <span class="ticker-val">$4.522,10</span> <span class="ticker-trend-down">▼ -0.18%</span></div>
+      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">BITCOIN:</span> <span class="ticker-val">$67.420 USD</span> <span class="ticker-trend-up">▲ +2.15%</span></div>
+      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">ECOPETROL:</span> <span class="ticker-val">$2.450 COP</span> <span class="ticker-trend-up">▲ +1.24%</span></div>
+      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">BANCOLOMBIA:</span> <span class="ticker-val">$34.800 COP</span> <span class="ticker-trend-up">▲ +0.87%</span></div>
+      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">S&P 500:</span> <span class="ticker-val">5.815 pts</span> <span class="ticker-trend-up">▲ +0.54%</span></div>
+      <div class="ticker-item" onclick="openMacroModal()"><span class="ticker-symbol">TASA BANREP:</span> <span class="ticker-val">9,75% E.A.</span> <span class="ticker-trend-neutral">● Estable</span></div>
+      <div class="ticker-item" onclick="openMacroModal()"><span class="ticker-symbol">INFLACIÓN IPC:</span> <span class="ticker-val">5,81% Anual</span> <span class="ticker-trend-down">▼ -0.25%</span></div>
+    </div>
+  </div>
+
   <!-- ESCENARIO PRINCIPAL HOLOGRÁFICO: ESFERA CON ONDAS SONORAS Y TRANSCIPCIÓN -->
   <div class="holographic-main-stage" id="holographic-main-stage">
     <!-- 1. VISTA PREDETERMINADA: ESFERA HOLOGRÁFICA CON ONDAS -->
@@ -6553,8 +6689,17 @@
       <div class="orb-stage-wrapper">
         <!-- Conmutador de Modo de Avatar (Humano vs Reactor Arc) -->
         <div class="avatar-mode-switch" id="avatar-mode-switch">
-          <button type="button" class="avatar-switch-btn active" id="btn-avatar-human" onclick="setAvatarMode('human')" title="Ver a Liseth en apariencia humana ejecutiva">👩‍💼 Avatar Humano</button>
+          <button type="button" class="avatar-switch-btn active" id="btn-avatar-3d" onclick="setAvatarMode('avatar3d')" title="Ver a Liseth en 3D Holográfico interactivo">💎 Avatar 3D</button>
+          <button type="button" class="avatar-switch-btn" id="btn-avatar-human" onclick="setAvatarMode('human')" title="Ver a Liseth en apariencia humana ejecutiva">👩‍💼 Retrato 2D</button>
           <button type="button" class="avatar-switch-btn" id="btn-avatar-reactor" onclick="setAvatarMode('reactor')" title="Ver Núcleo Reactor Cuántico">⚛️ Reactor Arc</button>
+        </div>
+
+        <!-- 0. AVATAR 3D HOLOGRÁFICO (INTERACTIVO THREE.JS WEBGL CON SEGUIMIENTO DE MOUSE) -->
+        <div class="liseth-3d-avatar-container" id="liseth-3d-avatar-container" onclick="toggleAvatarInteraction()" title="Liseth 3D • Secretaria Ejecutiva de Alta Dirección (Clic para interactuar)">
+          <canvas id="liseth-3d-canvas" width="250" height="250"></canvas>
+          <div class="avatar-3d-hud-overlay">
+            <span class="avatar-3d-badge">3D REAL-TIME WEBGL</span>
+          </div>
         </div>
 
         <!-- 1. AVATAR HUMANO EJECUTIVO (PREDETERMINADO) -->
@@ -6658,7 +6803,7 @@
 
       <!-- Píldoras de Acciones Rápidas -->
       <div class="quick-chips" style="margin-top: 18px;">
-        <button class="chip-btn" id="btn-quick-hud-modules" style="border: 1.5px solid #00f0ff; background: rgba(0, 240, 255, 0.18); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); font-weight: 700; color: #ffffff;" title="Abrir catálogo completo de los 46 módulos tácticos de Liseth">
+        <button class="chip-btn" id="btn-quick-hud-modules" style="border: 1.5px solid #00f0ff; background: rgba(0, 240, 255, 0.18); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); font-weight: 700; color: #ffffff;" title="Abrir catálogo completo de los 48 módulos tácticos de Liseth">
           <span style="color: #00f0ff; font-size: 1rem;">◈</span> 46 Módulos HUD
         </button>
         <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
@@ -7962,14 +8107,14 @@
           <button type="button" id="hud-search-clear" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;" title="Limpiar búsqueda">&times;</button>
         </div>
         <div class="hud-count-pill" id="hud-visible-count-pill" style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); padding: 9px 16px; border-radius: 10px; color: #00d2ff; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; white-space: nowrap; box-shadow: 0 0 10px rgba(0,210,255,0.2);">
-          46 / 46 MÓDULOS
+          48 / 48 MÓDULOS
         </div>
       </div>
 
       <!-- Pestañas de filtrado de categorías -->
       <div class="hud-filter-tabs">
-        <button class="hud-tab active" data-filter="all">TODOS (46)</button>
-        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (23)</button>
+        <button class="hud-tab active" data-filter="all">TODOS (48)</button>
+        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (25)</button>
         <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
         <button class="hud-tab" data-filter="connectors">CONECTORES</button>
         <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
@@ -8477,6 +8622,28 @@
           <div class="hud-card-title">Lean Six Sigma, OEE & TOC</div>
           <div class="hud-card-desc">Nivel Sigma (1σ–6σ), DPMO, capacidad Cp/Cpk, efectividad global de equipos (OEE), Takt Time y cuellos de botella Goldratt.</div>
           <div class="hud-card-action"><span>Auditar Operaciones</span> <span>→</span></div>
+        </div>
+
+        <!-- 47. Generador de Actas de Reunión con IA & Extractor de Compromisos -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-meeting-minutes">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">📋</div>
+            <span class="hud-card-status status-online">AI MINUTES & ACTIONS</span>
+          </div>
+          <div class="hud-card-title">Actas de Reunión & Compromisos</div>
+          <div class="hud-card-desc">Síntesis ejecutiva de juntas y comités, extracción de compromisos (Action Items con fechas límite) y correo formal de seguimiento.</div>
+          <div class="hud-card-action"><span>Sintetizar Acta</span> <span>→</span></div>
+        </div>
+
+        <!-- 48. Matriz de Priorización CEO Eisenhower 2.0 & Foco de Alto Impacto -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-executive-prioritizer">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.12);">🎯</div>
+            <span class="hud-card-status status-online">EISENHOWER 2.0 / FOCO</span>
+          </div>
+          <div class="hud-card-title">Matriz de Priorización CEO</div>
+          <div class="hud-card-desc">Cuadrantes dinámicos (Q1 Crítico, Q2 Estratégico, Q3 Delegar, Q4 Eliminar), índice de foco directivo y desbloqueo de agenda.</div>
+          <div class="hud-card-action"><span>Evaluar Prioridades</span> <span>→</span></div>
         </div>
 
       </div>
@@ -11481,7 +11648,7 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
           <div>
             <label style="font-size: 0.7rem; color: #94a3b8; display: block;">1. Propuesta de Valor:</label>
-            <input type="text" id="bca-vp-input" value="Asistente autónomo con IA y 46 módulos de alta gerencia ejecutiva." style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+            <input type="text" id="bca-vp-input" value="Asistente autónomo con IA y 48 módulos de alta gerencia ejecutiva." style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
           </div>
           <div>
             <label style="font-size: 0.7rem; color: #94a3b8; display: block;">2. Segmentos de Clientes:</label>
@@ -11885,6 +12052,163 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
   </div>
 
   <!-- ======================================================== -->
+  <!-- MODAL: ACTAS DE REUNIÓN CON IA & COMPROMISOS (#47)       -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="meeting-minutes-modal">
+    <div class="modal-card" style="max-width: 900px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #38ef7d; border-color: rgba(56, 239, 125, 0.4); background: rgba(56, 239, 125, 0.12);">📋</div>
+        <div class="modal-title">
+          <h2>Actas de Reunión con IA & Extractor de Compromisos</h2>
+          <p>Síntesis directiva en 3 viñetas, acuerdos formales, matriz de tareas con responsable y correo de seguimiento</p>
+        </div>
+        <button class="modal-close" onclick="closeMeetingMinutesModal()">&times;</button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Reuniones Tipo:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadMeetingPreset('board')">Junta Directiva de Inversión</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadMeetingPreset('operations')">Comité Operativo & Suministro</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadMeetingPreset('sales')">Comité Comercial & Expansión</button>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 239, 125, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 2fr 2fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Título de la Sesión:</label>
+            <input type="text" id="min-title-input" value="Comité Ejecutivo de Dirección & Estrategia" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Asistentes y Cargos:</label>
+            <input type="text" id="min-attendees-input" value="Santiago Huerfano (CEO), Directora Financiera, Líder de Operaciones, Asesor Legal" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Notas en Bruto o Transcripción de la Reunión:</label>
+          <textarea id="min-notes-input" rows="4" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.78rem; resize: vertical;">Se revisó el presupuesto de capital para el nuevo trimestre. Se acordó asignar 50 millones a la expansión del software SaaS. La Directora Financiera presentará la conciliación de tesorería y el análisis de factoring antes del viernes. El Líder de Operaciones debe auditar los tiempos muertos de la línea y reducir el tiempo de ciclo a menos de 2.5 segundos para el día 15 del mes. El Asesor Legal confirmó la radicación del informe SAGRILAFT ante la SuperSociedades para el próximo lunes. Santiago Huerfano liderará la reunión con los inversionistas institucionales el próximo miércoles.</textarea>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #38ef7d, #10b981); border-color: #38ef7d; color: #04070d; font-weight: 800;" onclick="submitMeetingMinutes()">Extraer Acta Directiva, Compromisos & Borrador de Correo</button>
+      </div>
+
+      <div id="min-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 239, 125, 0.35); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="min-res-title" style="font-size: 0.95rem; font-weight: 800; color: #38ef7d;">Comité Directivo</span>
+            <div id="min-res-date" style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">Fecha y Asistentes</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block;">COMPROMISOS CRÍTICOS</span>
+            <span id="min-res-critical-count" style="font-size: 1.15rem; font-weight: 800; color: #00f0ff;">4 Activos</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 0.74rem; font-weight: 700; color: #ffd166; margin-bottom: 4px;">📌 RESUMEN EJECUTIVO DIRECTIVO (3 TAKEAWAYS):</div>
+          <div id="min-res-summary" style="font-size: 0.76rem; color: #e2e8f0; line-height: 1.4;"></div>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 0.74rem; font-weight: 700; color: #38ef7d; margin-bottom: 4px;">⚡ MATRIZ DE COMPROMISOS & RESPONSABLES:</div>
+          <div id="min-res-actions" style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.4;"></div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px; font-size: 0.74rem;">
+          <div style="font-weight: 700; color: #00d2ff; margin-bottom: 4px;">✉️ BORRADOR DE CORREO DE SEGUIMIENTO (PRE-REDACTADO):</div>
+          <pre id="min-res-email" style="white-space: pre-wrap; word-break: break-word; color: #e2e8f0; font-family: var(--font-mono); font-size: 0.72rem; max-height: 140px; overflow-y: auto;"></pre>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeMeetingMinutesModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: MATRIZ DE PRIORIZACIÓN CEO EISENHOWER 2.0 (#48)   -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="executive-prioritizer-modal">
+    <div class="modal-card" style="max-width: 900px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.12);">🎯</div>
+        <div class="modal-title">
+          <h2>Matriz de Priorización CEO Eisenhower 2.0 & Foco</h2>
+          <p>Cuadrantes Q1-Q4, índice de foco estratégico en Q2, eliminación de trampas de urgencia y directivas de delegación</p>
+        </div>
+        <button class="modal-close" onclick="closeExecutivePrioritizerModal()">&times;</button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Cargas Tipo:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadPrioritiesPreset('optimal')">CEO Enfocado (70% Estratégico Q2)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadPrioritiesPreset('overloaded')">Sobrecarga de Urgencia (Trampa Q1/Q3)</button>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Líder / Ejecutivo:</label>
+            <input type="text" id="prio-ceo-input" value="Santiago Huerfano López" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Capacidad de Jornada (Horas):</label>
+            <input type="number" id="prio-hours-input" value="9.0" step="0.5" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #a855f7, #9333ea); border-color: #a855f7;" onclick="submitExecutivePrioritizer()">Diagnosticar Foco Estratégico CEO & Matriz Cuadrantes</button>
+      </div>
+
+      <div id="prio-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="prio-res-status" style="font-size: 0.95rem; font-weight: 800; color: #a855f7;">ESTADO DE FOCO</span>
+            <div id="prio-res-diag" style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">Diagnóstico de agenda</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block;">ÍNDICE DE FOCO ESTRATÉGICO (Q2)</span>
+            <span id="prio-res-index" style="font-size: 1.15rem; font-weight: 800; color: #10b981;">68.5%</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; text-align: center;">
+          <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px; border-radius: 6px;">
+            <div style="font-size: 0.65rem; color: #ef4444; font-weight: 700;">Q1: Urgente/Crítico</div>
+            <div id="prio-q1-hours" style="font-size: 0.85rem; font-weight: 700; color: #fff;">1.5h</div>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px; border-radius: 6px;">
+            <div style="font-size: 0.65rem; color: #10b981; font-weight: 700;">Q2: Estratégico</div>
+            <div id="prio-q2-hours" style="font-size: 0.85rem; font-weight: 700; color: #10b981;">5.5h</div>
+          </div>
+          <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 6px; border-radius: 6px;">
+            <div style="font-size: 0.65rem; color: #f59e0b; font-weight: 700;">Q3: Delegable</div>
+            <div id="prio-q3-hours" style="font-size: 0.85rem; font-weight: 700; color: #fff;">2.0h</div>
+          </div>
+          <div style="background: rgba(148, 163, 184, 0.15); border: 1px solid rgba(148, 163, 184, 0.3); padding: 6px; border-radius: 6px;">
+            <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">Q4: Descarte</div>
+            <div id="prio-q4-hours" style="font-size: 0.85rem; font-weight: 700; color: #fff;">1.0h</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.25); border-radius: 6px; padding: 8px; font-size: 0.74rem;">
+          <div style="font-weight: 700; color: #a855f7; margin-bottom: 4px;">🎯 DIRECTIVAS EJECUTIVAS DE DESBLOQUEO DE AGENDA:</div>
+          <div id="prio-res-dirs" style="color: #e2e8f0; line-height: 1.4;"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeExecutivePrioritizerModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
   <!-- MODAL: CENTRO DE ACCESIBILIDAD UNIVERSAL STARK (A11Y)    -->
   <!-- ======================================================== -->
   <div class="modal-overlay" id="a11y-modal" role="dialog" aria-modal="true" aria-labelledby="a11y-title">
@@ -11947,7 +12271,7 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.76rem; color: #cbd5e1;">
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Esc</kbd> : Cerrar cualquier modal o menú activo</div>
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + K</kbd> : Enfocar el campo de entrada de chat</div>
-          <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + H</kbd> : Abrir Centro de Módulos HUD (46)</div>
+          <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + H</kbd> : Abrir Centro de Módulos HUD (48)</div>
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + A</kbd> : Abrir este Panel de Accesibilidad</div>
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + M</kbd> : Activar / Detener micrófono de voz</div>
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + V</kbd> : Conmutar voz de Liseth (habla)</div>
@@ -19195,6 +19519,18 @@ const cardEsg = document.getElementById("hud-card-esg");
           window.openLeanSixSigmaModal();
         });
 
+        const cardMinutes = document.getElementById("hud-card-meeting-minutes");
+        if (cardMinutes) cardMinutes.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openMeetingMinutesModal();
+        });
+
+        const cardPrioritizer = document.getElementById("hud-card-executive-prioritizer");
+        if (cardPrioritizer) cardPrioritizer.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openExecutivePrioritizerModal();
+        });
+
 
 
 
@@ -20057,7 +20393,7 @@ const cardEsg = document.getElementById("hud-card-esg");
           document.getElementById("bca-name-input").value = "SaaS Cloud Intelligence B2B";
           document.getElementById("bca-quadrant-input").value = "market_penetration";
           document.getElementById("bca-budget-input").value = "50000000";
-          document.getElementById("bca-vp-input").value = "Suite de copiloto ejecutivo con 46 módulos y analítica predictiva en tiempo real.";
+          document.getElementById("bca-vp-input").value = "Suite de copiloto ejecutivo con 48 módulos y analítica predictiva en tiempo real.";
           document.getElementById("bca-cs-input").value = "C-Levels, juntas directivas y administradores de empresas en Colombia.";
           document.getElementById("bca-rs-input").value = "Suscripciones mensuales recurrentes (MRR) y licencias corporativas anuales.";
         } else if (type === "retail") {
@@ -20906,6 +21242,463 @@ const cardEsg = document.getElementById("hud-card-esg");
         if (m) m.classList.remove("active");
         playHudSound("close");
       };
+
+      // ─── 47. ACTAS DE REUNIÓN CON IA & COMPROMISOS ───
+      window.openMeetingMinutesModal = function() {
+        const m = document.getElementById("meeting-minutes-modal");
+        if (m) m.classList.add("active");
+        playHudSound("open");
+      };
+
+      window.closeMeetingMinutesModal = function() {
+        const m = document.getElementById("meeting-minutes-modal");
+        if (m) m.classList.remove("active");
+        playHudSound("close");
+      };
+
+      window.loadMeetingPreset = function(type) {
+        playHudSound("click");
+        if (type === "board") {
+          document.getElementById("min-title-input").value = "Junta Directiva Trimestral de Inversión";
+          document.getElementById("min-attendees-input").value = "Santiago Huerfano (CEO), Miembros de Junta, Asesor Banca";
+          document.getElementById("min-notes-input").value = "Aprobada ronda semilla de expansión por 150 millones. Compromiso de entregar modelo financiero y retorno proyectado antes del viernes 30. Se ratifica no exceder límite de endeudamiento del 20%. Santiago presentará el informe final a socios fundadores.";
+        } else if (type === "operations") {
+          document.getElementById("min-title-input").value = "Comité Operativo & Cadena de Suministro";
+          document.getElementById("min-attendees-input").value = "Santiago Huerfano (CEO), Director de Operaciones, Jefe de Logística";
+          document.getElementById("min-notes-input").value = "Identificado cuello de botella en línea de despacho. Acordado reducir tiempo de ciclo de 3.2s a 2.4s implementando SMED. Jefe de logística cotizará dos transportadoras aliadas antes del miércoles.";
+        } else if (type === "sales") {
+          document.getElementById("min-title-input").value = "Comité Comercial & Ventas B2B";
+          document.getElementById("min-attendees-input").value = "Santiago Huerfano (CEO), Gerente Comercial, Líder Growth";
+          document.getElementById("min-notes-input").value = "Meta del mes: 30 nuevos clientes corporativos. Lanzamiento de campaña LinkedIn y optimización de CAC para mantener ratio LTV/CAC superior a 3.5x. Presentar reporte de conversión cada lunes a primera hora.";
+        }
+      };
+
+      window.submitMeetingMinutes = async function() {
+        playHudSound("click");
+        const meeting_title = document.getElementById("min-title-input")?.value || "Reunión";
+        const attendees = document.getElementById("min-attendees-input")?.value || "Equipo";
+        const notes = document.getElementById("min-notes-input")?.value || "";
+
+        try {
+          const res = await fetch("/api/suite/meetings/minutes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ meeting_title, attendees, notes })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const m = data.minutes;
+            document.getElementById("min-results-panel").style.display = "block";
+            document.getElementById("min-res-title").textContent = m.meeting_title;
+            document.getElementById("min-res-date").textContent = m.meeting_date + " | Asistentes: " + m.attendees;
+            document.getElementById("min-res-critical-count").textContent = m.critical_actions_count + " Críticos / " + m.total_actions_count + " Total";
+            document.getElementById("min-res-summary").innerHTML = m.executive_summary.map(s => "• " + s).join("<br>");
+            document.getElementById("min-res-actions").innerHTML = m.action_items.map(a => `<b>[${a.id}] ${a.owner}:</b> ${a.task} <span style="color:#00f0ff;">(Límite: ${a.deadline} | ${a.priority})</span>`).join("<br>");
+            document.getElementById("min-res-email").textContent = m.follow_up_email_draft;
+            showToast("Acta ejecutiva & compromisos extraídos con éxito");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      // ─── 48. MATRIZ DE PRIORIZACIÓN CEO EISENHOWER 2.0 ───
+      window.openExecutivePrioritizerModal = function() {
+        const m = document.getElementById("executive-prioritizer-modal");
+        if (m) m.classList.add("active");
+        playHudSound("open");
+      };
+
+      window.closeExecutivePrioritizerModal = function() {
+        const m = document.getElementById("executive-prioritizer-modal");
+        if (m) m.classList.remove("active");
+        playHudSound("close");
+      };
+
+      let currentPrioritiesPreset = null;
+
+      window.loadPrioritiesPreset = function(type) {
+        playHudSound("click");
+        if (type === "optimal") {
+          currentPrioritiesPreset = [
+            { title: "Definición de visión de producto y expansión internacional", estimated_hours: 4.5, urgency: "media", importance: "estrategica", quadrant: "Q2" },
+            { title: "Revisión estratégica de alianzas con fondos de inversión", estimated_hours: 2.0, urgency: "baja", importance: "estrategica", quadrant: "Q2" },
+            { title: "Firma notarial urgente de poder judicial de la compañía", estimated_hours: 1.0, urgency: "inmediata", importance: "critica", quadrant: "Q1" },
+            { title: "Revisar solicitudes rutinarias de personal", estimated_hours: 1.0, urgency: "alta", importance: "baja", quadrant: "Q3" },
+            { title: "Lectura de correos informativos sin acción requerida", estimated_hours: 0.5, urgency: "baja", importance: "baja", quadrant: "Q4" }
+          ];
+          showToast("Preset 'CEO Enfocado en Q2' cargado");
+        } else if (type === "overloaded") {
+          currentPrioritiesPreset = [
+            { title: "Apagar incendio operativo en entrega de servidores", estimated_hours: 3.5, urgency: "inmediata", importance: "critica", quadrant: "Q1" },
+            { title: "Responder 25 correos rutinarios de proveedores", estimated_hours: 2.5, urgency: "alta", importance: "baja", quadrant: "Q3" },
+            { title: "Reunión de emergencia por queja de cliente local", estimated_hours: 2.0, urgency: "inmediata", importance: "media", quadrant: "Q1" },
+            { title: "Estrategia de nuevos productos (postergada)", estimated_hours: 1.0, urgency: "baja", importance: "estrategica", quadrant: "Q2" }
+          ];
+          showToast("Preset 'Sobrecarga de Urgencia' cargado");
+        }
+      };
+
+      window.submitExecutivePrioritizer = async function() {
+        playHudSound("click");
+        const ceo_name = document.getElementById("prio-ceo-input")?.value || "Santiago Huerfano";
+        const working_hours_day = parseFloat(document.getElementById("prio-hours-input")?.value || "9.0");
+
+        try {
+          const res = await fetch("/api/suite/priorities/evaluate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ceo_name, working_hours_day, items: currentPrioritiesPreset })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const p = data.priorities;
+            document.getElementById("prio-results-panel").style.display = "block";
+            document.getElementById("prio-res-status").textContent = p.metrics.status_color + " • " + p.metrics.strategic_focus_index_pct + "% FOCO Q2";
+            document.getElementById("prio-res-diag").textContent = p.metrics.diagnostic;
+            document.getElementById("prio-res-index").textContent = p.metrics.strategic_focus_index_pct + "%";
+            document.getElementById("prio-q1-hours").textContent = p.quadrants.q1_urgent_critical.hours + "h";
+            document.getElementById("prio-q2-hours").textContent = p.quadrants.q2_strategic_high_value.hours + "h";
+            document.getElementById("prio-q3-hours").textContent = p.quadrants.q3_urgent_delegate.hours + "h";
+            document.getElementById("prio-q4-hours").textContent = p.quadrants.q4_eliminate.hours + "h";
+            document.getElementById("prio-res-dirs").innerHTML = p.directives.map(d => "• " + d).join("<br>");
+            showToast("Matriz Eisenhower 2.0 y directivas calculadas");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      // ========================================================
+      // MOTOR 3D HOLOGRÁFICO DE LISETH (THREE.JS / WEBGL REAL-TIME)
+      // ========================================================
+      let liseth3D = {
+        scene: null,
+        camera: null,
+        renderer: null,
+        headGroup: null,
+        faceMesh: null,
+        wireMesh: null,
+        hairGroup: null,
+        leftEye: null,
+        rightEye: null,
+        leftPupil: null,
+        rightPupil: null,
+        mouthMesh: null,
+        orbitalRings: [],
+        particles: null,
+        mouse: { x: 0, y: 0, targetX: 0, targetY: 0 },
+        isInitialized: false,
+        isBlinking: false,
+        blinkTimer: 0,
+        nextBlink: 3.5,
+        clock: null
+      };
+
+      function initLiseth3DAvatar() {
+        if (liseth3D.isInitialized) return;
+        const container = document.getElementById("liseth-3d-avatar-container");
+        const canvas = document.getElementById("liseth-3d-canvas");
+        if (!container || !canvas || typeof THREE === "undefined") return;
+
+        const w = container.clientWidth || 250;
+        const h = container.clientHeight || 250;
+
+        // 1. Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
+        camera.position.set(0, 0, 4.2);
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setSize(w, h);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+        // 2. Lights
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambLight);
+
+        const keyLight = new THREE.PointLight(0x00f0ff, 2.5, 20);
+        keyLight.position.set(2.5, 3, 3);
+        scene.add(keyLight);
+
+        const rimLight = new THREE.PointLight(0xffd166, 1.8, 20);
+        rimLight.position.set(-3, 2, -2.5);
+        scene.add(rimLight);
+
+        const fillLight = new THREE.PointLight(0xa855f7, 1.5, 20);
+        fillLight.position.set(0, -3, 2.5);
+        scene.add(fillLight);
+
+        // 3. Head & Facial Structure
+        const headGroup = new THREE.Group();
+        scene.add(headGroup);
+
+        // Procedural Sculpted Head (Feminine contours)
+        const headGeo = new THREE.IcosahedronGeometry(1.0, 3);
+        const posAttr = headGeo.attributes.position;
+        const v = new THREE.Vector3();
+        for (let i = 0; i < posAttr.count; i++) {
+          v.fromBufferAttribute(posAttr, i);
+          // Facial shaping: taper chin, lift cheekbones, elongate cranial dome
+          if (v.y < 0) {
+            v.x *= 0.82; // tapered chin
+            v.z *= 0.88;
+          }
+          if (v.y > 0.1 && v.y < 0.6 && v.z > 0.4) {
+            v.z *= 1.12; // prominent cheekbones & nose bridge
+          }
+          v.y *= 1.25; // elegant head proportions
+          posAttr.setXYZ(i, v.x, v.y, v.z);
+        }
+        headGeo.computeVertexNormals();
+
+        // Cyber Skin Material (Iridescent Translucent Sheen)
+        const skinMat = new THREE.MeshStandardMaterial({
+          color: 0x0a1b33,
+          roughness: 0.25,
+          metalness: 0.5,
+          emissive: 0x00f0ff,
+          emissiveIntensity: 0.22,
+          transparent: true,
+          opacity: 0.88
+        });
+        const faceMesh = new THREE.Mesh(headGeo, skinMat);
+        headGroup.add(faceMesh);
+
+        // Holographic Wireframe Lattice Overlay
+        const wireMat = new THREE.MeshBasicMaterial({
+          color: 0x00f0ff,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.35
+        });
+        const wireMesh = new THREE.Mesh(headGeo, wireMat);
+        wireMesh.scale.set(1.02, 1.02, 1.02);
+        headGroup.add(wireMesh);
+
+        // 4. Stylized 3D Hair
+        const hairGroup = new THREE.Group();
+        const hairGeo1 = new THREE.TorusGeometry(1.05, 0.28, 8, 30, Math.PI);
+        const hairMat = new THREE.MeshStandardMaterial({
+          color: 0x0f172a,
+          roughness: 0.3,
+          metalness: 0.7,
+          emissive: 0x0284c7,
+          emissiveIntensity: 0.25
+        });
+        const hair1 = new THREE.Mesh(hairGeo1, hairMat);
+        hair1.rotation.x = Math.PI / 2.2;
+        hair1.position.set(0, 0.45, -0.1);
+        hairGroup.add(hair1);
+        headGroup.add(hairGroup);
+
+        // 5. 3D Eyes & Pupils (Tracking)
+        const eyeGeo = new THREE.SphereGeometry(0.13, 16, 16);
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const pupilGeo = new THREE.SphereGeometry(0.065, 12, 12);
+        const pupilMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+
+        const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+        leftEye.position.set(0.32, 0.18, 0.86);
+        const leftPupil = new THREE.Mesh(pupilGeo, pupilMat);
+        leftPupil.position.set(0, 0, 0.08);
+        leftEye.add(leftPupil);
+        headGroup.add(leftEye);
+
+        const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+        rightEye.position.set(-0.32, 0.18, 0.86);
+        const rightPupil = new THREE.Mesh(pupilGeo, pupilMat);
+        rightPupil.position.set(0, 0, 0.08);
+        rightEye.add(rightPupil);
+        headGroup.add(rightEye);
+
+        // 6. 3D Mouth (Talking morph)
+        const mouthGeo = new THREE.BoxGeometry(0.24, 0.04, 0.08);
+        const mouthMat = new THREE.MeshBasicMaterial({ color: 0xff66aa });
+        const mouthMesh = new THREE.Mesh(mouthGeo, mouthMat);
+        mouthMesh.position.set(0, -0.42, 0.82);
+        headGroup.add(mouthMesh);
+
+        // 7. Floating 3D Holographic Orbital Rings
+        const orbitalRings = [];
+        const ringConfigs = [
+          { radius: 1.65, tube: 0.018, color: 0x00f0ff, rotX: 0.6, rotY: 0.2, speed: 0.4 },
+          { radius: 1.85, tube: 0.014, color: 0xffd166, rotX: -0.8, rotY: 0.4, speed: -0.3 },
+          { radius: 2.05, tube: 0.016, color: 0xa855f7, rotX: 1.2, rotY: -0.6, speed: 0.2 }
+        ];
+
+        ringConfigs.forEach(cfg => {
+          const rGeo = new THREE.TorusGeometry(cfg.radius, cfg.tube, 8, 48);
+          const rMat = new THREE.MeshBasicMaterial({ color: cfg.color, transparent: true, opacity: 0.65 });
+          const rMesh = new THREE.Mesh(rGeo, rMat);
+          rMesh.rotation.set(cfg.rotX, cfg.rotY, 0);
+          scene.add(rMesh);
+          orbitalRings.push({ mesh: rMesh, speed: cfg.speed });
+        });
+
+        // 8. 3D Orbital Particle Starfield
+        const partCount = 140;
+        const partGeo = new THREE.BufferGeometry();
+        const partPositions = new Float32Array(partCount * 3);
+        for (let i = 0; i < partCount * 3; i += 3) {
+          partPositions[i] = (Math.random() - 0.5) * 6;
+          partPositions[i + 1] = (Math.random() - 0.5) * 6;
+          partPositions[i + 2] = (Math.random() - 0.5) * 5;
+        }
+        partGeo.setAttribute('position', new THREE.BufferAttribute(partPositions, 3));
+        const partMat = new THREE.PointsMaterial({ color: 0x00f0ff, size: 0.04, transparent: true, opacity: 0.75 });
+        const particles = new THREE.Points(partGeo, partMat);
+        scene.add(particles);
+
+        liseth3D.scene = scene;
+        liseth3D.camera = camera;
+        liseth3D.renderer = renderer;
+        liseth3D.headGroup = headGroup;
+        liseth3D.faceMesh = faceMesh;
+        liseth3D.wireMesh = wireMesh;
+        liseth3D.leftEye = leftEye;
+        liseth3D.rightEye = rightEye;
+        liseth3D.leftPupil = leftPupil;
+        liseth3D.rightPupil = rightPupil;
+        liseth3D.mouthMesh = mouthMesh;
+        liseth3D.orbitalRings = orbitalRings;
+        liseth3D.particles = particles;
+        liseth3D.clock = new THREE.Clock();
+        liseth3D.isInitialized = true;
+
+        // Mouse Tracker
+        window.addEventListener("mousemove", (e) => {
+          liseth3D.mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+          liseth3D.mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+        }, { passive: true });
+
+        // Resize Listener
+        window.addEventListener("resize", () => {
+          if (!container || !renderer || !camera) return;
+          const nw = container.clientWidth || 250;
+          const nh = container.clientHeight || 250;
+          camera.aspect = nw / nh;
+          camera.updateProjectionMatrix();
+          renderer.setSize(nw, nh);
+        });
+
+        // Start render loop
+        renderLiseth3D();
+      }
+
+      function renderLiseth3D() {
+        requestAnimationFrame(renderLiseth3D);
+
+        const container = document.getElementById("liseth-3d-avatar-container");
+        if (!container || container.style.display === "none" || !liseth3D.isInitialized) return;
+
+        const delta = liseth3D.clock.getDelta();
+        const time = liseth3D.clock.getElapsedTime();
+
+        // 1. Smooth Inertial Mouse Lerp (Head & Eye Tracking)
+        liseth3D.mouse.x += (liseth3D.mouse.targetX - liseth3D.mouse.x) * 0.06;
+        liseth3D.mouse.y += (liseth3D.mouse.targetY - liseth3D.mouse.y) * 0.06;
+
+        liseth3D.headGroup.rotation.y = liseth3D.mouse.x * 0.60;
+        liseth3D.headGroup.rotation.x = -liseth3D.mouse.y * 0.45;
+        liseth3D.headGroup.rotation.z = liseth3D.mouse.x * 0.08;
+
+        // Eye pupils look even further towards cursor
+        const pX = Math.max(-0.04, Math.min(0.04, liseth3D.mouse.x * 0.05));
+        const pY = Math.max(-0.03, Math.min(0.03, liseth3D.mouse.y * 0.04));
+        liseth3D.leftPupil.position.x = pX;
+        liseth3D.leftPupil.position.y = pY;
+        liseth3D.rightPupil.position.x = pX;
+        liseth3D.rightPupil.position.y = pY;
+
+        // 2. Idle Sinusoidal Breathing
+        liseth3D.headGroup.position.y = Math.sin(time * 1.6) * 0.05;
+
+        // 3. Natural Blinking Cycle
+        liseth3D.blinkTimer += delta;
+        if (liseth3D.blinkTimer > liseth3D.nextBlink) {
+          liseth3D.isBlinking = true;
+          liseth3D.blinkTimer = 0;
+          liseth3D.nextBlink = 3.2 + Math.random() * 2.8;
+          liseth3D.leftEye.scale.y = 0.1;
+          liseth3D.rightEye.scale.y = 0.1;
+          setTimeout(() => {
+            liseth3D.leftEye.scale.y = 1.0;
+            liseth3D.rightEye.scale.y = 1.0;
+            liseth3D.isBlinking = false;
+          }, 140);
+        }
+
+        // 4. Speech Lip-Sync & Speaking Pulse
+        const isSpeaking = container.classList.contains("speaking") || (window.speechSynthesis && window.speechSynthesis.speaking);
+        if (isSpeaking) {
+          const mouthOpen = Math.abs(Math.sin(time * 14)) * 0.08 + 0.03;
+          liseth3D.mouthMesh.scale.y = mouthOpen / 0.04;
+          liseth3D.wireMesh.material.opacity = 0.55 + Math.sin(time * 8) * 0.2;
+        } else {
+          liseth3D.mouthMesh.scale.y = 1.0;
+          liseth3D.wireMesh.material.opacity = 0.35;
+        }
+
+        // 5. Rotate 3D Orbital Rings
+        liseth3D.orbitalRings.forEach(ring => {
+          ring.mesh.rotation.z += ring.speed * (isSpeaking ? 0.025 : 0.008);
+        });
+
+        // 6. Slowly Rotate Particulate Field
+        if (liseth3D.particles) {
+          liseth3D.particles.rotation.y = time * 0.05;
+          liseth3D.particles.rotation.x = Math.sin(time * 0.03) * 0.1;
+        }
+
+        liseth3D.renderer.render(liseth3D.scene, liseth3D.camera);
+      }
+
+      // Conmutador de modo actualizado (Soporta avatar3d, human, reactor)
+      const oldSetAvatarMode = window.setAvatarMode;
+      window.setAvatarMode = function(mode) {
+        const container3d = document.getElementById("liseth-3d-avatar-container");
+        const humanAv = document.getElementById("liseth-human-avatar-container");
+        const reactorAv = document.getElementById("orb");
+        const btn3d = document.getElementById("btn-avatar-3d");
+        const btnHuman = document.getElementById("btn-avatar-human");
+        const btnReactor = document.getElementById("btn-avatar-reactor");
+
+        if (mode === "avatar3d") {
+          if (container3d) container3d.style.display = "flex";
+          if (humanAv) humanAv.style.display = "none";
+          if (reactorAv) reactorAv.style.display = "none";
+          if (btn3d) btn3d.classList.add("active");
+          if (btnHuman) btnHuman.classList.remove("active");
+          if (btnReactor) btnReactor.classList.remove("active");
+          localStorage.setItem("liseth_avatar_mode", "avatar3d");
+          initLiseth3DAvatar();
+          showToast("Avatar 3D Holográfico Activado (Seguimiento Facial WebGL)");
+        } else if (mode === "human") {
+          if (container3d) container3d.style.display = "none";
+          if (humanAv) humanAv.style.display = "flex";
+          if (reactorAv) reactorAv.style.display = "none";
+          if (btn3d) btn3d.classList.remove("active");
+          if (btnHuman) btnHuman.classList.add("active");
+          if (btnReactor) btnReactor.classList.remove("active");
+          localStorage.setItem("liseth_avatar_mode", "human");
+          showToast("Retrato Ejecutivo 2D Activado");
+        } else {
+          if (container3d) container3d.style.display = "none";
+          if (humanAv) humanAv.style.display = "none";
+          if (reactorAv) reactorAv.style.display = "block";
+          if (btn3d) btn3d.classList.remove("active");
+          if (btnHuman) btnHuman.classList.remove("active");
+          if (btnReactor) btnReactor.classList.add("active");
+          localStorage.setItem("liseth_avatar_mode", "reactor");
+          showToast("Núcleo Reactor Arc Activado");
+        }
+        playHudSound("click");
+      };
+
+      // Iniciar 3D por defecto en escritorio
+      window.addEventListener("DOMContentLoaded", () => {
+        const isDesktop = window.innerWidth >= 768;
+        const savedMode = localStorage.getItem("liseth_avatar_mode") || (isDesktop ? "avatar3d" : "human");
+        window.setAvatarMode(savedMode);
+      });
+
 
       window.loadSixSigmaPreset = function(type) {
         playHudSound("click");

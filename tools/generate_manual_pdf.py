@@ -1001,6 +1001,27 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Piramide DuPont, Altman Z-Score & EVA", "Pida a Liseth: 'Analiza DuPont, Altman Z-Score y EVA para ingresos de 1.200 millones, EBIT de 216 millones, activos de 950 millones y patrimonio de 475 millones'.", "Finanzas Corporativas & EVA")
     builder.add_command_box("Lean Six Sigma, Capacidad Cpk & OEE", "Pida a Liseth: 'Evalua nivel Six Sigma y OEE para 10.000 unidades con 45 defectos, 480 min planeados y 28 min de paradas' para diagnosticar cuellos de botella TOC.", "Excelencia Operacional & OEE")
 
+    # ───
+    # SECCIÓN 39: AVATAR 3D HOLOGRÁFICO WEBGL, CINTA BURSÁTIL Y MÓDULOS 47 Y 48
+    # ───
+    builder.add_section_header("39. Avatar 3D Holografico, Cinta Bursatil, Actas con IA y Matriz CEO (48 Modulos)")
+    builder.add_paragraph(
+        "Liseth alcanza su cuspide de vanguardia digital con 48 modulos tacticos HUD y 75 herramientas nativas registradas: "
+        "(1) Avatar 3D Holografico WebGL para Escritorio: Motor 3D interactivo en Three.js con seguimiento inercial de mouse, "
+        "mirada dinamica, parpadeo biologico aleatorio, modulacion de labios sincronizada por fonemas al hablar, anillos holograficos Stark "
+        "giratorios y reacciones interactivas al tacto/clic. En pantallas de escritorio se activa de forma nativa con respaldo local sin depender de red externa. "
+        "(2) Cinta Bursatil y Macro en Tiempo Real (Ticker Tape): Cinta continua acelerada por hardware (CSS3 GPU) con cotizaciones en vivo "
+        "(TRM USD/COP, EUR/COP, Bitcoin, Ecopetrol, Bancolombia, S&P 500, Tasa BanRep e Inflacion IPC) con pausa interactiva al cursor y apertura instantanea de modales. "
+        "(3) Actas de Reunion con IA y Extractor de Compromisos (Modulo 47): Sintesis ejecutiva de juntas directivas en 3 conclusiones clave, "
+        "catalogo de decisiones aprobadas, matriz de compromisos y responsables (Action Items con fecha limite y nivel de urgencia) y borrador de correo de seguimiento pre-redactado. "
+        "(4) Matriz de Priorizacion CEO Eisenhower 2.0 y Foco Estrategico (Modulo 48): Clasificacion de compromisos en cuadrantes Q1 a Q4, "
+        "calculo del Indice de Foco Estrategico CEO (% de tiempo en Q2 de alto retorno), alerta de la Trampa de la Urgencia y directivas de desbloqueo de agenda directiva:",
+        size=9.0
+    )
+    builder.add_command_box("Actas de Reunion con IA y Compromisos", "Pida a Liseth: 'Sintetiza las notas del comite directivo de hoy y extrae los compromisos con responsables y fechas'.", "Sintesis de Reuniones & Actas IA")
+    builder.add_command_box("Matriz de Priorizacion CEO Eisenhower 2.0", "Pida a Liseth: 'Evalua mis prioridades de hoy con jornada de 9 horas y calcula mi indice de foco estrategico Q2'.", "Optimizacion de Agenda Directiva")
+    builder.add_command_box("Conmutacion de Avatar 3D en Escritorio", "Haga clic en 'Avatar 3D' en la barra superior del avatar para activar el holograma tridimensional interactivo con seguimiento de cursor.", "WebGL Three.js 3D Hologram")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

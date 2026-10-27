@@ -218,6 +218,9 @@ EXEMPT_API_PATHS = {
     "/api/suite/treasury/factoring",
     "/api/suite/finance/dupont-altman",
     "/api/suite/operations/lean-six-sigma",
+    "/api/suite/market/ticker",
+    "/api/suite/meetings/minutes",
+    "/api/suite/priorities/evaluate",
 }
 
 

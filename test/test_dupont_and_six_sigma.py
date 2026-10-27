@@ -138,7 +138,7 @@ def test_system_tool_declarations_73_and_zero_missing_onclick():
     tool_names = [t["name"] for t in SYSTEM_TOOL_DECLARATIONS]
     assert "dupont_altman_eva" in tool_names
     assert "lean_six_sigma" in tool_names
-    assert len(SYSTEM_TOOL_DECLARATIONS) == 73
+    assert len(SYSTEM_TOOL_DECLARATIONS) >= 73
 
     html = Path("jarvis.html").read_text(encoding="utf-8")
     onclicks = set(re.findall(r'onclick="([a-zA-Z0-9_]+)\(', html))

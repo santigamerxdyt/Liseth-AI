@@ -1200,6 +1200,30 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": ["process_name", "units_produced", "total_defects"]
         }
+    },
+    {
+        "name": "meeting_minutes_extractor",
+        "description": "Generador de Actas de Reunión con IA y Extractor de Compromisos / Tareas Pendientes: sintetiza notas o transcripciones de juntas directivas y comités, genera 3 conclusiones ejecutivas clave, extrae las decisiones aprobadas, computa la matriz de compromisos y responsables (Action Items con fecha límite y nivel de urgencia), detecta desalineaciones o riesgos y redacta un borrador de correo de seguimiento formal listo para enviar.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "meeting_title": {"type": "STRING", "description": "Título o motivo de la reunión (ej: Comité de Dirección & Presupuesto)"},
+                "attendees": {"type": "STRING", "description": "Lista de participantes y cargos presentes"},
+                "notes": {"type": "STRING", "description": "Notas en bruto, puntos tratados o transcripción de la sesión"}
+            },
+            "required": ["meeting_title"]
+        }
+    },
+    {
+        "name": "executive_prioritizer",
+        "description": "Matriz de Priorización Ejecutiva Eisenhower 2.0 y Foco CEO: clasifica la carga de trabajo y decisiones en 4 cuadrantes dinámicos (Q1 Urgente & Crítico, Q2 Estratégico & Alto Retorno, Q3 Operativo Delegable, Q4 Ruido a Eliminar), computa el Índice de Foco Estratégico CEO (% de tiempo en Q2) y emite directivas de delegación y desbloqueo de agenda directiva.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "ceo_name": {"type": "STRING", "description": "Nombre del líder o CEO"},
+                "working_hours_day": {"type": "NUMBER", "description": "Capacidad de jornada laboral en horas (ej: 9.0)"}
+            }
+        }
     }
 ]
 
@@ -1683,6 +1707,16 @@ class ActionDispatcher:
             elif name in ("lean_six_sigma", "six_sigma", "oee", "capacidad_proceso", "cp_cpk", "takt_time", "teoria_restricciones"):
                 from app.actions.lean_six_sigma_action import lean_six_sigma_action
                 res = lean_six_sigma_action(parameters=args)
+                return res
+
+            elif name in ("meeting_minutes_extractor", "acta_reunion", "minuta_reunion", "compromisos_reunion", "meeting_minutes"):
+                from app.actions.meeting_minutes_action import meeting_minutes_action
+                res = meeting_minutes_action(parameters=args)
+                return res
+
+            elif name in ("executive_prioritizer", "matriz_prioridades", "eisenhower", "foco_ceo", "priorizacion_ejecutiva"):
+                from app.actions.executive_prioritizer_action import executive_prioritizer_action
+                res = executive_prioritizer_action(parameters=args)
                 return res
 
             else:
