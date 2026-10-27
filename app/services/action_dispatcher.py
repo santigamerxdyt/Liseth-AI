@@ -935,6 +935,37 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
         }
     },
     {
+        "name": "esg_governance",
+        "description": "Gobierno Corporativo & Sostenibilidad ESG: Evaluaciones Ambientales (E), Sociales (S) y Gobernanza (G) bajo estándares IFRS S1/S2 y GRI, calificación compuesta (AAA a CCC) y plan de acción de descarbonización y ética corporativa.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "company_name": {"type": "STRING", "description": "Nombre de la empresa"},
+                "environmental_score": {"type": "NUMBER", "description": "Puntaje Ambiental (0 a 100)"},
+                "social_score": {"type": "NUMBER", "description": "Puntaje Social (0 a 100)"},
+                "governance_score": {"type": "NUMBER", "description": "Puntaje Gobernanza (0 a 100)"},
+                "sector": {"type": "STRING", "description": "Sector económico"}
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "treasury_working_capital",
+        "description": "Tesorería Corporativa, Capital de Trabajo (KTNO) y Factoring: Ciclo de Conversión de Efectivo (CCC = DSO + DIO - DPO), liquidez atrapada y simulador de descuento de facturas electrónicas (RADIAN / DIAN) con Tasa Efectiva Anual (E.A.).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action_type": {"type": "STRING", "description": "ccc | factoring"},
+                "dso_receivables_days": {"type": "NUMBER", "description": "Días de cobro a clientes (DSO)"},
+                "dio_inventory_days": {"type": "NUMBER", "description": "Días de rotación de inventarios (DIO)"},
+                "dpo_payables_days": {"type": "NUMBER", "description": "Días de pago a proveedores (DPO)"},
+                "invoice_face_value_cop": {"type": "NUMBER", "description": "Valor nominal de factura en factoring"},
+                "days_to_maturity": {"type": "INTEGER", "description": "Días restantes para el vencimiento de la factura"}
+            },
+            "required": []
+        }
+    },
+    {
         "name": "forex_radar",
         "description": "Radar Cambiario, Arbitraje de Divisas y Cobertura Forward: TRM oficial Banco de la República, Dólar Cripto USDT P2P, Dólar Tarjeta, EUR/COP, spreads bancarios y simulador de contratos Forward para importaciones.",
         "parameters": {
@@ -1380,6 +1411,16 @@ class ActionDispatcher:
             elif name in ("forex_radar", "radar_cambiario", "trm_colombia", "dolar_colombia", "forward_hedging", "cobertura_divisas"):
                 from app.actions.forex_radar_action import forex_radar_action
                 res = forex_radar_action(parameters=args)
+                return res
+
+            elif name in ("esg_governance", "sostenibilidad_esg", "gobierno_corporativo", "esg_score"):
+                from app.actions.esg_governance_action import esg_governance_action
+                res = esg_governance_action(parameters=args)
+                return res
+
+            elif name in ("treasury_working_capital", "capital_trabajo", "ktno", "ciclo_efectivo", "ccc", "factoring", "radian"):
+                from app.actions.treasury_working_capital_action import treasury_working_capital_action
+                res = treasury_working_capital_action(parameters=args)
                 return res
 
             else:

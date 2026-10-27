@@ -29,3 +29,4 @@ def test_generate_manual_pdf_produces_valid_file():
             assert b"Formulario 490" in content or b"Impuestos DIAN" in content
             assert b"Accesibilidad" in content or b"WCAG" in content
             assert b"Unit Economics" in content or b"9-Box" in content or b"TRM" in content
+            assert b"ESG" in content or b"Factoring" in content or b"KTNO" in content

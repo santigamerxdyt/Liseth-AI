@@ -826,11 +826,11 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     # ───
     # SECCIÓN 30: CENTRO DE ACCESIBILIDAD UNIVERSAL, CATÁLOGO DE 30 MÓDULOS HUD Y ATAJOS
     # ───
-    builder.add_section_header("30. Centro de Accesibilidad Universal, Catalogo de 34 Modulos HUD y Atajos")
+    builder.add_section_header("30. Centro de Accesibilidad Universal, Catalogo de 36 Modulos HUD y Atajos")
     builder.add_paragraph(
-        "Liseth incorpora una arquitectura integral de ergonomia, diseno inclusivo WCAG 2.1 AA/AAA y acceso inmediato a sus 34 modulos tacticos: "
-        "(1) Acceso Frontal y Busqueda en Vivo a los 34 Modulos HUD: El boton de modulos se posiciona como prioridad absoluta (#1) en la barra superior "
-        "con distintivo neon resplandeciente, complementado con una pildora central '34 Modulos HUD' en el panel principal bajo la esfera y atajo Alt+H; "
+        "Liseth incorpora una arquitectura integral de ergonomia, diseno inclusivo WCAG 2.1 AA/AAA y acceso inmediato a sus 36 modulos tacticos: "
+        "(1) Acceso Frontal y Busqueda en Vivo a los 36 Modulos HUD: El boton de modulos se posiciona como prioridad absoluta (#1) en la barra superior "
+        "con distintivo neon resplandeciente, complementado con una pildora central '36 Modulos HUD' en el panel principal bajo la esfera y atajo Alt+H; "
         "la ventana de modulos integra un buscador reactivo en vivo que filtra instantaneamente por titulo o funcion ('impuestos', 'fletes', 'nfc', 'valuacion', 'pc'...) "
         "y pestanas tematicas que incluyen la categoria dedicada 'FINANZAS & ESTRATEGIA (8)'; "
         "(2) Navegacion Accesible por Teclado y Skip Links: Enlaces de omision (.skip-link) para saltar de inmediato al chat o a la cuadricula de modulos, "
@@ -841,7 +841,7 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
         "(6) Matriz Ejecutiva de Atajos Globales: Esc para cerrar modales, Alt+A para Accesibilidad, Alt+H para Modulos HUD, Alt+K para el chat, Alt+M para microfono y Alt+V para voz:",
         size=9.0
     )
-    builder.add_command_box("Catalogo Completo 34 Modulos HUD (Alt+H)", "Haga clic en '30 MODULOS HUD' en el encabezado, presione la pildora central o Alt+H para desplegar y filtrar los 34 modulos.", "Centro de Control HUD Stark")
+    builder.add_command_box("Catalogo Completo 36 Modulos HUD (Alt+H)", "Haga clic en '30 MODULOS HUD' en el encabezado, presione la pildora central o Alt+H para desplegar y filtrar los 36 modulos.", "Centro de Control HUD Stark")
     builder.add_command_box("Buscador en Vivo de Modulos", "Escriba en la barra de busqueda dentro del modal ('impuestos', 'fletes', 'nfc'...) para filtrar en tiempo real con contador reactivo.", "Filtro Reactivo de Modulos")
     builder.add_command_box("Centro de Accesibilidad Stark (Alt+A)", "Haga clic en 'ACCESIBILIDAD' o presione Alt+A para personalizar tamano de fuente, alto contraste y animaciones.", "Accesibilidad Universal WCAG")
     builder.add_command_box("Cierre Instantaneo de Modales (Esc)", "Presione la tecla Escape en cualquier momento para cerrar cualquier modal, visor de documentos, pasarela o panel activo.", "Atajos Globales de Seguridad")
@@ -866,6 +866,24 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Diagnostico Unit Economics & CAC/LTV", "Pida a Liseth: 'Calcula los unit economics con CAC de 120.000 COP, ARPU de 65.000 COP y churn del 3%' para auditar la viabilidad de escalamiento.", "Marketing 360 & SaaS")
     builder.add_command_box("Evaluacion de Colaboradores en Matriz 9-Box", "Pida a Liseth: 'Evalua a Juan Perez en la matriz 9-box con desempeno 2.8 y potencial 2.9' para obtener el plan de retencion y sucesion.", "Talento Humano & 9-Box")
     builder.add_command_box("Radar Cambiario TRM & Cobertura Forward", "Pida a Liseth: 'Muestrame el radar de divisas TRM y simula cobertura Forward de 25.000 USD a 90 dias' para proteger compras internacionales.", "Finanzas & Divisas BanRep")
+
+    # ───
+    # SECCIÓN 32: GOBIERNO CORPORATIVO ESG, TESORERÍA KTNO & FACTORING RADIAN (36 MÓDULOS)
+    # ───
+    builder.add_section_header("32. Gobierno Corporativo ESG, Tesoreria KTNO y Factoring RADIAN")
+    builder.add_paragraph(
+        "Liseth alcanza un nuevo hito de madurez operativa expandiendose a 36 modulos tacticos HUD con dos herramientas de nivel gerencial avanzado: "
+        "(1) Gobierno Corporativo & Sostenibilidad ESG (IFRS S1/S2 & GRI): Diagnostico integral de los pilares Ambiental (E - huella de carbono Scope 1/2 y transicion energetica), "
+        "Social (S - seguridad en el trabajo, bienestar y equidad de genero) y Gobernanza (G - codigo de etica, transparencia fiscal y comites de auditoria independientes), "
+        "calculando la calificacion compuesta (AAA a CCC), nivel de riesgo y la hoja de ruta hacia la certificacion como Empresa B (B Corp) en Colombia; y "
+        "(2) Tesoreria Corporativa, Capital de Trabajo (KTNO) y Factoring Electronico: Determinacion cuantitativa del Ciclo de Conversion de Efectivo (CCC = DSO + DIO - DPO) "
+        "para identificar liquidez inmovilizada, evaluacion del Capital de Trabajo Neto Operativo (KTNO) y simulador financiero de descuento de facturas comerciales "
+        "negociables a traves del sistema oficial RADIAN / DIAN con calculo exacto de Tasa Efectiva Anual (E.A.) y liberacion de liquidez en tiempo record:",
+        size=9.0
+    )
+    builder.add_command_box("Auditoria ESG & Sostenibilidad (IFRS)", "Pida a Liseth: 'Evalua la sostenibilidad ESG de mi empresa con ambiental 82, social 85 y gobernanza 88' para obtener la calificacion compuesta.", "Sostenibilidad & Gobierno ESG")
+    builder.add_command_box("Ciclo de Conversion de Efectivo (CCC)", "Pida a Liseth: 'Calcula el ciclo CCC con cobro de 45 dias, inventario de 30 dias y pago a proveedores de 50 dias' para diagnosticar la liquidez.", "Tesoreria & Capital de Trabajo")
+    builder.add_command_box("Simulador de Factoring RADIAN / DIAN", "Pida a Liseth: 'Simula factoring para factura de 35.000.000 COP a 60 dias' para calcular el descuento y la tasa efectiva anual.", "Factoring & Liquidez Inmediata")
 
     # Final summary note
     builder.add_paragraph(
