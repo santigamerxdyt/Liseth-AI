@@ -33,6 +33,13 @@ from app.services.credit_amortization_service import credit_amortization_service
 from app.services.business_canvas_ansoff_service import business_canvas_ansoff_service
 from app.services.sagrilaft_compliance_service import sagrilaft_compliance_service
 from app.services.predictive_intelligence_service import predictive_intelligence_service
+from app.services.marketing_growth_service import marketing_growth_service
+from app.services.talent_management_service import talent_management_service
+from app.services.forex_radar_service import forex_radar_service
+from app.services.esg_governance_service import esg_governance_service
+from app.services.treasury_working_capital_service import treasury_working_capital_service
+from app.services.dupont_altman_service import dupont_altman_service
+from app.services.lean_six_sigma_service import lean_six_sigma_service
 
 
 
@@ -784,3 +791,227 @@ async def post_predictive_plan_endpoint(req: PredictiveAnticipateRequest):
     res = predictive_intelligence_service.get_anticipatory_plan(context=req.context)
     return {"ok": True, "anticipation": res}
 
+
+# ─── MARKETING 360, TALENTO 9-BOX, FOREX, ESG & TESORERÍA (MÓDULOS 31-36) ───
+class MarketingUnitEconomicsRequest(BaseModel):
+    cac: float = Field(default=150000.0, gt=0)
+    arpu: float = Field(default=85000.0, gt=0)
+    churn_monthly_pct: float = Field(default=3.5, gt=0, le=100)
+    gross_margin_pct: float = Field(default=80.0, gt=0, le=100)
+    currency: str = Field(default="COP")
+
+
+@router.post("/marketing/unit-economics")
+async def calculate_marketing_unit_economics_endpoint(req: MarketingUnitEconomicsRequest):
+    res = marketing_growth_service.calculate_unit_economics(
+        cac=req.cac,
+        arpu=req.arpu,
+        churn_monthly_pct=req.churn_monthly_pct,
+        gross_margin_pct=req.gross_margin_pct,
+        currency=req.currency
+    )
+    return {"ok": True, "unit_economics": res}
+
+
+class MarketingFunnelRequest(BaseModel):
+    impressions: int = Field(default=50000, gt=0)
+    clicks: int = Field(default=1800, ge=0)
+    leads_mql: int = Field(default=160, ge=0)
+    opportunities_sql: int = Field(default=48, ge=0)
+    closed_won: int = Field(default=16, ge=0)
+
+
+@router.post("/marketing/funnel")
+async def diagnose_marketing_funnel_endpoint(req: MarketingFunnelRequest):
+    res = marketing_growth_service.diagnose_funnel(
+        impressions=req.impressions,
+        clicks=req.clicks,
+        leads_mql=req.leads_mql,
+        opportunities_sql=req.opportunities_sql,
+        closed_won=req.closed_won
+    )
+    return {"ok": True, "funnel": res}
+
+
+class TalentEvaluationRequest(BaseModel):
+    employee_name: str = Field(default="Colaborador Clave")
+    role: str = Field(default="Líder de Área")
+    department: str = Field(default="Operaciones & Estrategia")
+    performance_score: float = Field(default=2.8, ge=1.0, le=3.0)
+    potential_score: float = Field(default=2.9, ge=1.0, le=3.0)
+
+
+@router.post("/talent/evaluate")
+async def evaluate_talent_9box_endpoint(req: TalentEvaluationRequest):
+    res = talent_management_service.evaluate_9box(
+        employee_name=req.employee_name,
+        performance_score=req.performance_score,
+        potential_score=req.potential_score,
+        role=req.role,
+        department=req.department
+    )
+    return {"ok": True, "talent": res}
+
+
+class TalentEnpsRequest(BaseModel):
+    promoters: int = Field(default=42, ge=0)
+    passives: int = Field(default=18, ge=0)
+    detractors: int = Field(default=6, ge=0)
+
+
+@router.post("/talent/enps")
+async def calculate_talent_enps_endpoint(req: TalentEnpsRequest):
+    res = talent_management_service.calculate_enps(
+        promoters=req.promoters,
+        passives=req.passives,
+        detractors=req.detractors
+    )
+    return {"ok": True, "enps": res}
+
+
+class ForexForwardRequest(BaseModel):
+    amount_usd: float = Field(default=25000.0, gt=0)
+    spot_rate_cop: float = Field(default=4185.0, gt=0)
+    days_forward: int = Field(default=90, ge=1, le=720)
+    rate_cop_annual_pct: float = Field(default=9.75)
+    rate_usd_annual_pct: float = Field(default=4.50)
+
+
+@router.post("/forex/forward")
+async def simulate_forex_forward_endpoint(req: ForexForwardRequest):
+    res = forex_radar_service.simulate_forward_hedge(
+        amount_usd=req.amount_usd,
+        spot_rate_cop=req.spot_rate_cop,
+        days_forward=req.days_forward,
+        rate_cop_annual_pct=req.rate_cop_annual_pct,
+        rate_usd_annual_pct=req.rate_usd_annual_pct
+    )
+    return {"ok": True, "forward": res}
+
+
+class EsgEvaluateRequest(BaseModel):
+    company_name: str = Field(default="Holding Empresarial")
+    environmental_score: float = Field(default=78.0, ge=0, le=100)
+    social_score: float = Field(default=84.0, ge=0, le=100)
+    governance_score: float = Field(default=88.0, ge=0, le=100)
+    sector: str = Field(default="Servicios & Tecnología")
+    headcount: int = Field(default=60, ge=1)
+
+
+@router.post("/esg/evaluate")
+async def evaluate_esg_endpoint(req: EsgEvaluateRequest):
+    res = esg_governance_service.evaluate_esg(
+        company_name=req.company_name,
+        environmental_score=req.environmental_score,
+        social_score=req.social_score,
+        governance_score=req.governance_score,
+        sector=req.sector,
+        headcount=req.headcount
+    )
+    return {"ok": True, "esg": res}
+
+
+class TreasuryCccRequest(BaseModel):
+    dso_receivables_days: float = Field(default=45.0, ge=0)
+    dio_inventory_days: float = Field(default=35.0, ge=0)
+    dpo_payables_days: float = Field(default=50.0, ge=0)
+    annual_revenue_cop: float = Field(default=1500000000.0, gt=0)
+    annual_cogs_cop: float = Field(default=900000000.0, gt=0)
+
+
+@router.post("/treasury/ccc")
+async def calculate_treasury_ccc_endpoint(req: TreasuryCccRequest):
+    res = treasury_working_capital_service.calculate_cash_conversion_cycle(
+        dso_receivables_days=req.dso_receivables_days,
+        dio_inventory_days=req.dio_inventory_days,
+        dpo_payables_days=req.dpo_payables_days,
+        annual_revenue_cop=req.annual_revenue_cop,
+        annual_cogs_cop=req.annual_cogs_cop
+    )
+    return {"ok": True, "ccc": res}
+
+
+class TreasuryFactoringRequest(BaseModel):
+    invoice_face_value_cop: float = Field(default=45000000.0, gt=0)
+    days_to_maturity: int = Field(default=60, ge=1, le=360)
+    monthly_discount_rate_pct: float = Field(default=1.45, gt=0)
+    platform_fee_pct: float = Field(default=0.30, ge=0)
+
+
+@router.post("/treasury/factoring")
+async def simulate_treasury_factoring_endpoint(req: TreasuryFactoringRequest):
+    res = treasury_working_capital_service.simulate_factoring_discount(
+        invoice_face_value_cop=req.invoice_face_value_cop,
+        days_to_maturity=req.days_to_maturity,
+        monthly_discount_rate_pct=req.monthly_discount_rate_pct,
+        platform_fee_pct=req.platform_fee_pct
+    )
+    return {"ok": True, "factoring": res}
+
+
+# ─── PIRÁMIDE DUPONT, ALTMAN Z''-SCORE & EVA (MÓDULO 45) ───
+class DupontAltmanRequest(BaseModel):
+    company_name: str = Field(default="Grupo Empresarial Andino S.A.S.")
+    revenue: float = Field(default=1200000000.0, gt=0)
+    ebit: float = Field(default=216000000.0)
+    net_income: float = Field(default=126000000.0)
+    total_assets: float = Field(default=950000000.0, gt=0)
+    total_equity: float = Field(default=475000000.0, gt=0)
+    working_capital: float = Field(default=220000000.0)
+    retained_earnings: float = Field(default=190000000.0)
+    wacc_pct: float = Field(default=12.5, gt=0)
+    effective_tax_rate_pct: float = Field(default=35.0, ge=0, le=90)
+    currency: str = Field(default="COP")
+
+
+@router.post("/finance/dupont-altman")
+async def analyze_dupont_altman_endpoint(req: DupontAltmanRequest):
+    res = dupont_altman_service.analyze_corporate_performance(
+        company_name=req.company_name,
+        revenue=req.revenue,
+        ebit=req.ebit,
+        net_income=req.net_income,
+        total_assets=req.total_assets,
+        total_equity=req.total_equity,
+        working_capital=req.working_capital,
+        retained_earnings=req.retained_earnings,
+        wacc_pct=req.wacc_pct,
+        effective_tax_rate_pct=req.effective_tax_rate_pct,
+        currency=req.currency
+    )
+    return {"ok": True, "dupont_altman": res}
+
+
+# ─── EXCELENCIA OPERACIONAL LEAN SIX SIGMA, OEE & TOC (MÓDULO 46) ───
+class LeanSixSigmaRequest(BaseModel):
+    process_name: str = Field(default="Línea de Producción & Fulfillment Central")
+    units_produced: int = Field(default=10000, gt=0)
+    defect_opportunities_per_unit: int = Field(default=5, gt=0)
+    total_defects: int = Field(default=85, ge=0)
+    planned_production_minutes: float = Field(default=480.0, gt=0)
+    downtime_minutes: float = Field(default=36.0, ge=0)
+    ideal_cycle_time_seconds: float = Field(default=2.4, gt=0)
+    customer_daily_demand: int = Field(default=9000, gt=0)
+    usl: float = Field(default=105.0)
+    lsl: float = Field(default=95.0)
+    process_mean: float = Field(default=100.2)
+    process_std_dev: float = Field(default=1.15, gt=0)
+
+
+@router.post("/operations/lean-six-sigma")
+async def evaluate_lean_six_sigma_endpoint(req: LeanSixSigmaRequest):
+    res = lean_six_sigma_service.evaluate_operational_excellence(
+        process_name=req.process_name,
+        units_produced=req.units_produced,
+        defect_opportunities_per_unit=req.defect_opportunities_per_unit,
+        total_defects=req.total_defects,
+        planned_production_minutes=req.planned_production_minutes,
+        downtime_minutes=req.downtime_minutes,
+        ideal_cycle_time_seconds=req.ideal_cycle_time_seconds,
+        customer_daily_demand=req.customer_daily_demand,
+        usl=req.usl,
+        lsl=req.lsl,
+        process_mean=req.process_mean,
+        process_std_dev=req.process_std_dev
+    )
+    return {"ok": True, "lean_six_sigma": res}

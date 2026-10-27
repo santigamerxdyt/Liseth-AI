@@ -4576,7 +4576,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 45 0 R >>
 endobj
 46 0 obj
-<< /Length 1928 >>
+<< /Length 5317 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -4618,12 +4618,100 @@ BT /F1 8.5 Tf 56.0 710.89 Td (Haga clic en 'Avatar Humano' o 'Reactor Arc' en la
 BT /F4 8 Tf 56.0 698.89 Td (-> Interfaz & Presencia Visual) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 679.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.90 0.94 0.98 rg
+42.0 663.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 663.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 670.89 Td (38. Piramide DuPont, Altman Z-Score, EVA y Lean Six Sigma \(46 Modulos\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 644.89 Td (Liseth culmina su auditoria de estandares institucionales alcanzando 46 modulos tacticos HUD, 73) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 632.89 Td (herramientas nativas y 100% de cobertura interactiva en todos los modales del frontend: \(1\) Piramide DuPont,) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 620.89 Td (Modelo Altman Z''-Score y Valor Economico Agregado \(EVA\): Descompone la rentabilidad patrimonial \(ROE\) en 3 y) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 608.89 Td (5 factores \(Margen Neto, Rotacion de Activos, Multiplicador de Capital, Carga Tributaria y Carga Financiera\),) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 596.89 Td (predice la solvencia corporativa y riesgo de insolvencia \(Ley 1116 de 2006\) mediante el modelo Altman) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 584.89 Td (Z''-Score para mercados emergentes \(Z'' = 3.25 + 6.56*X1 + 3.26*X2 + 6.72*X3 + 1.05*X4\) y cuantifica la) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 572.89 Td (creacion real de riqueza mediante el Valor Economico Agregado \(EVA = NOPAT - Capital Invertido * WACC\) y el) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 560.89 Td (spread ROIC vs WACC. \(2\) Excelencia Operacional Lean Six Sigma, OEE & Teoria de Restricciones \(TOC\): Computa) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 548.89 Td (Defectos Por Millon de Oportunidades \(DPMO\), Nivel Sigma \(1 a 6 Sigma con desplazamiento Motorola de 1.5s\),) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 536.89 Td (indices de capacidad de proceso \(Cp y Cpk\), Efectividad Global de Equipos \(OEE = Disponibilidad * Rendimiento) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 524.89 Td (* Calidad\) frente al benchmark de Clase Mundial \(85%\), Takt Time vs Tiempo de Ciclo Real e identificacion de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 512.89 Td (cuellos de botella bajo los 5 pasos de Eliyahu Goldratt:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 460.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 460.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 488.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 493.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 492.89 Td (\"Piramide DuPont, Altman Z-Score & EVA\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 477.89 Td (Pida a Liseth: 'Analiza DuPont, Altman Z-Score y EVA para ingresos de 1.200 millones, EBIT de 216 millones, activos de 950 millones y patrimonio de 475 millones'.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 465.89 Td (-> Finanzas Corporativas & EVA) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 408.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 408.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 436.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 441.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 440.89 Td (\"Lean Six Sigma, Capacidad Cpk & OEE\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 425.89 Td (Pida a Liseth: 'Evalua nivel Six Sigma y OEE para 10.000 unidades con 45 defectos, 480 min planeados y 28 min de paradas' para diagnosticar cuellos de botella TOC.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 413.89 Td (-> Excelencia Operacional & OEE) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 667.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 394.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 382.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -4665,7 +4753,7 @@ xref
 0000141299 00000 n 
 0000150662 00000 n 
 0000159975 00000 n 
-0000162120 00000 n 
+0000165509 00000 n 
 0000000646 00000 n 
 0000007421 00000 n 
 0000015068 00000 n 
@@ -4689,5 +4777,5 @@ xref
 trailer
 << /Size 47 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-162284
+165673
 %%EOF

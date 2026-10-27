@@ -1158,6 +1158,48 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
                 "context": {"type": "STRING", "description": "Contexto opcional o asunto sobre el cual anticipar prioridades"}
             }
         }
+    },
+    {
+        "name": "dupont_altman_eva",
+        "description": "Pirámide DuPont, Modelo Altman Z''-Score y Valor Económico Agregado (EVA): descompone la rentabilidad sobre el patrimonio (ROE) en 3 y 5 factores (margen neto, rotación de activos, apalancamiento financiero, carga tributaria y financiera), evalúa el riesgo de insolvencia corporativa bajo el modelo Altman Z''-Score para mercados emergentes (Ley 1116 de 2006) y calcula la creación o destrucción de valor económico (EVA = NOPAT - Capital Invertido × WACC).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "company_name": {"type": "STRING", "description": "Nombre o razón social de la empresa"},
+                "revenue": {"type": "NUMBER", "description": "Ingresos operacionales anuales"},
+                "ebit": {"type": "NUMBER", "description": "Utilidad operacional EBIT"},
+                "net_income": {"type": "NUMBER", "description": "Utilidad neta del ejercicio"},
+                "total_assets": {"type": "NUMBER", "description": "Activos totales"},
+                "total_equity": {"type": "NUMBER", "description": "Patrimonio neto total"},
+                "working_capital": {"type": "NUMBER", "description": "Capital de trabajo neto (Activo Corriente - Pasivo Corriente)"},
+                "retained_earnings": {"type": "NUMBER", "description": "Utilidades retenidas acumuladas"},
+                "wacc_pct": {"type": "NUMBER", "description": "Costo promedio ponderado de capital WACC (% E.A., ej: 12.5)"},
+                "currency": {"type": "STRING", "description": "Moneda: COP o USD"}
+            },
+            "required": ["company_name", "revenue", "ebit", "net_income", "total_assets", "total_equity"]
+        }
+    },
+    {
+        "name": "lean_six_sigma",
+        "description": "Excelencia Operacional Lean Six Sigma, OEE y Teoría de Restricciones (TOC): calcula Defectos Por Millón de Oportunidades (DPMO), Nivel Sigma (1σ a 6σ), índices de capacidad de proceso (Cp y Cpk), Efectividad Global de Equipos (OEE = Disponibilidad × Rendimiento × Calidad), sincronización Lean (Takt Time vs Tiempo de Ciclo Real) e identificación de cuellos de botella bajo la Teoría de Restricciones de Eliyahu Goldratt.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "process_name": {"type": "STRING", "description": "Nombre del proceso productivo, logístico o de servicio"},
+                "units_produced": {"type": "INTEGER", "description": "Unidades o transacciones procesadas en el período"},
+                "defect_opportunities_per_unit": {"type": "INTEGER", "description": "Oportunidades de error o defecto por unidad"},
+                "total_defects": {"type": "INTEGER", "description": "Total de defectos registrados"},
+                "planned_production_minutes": {"type": "NUMBER", "description": "Tiempo productivo planeado en minutos (ej: 480)"},
+                "downtime_minutes": {"type": "NUMBER", "description": "Minutos de paradas no programadas o averías"},
+                "ideal_cycle_time_seconds": {"type": "NUMBER", "description": "Tiempo de ciclo estándar ideal en segundos por unidad"},
+                "customer_daily_demand": {"type": "INTEGER", "description": "Demanda diaria del cliente en unidades (para Takt Time)"},
+                "usl": {"type": "NUMBER", "description": "Límite Superior de Especificación (USL)"},
+                "lsl": {"type": "NUMBER", "description": "Límite Inferior de Especificación (LSL)"},
+                "process_mean": {"type": "NUMBER", "description": "Media estadística observada del proceso (μ)"},
+                "process_std_dev": {"type": "NUMBER", "description": "Desviación estándar del proceso (σ)"}
+            },
+            "required": ["process_name", "units_produced", "total_defects"]
+        }
     }
 ]
 
@@ -1631,6 +1673,16 @@ class ActionDispatcher:
             elif name in ("predictive_intelligence", "inteligencia_predictiva", "tres_pasos_adelante", "anticipacion", "proactividad_ceo"):
                 from app.actions.predictive_intelligence_action import predictive_intelligence_action
                 res = predictive_intelligence_action(parameters=args)
+                return res
+
+            elif name in ("dupont_altman_eva", "piramide_dupont", "altman_z_score", "eva_financiero", "solvencia_corporativa"):
+                from app.actions.dupont_altman_action import dupont_altman_action
+                res = dupont_altman_action(parameters=args)
+                return res
+
+            elif name in ("lean_six_sigma", "six_sigma", "oee", "capacidad_proceso", "cp_cpk", "takt_time", "teoria_restricciones"):
+                from app.actions.lean_six_sigma_action import lean_six_sigma_action
+                res = lean_six_sigma_action(parameters=args)
                 return res
 
             else:

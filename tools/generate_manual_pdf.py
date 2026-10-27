@@ -982,6 +982,25 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Anticipacion Cognitiva (3 Pasos Adelante)", "Pida a Liseth: 'Anticipa mis proximos 3 pasos estrategicos para hoy' para obtener el plan secuencial preventivo de alta direccion.", "Inteligencia Predictiva CEO")
     builder.add_command_box("Conmutacion de Avatar en Inicio", "Haga clic en 'Avatar Humano' o 'Reactor Arc' en la pantalla principal para alternar entre la presencia humana ejecutiva y el nucleo holografico.", "Interfaz & Presencia Visual")
 
+    # ───
+    # SECCIÓN 38: PIRÁMIDE DUPONT, ALTMAN Z''-SCORE, EVA Y LEAN SIX SIGMA / OEE (46 MÓDULOS)
+    # ───
+    builder.add_section_header("38. Piramide DuPont, Altman Z-Score, EVA y Lean Six Sigma (46 Modulos)")
+    builder.add_paragraph(
+        "Liseth culmina su auditoria de estandares institucionales alcanzando 46 modulos tacticos HUD, 73 herramientas nativas y 100% de cobertura "
+        "interactiva en todos los modales del frontend: "
+        "(1) Piramide DuPont, Modelo Altman Z''-Score y Valor Economico Agregado (EVA): Descompone la rentabilidad patrimonial (ROE) en 3 y 5 factores "
+        "(Margen Neto, Rotacion de Activos, Multiplicador de Capital, Carga Tributaria y Carga Financiera), predice la solvencia corporativa y riesgo de insolvencia "
+        "(Ley 1116 de 2006) mediante el modelo Altman Z''-Score para mercados emergentes (Z'' = 3.25 + 6.56*X1 + 3.26*X2 + 6.72*X3 + 1.05*X4) y cuantifica la creacion "
+        "real de riqueza mediante el Valor Economico Agregado (EVA = NOPAT - Capital Invertido * WACC) y el spread ROIC vs WACC. "
+        "(2) Excelencia Operacional Lean Six Sigma, OEE & Teoria de Restricciones (TOC): Computa Defectos Por Millon de Oportunidades (DPMO), Nivel Sigma (1 a 6 Sigma "
+        "con desplazamiento Motorola de 1.5s), indices de capacidad de proceso (Cp y Cpk), Efectividad Global de Equipos (OEE = Disponibilidad * Rendimiento * Calidad) "
+        "frente al benchmark de Clase Mundial (85%), Takt Time vs Tiempo de Ciclo Real e identificacion de cuellos de botella bajo los 5 pasos de Eliyahu Goldratt:",
+        size=9.0
+    )
+    builder.add_command_box("Piramide DuPont, Altman Z-Score & EVA", "Pida a Liseth: 'Analiza DuPont, Altman Z-Score y EVA para ingresos de 1.200 millones, EBIT de 216 millones, activos de 950 millones y patrimonio de 475 millones'.", "Finanzas Corporativas & EVA")
+    builder.add_command_box("Lean Six Sigma, Capacidad Cpk & OEE", "Pida a Liseth: 'Evalua nivel Six Sigma y OEE para 10.000 unidades con 45 defectos, 480 min planeados y 28 min de paradas' para diagnosticar cuellos de botella TOC.", "Excelencia Operacional & OEE")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

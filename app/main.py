@@ -208,6 +208,16 @@ EXEMPT_API_PATHS = {
     "/api/suite/business/canvas-ansoff",
     "/api/suite/compliance/sagrilaft",
     "/api/suite/predictive/anticipate",
+    "/api/suite/marketing/unit-economics",
+    "/api/suite/marketing/funnel",
+    "/api/suite/talent/evaluate",
+    "/api/suite/talent/enps",
+    "/api/suite/forex/forward",
+    "/api/suite/esg/evaluate",
+    "/api/suite/treasury/ccc",
+    "/api/suite/treasury/factoring",
+    "/api/suite/finance/dupont-altman",
+    "/api/suite/operations/lean-six-sigma",
 }
 
 

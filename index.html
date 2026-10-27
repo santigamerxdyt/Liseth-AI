@@ -6388,7 +6388,7 @@
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES (ACCESO DIRECTO PRIORITARIO #1) -->
         <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 44 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
           <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
-          <span style="color: #ffffff; letter-spacing: 0.04em;">44 MÓDULOS HUD</span>
+          <span style="color: #ffffff; letter-spacing: 0.04em;">46 MÓDULOS HUD</span>
           <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">44</span>
         </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
@@ -6658,8 +6658,8 @@
 
       <!-- Píldoras de Acciones Rápidas -->
       <div class="quick-chips" style="margin-top: 18px;">
-        <button class="chip-btn" id="btn-quick-hud-modules" style="border: 1.5px solid #00f0ff; background: rgba(0, 240, 255, 0.18); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); font-weight: 700; color: #ffffff;" title="Abrir catálogo completo de los 30 módulos tácticos de Liseth">
-          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 44 Módulos HUD
+        <button class="chip-btn" id="btn-quick-hud-modules" style="border: 1.5px solid #00f0ff; background: rgba(0, 240, 255, 0.18); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); font-weight: 700; color: #ffffff;" title="Abrir catálogo completo de los 46 módulos tácticos de Liseth">
+          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 46 Módulos HUD
         </button>
         <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
           <span>⚡</span> Automatizar mi día
@@ -7962,14 +7962,14 @@
           <button type="button" id="hud-search-clear" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;" title="Limpiar búsqueda">&times;</button>
         </div>
         <div class="hud-count-pill" id="hud-visible-count-pill" style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); padding: 9px 16px; border-radius: 10px; color: #00d2ff; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; white-space: nowrap; box-shadow: 0 0 10px rgba(0,210,255,0.2);">
-          44 / 44 MÓDULOS
+          46 / 46 MÓDULOS
         </div>
       </div>
 
       <!-- Pestañas de filtrado de categorías -->
       <div class="hud-filter-tabs">
-        <button class="hud-tab active" data-filter="all">TODOS (44)</button>
-        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (21)</button>
+        <button class="hud-tab active" data-filter="all">TODOS (46)</button>
+        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (23)</button>
         <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
         <button class="hud-tab" data-filter="connectors">CONECTORES</button>
         <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
@@ -8455,6 +8455,28 @@
           <div class="hud-card-title">Auditoría SAGRILAFT & PTEE</div>
           <div class="hud-card-desc">Superintendencia de Sociedades, matriz de riesgo LA/FT/FPADM, debida diligencia KYC/PEP, señales de alerta y semáforo ético.</div>
           <div class="hud-card-action"><span>Auditar SAGRILAFT</span> <span>→</span></div>
+        </div>
+
+        <!-- 45. Pirámide DuPont, Altman Z''-Score & Valor Económico Agregado (EVA) -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-dupont-altman">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #eab308; border-color: rgba(234, 179, 8, 0.4); background: rgba(234, 179, 8, 0.12);">🏛️</div>
+            <span class="hud-card-status status-online">DUPONT / Z-SCORE / EVA</span>
+          </div>
+          <div class="hud-card-title">Pirámide DuPont, Altman Z'' & EVA</div>
+          <div class="hud-card-desc">Descomposición ROE (3 y 5 factores), predictor de solvencia Altman Z''-Score (Ley 1116) y Valor Económico Agregado (NOPAT vs WACC).</div>
+          <div class="hud-card-action"><span>Analizar ROE & EVA</span> <span>→</span></div>
+        </div>
+
+        <!-- 46. Excelencia Operacional Lean Six Sigma, OEE & Teoría de Restricciones (TOC) -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-lean-six-sigma">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.12);">⚙️</div>
+            <span class="hud-card-status status-online">6 SIGMA / OEE / TOC</span>
+          </div>
+          <div class="hud-card-title">Lean Six Sigma, OEE & TOC</div>
+          <div class="hud-card-desc">Nivel Sigma (1σ–6σ), DPMO, capacidad Cp/Cpk, efectividad global de equipos (OEE), Takt Time y cuellos de botella Goldratt.</div>
+          <div class="hud-card-action"><span>Auditar Operaciones</span> <span>→</span></div>
         </div>
 
       </div>
@@ -11413,14 +11435,6 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
   </div>
 
   <!-- ======================================================== -->
-  <!-- MODAL: CENTRO DE ACCESIBILIDAD UNIVERSAL STARK (A11Y)    -->
-  <!-- ======================================================== -->
-  <div class="modal-overlay" id="a11y-modal" role="dialog" aria-modal="true" aria-labelledby="a11y-title">
-    <div class="modal-card" style="max-width: 680px;">
-      <div class="modal-header">
-        <div class="modal-icon" style="color: #00d2ff; border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.12);">♿</div>
-
-  <!-- ======================================================== -->
   <!-- MODAL: BUSINESS MODEL CANVAS & MATRIZ ANSOFF (#43)       -->
   <!-- ======================================================== -->
   <div class="modal-overlay" id="business-canvas-ansoff-modal">
@@ -11467,7 +11481,7 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
           <div>
             <label style="font-size: 0.7rem; color: #94a3b8; display: block;">1. Propuesta de Valor:</label>
-            <input type="text" id="bca-vp-input" value="Asistente autónomo con IA y 44 módulos de alta gerencia ejecutiva." style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+            <input type="text" id="bca-vp-input" value="Asistente autónomo con IA y 46 módulos de alta gerencia ejecutiva." style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
           </div>
           <div>
             <label style="font-size: 0.7rem; color: #94a3b8; display: block;">2. Segmentos de Clientes:</label>
@@ -11654,6 +11668,229 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
     </div>
   </div>
 
+<!-- ======================================================== -->
+  <!-- MODAL: PIRÁMIDE DUPONT, ALTMAN Z-SCORE & EVA (#45)       -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="dupont-altman-modal">
+    <div class="modal-card" style="max-width: 900px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #eab308; border-color: rgba(234, 179, 8, 0.4); background: rgba(234, 179, 8, 0.12);">🏛️</div>
+        <div class="modal-title">
+          <h2>Pirámide DuPont, Altman Z''-Score & Valor Económico Agregado (EVA)</h2>
+          <p>Descomposición ROE (3 y 5 factores), solvencia mercados emergentes (Ley 1116) y creación de valor ROIC vs WACC</p>
+        </div>
+        <button class="modal-close" onclick="closeDupontAltmanModal()">&times;</button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Perfiles Corporativos:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadDupontPreset('high_eva')">Corporación Líder (Alto EVA & Solvencia)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadDupontPreset('leveraged')">Expansión Apalancada (Zona Gris)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadDupontPreset('turnaround')">Reestructuración (Alerta Ley 1116)</button>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(234, 179, 8, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Empresa / Unidad:</label>
+            <input type="text" id="dup-name-input" value="Grupo Empresarial Andino S.A.S." style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Ingresos Anuales ($):</label>
+            <input type="number" id="dup-rev-input" value="1200000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">EBIT Operacional ($):</label>
+            <input type="number" id="dup-ebit-input" value="216000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Utilidad Neta ($):</label>
+            <input type="number" id="dup-net-input" value="126000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Activos Totales ($):</label>
+            <input type="number" id="dup-assets-input" value="950000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Patrimonio Total ($):</label>
+            <input type="number" id="dup-equity-input" value="475000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Cap. Trabajo Neto ($):</label>
+            <input type="number" id="dup-wc-input" value="220000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Util. Retenidas ($):</label>
+            <input type="number" id="dup-re-input" value="190000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">WACC (% E.A.):</label>
+            <input type="number" id="dup-wacc-input" value="12.5" step="0.1" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #eab308, #ca8a04); border-color: #eab308; color: #0f172a; font-weight: 800;" onclick="submitDupontAltman()">Ejecutar Descomposición DuPont, Altman Z''-Score & EVA</button>
+      </div>
+
+      <div id="dup-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="dup-res-name" style="font-size: 0.95rem; font-weight: 800; color: #eab308;">Empresa</span>
+            <div id="dup-res-driver" style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">Driver ROE</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block;">RENTABILIDAD PATRIMONIAL (ROE)</span>
+            <span id="dup-res-roe" style="font-size: 1.15rem; font-weight: 800; color: #00f0ff;">26.53%</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center;">
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Fórmula 3-Factores DuPont</div>
+            <div id="dup-res-formula" style="font-size: 0.85rem; font-weight: 700; color: #ffffff;">10.5% × 1.26x × 2.0x</div>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #10b981; font-weight: 700;">Altman Z''-Score</div>
+            <div id="dup-res-zscore" style="font-size: 0.9rem; font-weight: 700; color: #10b981;">7.96 (ZONA SEGURA)</div>
+          </div>
+          <div style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #00d2ff; font-weight: 700;">Valor Económico Agregado (EVA)</div>
+            <div id="dup-res-eva" style="font-size: 0.9rem; font-weight: 700; color: #00d2ff;">+$39.4M COP</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.25); border-radius: 6px; padding: 8px; font-size: 0.74rem;">
+          <div style="font-weight: 700; color: #eab308; margin-bottom: 4px;">🏛️ DICTAMEN DE FINANZAS CORPORATIVAS:</div>
+          <div id="dup-res-recs" style="color: #e2e8f0; line-height: 1.4;"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeDupontAltmanModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: EXCELENCIA OPERACIONAL LEAN SIX SIGMA & OEE (#46) -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="lean-six-sigma-modal">
+    <div class="modal-card" style="max-width: 900px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.12);">⚙️</div>
+        <div class="modal-title">
+          <h2>Excelencia Operacional Lean Six Sigma, OEE & Teoría de Restricciones</h2>
+          <p>DPMO, Nivel Sigma (1σ–6σ), Capacidad Cp/Cpk, Efectividad Global OEE, Takt Time y cuellos de botella Goldratt</p>
+        </div>
+        <button class="modal-close" onclick="closeLeanSixSigmaModal()">&times;</button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Escenarios Operativos:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadSixSigmaPreset('world_class')">Planta Clase Mundial (OEE > 85%)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadSixSigmaPreset('service_ops')">Centro de Fulfillment & Servicios</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadSixSigmaPreset('bottleneck')">Línea con Cuello de Botella (Activar DMAIC)</button>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Proceso / Línea Operativa:</label>
+            <input type="text" id="lss-name-input" value="Línea de Producción & Fulfillment Central" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Unidades Procesadas:</label>
+            <input type="number" id="lss-units-input" value="10000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Total Defectos:</label>
+            <input type="number" id="lss-defects-input" value="45" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Oportunidades / Unidad:</label>
+            <input type="number" id="lss-opps-input" value="5" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Tiempo Plan. (min):</label>
+            <input type="number" id="lss-plan-input" value="480" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Paradas / Averías (min):</label>
+            <input type="number" id="lss-down-input" value="28" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Ciclo Ideal (seg):</label>
+            <input type="number" id="lss-cycle-input" value="2.5" step="0.1" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Demanda Cliente (unid):</label>
+            <input type="number" id="lss-demand-input" value="9200" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Desv. Estándar (σ):</label>
+            <input type="number" id="lss-std-input" value="1.15" step="0.05" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #38bdf8, #0284c7); border-color: #38bdf8;" onclick="submitLeanSixSigma()">Calcular Nivel Six Sigma, OEE & Cuellos de Botella TOC</button>
+      </div>
+
+      <div id="lss-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="lss-res-name" style="font-size: 0.95rem; font-weight: 800; color: #38bdf8;">Proceso</span>
+            <div id="lss-res-takt" style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">Sincronización Takt Time</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block;">EFECTIVIDAD GLOBAL DE EQUIPOS (OEE)</span>
+            <span id="lss-res-oee" style="font-size: 1.15rem; font-weight: 800; color: #10b981;">86.4% (CLASE MUNDIAL)</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center;">
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Nivel Six Sigma & DPMO</div>
+            <div id="lss-res-sigma" style="font-size: 0.9rem; font-weight: 700; color: #00f0ff;">4.62σ (900 DPMO)</div>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #10b981; font-weight: 700;">Capacidad de Proceso (Cp / Cpk)</div>
+            <div id="lss-res-cpk" style="font-size: 0.9rem; font-weight: 700; color: #10b981;">Cp: 1.45 | Cpk: 1.39</div>
+          </div>
+          <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #f59e0b; font-weight: 700;">Restricción Dominante (TOC)</div>
+            <div id="lss-res-bottleneck" style="font-size: 0.85rem; font-weight: 700; color: #f59e0b;">Rendimiento</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.25); border-radius: 6px; padding: 8px; font-size: 0.74rem;">
+          <div style="font-weight: 700; color: #38bdf8; margin-bottom: 4px;">⚙️ HOJA DE RUTA DMAIC & GOLDRATT (TOC):</div>
+          <div id="lss-res-plan" style="color: #e2e8f0; line-height: 1.4;"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeLeanSixSigmaModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CENTRO DE ACCESIBILIDAD UNIVERSAL STARK (A11Y)    -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="a11y-modal" role="dialog" aria-modal="true" aria-labelledby="a11y-title">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #00d2ff; border-color: rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.12);">♿</div>
         <div class="modal-title">
           <h2 id="a11y-title">Centro de Accesibilidad Universal & Ergonomía</h2>
           <p>Conformidad WCAG 2.1 AA/AAA: escala tipográfica, contraste, reducción de movimiento y atajos</p>
@@ -11710,7 +11947,7 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.76rem; color: #cbd5e1;">
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Esc</kbd> : Cerrar cualquier modal o menú activo</div>
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + K</kbd> : Enfocar el campo de entrada de chat</div>
-          <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + H</kbd> : Abrir Centro de Módulos HUD (30)</div>
+          <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + H</kbd> : Abrir Centro de Módulos HUD (46)</div>
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + A</kbd> : Abrir este Panel de Accesibilidad</div>
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + M</kbd> : Activar / Detener micrófono de voz</div>
           <div><kbd style="background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid #475569; color: #00d2ff;">Alt + V</kbd> : Conmutar voz de Liseth (habla)</div>
@@ -18946,6 +19183,18 @@ const cardEsg = document.getElementById("hud-card-esg");
           window.openSagrilaftComplianceModal();
         });
 
+        const cardDupont = document.getElementById("hud-card-dupont-altman");
+        if (cardDupont) cardDupont.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openDupontAltmanModal();
+        });
+
+        const cardSixSigma = document.getElementById("hud-card-lean-six-sigma");
+        if (cardSixSigma) cardSixSigma.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openLeanSixSigmaModal();
+        });
+
 
 
 
@@ -19808,7 +20057,7 @@ const cardEsg = document.getElementById("hud-card-esg");
           document.getElementById("bca-name-input").value = "SaaS Cloud Intelligence B2B";
           document.getElementById("bca-quadrant-input").value = "market_penetration";
           document.getElementById("bca-budget-input").value = "50000000";
-          document.getElementById("bca-vp-input").value = "Suite de copiloto ejecutivo con 44 módulos y analítica predictiva en tiempo real.";
+          document.getElementById("bca-vp-input").value = "Suite de copiloto ejecutivo con 46 módulos y analítica predictiva en tiempo real.";
           document.getElementById("bca-cs-input").value = "C-Levels, juntas directivas y administradores de empresas en Colombia.";
           document.getElementById("bca-rs-input").value = "Suscripciones mensuales recurrentes (MRR) y licencias corporativas anuales.";
         } else if (type === "retail") {
@@ -20091,6 +20340,644 @@ const cardEsg = document.getElementById("hud-card-esg");
         const m = document.getElementById("treasury-modal");
         if (m) m.classList.remove("active");
         playHudSound("close");
+      };
+
+      // ─── HANDLERS COMPLETOS MÓDULOS 31 A 42 & MÓDULOS 45 A 46 ───
+      window.submitMarketingUnitEconomics = async function() {
+        playHudSound("click");
+        const cac = parseFloat(document.getElementById("mkt-cac-input")?.value || "150000");
+        const arpu = parseFloat(document.getElementById("mkt-arpu-input")?.value || "85000");
+        const churn = parseFloat(document.getElementById("mkt-churn-input")?.value || "3.5");
+        const margin = parseFloat(document.getElementById("mkt-margin-input")?.value || "80");
+        try {
+          const res = await fetch("/api/suite/marketing/unit-economics", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cac, arpu, churn_monthly_pct: churn, gross_margin_pct: margin, currency: "COP" })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const u = data.unit_economics;
+            document.getElementById("mkt-results-panel").style.display = "block";
+            document.getElementById("mkt-res-ratio").textContent = u.ltv_cac_ratio + "x";
+            document.getElementById("mkt-res-payback").textContent = u.cac_payback_months + " meses";
+            document.getElementById("mkt-res-ltv").textContent = "$" + Math.round(u.ltv).toLocaleString("es-CO") + " COP";
+            document.getElementById("mkt-res-annualchurn").textContent = u.annual_churn_pct + "%";
+            document.getElementById("mkt-res-diagnostic").textContent = u.diagnostic;
+            showToast("Unit Economics calculados con éxito");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.runQuickFunnelAudit = async function() {
+        playHudSound("click");
+        try {
+          const res = await fetch("/api/suite/marketing/funnel", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ impressions: 50000, clicks: 1800, leads_mql: 160, opportunities_sql: 48, closed_won: 16 })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const f = data.funnel;
+            document.getElementById("mkt-results-panel").style.display = "block";
+            document.getElementById("mkt-res-diagnostic").textContent = "Embudo: CTR " + f.conversion_rates.ctr_pct + "% | Win Rate " + f.conversion_rates.sql_to_won_pct + "% | " + f.bottleneck_summary;
+            showToast("Auditoría de embudo completada");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.submitTalentEvaluation = async function() {
+        playHudSound("click");
+        const employee_name = document.getElementById("talent-name-input")?.value || "Colaborador";
+        const role = document.getElementById("talent-role-input")?.value || "Líder";
+        const performance_score = parseFloat(document.getElementById("talent-perf-input")?.value || "2.8");
+        const potential_score = parseFloat(document.getElementById("talent-pot-input")?.value || "2.9");
+        try {
+          const res = await fetch("/api/suite/talent/evaluate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ employee_name, role, performance_score, potential_score })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const t = data.talent;
+            document.getElementById("talent-results-panel").style.display = "block";
+            document.getElementById("talent-res-quadrant").textContent = t.quadrant;
+            document.getElementById("talent-res-risk").textContent = t.risk_assessment;
+            document.getElementById("talent-res-action").textContent = t.recommended_action;
+            showToast("Evaluación 9-Box completada");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.quickCalculateENPS = async function() {
+        playHudSound("click");
+        try {
+          const res = await fetch("/api/suite/talent/enps", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ promoters: 42, passives: 18, detractors: 6 })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const e = data.enps;
+            document.getElementById("talent-results-panel").style.display = "block";
+            document.getElementById("talent-res-quadrant").textContent = "eNPS: +" + e.enps_score + " pts";
+            document.getElementById("talent-res-risk").textContent = "Promotores: " + e.promoters_pct + "% | Detractores: " + e.detractors_pct + "%";
+            document.getElementById("talent-res-action").textContent = e.diagnostic;
+            showToast("Clima Organizacional eNPS calculado");
+          }
+        } catch(err) { console.error(err); }
+      };
+
+      window.submitForexForward = async function() {
+        playHudSound("click");
+        const amount_usd = parseFloat(document.getElementById("forex-usd-input")?.value || "25000");
+        const days_forward = parseInt(document.getElementById("forex-days-input")?.value || "90");
+        try {
+          const res = await fetch("/api/suite/forex/forward", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount_usd, spot_rate_cop: 4185.0, days_forward })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const fw = data.forward;
+            document.getElementById("forex-results-panel").style.display = "block";
+            document.getElementById("forex-res-forward").textContent = "$" + fw.forward_rate_cop.toLocaleString("es-CO") + " COP";
+            document.getElementById("forex-res-premium").textContent = "+$" + fw.premium_devaluation_cop.toLocaleString("es-CO") + " COP (+" + fw.premium_pct + "%)";
+            document.getElementById("forex-res-tip").textContent = fw.strategic_recommendation;
+            showToast("Cobertura Forward simulada");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.submitEsgEvaluation = async function() {
+        playHudSound("click");
+        const company_name = document.getElementById("esg-company-input")?.value || "Empresa";
+        const environmental_score = parseFloat(document.getElementById("esg-env-input")?.value || "82");
+        const social_score = parseFloat(document.getElementById("esg-soc-input")?.value || "88");
+        const governance_score = parseFloat(document.getElementById("esg-gov-input")?.value || "90");
+        try {
+          const res = await fetch("/api/suite/esg/evaluate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ company_name, environmental_score, social_score, governance_score })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const esg = data.esg;
+            document.getElementById("esg-results-panel").style.display = "block";
+            document.getElementById("esg-res-score").textContent = esg.composite_esg_score + " / 100";
+            document.getElementById("esg-res-rating").textContent = esg.esg_rating + " (" + esg.risk_tier + ")";
+            document.getElementById("esg-res-roadmap").innerHTML = esg.strategic_recommendations.map(r => "• " + r).join("<br>");
+            showToast("Auditoría ESG completada");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.submitTreasuryCCC = async function() {
+        playHudSound("click");
+        const dso_receivables_days = parseFloat(document.getElementById("tr-dso-input")?.value || "45");
+        const dio_inventory_days = parseFloat(document.getElementById("tr-dio-input")?.value || "35");
+        const dpo_payables_days = parseFloat(document.getElementById("tr-dpo-input")?.value || "50");
+        try {
+          const res = await fetch("/api/suite/treasury/ccc", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dso_receivables_days, dio_inventory_days, dpo_payables_days })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const c = data.ccc;
+            const el = document.getElementById("tr-ccc-res");
+            if (el) {
+              el.style.display = "block";
+              el.innerHTML = `<b>CCC: ${c.ccc_days} días</b> | KTNO: <b>$${Math.round(c.ktno_cop).toLocaleString("es-CO")} COP</b><br>${c.efficiency_diagnosis}`;
+            }
+            showToast("Ciclo de Conversión de Efectivo calculado");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.submitTreasuryFactoring = async function() {
+        playHudSound("click");
+        const invoice_face_value_cop = parseFloat(document.getElementById("tr-fact-val-input")?.value || "45000000");
+        const days_to_maturity = parseInt(document.getElementById("tr-fact-days-input")?.value || "60");
+        try {
+          const res = await fetch("/api/suite/treasury/factoring", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ invoice_face_value_cop, days_to_maturity })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const f = data.factoring;
+            const el = document.getElementById("tr-fact-res");
+            if (el) {
+              el.style.display = "block";
+              el.innerHTML = `<b>Liquidez Hoy: $${Math.round(f.net_cash_received_cop).toLocaleString("es-CO")} COP</b> (Costo: $${Math.round(f.total_financing_cost_cop).toLocaleString("es-CO")} | Tasa: ${f.effective_annual_rate_ea_pct}% E.A.)`;
+            }
+            showToast("Descuento Factoring RADIAN simulado");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.loadStockPreset = function(ticker, price, currency, rsi, macd, ema50, ema200, atr) {
+        playHudSound("click");
+        document.getElementById("st-ticker-input").value = ticker;
+        document.getElementById("st-price-input").value = price;
+        document.getElementById("st-currency-input").value = currency;
+        document.getElementById("st-rsi-input").value = rsi;
+        document.getElementById("st-macd-input").value = macd;
+        document.getElementById("st-ema-input").value = ema50 + " / " + ema200;
+        document.getElementById("st-atr-input").value = atr;
+      };
+
+      window.submitStockTradingAnalysis = async function() {
+        playHudSound("click");
+        const ticker = document.getElementById("st-ticker-input")?.value || "ECOPETROL";
+        const current_price = parseFloat(document.getElementById("st-price-input")?.value || "2450");
+        const currency = document.getElementById("st-currency-input")?.value || "COP";
+        const total_trading_capital = parseFloat(document.getElementById("st-capital-input")?.value || "10000000");
+        const rsi = parseFloat(document.getElementById("st-rsi-input")?.value || "48");
+        const macd_signal = document.getElementById("st-macd-input")?.value || "bullish_cross";
+        const emaRaw = (document.getElementById("st-ema-input")?.value || "0 / 0").split("/");
+        const ema_50 = parseFloat(emaRaw[0] || current_price * 0.98);
+        const ema_200 = parseFloat(emaRaw[1] || current_price * 0.94);
+        const atr = parseFloat(document.getElementById("st-atr-input")?.value || (current_price * 0.025));
+
+        try {
+          const res = await fetch("/api/suite/stock-trading/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ticker, current_price, rsi, macd_signal, ema_50, ema_200, atr, total_trading_capital, currency })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const a = data.analysis;
+            document.getElementById("st-results-panel").style.display = "block";
+            document.getElementById("st-res-recommendation").textContent = a.signal.action;
+            document.getElementById("st-res-trend").textContent = a.technical_indicators.trend_regime;
+            document.getElementById("st-res-confidence").textContent = a.signal.confidence_pct + "%";
+            document.getElementById("st-res-entry").textContent = "$" + a.order_plan.entry_price.toLocaleString("es-CO") + " " + currency;
+            document.getElementById("st-res-stoploss").textContent = "$" + a.order_plan.stop_loss.toLocaleString("es-CO") + " (-" + a.order_plan.stop_loss_distance_pct + "%)";
+            document.getElementById("st-res-takeprofit").textContent = "$" + a.order_plan.take_profit_2r.toLocaleString("es-CO") + " (2R)";
+            document.getElementById("st-res-maxrisk").textContent = "$" + Math.round(a.position_sizing.max_capital_at_risk).toLocaleString("es-CO") + " " + currency;
+            document.getElementById("st-res-shares").textContent = a.position_sizing.recommended_shares + " acciones";
+            document.getElementById("st-res-ordervalue").textContent = "$" + Math.round(a.position_sizing.total_position_value).toLocaleString("es-CO") + " " + currency;
+            showToast("Señal cuantitativa calculada para " + ticker);
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.updateDividendCurrencyLabel = function() {
+        const mkt = document.getElementById("div-market-input")?.value || "BVC";
+        const lbl = document.getElementById("div-budget-label");
+        if (lbl) lbl.textContent = mkt === "US" ? "Presupuesto Total (USD):" : "Presupuesto Total (COP):";
+      };
+
+      window.loadDividendPreset = function(budget, market, minYield, years) {
+        playHudSound("click");
+        document.getElementById("div-budget-input").value = budget;
+        document.getElementById("div-market-input").value = market;
+        document.getElementById("div-yield-input").value = minYield;
+        document.getElementById("div-years-input").value = years;
+        window.updateDividendCurrencyLabel();
+      };
+
+      window.submitDividendScreening = async function() {
+        playHudSound("click");
+        const budget = parseFloat(document.getElementById("div-budget-input")?.value || "1500000");
+        const market = document.getElementById("div-market-input")?.value || "BVC";
+        const min_yield_pct = parseFloat(document.getElementById("div-yield-input")?.value || "6.0");
+        const projection_years = parseInt(document.getElementById("div-years-input")?.value || "5");
+        try {
+          const res = await fetch("/api/suite/dividends/screen", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ budget, market, min_yield_pct, reinvest_dividends: true, projection_years })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const s = data.screening;
+            const cur = s.currency || (market === "US" ? "USD" : "COP");
+            document.getElementById("div-results-panel").style.display = "block";
+            document.getElementById("div-res-invested").textContent = "$" + Math.round(s.portfolio_summary.total_invested).toLocaleString("es-CO") + " " + cur;
+            document.getElementById("div-res-remaining").textContent = "Remanente en caja: $" + Math.round(s.portfolio_summary.unallocated_cash).toLocaleString("es-CO") + " " + cur;
+            document.getElementById("div-res-yield").textContent = s.portfolio_summary.weighted_dividend_yield_pct + "% E.A.";
+            document.getElementById("div-res-dividends").textContent = "$" + Math.round(s.portfolio_summary.annual_passive_income).toLocaleString("es-CO") + " " + cur + "/año";
+            const tbody = document.getElementById("div-portfolio-tbody");
+            if (tbody && s.allocated_positions) {
+              tbody.innerHTML = s.allocated_positions.map(p => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                  <td style="padding: 5px; font-weight: 700; color: #f59e0b;">${p.ticker}</td>
+                  <td style="padding: 5px;">$${p.price.toLocaleString("es-CO")}</td>
+                  <td style="padding: 5px; color: #10b981; font-weight: 700;">${p.dividend_yield_pct}%</td>
+                  <td style="padding: 5px;">${p.shares_to_buy}</td>
+                  <td style="padding: 5px;">$${Math.round(p.total_invested).toLocaleString("es-CO")}</td>
+                  <td style="padding: 5px; color: #00f0ff;">$${Math.round(p.estimated_annual_dividend).toLocaleString("es-CO")}</td>
+                </tr>
+              `).join("");
+            }
+            if (s.drip_projection && s.drip_projection.length > 0) {
+              const last = s.drip_projection[s.drip_projection.length - 1];
+              document.getElementById("div-res-drip-summary").innerHTML = `En <b>${last.year} años</b> con reinversión compuesta (DRIP), el portafolio alcanzaría <b>$${Math.round(last.ending_balance).toLocaleString("es-CO")} ${cur}</b> generando <b>$${Math.round(last.annual_dividend_income).toLocaleString("es-CO")} ${cur}/año</b> en renta pasiva.`;
+            }
+            showToast("Portafolio de dividendos optimizado");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.loadReconciliationPreset = function(stmt, book, dep, checks, fees, credits, debits_unrec, monthly_debits, exempt) {
+        playHudSound("click");
+        document.getElementById("rec-stmt-input").value = stmt;
+        document.getElementById("rec-book-input").value = book;
+        document.getElementById("rec-dep-input").value = dep;
+        document.getElementById("rec-checks-input").value = checks;
+        document.getElementById("rec-fees-input").value = fees;
+        document.getElementById("rec-credits-input").value = credits;
+        document.getElementById("rec-debits-input").value = monthly_debits;
+        document.getElementById("rec-exempt-input").value = exempt ? "true" : "false";
+      };
+
+      window.submitBankReconciliation = async function() {
+        playHudSound("click");
+        const bank_statement_balance = parseFloat(document.getElementById("rec-stmt-input")?.value || "0");
+        const general_ledger_balance = parseFloat(document.getElementById("rec-book-input")?.value || "0");
+        const bank_name = document.getElementById("rec-bank-input")?.value || "Bancolombia";
+        const deposits_in_transit = parseFloat(document.getElementById("rec-dep-input")?.value || "0");
+        const outstanding_checks = parseFloat(document.getElementById("rec-checks-input")?.value || "0");
+        const bank_charges_and_fees = parseFloat(document.getElementById("rec-fees-input")?.value || "0");
+        const unrecorded_bank_credits = parseFloat(document.getElementById("rec-credits-input")?.value || "0");
+        const total_monthly_debits_cop = parseFloat(document.getElementById("rec-debits-input")?.value || "0");
+        const is_account_gmf_exempt = document.getElementById("rec-exempt-input")?.value === "true";
+
+        try {
+          const res = await fetch("/api/suite/reconciliation/audit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bank_statement_balance, general_ledger_balance, deposits_in_transit, outstanding_checks,
+              bank_charges_and_fees, unrecorded_bank_credits, unrecorded_bank_debits: 0,
+              total_monthly_debits_cop, is_account_gmf_exempt, bank_name, currency: "COP"
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const r = data.reconciliation;
+            document.getElementById("rec-results-panel").style.display = "block";
+            document.getElementById("rec-res-status").textContent = r.reconciliation_summary.status;
+            document.getElementById("rec-res-bankname").textContent = r.bank_name;
+            document.getElementById("rec-res-diff").textContent = "$" + Math.round(r.reconciliation_summary.unexplained_difference).toLocaleString("es-CO") + " COP";
+            document.getElementById("rec-res-adj-bank").textContent = "$" + Math.round(r.reconciliation_summary.adjusted_bank_balance).toLocaleString("es-CO") + " COP";
+            document.getElementById("rec-res-adj-book").textContent = "$" + Math.round(r.reconciliation_summary.adjusted_book_balance).toLocaleString("es-CO") + " COP";
+            document.getElementById("rec-res-gmf-total").textContent = "$" + Math.round(r.gmf_4x1000_audit.gmf_charged_cop).toLocaleString("es-CO");
+            document.getElementById("rec-res-gmf-ded").textContent = "$" + Math.round(r.gmf_4x1000_audit.deductible_50pct_art115_cop).toLocaleString("es-CO");
+            document.getElementById("rec-res-gmf-nonded").textContent = "$" + Math.round(r.gmf_4x1000_audit.non_deductible_50pct_cop).toLocaleString("es-CO");
+            document.getElementById("rec-res-gmf-note").textContent = r.gmf_4x1000_audit.tax_note;
+            document.getElementById("rec-res-entries").innerHTML = r.accounting_adjustments.map(a => "• " + a.description + ": <b>$" + Math.round(a.amount).toLocaleString("es-CO") + "</b>").join("<br>");
+            showToast("Conciliación bancaria & GMF completada");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.loadMonteCarloPreset = function(name, inv, rev, std, fixed, varRatio, wacc, years, trials) {
+        playHudSound("click");
+        document.getElementById("mc-name-input").value = name;
+        document.getElementById("mc-inv-input").value = inv;
+        document.getElementById("mc-rev-input").value = rev;
+        document.getElementById("mc-std-input").value = std;
+        document.getElementById("mc-fixed-input").value = fixed;
+        document.getElementById("mc-wacc-input").value = wacc;
+        document.getElementById("mc-trials-input").value = trials;
+      };
+
+      window.submitMonteCarloSimulation = async function() {
+        playHudSound("click");
+        const project_name = document.getElementById("mc-name-input")?.value || "Proyecto";
+        const initial_investment = parseFloat(document.getElementById("mc-inv-input")?.value || "50000000");
+        const mean_annual_revenue = parseFloat(document.getElementById("mc-rev-input")?.value || "42000000");
+        const std_annual_revenue = parseFloat(document.getElementById("mc-std-input")?.value || "8500000");
+        const fixed_operating_costs = parseFloat(document.getElementById("mc-fixed-input")?.value || "14000000");
+        const discount_rate_wacc = parseFloat(document.getElementById("mc-wacc-input")?.value || "12.5") / 100.0;
+        const simulations_count = parseInt(document.getElementById("mc-trials-input")?.value || "5000");
+        try {
+          const res = await fetch("/api/suite/monte-carlo/simulate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              project_name, initial_investment, mean_annual_revenue, std_annual_revenue,
+              fixed_operating_costs, variable_costs_ratio: 0.25, discount_rate_wacc,
+              project_years: 5, simulations_count, currency: "COP"
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const sim = data.simulation;
+            document.getElementById("mc-results-panel").style.display = "block";
+            document.getElementById("mc-res-status").textContent = sim.risk_metrics.verdict;
+            document.getElementById("mc-res-projname").textContent = sim.project_name + " (" + sim.simulations_count.toLocaleString("es-CO") + " iteraciones)";
+            document.getElementById("mc-res-prob").textContent = sim.risk_metrics.probability_of_success_pct + "%";
+            document.getElementById("mc-res-mean").textContent = "$" + Math.round(sim.npv_distribution.mean_npv).toLocaleString("es-CO") + " COP";
+            document.getElementById("mc-res-var95").textContent = "$" + Math.round(sim.npv_distribution.percentile_5_var95).toLocaleString("es-CO") + " COP";
+            document.getElementById("mc-res-p95").textContent = "$" + Math.round(sim.npv_distribution.percentile_95_upside).toLocaleString("es-CO") + " COP";
+            document.getElementById("mc-res-advice").textContent = sim.strategic_recommendation;
+            showToast("Simulación estocástica Monte Carlo finalizada");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.loadPricingPreset = function(name, price, cost, units, ed) {
+        playHudSound("click");
+        document.getElementById("pr-name-input").value = name;
+        document.getElementById("pr-price-input").value = price;
+        document.getElementById("pr-cost-input").value = cost;
+        document.getElementById("pr-ed-input").value = ed;
+      };
+
+      window.submitPricingElasticity = async function() {
+        playHudSound("click");
+        const product_name = document.getElementById("pr-name-input")?.value || "Producto";
+        const current_price = parseFloat(document.getElementById("pr-price-input")?.value || "65000");
+        const unit_marginal_cost = parseFloat(document.getElementById("pr-cost-input")?.value || "15000");
+        const price_elasticity = parseFloat(document.getElementById("pr-ed-input")?.value || "-1.40");
+        try {
+          const res = await fetch("/api/suite/pricing/elasticity", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ product_name, current_price, unit_marginal_cost, current_monthly_units: 1000, price_elasticity, currency: "COP" })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const p = data.pricing;
+            document.getElementById("pr-results-panel").style.display = "block";
+            document.getElementById("pr-res-class").textContent = p.elasticity_analysis.classification;
+            document.getElementById("pr-res-diag").textContent = "Ed = " + p.elasticity_analysis.elasticity_coefficient + " | Índice Lerner: " + p.elasticity_analysis.lerner_index;
+            document.getElementById("pr-res-optimal").textContent = "$" + Math.round(p.optimal_pricing.recommended_optimal_price).toLocaleString("es-CO") + " COP";
+            document.getElementById("pr-res-cur-margin").textContent = "$" + Math.round(p.current_baseline.total_contribution_margin).toLocaleString("es-CO") + " COP";
+            document.getElementById("pr-res-best-margin").textContent = "$" + Math.round(p.optimal_pricing.projected_optimal_margin).toLocaleString("es-CO") + " COP";
+            document.getElementById("pr-res-gain").textContent = "+$" + Math.round(p.optimal_pricing.monthly_profit_uplift).toLocaleString("es-CO") + " COP";
+            document.getElementById("pr-res-action-plan").textContent = p.strategic_recommendation;
+            showToast("Precio óptimo y curva de elasticidad calculados");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      window.loadCreditPreset = function(name, principal, rate, term, system, prepay) {
+        playHudSound("click");
+        document.getElementById("cr-name-input").value = name;
+        document.getElementById("cr-principal-input").value = principal;
+        document.getElementById("cr-rate-input").value = rate;
+        document.getElementById("cr-term-input").value = term;
+        document.getElementById("cr-system-input").value = system;
+        document.getElementById("cr-prepay-input").value = prepay;
+      };
+
+      window.submitCreditAmortization = async function() {
+        playHudSound("click");
+        const loan_name = document.getElementById("cr-name-input")?.value || "Crédito";
+        const principal_amount = parseFloat(document.getElementById("cr-principal-input")?.value || "40000000");
+        const annual_interest_rate_ea_pct = parseFloat(document.getElementById("cr-rate-input")?.value || "18.5");
+        const term_months = parseInt(document.getElementById("cr-term-input")?.value || "36");
+        const amortization_system = document.getElementById("cr-system-input")?.value || "french";
+        const extra_monthly_prepayment = parseFloat(document.getElementById("cr-prepay-input")?.value || "0");
+        try {
+          const res = await fetch("/api/suite/credit/amortization", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              loan_name, principal_amount, annual_interest_rate_ea_pct,
+              term_months, amortization_system, extra_monthly_prepayment, currency: "COP"
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const c = data.amortization;
+            document.getElementById("cr-results-panel").style.display = "block";
+            document.getElementById("cr-res-name").textContent = c.loan_name;
+            document.getElementById("cr-res-usury").textContent = c.usury_audit.compliance_status + " (Tasa M.V.: " + c.rates.monthly_rate_mv_pct + "%)";
+            document.getElementById("cr-res-payment").textContent = "$" + Math.round(c.summary.initial_monthly_payment).toLocaleString("es-CO") + " COP";
+            document.getElementById("cr-res-interest").textContent = "$" + Math.round(c.summary.total_interest_with_prepay).toLocaleString("es-CO") + " COP";
+            document.getElementById("cr-res-saved").textContent = "$" + Math.round(c.prepayment_impact.interest_saved).toLocaleString("es-CO") + " COP";
+            document.getElementById("cr-res-months").textContent = c.prepayment_impact.months_saved + " meses";
+            document.getElementById("cr-res-compare").textContent = c.system_comparison.recommendation;
+            showToast("Tabla de amortización y ahorro calculados");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      // ─── 45. PIRÁMIDE DUPONT, ALTMAN Z-SCORE & EVA ───
+      window.openDupontAltmanModal = function() {
+        const m = document.getElementById("dupont-altman-modal");
+        if (m) m.classList.add("active");
+        playHudSound("open");
+      };
+
+      window.closeDupontAltmanModal = function() {
+        const m = document.getElementById("dupont-altman-modal");
+        if (m) m.classList.remove("active");
+        playHudSound("close");
+      };
+
+      window.loadDupontPreset = function(type) {
+        playHudSound("click");
+        if (type === "high_eva") {
+          document.getElementById("dup-name-input").value = "Grupo Empresarial Andino S.A.S.";
+          document.getElementById("dup-rev-input").value = "1200000000";
+          document.getElementById("dup-ebit-input").value = "216000000";
+          document.getElementById("dup-net-input").value = "126000000";
+          document.getElementById("dup-assets-input").value = "950000000";
+          document.getElementById("dup-equity-input").value = "475000000";
+          document.getElementById("dup-wc-input").value = "220000000";
+          document.getElementById("dup-re-input").value = "190000000";
+          document.getElementById("dup-wacc-input").value = "12.5";
+        } else if (type === "leveraged") {
+          document.getElementById("dup-name-input").value = "Distribuidora Industrial del Pacífico";
+          document.getElementById("dup-rev-input").value = "1800000000";
+          document.getElementById("dup-ebit-input").value = "175000000";
+          document.getElementById("dup-net-input").value = "82000000";
+          document.getElementById("dup-assets-input").value = "1400000000";
+          document.getElementById("dup-equity-input").value = "380000000";
+          document.getElementById("dup-wc-input").value = "95000000";
+          document.getElementById("dup-re-input").value = "80000000";
+          document.getElementById("dup-wacc-input").value = "14.0";
+        } else if (type === "turnaround") {
+          document.getElementById("dup-name-input").value = "Textiles & Manufacturas en Reestructuración";
+          document.getElementById("dup-rev-input").value = "650000000";
+          document.getElementById("dup-ebit-input").value = "35000000";
+          document.getElementById("dup-net-input").value = "8000000";
+          document.getElementById("dup-assets-input").value = "900000000";
+          document.getElementById("dup-equity-input").value = "180000000";
+          document.getElementById("dup-wc-input").value = "15000000";
+          document.getElementById("dup-re-input").value = "10000000";
+          document.getElementById("dup-wacc-input").value = "15.5";
+        }
+      };
+
+      window.submitDupontAltman = async function() {
+        playHudSound("click");
+        const company_name = document.getElementById("dup-name-input")?.value || "Empresa";
+        const revenue = parseFloat(document.getElementById("dup-rev-input")?.value || "1200000000");
+        const ebit = parseFloat(document.getElementById("dup-ebit-input")?.value || "216000000");
+        const net_income = parseFloat(document.getElementById("dup-net-input")?.value || "126000000");
+        const total_assets = parseFloat(document.getElementById("dup-assets-input")?.value || "950000000");
+        const total_equity = parseFloat(document.getElementById("dup-equity-input")?.value || "475000000");
+        const working_capital = parseFloat(document.getElementById("dup-wc-input")?.value || "220000000");
+        const retained_earnings = parseFloat(document.getElementById("dup-re-input")?.value || "190000000");
+        const wacc_pct = parseFloat(document.getElementById("dup-wacc-input")?.value || "12.5");
+
+        try {
+          const res = await fetch("/api/suite/finance/dupont-altman", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              company_name, revenue, ebit, net_income, total_assets,
+              total_equity, working_capital, retained_earnings, wacc_pct, currency: "COP"
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const d = data.dupont_altman;
+            document.getElementById("dup-results-panel").style.display = "block";
+            document.getElementById("dup-res-name").textContent = d.company_name;
+            document.getElementById("dup-res-driver").textContent = "Palanca Dominante: " + d.dupont_analysis.primary_driver;
+            document.getElementById("dup-res-roe").textContent = d.dupont_analysis.roe_pct + "% (ROA: " + d.dupont_analysis.roa_pct + "%)";
+            document.getElementById("dup-res-formula").textContent = `${d.dupont_analysis.net_margin_pct}% × ${d.dupont_analysis.asset_turnover}x × ${d.dupont_analysis.equity_multiplier}x`;
+            document.getElementById("dup-res-zscore").textContent = `${d.altman_z_score.z_double_prime} (${d.altman_z_score.zone})`;
+            const evaSign = d.eva_analysis.eva_amount >= 0 ? "+$" : "-$";
+            document.getElementById("dup-res-eva").textContent = `${evaSign}${Math.abs(Math.round(d.eva_analysis.eva_amount)).toLocaleString("es-CO")} COP (Spread: ${d.eva_analysis.eva_spread_pct}%)`;
+            document.getElementById("dup-res-recs").innerHTML = d.strategic_recommendations.map(r => "• " + r).join("<br>");
+            showToast("Análisis DuPont, Altman Z''-Score y EVA completado");
+          }
+        } catch(e) { console.error(e); }
+      };
+
+      // ─── 46. EXCELENCIA OPERACIONAL LEAN SIX SIGMA, OEE & TOC ───
+      window.openLeanSixSigmaModal = function() {
+        const m = document.getElementById("lean-six-sigma-modal");
+        if (m) m.classList.add("active");
+        playHudSound("open");
+      };
+
+      window.closeLeanSixSigmaModal = function() {
+        const m = document.getElementById("lean-six-sigma-modal");
+        if (m) m.classList.remove("active");
+        playHudSound("close");
+      };
+
+      window.loadSixSigmaPreset = function(type) {
+        playHudSound("click");
+        if (type === "world_class") {
+          document.getElementById("lss-name-input").value = "Planta Automatizada Clase Mundial";
+          document.getElementById("lss-units-input").value = "10500";
+          document.getElementById("lss-defects-input").value = "25";
+          document.getElementById("lss-opps-input").value = "5";
+          document.getElementById("lss-plan-input").value = "480";
+          document.getElementById("lss-down-input").value = "18";
+          document.getElementById("lss-cycle-input").value = "2.5";
+          document.getElementById("lss-demand-input").value = "9500";
+          document.getElementById("lss-std-input").value = "1.05";
+        } else if (type === "service_ops") {
+          document.getElementById("lss-name-input").value = "Centro de Fulfillment & Despachos B2B";
+          document.getElementById("lss-units-input").value = "8500";
+          document.getElementById("lss-defects-input").value = "95";
+          document.getElementById("lss-opps-input").value = "4";
+          document.getElementById("lss-plan-input").value = "480";
+          document.getElementById("lss-down-input").value = "35";
+          document.getElementById("lss-cycle-input").value = "2.8";
+          document.getElementById("lss-demand-input").value = "8000";
+          document.getElementById("lss-std-input").value = "1.35";
+        } else if (type === "bottleneck") {
+          document.getElementById("lss-name-input").value = "Línea de Ensamble con Restricción Crítica";
+          document.getElementById("lss-units-input").value = "6200";
+          document.getElementById("lss-defects-input").value = "310";
+          document.getElementById("lss-opps-input").value = "5";
+          document.getElementById("lss-plan-input").value = "480";
+          document.getElementById("lss-down-input").value = "85";
+          document.getElementById("lss-cycle-input").value = "2.6";
+          document.getElementById("lss-demand-input").value = "8500";
+          document.getElementById("lss-std-input").value = "1.85";
+        }
+      };
+
+      window.submitLeanSixSigma = async function() {
+        playHudSound("click");
+        const process_name = document.getElementById("lss-name-input")?.value || "Proceso Operativo";
+        const units_produced = parseInt(document.getElementById("lss-units-input")?.value || "10000");
+        const total_defects = parseInt(document.getElementById("lss-defects-input")?.value || "45");
+        const defect_opportunities_per_unit = parseInt(document.getElementById("lss-opps-input")?.value || "5");
+        const planned_production_minutes = parseFloat(document.getElementById("lss-plan-input")?.value || "480");
+        const downtime_minutes = parseFloat(document.getElementById("lss-down-input")?.value || "28");
+        const ideal_cycle_time_seconds = parseFloat(document.getElementById("lss-cycle-input")?.value || "2.5");
+        const customer_daily_demand = parseInt(document.getElementById("lss-demand-input")?.value || "9200");
+        const process_std_dev = parseFloat(document.getElementById("lss-std-input")?.value || "1.15");
+
+        try {
+          const res = await fetch("/api/suite/operations/lean-six-sigma", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              process_name, units_produced, defect_opportunities_per_unit, total_defects,
+              planned_production_minutes, downtime_minutes, ideal_cycle_time_seconds,
+              customer_daily_demand, usl: 105.0, lsl: 95.0, process_mean: 100.2, process_std_dev
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const l = data.lean_six_sigma;
+            document.getElementById("lss-results-panel").style.display = "block";
+            document.getElementById("lss-res-name").textContent = l.process_name;
+            document.getElementById("lss-res-takt").textContent = `Takt Time: ${l.lean_toc_metrics.takt_time_seconds}s vs Ciclo Real: ${l.lean_toc_metrics.actual_cycle_time_seconds}s → ${l.lean_toc_metrics.takt_synchronization_status}`;
+            document.getElementById("lss-res-oee").textContent = `${l.oee_metrics.oee_pct}% (${l.oee_metrics.oee_classification})`;
+            document.getElementById("lss-res-sigma").textContent = `${l.six_sigma_metrics.sigma_level}σ (${l.six_sigma_metrics.dpmo.toLocaleString("es-CO")} DPMO | Yield: ${l.six_sigma_metrics.yield_pct}%)`;
+            document.getElementById("lss-res-cpk").textContent = `Cp: ${l.six_sigma_metrics.cp} | Cpk: ${l.six_sigma_metrics.cpk}`;
+            document.getElementById("lss-res-bottleneck").textContent = l.lean_toc_metrics.primary_bottleneck;
+            document.getElementById("lss-res-plan").innerHTML = l.dmaic_action_plan.map(s => "• " + s).join("<br>");
+            showToast("Auditoría Lean Six Sigma, OEE & TOC completada");
+          }
+        } catch(e) { console.error(e); }
       };
 
 

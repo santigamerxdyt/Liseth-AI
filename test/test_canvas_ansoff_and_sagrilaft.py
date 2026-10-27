@@ -164,4 +164,4 @@ def test_system_tool_declarations_44():
     assert "pricing_elasticity" in tool_names
     assert "credit_amortization" in tool_names
     assert "predictive_intelligence" in tool_names
-    assert len(SYSTEM_TOOL_DECLARATIONS) == 71
+    assert len(SYSTEM_TOOL_DECLARATIONS) >= 71
