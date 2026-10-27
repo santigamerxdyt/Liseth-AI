@@ -78,9 +78,9 @@
 
     /* ─── CONTENEDOR AVATAR 3D HOLOGRÁFICO (WEBGL) ─── */
     .liseth-3d-avatar-container {
-      width: 250px;
-      height: 250px;
-      margin: 0 auto 12px;
+      width: 210px;
+      height: 210px;
+      margin: 0 auto 10px;
       position: relative;
       border-radius: 50%;
       background: radial-gradient(circle, rgba(14, 24, 46, 0.95) 0%, rgba(4, 7, 13, 0.98) 75%);
@@ -367,30 +367,30 @@
     /* Header & Orb Area */
     header {
       position: relative;
-      z-index: 10;
-      padding: 12px 20px 8px;
+      z-index: 20;
+      padding: 6px 18px 6px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      background: rgba(4, 7, 13, 0.85);
+      border-bottom: 1px solid rgba(0, 210, 255, 0.15);
+      background: rgba(4, 7, 13, 0.90);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
 
     .header-top {
-      width: calc(100% - 32px);
+      width: 100%;
       max-width: 1480px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 0 16px;
-      pointer-events: none;
-      gap: 12px;
+      position: relative;
+      top: 0;
+      left: 0;
+      transform: none;
+      padding: 0 4px;
+      pointer-events: auto;
+      gap: 10px;
     }
 
     .server-badge {
@@ -3188,9 +3188,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
+      justify-content: flex-start;
+      padding: 10px 20px 96px;
       z-index: 5;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 210, 255, 0.3) transparent;
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
@@ -4757,8 +4761,8 @@
       line-height: 1.35;
       text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
     }
-    .hud-corner-tl { top: 18px; left: 24px; text-align: left; }
-    .hud-corner-tr { top: 18px; right: 24px; text-align: right; }
+    .hud-corner-tl { top: 82px; left: 24px; text-align: left; z-index: 4; pointer-events: none; }
+    .hud-corner-tr { top: 82px; right: 24px; text-align: right; z-index: 4; pointer-events: none; }
     .hud-corner-bl { bottom: 20px; left: 24px; text-align: left; }
     .hud-corner-br { bottom: 20px; right: 24px; text-align: right; }
     .hud-nano-label {
@@ -6461,7 +6465,8 @@
   </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#04070d">
-  <script src="app/static/js/three.min.js"></script>
+  <script src="/static/js/three.min.js"></script>
+  <script>if(!window.THREE){document.write('<script src="app/static/js/three.min.js"><\/script>');}</script>
   <script>if(!window.THREE){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
 </head>
 <body>
@@ -6498,6 +6503,20 @@
     </div>
   </div>
 
+  <!-- CINTA BURSÁTIL & MACRO EN TIEMPO REAL (TICKER TAPE EJECUTIVO) -->
+  <div class="executive-ticker-tape" id="executive-ticker-tape" title="Cinta bursátil ejecutiva en vivo • Clic en cualquier cotización para análisis detallado">
+    <div class="ticker-tape-track" id="ticker-tape-track">
+      <div class="ticker-item" onclick="openForexModal()"><span class="ticker-symbol">TRM USD/COP:</span> <span class="ticker-val">$4.185,50</span> <span class="ticker-trend-up">▲ +0.42%</span></div>
+      <div class="ticker-item" onclick="openForexModal()"><span class="ticker-symbol">EUR/COP:</span> <span class="ticker-val">$4.522,10</span> <span class="ticker-trend-down">▼ -0.18%</span></div>
+      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">BITCOIN:</span> <span class="ticker-val">$67.420 USD</span> <span class="ticker-trend-up">▲ +2.15%</span></div>
+      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">ECOPETROL:</span> <span class="ticker-val">$2.450 COP</span> <span class="ticker-trend-up">▲ +1.24%</span></div>
+      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">BANCOLOMBIA:</span> <span class="ticker-val">$34.800 COP</span> <span class="ticker-trend-up">▲ +0.87%</span></div>
+      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">S&P 500:</span> <span class="ticker-val">5.815 pts</span> <span class="ticker-trend-up">▲ +0.54%</span></div>
+      <div class="ticker-item" onclick="openMacroModal()"><span class="ticker-symbol">TASA BANREP:</span> <span class="ticker-val">9,75% E.A.</span> <span class="ticker-trend-neutral">● Estable</span></div>
+      <div class="ticker-item" onclick="openMacroModal()"><span class="ticker-symbol">INFLACIÓN IPC:</span> <span class="ticker-val">5,81% Anual</span> <span class="ticker-trend-down">▼ -0.25%</span></div>
+    </div>
+  </div>
+
   <!-- Encabezado con el Orbe de Luz Azul -->
   <header>
     <div class="header-top">
@@ -6508,15 +6527,15 @@
 
       <div class="top-actions">
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES (ACCESO DIRECTO PRIORITARIO #1) -->
-        <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 44 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
+        <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 48 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
           <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
-          <span style="color: #ffffff; letter-spacing: 0.04em;">48 MÓDULOS HUD</span>
+          <span style="color: #ffffff; letter-spacing: 0.04em;">48 MÓDULOS</span>
           <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">48</span>
         </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
         <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal (Escala de texto, Alto contraste, Lector y Atajos) - Alt+A">
           <span class="hud-deck-icon">♿</span>
-          <span>ACCESIBILIDAD</span>
+          <span>A11Y</span>
           <span class="hud-deck-badge" id="a11y-badge">A11Y</span>
         </button>
 
@@ -6531,23 +6550,23 @@
           <span>ARMADURA</span>
         </button>
 
-        <!-- BOTÓN PERSONALIZACIÓN (ESTUDIO COMPLETO) -->
-                <!-- BOTÓN TERMINAL NFC & PAGOS POR CONTACTO -->
+        <!-- BOTÓN TERMINAL NFC & PAGOS POR CONTACTO -->
         <button class="hud-deck-btn" id="btn-nfc-terminal" title="Terminal NFC y Pagos por Contacto (Contactless & Beam)">
           <span class="hud-deck-icon">📶</span>
           <span>NFC PAY</span>
           <span class="hud-deck-badge" id="nfc-status-badge">PAY</span>
         </button>
 
+        <!-- BOTÓN PERSONALIZACIÓN (ESTUDIO COMPLETO) -->
         <button class="hud-deck-btn" id="btn-open-personalization" title="Estudio de Personalización (Trato, Colores, Forma de la Esfera)">
           <span class="hud-deck-icon">🎨</span>
-          <span>PERSONALIZACIÓN</span>
+          <span>ESTUDIO</span>
         </button>
 
         <!-- BOTÓN VENTANA DINÁMICA / VISOR HUD -->
         <button class="hud-deck-btn" id="btn-open-dynamic-viewer" title="Ventana Dinámica: Búsquedas, Archivos, Documentos y Formatos">
           <span class="hud-deck-icon">🪟</span>
-          <span>VISOR DINÁMICO</span>
+          <span>VISOR</span>
           <span class="hud-deck-badge" id="dynamic-viewer-badge" style="display: none;">1</span>
         </button>
 
@@ -6604,20 +6623,6 @@
       </div>
     </div>
   </header>
-
-  <!-- CINTA BURSÁTIL & MACRO EN TIEMPO REAL (TICKER TAPE EJECUTIVO) -->
-  <div class="executive-ticker-tape" id="executive-ticker-tape" title="Cinta bursátil ejecutiva en vivo • Clic en cualquier cotización para análisis detallado">
-    <div class="ticker-tape-track" id="ticker-tape-track">
-      <div class="ticker-item" onclick="openForexModal()"><span class="ticker-symbol">TRM USD/COP:</span> <span class="ticker-val">$4.185,50</span> <span class="ticker-trend-up">▲ +0.42%</span></div>
-      <div class="ticker-item" onclick="openForexModal()"><span class="ticker-symbol">EUR/COP:</span> <span class="ticker-val">$4.522,10</span> <span class="ticker-trend-down">▼ -0.18%</span></div>
-      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">BITCOIN:</span> <span class="ticker-val">$67.420 USD</span> <span class="ticker-trend-up">▲ +2.15%</span></div>
-      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">ECOPETROL:</span> <span class="ticker-val">$2.450 COP</span> <span class="ticker-trend-up">▲ +1.24%</span></div>
-      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">BANCOLOMBIA:</span> <span class="ticker-val">$34.800 COP</span> <span class="ticker-trend-up">▲ +0.87%</span></div>
-      <div class="ticker-item" onclick="openStockTradingModal()"><span class="ticker-symbol">S&P 500:</span> <span class="ticker-val">5.815 pts</span> <span class="ticker-trend-up">▲ +0.54%</span></div>
-      <div class="ticker-item" onclick="openMacroModal()"><span class="ticker-symbol">TASA BANREP:</span> <span class="ticker-val">9,75% E.A.</span> <span class="ticker-trend-neutral">● Estable</span></div>
-      <div class="ticker-item" onclick="openMacroModal()"><span class="ticker-symbol">INFLACIÓN IPC:</span> <span class="ticker-val">5,81% Anual</span> <span class="ticker-trend-down">▼ -0.25%</span></div>
-    </div>
-  </div>
 
   <!-- ESCENARIO PRINCIPAL HOLOGRÁFICO: ESFERA CON ONDAS SONORAS Y TRANSCIPCIÓN -->
   <div class="holographic-main-stage" id="holographic-main-stage">
@@ -6696,14 +6701,14 @@
 
         <!-- 0. AVATAR 3D HOLOGRÁFICO (INTERACTIVO THREE.JS WEBGL CON SEGUIMIENTO DE MOUSE) -->
         <div class="liseth-3d-avatar-container" id="liseth-3d-avatar-container" onclick="toggleAvatarInteraction()" title="Liseth 3D • Secretaria Ejecutiva de Alta Dirección (Clic para interactuar)">
-          <canvas id="liseth-3d-canvas" width="250" height="250"></canvas>
+          <canvas id="liseth-3d-canvas" width="210" height="210"></canvas>
           <div class="avatar-3d-hud-overlay">
             <span class="avatar-3d-badge">3D REAL-TIME WEBGL</span>
           </div>
         </div>
 
         <!-- 1. AVATAR HUMANO EJECUTIVO (PREDETERMINADO) -->
-        <div class="liseth-human-avatar-container" id="liseth-human-avatar-container" onclick="toggleAvatarInteraction()" title="Liseth • Secretaria Ejecutiva de Alta Dirección (Clic para interactuar)">
+        <div class="liseth-human-avatar-container" id="liseth-human-avatar-container" style="display: none;" onclick="toggleAvatarInteraction()" title="Liseth • Secretaria Ejecutiva de Alta Dirección (Clic para interactuar)">
           <div class="avatar-hologram-ring ring-outer"></div>
           <div class="avatar-hologram-ring ring-middle"></div>
           <div class="avatar-aura-glow" id="avatar-aura-glow"></div>
@@ -21425,95 +21430,68 @@ const cardEsg = document.getElementById("hud-card-esg");
         fillLight.position.set(0, -3, 2.5);
         scene.add(fillLight);
 
-        // 3. Head & Facial Structure
+        // 3. Head & Volumetric Hologram Structure
         const headGroup = new THREE.Group();
         scene.add(headGroup);
 
-        // Procedural Sculpted Head (Feminine contours)
-        const headGeo = new THREE.IcosahedronGeometry(1.0, 3);
-        const posAttr = headGeo.attributes.position;
-        const v = new THREE.Vector3();
-        for (let i = 0; i < posAttr.count; i++) {
-          v.fromBufferAttribute(posAttr, i);
-          // Facial shaping: taper chin, lift cheekbones, elongate cranial dome
-          if (v.y < 0) {
-            v.x *= 0.82; // tapered chin
-            v.z *= 0.88;
-          }
-          if (v.y > 0.1 && v.y < 0.6 && v.z > 0.4) {
-            v.z *= 1.12; // prominent cheekbones & nose bridge
-          }
-          v.y *= 1.25; // elegant head proportions
-          posAttr.setXYZ(i, v.x, v.y, v.z);
-        }
-        headGeo.computeVertexNormals();
+        // Holographic Base Emitter Ring
+        const baseRingGeo = new THREE.TorusGeometry(1.15, 0.025, 8, 48);
+        const baseRingMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.8 });
+        const baseRing = new THREE.Mesh(baseRingGeo, baseRingMat);
+        baseRing.rotation.x = Math.PI / 2;
+        baseRing.position.y = -1.15;
+        headGroup.add(baseRing);
 
-        // Cyber Skin Material (Iridescent Translucent Sheen)
-        const skinMat = new THREE.MeshStandardMaterial({
-          color: 0x0a1b33,
-          roughness: 0.25,
-          metalness: 0.5,
+        // High-Definition Texture Mapped 3D Portrait
+        const textureLoader = new THREE.TextureLoader();
+        const portraitTex = textureLoader.load(
+          "/static/images/liseth_avatar.png",
+          () => { if (liseth3D.renderer) liseth3D.renderer.render(liseth3D.scene, liseth3D.camera); },
+          undefined,
+          () => {
+            textureLoader.load("app/static/images/liseth_avatar.png", (tex) => {
+              if (liseth3D.portraitMesh) {
+                liseth3D.portraitMesh.material.map = tex;
+                liseth3D.portraitMesh.material.needsUpdate = true;
+              }
+            });
+          }
+        );
+        portraitTex.generateMipmaps = true;
+
+        const portraitGeo = new THREE.CircleGeometry(1.02, 48);
+        const portraitMat = new THREE.MeshStandardMaterial({
+          map: portraitTex,
+          transparent: true,
+          roughness: 0.18,
+          metalness: 0.35,
           emissive: 0x00f0ff,
-          emissiveIntensity: 0.22,
-          transparent: true,
-          opacity: 0.88
+          emissiveIntensity: 0.12,
+          side: THREE.DoubleSide
         });
-        const faceMesh = new THREE.Mesh(headGeo, skinMat);
-        headGroup.add(faceMesh);
+        const portraitMesh = new THREE.Mesh(portraitGeo, portraitMat);
+        headGroup.add(portraitMesh);
 
-        // Holographic Wireframe Lattice Overlay
-        const wireMat = new THREE.MeshBasicMaterial({
-          color: 0x00f0ff,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.35
-        });
-        const wireMesh = new THREE.Mesh(headGeo, wireMat);
-        wireMesh.scale.set(1.02, 1.02, 1.02);
-        headGroup.add(wireMesh);
+        // Holographic Cybernetic Bezel & Framing Ring
+        const bezelGeo = new THREE.RingGeometry(1.01, 1.07, 48);
+        const bezelMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
+        const bezelMesh = new THREE.Mesh(bezelGeo, bezelMat);
+        headGroup.add(bezelMesh);
 
-        // 4. Stylized 3D Hair
-        const hairGroup = new THREE.Group();
-        const hairGeo1 = new THREE.TorusGeometry(1.05, 0.28, 8, 30, Math.PI);
-        const hairMat = new THREE.MeshStandardMaterial({
-          color: 0x0f172a,
-          roughness: 0.3,
-          metalness: 0.7,
-          emissive: 0x0284c7,
-          emissiveIntensity: 0.25
-        });
-        const hair1 = new THREE.Mesh(hairGeo1, hairMat);
-        hair1.rotation.x = Math.PI / 2.2;
-        hair1.position.set(0, 0.45, -0.1);
-        hairGroup.add(hair1);
-        headGroup.add(hairGroup);
+        // Outer Cybernetic Lattice
+        const latticeGeo = new THREE.IcosahedronGeometry(1.08, 2);
+        const latticeMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true, transparent: true, opacity: 0.22 });
+        const latticeMesh = new THREE.Mesh(latticeGeo, latticeMat);
+        headGroup.add(latticeMesh);
 
-        // 5. 3D Eyes & Pupils (Tracking)
-        const eyeGeo = new THREE.SphereGeometry(0.13, 16, 16);
-        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const pupilGeo = new THREE.SphereGeometry(0.065, 12, 12);
-        const pupilMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
-
-        const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-        leftEye.position.set(0.32, 0.18, 0.86);
-        const leftPupil = new THREE.Mesh(pupilGeo, pupilMat);
-        leftPupil.position.set(0, 0, 0.08);
-        leftEye.add(leftPupil);
-        headGroup.add(leftEye);
-
-        const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-        rightEye.position.set(-0.32, 0.18, 0.86);
-        const rightPupil = new THREE.Mesh(pupilGeo, pupilMat);
-        rightPupil.position.set(0, 0, 0.08);
-        rightEye.add(rightPupil);
-        headGroup.add(rightEye);
-
-        // 6. 3D Mouth (Talking morph)
-        const mouthGeo = new THREE.BoxGeometry(0.24, 0.04, 0.08);
-        const mouthMat = new THREE.MeshBasicMaterial({ color: 0xff66aa });
-        const mouthMesh = new THREE.Mesh(mouthGeo, mouthMat);
-        mouthMesh.position.set(0, -0.42, 0.82);
-        headGroup.add(mouthMesh);
+        // Tracking Point Lights for Specular Highlight
+        const leftPupil = new THREE.Object3D();
+        const rightPupil = new THREE.Object3D();
+        const leftEye = new THREE.Object3D();
+        const rightEye = new THREE.Object3D();
+        const mouthMesh = new THREE.Object3D();
+        const faceMesh = portraitMesh;
+        const wireMesh = latticeMesh;
 
         // 7. Floating 3D Holographic Orbital Rings
         const orbitalRings = [];
@@ -21692,12 +21670,7 @@ const cardEsg = document.getElementById("hud-card-esg");
         playHudSound("click");
       };
 
-      // Iniciar 3D por defecto en escritorio
-      window.addEventListener("DOMContentLoaded", () => {
-        const isDesktop = window.innerWidth >= 768;
-        const savedMode = localStorage.getItem("liseth_avatar_mode") || (isDesktop ? "avatar3d" : "human");
-        window.setAvatarMode(savedMode);
-      });
+
 
 
       window.loadSixSigmaPreset = function(type) {
@@ -21914,37 +21887,19 @@ const cardEsg = document.getElementById("hud-card-esg");
       // ========================================================
       let currentPredictivePlan = null;
 
-      window.setAvatarMode = function(mode) {
-        const humanAv = document.getElementById("liseth-human-avatar-container");
-        const reactorAv = document.getElementById("orb");
-        const btnHuman = document.getElementById("btn-avatar-human");
-        const btnReactor = document.getElementById("btn-avatar-reactor");
-
-        if (mode === "human") {
-          if (humanAv) humanAv.style.display = "flex";
-          if (reactorAv) reactorAv.style.display = "none";
-          if (btnHuman) btnHuman.classList.add("active");
-          if (btnReactor) btnReactor.classList.remove("active");
-          localStorage.setItem("liseth_avatar_mode", "human");
-          showToast("Avatar Ejecutivo Humano Activado");
-        } else {
-          if (humanAv) humanAv.style.display = "none";
-          if (reactorAv) reactorAv.style.display = "block";
-          if (btnHuman) btnHuman.classList.remove("active");
-          if (btnReactor) btnReactor.classList.add("active");
-          localStorage.setItem("liseth_avatar_mode", "reactor");
-          showToast("Núcleo Reactor Arc Activado");
-        }
-        playHudSound("click");
-      };
+// [CONSOLIDADO] window.setAvatarMode gestionado por el controlador unificado
 
       window.toggleAvatarInteraction = function() {
         playHudSound("click");
+        const container3d = document.getElementById("liseth-3d-avatar-container");
         const humanAv = document.getElementById("liseth-human-avatar-container");
-        if (humanAv) {
-          humanAv.classList.toggle("speaking");
-          setTimeout(() => humanAv.classList.remove("speaking"), 2500);
-        }
+        const reactorAv = document.getElementById("orb");
+        [container3d, humanAv, reactorAv].forEach(el => {
+          if (el && el.style.display !== "none") {
+            el.classList.add("speaking");
+            setTimeout(() => el.classList.remove("speaking"), 2500);
+          }
+        });
         showToast("Liseth: 'A su servicio, Señor Santiago. ¿Qué prioridad abordamos ahora?'");
       };
 
@@ -22011,7 +21966,8 @@ const cardEsg = document.getElementById("hud-card-esg");
 
       // Inicializar modo de avatar y plan predictivo al cargar
       document.addEventListener("DOMContentLoaded", function() {
-        const savedMode = localStorage.getItem("liseth_avatar_mode") || "human";
+        const isDesktop = window.innerWidth >= 768;
+        const savedMode = localStorage.getItem("liseth_avatar_mode") || (isDesktop ? "avatar3d" : "human");
         window.setAvatarMode(savedMode);
         window.refreshPredictivePlan();
       });
