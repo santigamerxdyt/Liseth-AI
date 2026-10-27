@@ -30,6 +30,8 @@ from app.services.bank_reconciliation_service import bank_reconciliation_service
 from app.services.monte_carlo_service import monte_carlo_service
 from app.services.pricing_elasticity_service import pricing_elasticity_service
 from app.services.credit_amortization_service import credit_amortization_service
+from app.services.business_canvas_ansoff_service import business_canvas_ansoff_service
+from app.services.sagrilaft_compliance_service import sagrilaft_compliance_service
 
 
 
@@ -696,8 +698,72 @@ async def calculate_credit_endpoint(req: CreditAmortizationRequest):
     )
     return {"ok": True, "amortization": res}
 
+# ─── MODELO DE NEGOCIO CANVAS & MATRIZ ANSOFF ───
+class BusinessCanvasAnsoffRequest(BaseModel):
+    project_name: str = Field(..., description="Nombre del proyecto o empresa")
+    industry: str = Field(default="Servicios / Tecnología / Comercio")
+    value_proposition: str = Field(default="")
+    customer_segments: str = Field(default="")
+    channels: str = Field(default="")
+    customer_relationships: str = Field(default="")
+    revenue_streams: str = Field(default="")
+    key_resources: str = Field(default="")
+    key_activities: str = Field(default="")
+    key_partners: str = Field(default="")
+    cost_structure: str = Field(default="")
+    ansoff_quadrant: str = Field(default="market_penetration")
+    investment_budget: float = Field(default=30000000.0, ge=0)
+    currency: str = Field(default="COP")
 
 
+@router.post("/business/canvas-ansoff")
+async def evaluate_canvas_endpoint(req: BusinessCanvasAnsoffRequest):
+    res = business_canvas_ansoff_service.evaluate_canvas_and_ansoff(
+        project_name=req.project_name,
+        industry=req.industry,
+        value_proposition=req.value_proposition,
+        customer_segments=req.customer_segments,
+        channels=req.channels,
+        customer_relationships=req.customer_relationships,
+        revenue_streams=req.revenue_streams,
+        key_resources=req.key_resources,
+        key_activities=req.key_activities,
+        key_partners=req.key_partners,
+        cost_structure=req.cost_structure,
+        ansoff_quadrant=req.ansoff_quadrant,
+        investment_budget=req.investment_budget,
+        currency=req.currency
+    )
+    return {"ok": True, "canvas_ansoff": res}
 
 
+# ─── AUDITORÍA DE CUMPLIMIENTO SAGRILAFT & PTEE ───
+class SagrilaftComplianceRequest(BaseModel):
+    company_name: str = Field(..., description="Razón social de la compañía")
+    annual_revenue_smmlv: float = Field(..., ge=0)
+    total_assets_smmlv: float = Field(..., ge=0)
+    sector: str = Field(default="servicios")
+    has_compliance_officer: bool = Field(default=True)
+    due_diligence_level: str = Field(default="ordinaria")
+    pep_involvement: bool = Field(default=False)
+    cash_intensive_pct: float = Field(default=5.0, ge=0, le=100)
+    has_whistleblower_channel: bool = Field(default=True)
+    international_operations: bool = Field(default=False)
+
+
+@router.post("/compliance/sagrilaft")
+async def audit_sagrilaft_endpoint(req: SagrilaftComplianceRequest):
+    res = sagrilaft_compliance_service.audit_compliance(
+        company_name=req.company_name,
+        annual_revenue_smmlv=req.annual_revenue_smmlv,
+        total_assets_smmlv=req.total_assets_smmlv,
+        sector=req.sector,
+        has_compliance_officer=req.has_compliance_officer,
+        due_diligence_level=req.due_diligence_level,
+        pep_involvement=req.pep_involvement,
+        cash_intensive_pct=req.cash_intensive_pct,
+        has_whistleblower_channel=req.has_whistleblower_channel,
+        international_operations=req.international_operations
+    )
+    return {"ok": True, "sagrilaft": res}
 

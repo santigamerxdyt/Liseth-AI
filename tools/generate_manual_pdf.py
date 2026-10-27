@@ -948,6 +948,24 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Elasticidad de Precios & Lerner Markup", "Pida a Liseth: 'Calcula elasticidad con precio de 50.000 a 55.000 pesos, demanda de 1.000 a 920 unidades y costo marginal de 28.000' para optimizar ingresos y precio optimo.", "Pricing Strategy & Elasticidad PED")
     builder.add_command_box("Simulador de Creditos Frances vs Aleman", "Pida a Liseth: 'Simula un credito de 40 millones a 36 meses con tasa del 18.5% EA y abono extra de 5 millones en mes 6' para comparar cuotas y auditar tasa de usura.", "Finanzas Bancarias & Amortizacion")
 
+    # ───
+    # SECCIÓN 36: MODELO DE NEGOCIO CANVAS, MATRIZ ANSOFF Y AUDITORÍA SAGRILAFT / PTEE (44 MÓDULOS)
+    # ───
+    builder.add_section_header("36. Business Canvas, Matriz Ansoff y Auditoria SAGRILAFT/PTEE (44 Modulos)")
+    builder.add_paragraph(
+        "Liseth alcanza la imponente marca de 44 modulos tacticos HUD consolidando la mas robusta suite de direccion empresarial, planeacion estrategica y blindaje legal en Colombia: "
+        "(1) Business Model Canvas & Matriz Ansoff de Crecimiento: Marco directivo que integra los 9 bloques del Canvas de Alexander Osterwalder (Propuesta de Valor, Segmentos, Canales, Relaciones, "
+        "Flujos de Ingresos, Recursos Clave, Actividades Clave, Alianzas Clave y Estructura de Costos) con diagnostico algoritmico de coherencia estrategica (0-100 pts) y proyeccion "
+        "del vector de crecimiento bajo la Matriz de Igor Ansoff (Penetracion de Mercado, Desarrollo de Producto, Desarrollo de Mercado y Diversificacion) con calculo de ROI, Payback en meses y roadmap a 4 trimestres. "
+        "(2) Auditoria de Cumplimiento SAGRILAFT & PTEE (Superintendencia de Sociedades): Motor de evaluacion y control de riesgos LA/FT/FPADM (Lavado de Activos, Financiacion del Terrorismo y Proliferacion de Armas) "
+        "y Programa de Transparencia y Etica Empresarial (PTEE / Ley 2195 de 2022). Determina la obligatoriedad legal por umbrales de ingresos/activos (30.000 SMMLV) o sectores regulados (inmobiliario, factoring, "
+        "metales preciosos), computa la matriz de riesgo inherente vs riesgo residual tras controles, audita Debida Diligencia KYC/KYE/KYP con atencion a PEPs (Personas Expuestas Politicamente), "
+        "monitorea manejo intensivo de efectivo y lineas eticas de denuncias para emitir el dictamen semaforizado (Verde, Amarillo, Rojo) con plan de remediacion en 5 fases:",
+        size=9.0
+    )
+    builder.add_command_box("Business Model Canvas & Vector Ansoff", "Pida a Liseth: 'Modela mi negocio de SaaS B2B con presupuesto de 40 millones bajo el cuadrante de penetracion de mercado' para evaluar coherencia de los 9 bloques, ROI y roadmap.", "Direccion Estrategica & Ansoff")
+    builder.add_command_box("Auditoria SAGRILAFT & Dictamen PTEE", "Pida a Liseth: 'Audita el cumplimiento SAGRILAFT de mi empresa inmobiliaria con ingresos de 35.000 SMMLV, oficial de cumplimiento y vinculacion PEP' para dictamen oficial y semaforo.", "SuperSociedades & Compliance LA/FT")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

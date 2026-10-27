@@ -4334,7 +4334,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 43 0 R >>
 endobj
 44 0 obj
-<< /Length 4131 >>
+<< /Length 7957 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -4428,12 +4428,108 @@ BT /F1 8.5 Tf 56.0 551.89 Td (Pida a Liseth: 'Simula un credito de 40 millones a
 BT /F4 8 Tf 56.0 539.89 Td (-> Finanzas Bancarias & Amortizacion) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 520.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.90 0.94 0.98 rg
+42.0 504.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 504.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 511.89 Td (36. Business Canvas, Matriz Ansoff y Auditoria SAGRILAFT/PTEE \(44 Modulos\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 485.89 Td (Liseth alcanza la imponente marca de 44 modulos tacticos HUD consolidando la mas robusta suite de direccion) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 473.89 Td (empresarial, planeacion estrategica y blindaje legal en Colombia: \(1\) Business Model Canvas & Matriz Ansoff) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 461.89 Td (de Crecimiento: Marco directivo que integra los 9 bloques del Canvas de Alexander Osterwalder \(Propuesta de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 449.89 Td (Valor, Segmentos, Canales, Relaciones, Flujos de Ingresos, Recursos Clave, Actividades Clave, Alianzas Clave) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 437.89 Td (y Estructura de Costos\) con diagnostico algoritmico de coherencia estrategica \(0-100 pts\) y proyeccion del) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 425.89 Td (vector de crecimiento bajo la Matriz de Igor Ansoff \(Penetracion de Mercado, Desarrollo de Producto,) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 413.89 Td (Desarrollo de Mercado y Diversificacion\) con calculo de ROI, Payback en meses y roadmap a 4 trimestres. \(2\)) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 401.89 Td (Auditoria de Cumplimiento SAGRILAFT & PTEE \(Superintendencia de Sociedades\): Motor de evaluacion y control de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 389.89 Td (riesgos LA/FT/FPADM \(Lavado de Activos, Financiacion del Terrorismo y Proliferacion de Armas\) y Programa de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 377.89 Td (Transparencia y Etica Empresarial \(PTEE / Ley 2195 de 2022\). Determina la obligatoriedad legal por umbrales) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 365.89 Td (de ingresos/activos \(30.000 SMMLV\) o sectores regulados \(inmobiliario, factoring, metales preciosos\), computa) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 353.89 Td (la matriz de riesgo inherente vs riesgo residual tras controles, audita Debida Diligencia KYC/KYE/KYP con) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 341.89 Td (atencion a PEPs \(Personas Expuestas Politicamente\), monitorea manejo intensivo de efectivo y lineas eticas de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 329.89 Td (denuncias para emitir el dictamen semaforizado \(Verde, Amarillo, Rojo\) con plan de remediacion en 5 fases:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 277.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 277.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 305.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 310.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 309.89 Td (\"Business Model Canvas & Vector Ansoff\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 294.89 Td (Pida a Liseth: 'Modela mi negocio de SaaS B2B con presupuesto de 40 millones bajo el cuadrante de penetracion de mercado' para evaluar coherencia de los 9 bloques, ROI y roadmap.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 282.89 Td (-> Direccion Estrategica & Ansoff) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 225.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 225.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 253.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 258.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 257.89 Td (\"Auditoria SAGRILAFT & Dictamen PTEE\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 242.89 Td (Pida a Liseth: 'Audita el cumplimiento SAGRILAFT de mi empresa inmobiliaria con ingresos de 35.000 SMMLV, oficial de cumplimiento y vinculacion PEP' para dictamen oficial y semaforo.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 230.89 Td (-> SuperSociedades & Compliance LA/FT) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 508.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 211.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 199.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -4474,7 +4570,7 @@ xref
 0000131964 00000 n 
 0000141292 00000 n 
 0000150655 00000 n 
-0000155003 00000 n 
+0000158829 00000 n 
 0000000639 00000 n 
 0000007414 00000 n 
 0000015061 00000 n 
@@ -4497,5 +4593,5 @@ xref
 trailer
 << /Size 45 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-155167
+158993
 %%EOF

@@ -205,6 +205,8 @@ EXEMPT_API_PATHS = {
     "/api/suite/monte-carlo/simulate",
     "/api/suite/pricing/elasticity",
     "/api/suite/credit/amortization",
+    "/api/suite/business/canvas-ansoff",
+    "/api/suite/compliance/sagrilaft",
 }
 
 

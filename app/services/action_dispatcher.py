@@ -1104,7 +1104,52 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": ["principal_amount", "annual_interest_rate_ea_pct"]
         }
+    },
+    {
+        "name": "business_canvas_ansoff",
+        "description": "Modelo de Negocio Canvas y Matriz Ansoff de Crecimiento: sintetiza los 9 bloques del Canvas de Osterwalder (propuesta de valor, segmentos, canales, ingresos, estructura de costos, etc.), evalúa la coherencia estratégica comercial y diseña la estrategia de expansión bajo la Matriz de Ansoff (penetración, desarrollo de productos, desarrollo de mercados o diversificación) con proyección de ROI y roadmap a 4 trimestres.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "project_name": {"type": "STRING", "description": "Nombre del proyecto, emprendimiento o unidad de negocio"},
+                "industry": {"type": "STRING", "description": "Sector o industria (ej: Fintech, SaaS B2B, Retail, Agroindustria)"},
+                "value_proposition": {"type": "STRING", "description": "Propuesta de valor única del negocio"},
+                "customer_segments": {"type": "STRING", "description": "Segmentos de clientes objetivo"},
+                "channels": {"type": "STRING", "description": "Canales de distribución y venta"},
+                "customer_relationships": {"type": "STRING", "description": "Tipo de relación con los clientes"},
+                "revenue_streams": {"type": "STRING", "description": "Fuentes y modelos de ingresos"},
+                "key_resources": {"type": "STRING", "description": "Recursos clave necesarios"},
+                "key_activities": {"type": "STRING", "description": "Actividades operativas y comerciales clave"},
+                "key_partners": {"type": "STRING", "description": "Alianzas y socios estratégicos"},
+                "cost_structure": {"type": "STRING", "description": "Estructura y principales rubros de costos"},
+                "ansoff_quadrant": {"type": "STRING", "description": "Cuadrante Ansoff: market_penetration | product_development | market_development | diversification"},
+                "investment_budget": {"type": "NUMBER", "description": "Presupuesto de inversión para la expansión"},
+                "currency": {"type": "STRING", "description": "Moneda: COP o USD"}
+            },
+            "required": ["project_name"]
+        }
+    },
+    {
+        "name": "sagrilaft_compliance",
+        "description": "Auditoría de Cumplimiento SAGRILAFT y PTEE (Superintendencia de Sociedades de Colombia): evalúa umbrales legales de obligatoriedad (ingresos/activos >= 30.000 SMMLV o sectores regulados de alto riesgo), computa la matriz de riesgo LA/FT/FPADM (riesgo inherente vs riesgo residual), audita debida diligencia KYC/KYP/KYE, vinculación de PEPs, manejo intensivo de efectivo y canal de denuncias anticorrupción PTEE con semáforo y plan de acción.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "company_name": {"type": "STRING", "description": "Razón social o nombre de la empresa"},
+                "annual_revenue_smmlv": {"type": "NUMBER", "description": "Ingresos brutos anuales expresados en SMMLV (ej: 35000)"},
+                "total_assets_smmlv": {"type": "NUMBER", "description": "Activos totales expresados en SMMLV (ej: 32000)"},
+                "sector": {"type": "STRING", "description": "Sector económico (ej: servicios, inmobiliario, construccion, factoring, tecnologia)"},
+                "has_compliance_officer": {"type": "BOOLEAN", "description": "Si cuenta con Oficial de Cumplimiento designado y registrado"},
+                "due_diligence_level": {"type": "STRING", "description": "Nivel de debida diligencia: ordinaria | simplificada | intensificada"},
+                "pep_involvement": {"type": "BOOLEAN", "description": "Si existen Personas Expuestas Políticamente (PEPs) vinculadas"},
+                "cash_intensive_pct": {"type": "NUMBER", "description": "Porcentaje de operaciones recaudadas en efectivo físico (ej: 5.0 para 5%)"},
+                "has_whistleblower_channel": {"type": "BOOLEAN", "description": "Si dispone de canal ético confidencial y línea de denuncias PTEE"},
+                "international_operations": {"type": "BOOLEAN", "description": "Si realiza operaciones o contratos internacionales (exportaciones/importaciones)"}
+            },
+            "required": ["company_name", "annual_revenue_smmlv", "total_assets_smmlv"]
+        }
     }
+
 ]
 
 
@@ -1562,6 +1607,16 @@ class ActionDispatcher:
             elif name in ("credit_amortization", "simulador_credito", "tabla_amortizacion", "prestamo_bancario", "abono_capital", "tasa_usura"):
                 from app.actions.credit_amortization_action import credit_amortization_action
                 res = credit_amortization_action(parameters=args)
+                return res
+
+            elif name in ("business_canvas_ansoff", "canvas_negocio", "modelo_canvas", "matriz_ansoff", "estrategia_crecimiento"):
+                from app.actions.business_canvas_ansoff_action import business_canvas_ansoff_action
+                res = business_canvas_ansoff_action(parameters=args)
+                return res
+
+            elif name in ("sagrilaft_compliance", "auditoria_sagrilaft", "sagrilaft", "ptee", "prevencion_laft", "compliance_colombia"):
+                from app.actions.sagrilaft_compliance_action import sagrilaft_compliance_action
+                res = sagrilaft_compliance_action(parameters=args)
                 return res
 
             else:
