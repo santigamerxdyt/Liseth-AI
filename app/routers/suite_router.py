@@ -26,6 +26,8 @@ from app.services.fleet_routes_service import fleet_routes_service
 from app.services.biocognitive_habits_service import biocognitive_habits_service
 from app.services.stock_trading_service import stock_trading_service
 from app.services.dividend_screener_service import dividend_screener_service
+from app.services.bank_reconciliation_service import bank_reconciliation_service
+from app.services.monte_carlo_service import monte_carlo_service
 
 
 
@@ -573,6 +575,71 @@ async def screen_dividends_endpoint(req: DividendScreenRequest):
 @router.get("/dividends/catalog")
 async def get_dividends_catalog_endpoint(market: Optional[str] = Query(None)):
     return {"ok": True, "catalog": dividend_screener_service.list_available_stocks(market=market)}
+
+
+# ─── CONCILIACIÓN BANCARIA & AUDITORÍA GMF (4x1000) ───
+class BankReconciliationRequest(BaseModel):
+    bank_statement_balance: float = Field(...)
+    general_ledger_balance: float = Field(...)
+    deposits_in_transit: float = Field(default=0.0, ge=0.0)
+    outstanding_checks: float = Field(default=0.0, ge=0.0)
+    bank_charges_and_fees: float = Field(default=0.0, ge=0.0)
+    unrecorded_bank_credits: float = Field(default=0.0, ge=0.0)
+    unrecorded_bank_debits: float = Field(default=0.0, ge=0.0)
+    total_monthly_debits_cop: float = Field(default=0.0, ge=0.0)
+    is_account_gmf_exempt: bool = Field(default=False)
+    bank_name: str = Field(default="Bancolombia")
+    currency: str = Field(default="COP")
+
+
+@router.post("/reconciliation/audit")
+async def audit_reconciliation_endpoint(req: BankReconciliationRequest):
+    res = bank_reconciliation_service.reconcile_statement(
+        bank_statement_balance=req.bank_statement_balance,
+        general_ledger_balance=req.general_ledger_balance,
+        deposits_in_transit=req.deposits_in_transit,
+        outstanding_checks=req.outstanding_checks,
+        bank_charges_and_fees=req.bank_charges_and_fees,
+        unrecorded_bank_credits=req.unrecorded_bank_credits,
+        unrecorded_bank_debits=req.unrecorded_bank_debits,
+        total_monthly_debits_cop=req.total_monthly_debits_cop,
+        is_account_gmf_exempt=req.is_account_gmf_exempt,
+        bank_name=req.bank_name,
+        currency=req.currency
+    )
+    return {"ok": True, "reconciliation": res}
+
+
+# ─── SIMULACIÓN ESTOCÁSTICA MONTE CARLO & STRESS TESTING ───
+class MonteCarloRequest(BaseModel):
+    project_name: str = Field(default="Proyecto Estratégico")
+    initial_investment: float = Field(..., gt=0)
+    mean_annual_revenue: float = Field(..., gt=0)
+    std_annual_revenue: float = Field(default=5000000.0, ge=0)
+    fixed_operating_costs: float = Field(default=10000000.0, ge=0)
+    variable_costs_ratio: float = Field(default=0.25, ge=0.0, le=0.95)
+    discount_rate_wacc: float = Field(default=0.12, ge=0.001, le=1.0)
+    project_years: int = Field(default=5, ge=1, le=20)
+    simulations_count: int = Field(default=5000, ge=500, le=20000)
+    currency: str = Field(default="COP")
+
+
+@router.post("/monte-carlo/simulate")
+async def simulate_monte_carlo_endpoint(req: MonteCarloRequest):
+    res = monte_carlo_service.simulate_project_capital(
+        project_name=req.project_name,
+        initial_investment=req.initial_investment,
+        mean_annual_revenue=req.mean_annual_revenue,
+        std_annual_revenue=req.std_annual_revenue,
+        fixed_operating_costs=req.fixed_operating_costs,
+        variable_costs_ratio=req.variable_costs_ratio,
+        discount_rate_wacc=req.discount_rate_wacc,
+        project_years=req.project_years,
+        simulations_count=req.simulations_count,
+        currency=req.currency
+    )
+    return {"ok": True, "simulation": res}
+
 
 
 

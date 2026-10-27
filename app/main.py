@@ -201,6 +201,8 @@ EXEMPT_API_PATHS = {
     "/api/suite/stock-trading/analyze",
     "/api/suite/dividends/screen",
     "/api/suite/dividends/catalog",
+    "/api/suite/reconciliation/audit",
+    "/api/suite/monte-carlo/simulate",
 }
 
 

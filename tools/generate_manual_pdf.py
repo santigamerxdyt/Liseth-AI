@@ -907,6 +907,27 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Radar de Dividendos para Presupuesto Reducido", "Pida a Liseth: 'Recomiendame que acciones comprar con presupuesto ajustado de 300.000 pesos que paguen buenos dividendos' para obtener la canasta óptima y flujo anual.", "Portafolio de Dividendos BVC")
     builder.add_command_box("Proyeccion Compuesta de Reinversion (DRIP)", "Pida a Liseth: 'Simula un plan de dividendos con 100 dolares en Wall Street a 5 anos con reinversion DRIP' para proyectar el interés compuesto.", "DRIP Compounding Wall Street")
 
+
+    # ───
+    # SECCIÓN 34: CONCILIACIÓN BANCARIA AUTOMATIZADA, AUDITORÍA GMF (4x1000) Y SIMULACIÓN MONTE CARLO (40 MÓDULOS)
+    # ───
+    builder.add_section_header("34. Conciliacion Bancaria Oficial, GMF (4x1000) y Simulacion Monte Carlo")
+    builder.add_paragraph(
+        "Liseth alcanza el hito historico de 40 modulos tacticos HUD integrando dos motores financieros de alta jerarquia corporativa y academica: "
+        "(1) Conciliacion Bancaria Automatizada & Auditoria de GMF (4x1000): Motor de cuadre contable riguroso que contrasta saldos de extractos bancarios "
+        "con libros auxiliares, determinando de forma automatica partidas conciliatorias (depositos en transito, cheques pendientes de cobro, notas debito por "
+        "comisiones y notas credito por abonos directos) para generar el Acta Oficial de Conciliacion. Simultaneamente, audita el Gravamen a los Movimientos "
+        "Financieros (GMF 4x1000) del periodo, certificando la exencion legal de hasta 350 UVT mensuales y calculando el 50% deducible en la Declaracion "
+        "de Renta (Art. 115 Estatuto Tributario) junto con los asientos contables de ajuste sugeridos. "
+        "(2) Simulacion Estocastica Monte Carlo & Stress Testing de Capital: Plataforma de simulacion probabilistica vectorizada de alto rendimiento que ejecuta "
+        "entre 1.000 y 10.000 iteraciones aleatorias sobre proyectos de inversion y modelos de negocio. Computa la Probabilidad real de Rentabilidad P(VAN > 0), "
+        "el VAN Esperado (media y mediana), la dispersion del riesgo y las metricas de cola institucional: Value at Risk (VaR 95% y VaR 99% de confianza), "
+        "clasificando la resiliencia del capital entre Alta Resiliencia, Riesgo Moderado o Fragilidad Financiera con pautas de mitigacion cuantitativa:",
+        size=9.0
+    )
+    builder.add_command_box("Conciliacion Bancaria & GMF (4x1000)", "Pida a Liseth: 'Concilia mi extracto de Bancolombia con saldo de 45 millones contra libros de 42.5 millones, depositos en transito de 5 millones y cheques pendientes de 7.2 millones' para cuadre y beneficio tributario.", "Tesoreria & Auditoria Bancaria")
+    builder.add_command_box("Simulacion Monte Carlo de Inversiones (10K Trials)", "Pida a Liseth: 'Ejecuta simulacion Monte Carlo para proyecto de 60 millones con ingresos de 42 millones desv 5 millones y WACC del 11%' para calcular P(VAN > 0) y Value at Risk.", "Stress Testing Monte Carlo")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

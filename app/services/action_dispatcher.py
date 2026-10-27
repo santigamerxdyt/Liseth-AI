@@ -1027,6 +1027,47 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": ["budget"]
         }
+    },
+    {
+        "name": "bank_reconciliation",
+        "description": "Conciliador Bancario y Auditoría de GMF (4x1000): realiza la ecuación de conciliación entre extractos bancarios y libros contables (depósitos en tránsito, cheques pendientes, notas débito/crédito bancarias) y audita el 4x1000 generado con el 50% deducible en renta (Art. 115 E.T.) y exención de 350 UVT.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "bank_statement_balance": {"type": "NUMBER", "description": "Saldo final según extracto bancario"},
+                "general_ledger_balance": {"type": "NUMBER", "description": "Saldo final según libros contables auxiliares"},
+                "deposits_in_transit": {"type": "NUMBER", "description": "Consignaciones o depósitos en tránsito no acreditados por el banco"},
+                "outstanding_checks": {"type": "NUMBER", "description": "Cheques o giros emitidos pendientes de cobro"},
+                "bank_charges_and_fees": {"type": "NUMBER", "description": "Gastos bancarios, cuotas de manejo y comisiones del extracto"},
+                "unrecorded_bank_credits": {"type": "NUMBER", "description": "Abonos directos o intereses a favor no contabilizados"},
+                "unrecorded_bank_debits": {"type": "NUMBER", "description": "Débitos bancarios directos no registrados en libros"},
+                "total_monthly_debits_cop": {"type": "NUMBER", "description": "Monto total de débitos y retiros del mes para auditar 4x1000"},
+                "is_account_gmf_exempt": {"type": "BOOLEAN", "description": "Si la cuenta está marcada como exenta de 4x1000 (hasta 350 UVT)"},
+                "bank_name": {"type": "STRING", "description": "Nombre de la entidad bancaria (ej: Bancolombia, Davivienda, BBVA)"},
+                "currency": {"type": "STRING", "description": "Moneda: COP o USD"}
+            },
+            "required": ["bank_statement_balance", "general_ledger_balance"]
+        }
+    },
+    {
+        "name": "monte_carlo_simulation",
+        "description": "Simulador Estocástico Monte Carlo y Stress Testing de Capital: ejecuta de 1.000 a 10.000 iteraciones estocásticas vectorizadas para evaluar proyectos de inversión, calculando la probabilidad de VAN positivo P(VAN > 0), VAN esperado, volatilidad, Value at Risk (VaR 95% y VaR 99%) y diagnóstico de resiliencia financiera.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "project_name": {"type": "STRING", "description": "Nombre del proyecto, expansión o iniciativa estratégica"},
+                "initial_investment": {"type": "NUMBER", "description": "Inversión inicial o capex requerido"},
+                "mean_annual_revenue": {"type": "NUMBER", "description": "Ingreso anual promedio esperado"},
+                "std_annual_revenue": {"type": "NUMBER", "description": "Desviación estándar o volatilidad del ingreso anual"},
+                "fixed_operating_costs": {"type": "NUMBER", "description": "Costos y gastos fijos operativos anuales"},
+                "variable_costs_ratio": {"type": "NUMBER", "description": "Ratio de costos variables sobre ingresos (0.0 a 1.0, ej: 0.25)"},
+                "discount_rate_wacc": {"type": "NUMBER", "description": "Tasa de descuento WACC (ej: 0.12 para 12%)"},
+                "project_years": {"type": "INTEGER", "description": "Años de vida útil o proyección del proyecto (ej: 5)"},
+                "simulations_count": {"type": "INTEGER", "description": "Número de iteraciones Monte Carlo (ej: 5000)"},
+                "currency": {"type": "STRING", "description": "Moneda: COP o USD"}
+            },
+            "required": ["initial_investment", "mean_annual_revenue"]
+        }
     }
 ]
 
@@ -1465,6 +1506,16 @@ class ActionDispatcher:
             elif name in ("dividend_screener", "acciones_dividendos", "dividendos_baratos", "portafolio_dividendos", "drip_compounding"):
                 from app.actions.dividend_screener_action import dividend_screener_action
                 res = dividend_screener_action(parameters=args)
+                return res
+
+            elif name in ("bank_reconciliation", "conciliacion_bancaria", "extracto_bancario", "auditoria_4x1000", "gmf_colombia"):
+                from app.actions.bank_reconciliation_action import bank_reconciliation_action
+                res = bank_reconciliation_action(parameters=args)
+                return res
+
+            elif name in ("monte_carlo_simulation", "simulacion_monte_carlo", "monte_carlo", "stress_testing", "var_financiero", "riesgo_estocastico"):
+                from app.actions.monte_carlo_action import monte_carlo_action
+                res = monte_carlo_action(parameters=args)
                 return res
 
             else:

@@ -4088,7 +4088,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 41 0 R >>
 endobj
 42 0 obj
-<< /Length 5250 >>
+<< /Length 9079 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -4214,12 +4214,108 @@ BT /F1 8.5 Tf 56.0 441.89 Td (Pida a Liseth: 'Simula un plan de dividendos con 1
 BT /F4 8 Tf 56.0 429.89 Td (-> DRIP Compounding Wall Street) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 410.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.90 0.94 0.98 rg
+42.0 394.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 394.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 401.89 Td (34. Conciliacion Bancaria Oficial, GMF \(4x1000\) y Simulacion Monte Carlo) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 375.89 Td (Liseth alcanza el hito historico de 40 modulos tacticos HUD integrando dos motores financieros de alta) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 363.89 Td (jerarquia corporativa y academica: \(1\) Conciliacion Bancaria Automatizada & Auditoria de GMF \(4x1000\): Motor) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 351.89 Td (de cuadre contable riguroso que contrasta saldos de extractos bancarios con libros auxiliares, determinando) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 339.89 Td (de forma automatica partidas conciliatorias \(depositos en transito, cheques pendientes de cobro, notas debito) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 327.89 Td (por comisiones y notas credito por abonos directos\) para generar el Acta Oficial de Conciliacion.) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 315.89 Td (Simultaneamente, audita el Gravamen a los Movimientos Financieros \(GMF 4x1000\) del periodo, certificando la) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 303.89 Td (exencion legal de hasta 350 UVT mensuales y calculando el 50% deducible en la Declaracion de Renta \(Art. 115) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 291.89 Td (Estatuto Tributario\) junto con los asientos contables de ajuste sugeridos. \(2\) Simulacion Estocastica Monte) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 279.89 Td (Carlo & Stress Testing de Capital: Plataforma de simulacion probabilistica vectorizada de alto rendimiento) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 267.89 Td (que ejecuta entre 1.000 y 10.000 iteraciones aleatorias sobre proyectos de inversion y modelos de negocio.) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 255.89 Td (Computa la Probabilidad real de Rentabilidad P\(VAN > 0\), el VAN Esperado \(media y mediana\), la dispersion del) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 243.89 Td (riesgo y las metricas de cola institucional: Value at Risk \(VaR 95% y VaR 99% de confianza\), clasificando la) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 231.89 Td (resiliencia del capital entre Alta Resiliencia, Riesgo Moderado o Fragilidad Financiera con pautas de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 219.89 Td (mitigacion cuantitativa:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 167.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 167.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 195.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 200.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 199.89 Td (\"Conciliacion Bancaria & GMF \(4x1000\)\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 184.89 Td (Pida a Liseth: 'Concilia mi extracto de Bancolombia con saldo de 45 millones contra libros de 42.5 millones, depositos en transito de 5 millones y cheques pendientes de 7.2 millones' para cuadre y beneficio tributario.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 172.89 Td (-> Tesoreria & Auditoria Bancaria) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 115.88999999999999 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 115.88999999999999 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 143.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 148.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 147.89 Td (\"Simulacion Monte Carlo de Inversiones \(10K Trials\)\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 132.89 Td (Pida a Liseth: 'Ejecuta simulacion Monte Carlo para proyecto de 60 millones con ingresos de 42 millones desv 5 millones y WACC del 11%' para calcular P\(VAN > 0\) y Value at Risk.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 120.88999999999999 Td (-> Stress Testing Monte Carlo) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 398.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 101.88999999999999 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 89.88999999999999 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -4259,7 +4355,7 @@ xref
 0000123099 00000 n 
 0000131957 00000 n 
 0000141285 00000 n 
-0000146752 00000 n 
+0000150581 00000 n 
 0000000632 00000 n 
 0000007407 00000 n 
 0000015054 00000 n 
@@ -4281,5 +4377,5 @@ xref
 trailer
 << /Size 43 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-146916
+150745
 %%EOF

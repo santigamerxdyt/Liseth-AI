@@ -5973,8 +5973,8 @@
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES (ACCESO DIRECTO PRIORITARIO #1) -->
         <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 36 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
           <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
-          <span style="color: #ffffff; letter-spacing: 0.04em;">38 MÓDULOS HUD</span>
-          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">38</span>
+          <span style="color: #ffffff; letter-spacing: 0.04em;">40 MÓDULOS HUD</span>
+          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">40</span>
         </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
         <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal (Escala de texto, Alto contraste, Lector y Atajos) - Alt+A">
@@ -6171,7 +6171,7 @@
       <!-- Píldoras de Acciones Rápidas -->
       <div class="quick-chips" style="margin-top: 18px;">
         <button class="chip-btn" id="btn-quick-hud-modules" style="border: 1.5px solid #00f0ff; background: rgba(0, 240, 255, 0.18); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); font-weight: 700; color: #ffffff;" title="Abrir catálogo completo de los 30 módulos tácticos de Liseth">
-          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 38 Módulos HUD
+          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 40 Módulos HUD
         </button>
         <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
           <span>⚡</span> Automatizar mi día
@@ -7474,14 +7474,14 @@
           <button type="button" id="hud-search-clear" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;" title="Limpiar búsqueda">&times;</button>
         </div>
         <div class="hud-count-pill" id="hud-visible-count-pill" style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); padding: 9px 16px; border-radius: 10px; color: #00d2ff; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; white-space: nowrap; box-shadow: 0 0 10px rgba(0,210,255,0.2);">
-          38 / 38 MÓDULOS
+          40 / 40 MÓDULOS
         </div>
       </div>
 
       <!-- Pestañas de filtrado de categorías -->
       <div class="hud-filter-tabs">
-        <button class="hud-tab active" data-filter="all">TODOS (38)</button>
-        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (15)</button>
+        <button class="hud-tab active" data-filter="all">TODOS (40)</button>
+        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (17)</button>
         <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
         <button class="hud-tab" data-filter="connectors">CONECTORES</button>
         <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
@@ -7903,6 +7903,27 @@
           <div class="hud-card-title">Radar de Dividendos (Bajo Presupuesto)</div>
           <div class="hud-card-desc">Filtro de acciones con alto dividendo (BVC y Wall Street), asignación óptima para presupuestos reducidos y reinversión compuesta DRIP.</div>
           <div class="hud-card-action"><span>Filtrar Acciones</span> <span>→</span></div>
+        </div>
+        <!-- 39. Conciliación Bancaria & Auditoría GMF 4x1000 -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-bank-reconciliation">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.12);">🏦</div>
+            <span class="hud-card-status status-online">LIBROS / EXTRACTO</span>
+          </div>
+          <div class="hud-card-title">Conciliación Bancaria & GMF</div>
+          <div class="hud-card-desc">Cuadre exacto extracto vs libros, partidas en tránsito, auditoría de 4x1000 y 50% deducible en renta (Art. 115 E.T.).</div>
+          <div class="hud-card-action"><span>Conciliar Bancos</span> <span>→</span></div>
+        </div>
+
+        <!-- 40. Simulación Estocástica Monte Carlo & Stress Testing -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-monte-carlo">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #ec4899; border-color: rgba(236, 72, 153, 0.4); background: rgba(236, 72, 153, 0.12);">🎲</div>
+            <span class="hud-card-status status-online">10K TRIALS / VaR</span>
+          </div>
+          <div class="hud-card-title">Simulación Monte Carlo & Stress</div>
+          <div class="hud-card-desc">Simulación estocástica de 1.000 a 10.000 iteraciones vectorizadas, P(VAN > 0), Value at Risk (VaR 95% / 99%) y resiliencia.</div>
+          <div class="hud-card-action"><span>Simular Riesgo</span> <span>→</span></div>
         </div>
       </div>
     </div>
@@ -10434,6 +10455,237 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
 
       <div class="modal-actions">
         <button class="btn-secondary" onclick="closeDividendScreenerModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CONCILIACIÓN BANCARIA & AUDITORÍA GMF 4x1000 (#39) -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="bank-reconciliation-modal">
+    <div class="modal-card" style="max-width: 860px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.12);">🏦</div>
+        <div class="modal-title">
+          <h2>Conciliación Bancaria Oficial & Auditoría de GMF (4x1000)</h2>
+          <p>Ecuación de cuadre contable (Art. 115 E.T.), partidas en tránsito y 50% deducible en Declaración de Renta</p>
+        </div>
+        <button class="modal-close" onclick="closeBankReconciliationModal()">&times;</button>
+      </div>
+
+      <!-- Presets de Conciliación -->
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Casos Típicos:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadReconciliationPreset(45000000, 42500000, 5000000, 7200000, 300000, 600000, 0, 25000000, false)">Conciliación Bancolombia (Con GMF Pleno)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadReconciliationPreset(28000000, 26500000, 3000000, 4500000, 150000, 150000, 0, 15000000, true)">Cuenta Exenta (Hasta 350 UVT)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadReconciliationPreset(60000000, 60000000, 0, 0, 0, 0, 0, 40000000, false)">Cuadre Limpio sin Tránsito</button>
+      </div>
+
+      <!-- Formulario de Conciliación -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="font-size: 0.76rem; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">📑 SALDOS PRINCIPALES & PARTIDAS CONCILIATORIAS</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Saldo en Extracto Bancario ($):</label>
+            <input type="number" id="rec-stmt-input" value="45000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Saldo en Libros Contables ($):</label>
+            <input type="number" id="rec-book-input" value="42500000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Banco / Entidad:</label>
+            <input type="text" id="rec-bank-input" value="Bancolombia" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">(+) Depósitos en Tránsito:</label>
+            <input type="number" id="rec-dep-input" value="5000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">(-) Cheques Pendientes:</label>
+            <input type="number" id="rec-checks-input" value="7200000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">(-) Gastos / Notas Débito:</label>
+            <input type="number" id="rec-fees-input" value="300000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">(+) Abonos / Notas Crédito:</label>
+            <input type="number" id="rec-credits-input" value="600000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Débitos / Salidas Totales del Mes (para auditoría 4x1000):</label>
+            <input type="number" id="rec-debits-input" value="25000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">¿Cuenta Exenta GMF (350 UVT)?</label>
+            <select id="rec-exempt-input" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;">
+              <option value="false">No (GMF Pleno)</option>
+              <option value="true">Sí (Exenta hasta 350 UVT)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #38bdf8;" onclick="submitBankReconciliation()">Auditar & Generar Acta de Conciliación</button>
+      </div>
+
+      <!-- Panel de Resultados -->
+      <div id="rec-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="rec-res-status" style="font-size: 0.95rem; font-weight: 800; color: #10b981;">CONCILIACIÓN PERFECTA</span>
+            <div id="rec-res-bankname" style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">Entidad Bancaria</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block;">DIFERENCIA / DESCUADRE</span>
+            <span id="rec-res-diff" style="font-size: 1.05rem; font-weight: 800; color: #00f0ff;">$0.00 COP</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Saldo Bancos Ajustado:</div>
+            <div id="rec-res-adj-bank" style="font-size: 0.95rem; font-weight: 700; color: #38bdf8;">$0 COP</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Saldo Libros Ajustado:</div>
+            <div id="rec-res-adj-book" style="font-size: 0.95rem; font-weight: 700; color: #38bdf8;">$0 COP</div>
+          </div>
+        </div>
+
+        <!-- Auditoría GMF 4x1000 -->
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 10px; font-size: 0.76rem; margin-bottom: 8px;">
+          <div style="font-weight: 700; color: #ffd166; margin-bottom: 4px;">📊 AUDITORÍA DEL 4x1000 & BENEFICIO TRIBUTARIO (ART. 115 E.T.)</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+            <div>• GMF Generado: <b id="rec-res-gmf-total" style="color: #ef4444;">$0</b></div>
+            <div>• <b>50% Deducible Renta:</b> <b id="rec-res-gmf-ded" style="color: #10b981;">$0</b></div>
+            <div>• 50% No Deducible: <b id="rec-res-gmf-nonded" style="color: #94a3b8;">$0</b></div>
+          </div>
+          <div id="rec-res-gmf-note" style="margin-top: 4px; font-size: 0.7rem; color: #94a3b8;"></div>
+        </div>
+
+        <!-- Asientos Sugeridos -->
+        <div id="rec-res-entries" style="font-size: 0.72rem; color: #cbd5e1; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeBankReconciliationModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: SIMULACIÓN ESTOCÁSTICA MONTE CARLO (#40)          -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="monte-carlo-modal">
+    <div class="modal-card" style="max-width: 860px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #ec4899; border-color: rgba(236, 72, 153, 0.4); background: rgba(236, 72, 153, 0.12);">🎲</div>
+        <div class="modal-title">
+          <h2>Simulación Estocástica Monte Carlo & Stress Testing</h2>
+          <p>Motor de 1.000 a 10.000 iteraciones vectorizadas, P(VAN > 0), Value at Risk (VaR 95% / 99%) y resiliencia de capital</p>
+        </div>
+        <button class="modal-close" onclick="closeMonteCarloModal()">&times;</button>
+      </div>
+
+      <!-- Presets de Proyectos -->
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Escenarios:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadMonteCarloPreset('Planta Agroindustrial', 60000000, 42000000, 5000000, 10000000, 0.22, 0.11, 5, 5000)">Agroindustria Fuerte (Alta Resiliencia)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadMonteCarloPreset('Startup SaaS IA', 40000000, 26000000, 8000000, 8000000, 0.15, 0.14, 4, 5000)">SaaS Alta Volatilidad (Riesgo Medio)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadMonteCarloPreset('Expansión Comercial', 80000000, 22000000, 10000000, 12000000, 0.35, 0.16, 3, 3000)">Expansión Apalancada (Fragilidad)</button>
+      </div>
+
+      <!-- Formulario de Parámetros -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(236, 72, 153, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Nombre del Proyecto:</label>
+            <input type="text" id="mc-name-input" value="Planta Agroindustrial" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Inversión Inicial ($):</label>
+            <input type="number" id="mc-inv-input" value="60000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Tasa de Descuento WACC (%):</label>
+            <input type="number" id="mc-wacc-input" value="11.0" step="0.5" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Ingreso Anual Promedio ($):</label>
+            <input type="number" id="mc-rev-input" value="42000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Desviación Estándar ($):</label>
+            <input type="number" id="mc-std-input" value="5000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Costos Fijos Anuales ($):</label>
+            <input type="number" id="mc-fixed-input" value="10000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Iteraciones Monte Carlo:</label>
+            <select id="mc-trials-input" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.78rem;">
+              <option value="2000">2,000 Simulaciones</option>
+              <option value="5000" selected>5,000 Simulaciones</option>
+              <option value="10000">10,000 Simulaciones (Extrema)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #ec4899, #be185d); border-color: #ec4899;" onclick="submitMonteCarloSimulation()">Ejecutar Stress Testing Estocástico Monte Carlo</button>
+      </div>
+
+      <!-- Panel de Resultados -->
+      <div id="mc-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="mc-res-status" style="font-size: 0.95rem; font-weight: 800; color: #10b981;">ALTA RESILIENCIA</span>
+            <div id="mc-res-projname" style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">Proyecto</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block;">PROBABILIDAD P(VAN &gt; 0)</span>
+            <span id="mc-res-prob" style="font-size: 1.15rem; font-weight: 800; color: #00f0ff;">98.4%</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center;">
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">VAN Promedio (Esperado)</div>
+            <div id="mc-res-mean" style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">$0 COP</div>
+          </div>
+          <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #ef4444; font-weight: 700;">Value at Risk (VaR 95%)</div>
+            <div id="mc-res-var95" style="font-size: 0.95rem; font-weight: 700; color: #ef4444;">$0 COP</div>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #10b981; font-weight: 700;">Percentil 95 (Bullish)</div>
+            <div id="mc-res-p95" style="font-size: 0.95rem; font-weight: 700; color: #10b981;">$0 COP</div>
+          </div>
+        </div>
+
+        <!-- Dictamen de Resiliencia -->
+        <div style="background: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.25); border-radius: 6px; padding: 10px; font-size: 0.76rem;">
+          <div style="font-weight: 700; color: #00d2ff; margin-bottom: 4px;">🛡️ EVALUACIÓN ESTRATÉGICA DE RIESGO DE CAPITAL</div>
+          <div id="mc-res-advice" style="color: #e2e8f0; line-height: 1.4;"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeMonteCarloModal()">Cerrar</button>
       </div>
     </div>
   </div>
@@ -14602,7 +14854,7 @@ Tus habilidades clave:
             });
 
             if (countPill) {
-              countPill.textContent = `${visibleCount} / 38 MÓDULOS`;
+              countPill.textContent = `${visibleCount} / 40 MÓDULOS`;
               countPill.style.color = visibleCount > 0 ? "#00d2ff" : "#ef4444";
               countPill.style.borderColor = visibleCount > 0 ? "rgba(0, 210, 255, 0.45)" : "rgba(239, 68, 68, 0.5)";
             }
@@ -17699,6 +17951,18 @@ const cardEsg = document.getElementById("hud-card-esg");
         if (cardDividendScreener) cardDividendScreener.addEventListener("click", () => {
           document.getElementById("hud-interfaces-modal")?.classList.remove("active");
           window.openDividendScreenerModal();
+        });
+
+        const cardBankRecon = document.getElementById("hud-card-bank-reconciliation");
+        if (cardBankRecon) cardBankRecon.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openBankReconciliationModal();
+        });
+
+        const cardMonteCarlo = document.getElementById("hud-card-monte-carlo");
+        if (cardMonteCarlo) cardMonteCarlo.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openMonteCarloModal();
         });
 
 

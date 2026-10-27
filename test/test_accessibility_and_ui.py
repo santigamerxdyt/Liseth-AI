@@ -108,7 +108,7 @@ def test_hud_modules_prominence_and_chips():
 
     # Quick chip in main view
     assert 'id="btn-quick-hud-modules"' in content
-    assert '38 Módulos HUD' in content
+    assert '40 Módulos HUD' in content
 
     # Responsive styles
     assert "max-width: 1480px" in content
@@ -116,7 +116,7 @@ def test_hud_modules_prominence_and_chips():
 
 
 def test_hud_modules_search_and_finance_tab():
-    """Verify search input, finance tab, and all 38 cards availability."""
+    """Verify search input, finance tab, and all 40 cards availability."""
     content = JARVIS_HTML.read_text(encoding="utf-8")
     assert 'id="hud-modules-search"' in content
     assert 'id="hud-visible-count-pill"' in content
@@ -124,9 +124,9 @@ def test_hud_modules_search_and_finance_tab():
     assert "window.openHudModal" in content
     assert "filterHudModules" in content
 
-    # Verify all 38 cards exist
+    # Verify all 40 cards exist
     cards = re.findall(r'id="(hud-card-[^"]*)"', content)
-    assert len(cards) == 38, f"Expected 38 cards, found {len(cards)}"
+    assert len(cards) == 40, f"Expected 40 cards, found {len(cards)}"
 
     # Specific check for newly added modules
     assert 'id="hud-card-marketing"' in content
@@ -137,6 +137,8 @@ def test_hud_modules_search_and_finance_tab():
     assert 'id="hud-card-treasury"' in content
     assert 'id="hud-card-stock-trading"' in content
     assert 'id="hud-card-dividend-screener"' in content
+    assert 'id="hud-card-bank-reconciliation"' in content
+    assert 'id="hud-card-monte-carlo"' in content
     assert 'id="marketing-modal"' in content
     assert 'id="talent-modal"' in content
     assert 'id="forex-modal"' in content
@@ -144,6 +146,8 @@ def test_hud_modules_search_and_finance_tab():
     assert 'id="treasury-modal"' in content
     assert 'id="stock-trading-modal"' in content
     assert 'id="dividend-screener-modal"' in content
+    assert 'id="bank-reconciliation-modal"' in content
+    assert 'id="monte-carlo-modal"' in content
     assert "window.openMarketingModal" in content
     assert "window.openTalentModal" in content
     assert "window.openForexModal" in content
@@ -151,3 +155,5 @@ def test_hud_modules_search_and_finance_tab():
     assert "window.openTreasuryModal" in content
     assert "window.openStockTradingModal" in content
     assert "window.openDividendScreenerModal" in content
+    assert "window.openBankReconciliationModal" in content
+    assert "window.openMonteCarloModal" in content
