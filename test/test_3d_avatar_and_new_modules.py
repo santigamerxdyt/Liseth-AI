@@ -162,3 +162,33 @@ def test_zero_missing_onclick_handlers():
         if not re.search(pat, html):
             missing.append(fn)
     assert len(missing) == 0, f"Missing JS handlers in jarvis.html: {missing}"
+
+
+def test_dynamic_tab_responsive_system():
+    """Verify dynamic tab and window resize engine and responsive media query coverage."""
+    html = JARVIS_HTML.read_text(encoding="utf-8")
+
+    # JavaScript Engine
+    assert "updateLisethDynamicLayout" in html
+    assert "window.recalculateLisethLayout" in html
+    assert "ResizeObserver" in html
+    assert "data-tab-width" in html
+    assert "data-tab-height" in html
+    assert "liseth:layout-adapted" in html
+
+    # CSS Responsive Breakpoints for Tab Resizing
+    assert "@media (min-width: 1600px)" in html
+    assert "@media (max-width: 1200px) and (min-width: 961px)" in html
+    assert "@media (max-width: 960px) and (min-width: 769px)" in html
+    assert "@media (max-height: 720px)" in html
+    assert "@media (max-height: 560px)" in html
+
+
+def test_html_files_byte_parity():
+    """Ensure jarvis.html, index.html, and app/static/index.html have identical bytes."""
+    b_jarvis = JARVIS_HTML.read_bytes()
+    b_index = INDEX_HTML.read_bytes()
+    b_static = STATIC_INDEX_HTML.read_bytes()
+
+    assert len(b_jarvis) == len(b_index) == len(b_static)
+    assert b_jarvis == b_index == b_static

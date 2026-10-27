@@ -18419,6 +18419,9 @@ Tus habilidades clave:
           btn.classList.toggle("active", btn.textContent.includes(amt.toLocaleString()));
         });
         playHudSound("click");
+        setTimeout(() => {
+          if (typeof updateLisethDynamicLayout === "function") updateLisethDynamicLayout();
+        }, 40);
       };
 
       window.selectNfcMethod = function(method, el) {
@@ -19233,7 +19236,381 @@ Tus habilidades clave:
         const text = document.getElementById("cto-preview-area")?.textContent;
         if (!text) return;
         const w = window.open("", "_blank");
-        w.document.write("<html><head><title>Contrato Comercial</title><style>body{font-family:serif;padding:40px;line-height:1.6;font-size:12pt;}</style></head><body><pre style='font-family:inherit;white-space:pre-wrap;'>");
+        w.document.write("<html><head><title>Contrato Comercial</title><style>body{font-family:serif;padding:40px;line-height:1.6;font-size:12pt;}
+    /* =========================================================================
+       SISTEMA RESPONSIVO DINÁMICO MULTI-DISPOSITIVO & PESTAÑA VARIABLE
+       Adapta automáticamente la interfaz de Liseth al tamaño de la pestaña,
+       pantalla dividida (Windows Snap 50%/33%), ultra-wide, laptops y móviles.
+       ========================================================================= */
+
+    /* Transición suave para redimensionamiento fluido */
+    .liseth-3d-avatar-container,
+    .liseth-human-avatar-container,
+    .orb-container.sphere-large,
+    .stark-hud-wing,
+    .anticipatory-hud-card,
+    .header-top,
+    .top-actions {
+      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  left 0.25s ease,
+                  right 0.25s ease,
+                  padding 0.25s ease,
+                  transform 0.25s ease,
+                  opacity 0.25s ease;
+    }
+
+    /* 1. ULTRA-WIDE & PANTALLAS 2K / 4K (>= 1600px) */
+    @media (min-width: 1600px) {
+      .header-top {
+        max-width: 1680px;
+      }
+      .sphere-workspace {
+        padding: 16px 36px 104px;
+      }
+      .liseth-3d-avatar-container {
+        width: 250px;
+        height: 250px;
+        margin-bottom: 14px;
+      }
+      .liseth-human-avatar-container {
+        width: 210px;
+        height: 210px;
+        margin-bottom: 14px;
+      }
+      .orb-container.sphere-large {
+        width: 190px;
+        height: 190px;
+      }
+      .stark-hud-wing {
+        width: 270px;
+        padding: 16px 20px;
+      }
+      .stark-hud-wing.wing-left {
+        left: 48px;
+      }
+      .stark-hud-wing.wing-right {
+        right: 48px;
+      }
+      .anticipatory-hud-card {
+        max-width: 980px;
+        padding: 14px 20px;
+      }
+      .anticipatory-steps-container {
+        gap: 14px;
+      }
+      .anticipatory-title {
+        font-size: 0.82rem;
+      }
+      .assistant-title {
+        font-size: 2.1rem;
+      }
+    }
+
+    /* 2. PANTALLA DIVIDIDA / SNAP ASSIST 50% / LAPTOPS ESTÁNDAR (961px - 1200px) */
+    @media (max-width: 1200px) and (min-width: 961px) {
+      .header-top {
+        padding: 0 8px;
+        gap: 6px;
+      }
+      .top-actions {
+        max-width: calc(100% - 145px);
+        gap: 6px;
+      }
+      .liseth-3d-avatar-container {
+        width: 180px;
+        height: 180px;
+        margin-bottom: 8px;
+      }
+      .liseth-human-avatar-container {
+        width: 160px;
+        height: 160px;
+        margin-bottom: 8px;
+      }
+      .orb-container.sphere-large {
+        width: 140px;
+        height: 140px;
+        margin-bottom: 8px;
+      }
+      .stark-hud-wing {
+        width: 185px;
+        padding: 10px 12px;
+      }
+      .stark-hud-wing.wing-left {
+        left: 12px;
+      }
+      .stark-hud-wing.wing-right {
+        right: 12px;
+      }
+      .hud-wing-title {
+        font-size: 0.68rem;
+      }
+      .hud-wing-key, .hud-wing-val {
+        font-size: 0.62rem;
+      }
+      .hud-wing-bars {
+        margin: 6px 0;
+      }
+      .anticipatory-hud-card {
+        max-width: 700px;
+        width: 92%;
+        margin-top: 10px;
+        padding: 10px 14px;
+      }
+      .anticipatory-steps-container {
+        gap: 8px;
+      }
+      .anticipatory-step {
+        padding: 8px 10px;
+      }
+      .step-title {
+        font-size: 0.72rem;
+      }
+      .step-desc {
+        font-size: 0.63rem;
+      }
+      .hud-corner-telemetry {
+        opacity: 0.45;
+        font-size: 0.58rem;
+      }
+    }
+
+    /* 3. TABLETS EN HORIZONTAL Y VENTANAS MEDIANAS (769px - 960px) */
+    @media (max-width: 960px) and (min-width: 769px) {
+      .header-top {
+        padding: 0 6px;
+      }
+      .top-actions {
+        max-width: calc(100% - 135px);
+        gap: 5px;
+      }
+      .liseth-3d-avatar-container {
+        width: 160px;
+        height: 160px;
+        margin-bottom: 6px;
+      }
+      .liseth-human-avatar-container {
+        width: 145px;
+        height: 145px;
+        margin-bottom: 6px;
+      }
+      .orb-container.sphere-large {
+        width: 125px;
+        height: 125px;
+        margin-bottom: 6px;
+      }
+      .stark-hud-wing {
+        width: 155px;
+        padding: 8px 10px;
+        opacity: 0.88;
+      }
+      .stark-hud-wing.wing-left {
+        left: 8px;
+      }
+      .stark-hud-wing.wing-right {
+        right: 8px;
+      }
+      .hud-radar-mini {
+        display: none !important;
+      }
+      .anticipatory-hud-card {
+        max-width: 600px;
+        width: 94%;
+        padding: 9px 12px;
+        margin-top: 8px;
+      }
+      .anticipatory-steps-container {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+      }
+      .anticipatory-step {
+        padding: 7px 8px;
+      }
+      .step-title {
+        font-size: 0.68rem;
+      }
+      .step-desc {
+        font-size: 0.60rem;
+      }
+      .hud-corner-telemetry {
+        display: none !important;
+      }
+    }
+
+    /* 4. TABLETS VERTICAL Y VENTANAS ESTRECHAS (< 768px) */
+    @media (max-width: 768px) {
+      .liseth-3d-avatar-container {
+        width: 140px !important;
+        height: 140px !important;
+        margin-bottom: 6px !important;
+      }
+      .liseth-human-avatar-container {
+        width: 130px !important;
+        height: 130px !important;
+        margin-bottom: 6px !important;
+      }
+      .anticipatory-hud-card {
+        width: 96% !important;
+        margin-top: 8px !important;
+        padding: 8px 10px !important;
+      }
+      .anticipatory-title {
+        font-size: 0.68rem !important;
+      }
+      .anticipatory-steps-container {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+      }
+      .anticipatory-step {
+        padding: 7px 10px !important;
+      }
+      .quick-chips {
+        gap: 6px !important;
+        margin-top: 8px !important;
+      }
+      .chip-btn {
+        padding: 5px 10px !important;
+        font-size: 0.7rem !important;
+      }
+      .hud-transcript-display {
+        max-width: 94% !important;
+        padding: 6px 12px !important;
+        margin-top: 6px !important;
+      }
+      .hud-transcript-text {
+        font-size: 0.74rem !important;
+      }
+    }
+
+    /* 5. VENTANAS MUY PEQUEÑAS / MÓVILES COMPACTOS (< 480px) */
+    @media (max-width: 480px) {
+      .liseth-3d-avatar-container {
+        width: 115px !important;
+        height: 115px !important;
+        margin-bottom: 4px !important;
+      }
+      .liseth-human-avatar-container {
+        width: 110px !important;
+        height: 110px !important;
+        margin-bottom: 4px !important;
+      }
+      .assistant-title {
+        font-size: 1.05rem !important;
+        margin-bottom: 1px !important;
+      }
+      .assistant-role-badge {
+        font-size: 0.55rem !important;
+        padding: 2px 6px !important;
+        margin-bottom: 2px !important;
+      }
+      .assistant-status {
+        font-size: 0.64rem !important;
+      }
+      .executive-ticker-tape {
+        height: 24px !important;
+        font-size: 0.62rem !important;
+      }
+      .ticker-item {
+        padding: 0 10px !important;
+      }
+    }
+
+    /* 6. ADAPTACIÓN SEGÚN ALTURA DE LA VENTANA (VIEWPORT HEIGHT DYNAMICS) */
+    @media (max-height: 720px) {
+      .sphere-workspace {
+        padding: 6px 14px 84px !important;
+        justify-content: flex-start !important;
+      }
+      .orb-stage-wrapper {
+        margin-bottom: 6px !important;
+      }
+      .liseth-3d-avatar-container {
+        width: 135px !important;
+        height: 135px !important;
+        margin-bottom: 4px !important;
+      }
+      .liseth-human-avatar-container {
+        width: 125px !important;
+        height: 125px !important;
+        margin-bottom: 4px !important;
+      }
+      .orb-container.sphere-large {
+        width: 110px !important;
+        height: 110px !important;
+        margin-bottom: 4px !important;
+      }
+      .voice-waves-canvas-wrapper {
+        width: 300px !important;
+        height: 300px !important;
+      }
+      .assistant-title {
+        font-size: 1.1rem !important;
+        margin-bottom: 2px !important;
+      }
+      .assistant-role-badge {
+        font-size: 0.58rem !important;
+        margin-bottom: 2px !important;
+      }
+      .assistant-status {
+        font-size: 0.68rem !important;
+        margin-bottom: 4px !important;
+      }
+      .anticipatory-hud-card {
+        margin-top: 6px !important;
+        padding: 6px 10px !important;
+      }
+      .anticipatory-steps-container {
+        gap: 6px !important;
+      }
+      .hud-corner-telemetry {
+        display: none !important;
+      }
+      .hud-transcript-display {
+        margin-top: 6px !important;
+        padding: 4px 10px !important;
+      }
+      .quick-chips {
+        margin-top: 6px !important;
+      }
+    }
+
+    @media (max-height: 560px) {
+      .liseth-3d-avatar-container {
+        width: 105px !important;
+        height: 105px !important;
+      }
+      .liseth-human-avatar-container {
+        width: 100px !important;
+        height: 100px !important;
+      }
+      .orb-container.sphere-large {
+        width: 90px !important;
+        height: 90px !important;
+      }
+      .anticipatory-hud-card {
+        display: none !important;
+      }
+      .voice-waves-canvas-wrapper {
+        display: none !important;
+      }
+    }
+
+    /* 7. REGLAS GLOBALES DE MODALES RESPONSIVOS */
+    .modal, .hud-card-modal, .hud-modal-overlay {
+      padding: env(safe-area-inset-top, 12px) 12px env(safe-area-inset-bottom, 12px) !important;
+      box-sizing: border-box !important;
+    }
+    .modal-content, .hud-modal-dialog, .card-modal-content {
+      max-width: min(94vw, 940px) !important;
+      max-height: min(88vh, 88dvh) !important;
+      width: 100% !important;
+      overflow-y: auto !important;
+      box-sizing: border-box !important;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 210, 255, 0.4) transparent;
+    }
+
+  </style></head><body><pre style='font-family:inherit;white-space:pre-wrap;'>");
         w.document.write(text);
         w.document.write("</pre></body></html>");
         w.document.close();
@@ -21964,12 +22341,95 @@ const cardEsg = document.getElementById("hud-card-esg");
         }
       };
 
+      
+      // =========================================================================
+      // MOTOR RESPONSIVO DINÁMICO MULTI-DISPOSITIVO (TAB & WINDOW OBSERVER)
+      // Ajusta en tiempo real la proyección 3D, el aspect ratio de WebGL,
+      // y la disposición de paneles según el tamaño exacto de la pestaña o ventana.
+      // =========================================================================
+      function updateLisethDynamicLayout() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const root = document.documentElement;
+
+        // Categorización por ancho de pestaña / aplicación
+        let widthTier = "standard";
+        if (w >= 1600) widthTier = "ultrawide";
+        else if (w >= 1200) widthTier = "standard";
+        else if (w >= 960) widthTier = "halfscreen";
+        else if (w >= 768) widthTier = "tablet";
+        else if (w >= 480) widthTier = "compact";
+        else widthTier = "mini";
+
+        // Categorización por alto de pestaña
+        let heightTier = "normal";
+        if (h >= 850) heightTier = "tall";
+        else if (h >= 680) heightTier = "normal";
+        else if (h >= 540) heightTier = "short";
+        else heightTier = "ultrashort";
+
+        root.setAttribute("data-tab-width", widthTier);
+        root.setAttribute("data-tab-height", heightTier);
+
+        // Actualizar tamaño de Three.js 3D WebGL Avatar si está instanciado
+        if (typeof liseth3D !== "undefined" && liseth3D.isInitialized && liseth3D.renderer && liseth3D.camera) {
+          const container = document.getElementById("liseth-3d-avatar-container");
+          if (container && container.style.display !== "none") {
+            const cw = container.clientWidth || 210;
+            const ch = container.clientHeight || 210;
+            if (cw > 0 && ch > 0) {
+              liseth3D.camera.aspect = cw / ch;
+              liseth3D.camera.updateProjectionMatrix();
+              liseth3D.renderer.setSize(cw, ch, false);
+            }
+          }
+        }
+
+        // Actualizar canvas de ondas de voz si corresponde
+        const waveCanvas = document.getElementById("voice-waves-canvas");
+        const waveWrapper = document.querySelector(".voice-waves-canvas-wrapper");
+        if (waveCanvas && waveWrapper) {
+          const ww = waveWrapper.clientWidth || 300;
+          const wh = waveWrapper.clientHeight || 300;
+          if (ww > 0 && wh > 0 && (waveCanvas.width !== ww || waveCanvas.height !== wh)) {
+            waveCanvas.width = ww;
+            waveCanvas.height = wh;
+          }
+        }
+
+        // Notificar a módulos y componentes del cambio dinámico de resolución
+        window.dispatchEvent(new CustomEvent("liseth:layout-adapted", {
+          detail: { width: w, height: h, widthTier, heightTier }
+        }));
+      }
+
+      window.updateLisethDynamicLayout = updateLisethDynamicLayout;
+      window.recalculateLisethLayout = updateLisethDynamicLayout;
+
+      // Escuchador pasivo para redimensionamiento de ventana o pestaña
+      window.addEventListener("resize", () => {
+        requestAnimationFrame(updateLisethDynamicLayout);
+      }, { passive: true });
+
+      // ResizeObserver sobre body y main stage para detectar cambios en split-screen o dock
+      if (typeof ResizeObserver !== "undefined") {
+        const layoutObserver = new ResizeObserver(() => {
+          requestAnimationFrame(updateLisethDynamicLayout);
+        });
+        const mainStage = document.getElementById("holographic-main-stage");
+        if (mainStage) layoutObserver.observe(mainStage);
+        layoutObserver.observe(document.body);
+      }
+
       // Inicializar modo de avatar y plan predictivo al cargar
       document.addEventListener("DOMContentLoaded", function() {
         const isDesktop = window.innerWidth >= 768;
         const savedMode = localStorage.getItem("liseth_avatar_mode") || (isDesktop ? "avatar3d" : "human");
         window.setAvatarMode(savedMode);
         window.refreshPredictivePlan();
+        if (typeof updateLisethDynamicLayout === "function") {
+          updateLisethDynamicLayout();
+        }
       });
 
 
