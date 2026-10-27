@@ -993,6 +993,40 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": []
         }
+    },
+    {
+        "name": "stock_trading",
+        "description": "Terminal Bursátil y Trading Cuantitativo: analiza activos (BVC o Wall Street) en tiempo real con RSI, MACD, Golden Cross (EMA 50/200), Stop-Loss y Take-Profit dinámicos basados en ATR (ratio 1:2.5) y regla estricta de gestión de riesgo del 1.5% de capital para minimizar el margen de error.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "ticker": {"type": "STRING", "description": "Símbolo bursátil o acción (ej: ECOPETROL, PFBCOLOM, AAPL, NVDA, TSLA)"},
+                "current_price": {"type": "NUMBER", "description": "Precio actual de cotización de la acción"},
+                "rsi": {"type": "NUMBER", "description": "Valor del RSI (14 períodos, ej: 32 o 65)"},
+                "macd_signal": {"type": "STRING", "description": "Señal MACD: bullish_cross | bearish_cross | neutral"},
+                "ema_50": {"type": "NUMBER", "description": "Valor de la Media Móvil Exponencial de 50 períodos"},
+                "ema_200": {"type": "NUMBER", "description": "Valor de la Media Móvil Exponencial de 200 períodos"},
+                "atr": {"type": "NUMBER", "description": "Volatilidad Average True Range (ATR)"},
+                "total_trading_capital": {"type": "NUMBER", "description": "Capital total de la cuenta de trading para dimensionamiento de riesgo"},
+                "currency": {"type": "STRING", "description": "Moneda: COP o USD"}
+            },
+            "required": ["ticker", "current_price"]
+        }
+    },
+    {
+        "name": "dividend_screener",
+        "description": "Radar de Acciones con Dividendos y Asignador de Portafolio para Presupuesto Ajustado: filtra empresas de alta rentabilidad por dividendo en Colombia (BVC) y Wall Street (US), optimiza compras fraccionadas o nominales bajas con presupuestos reducidos y simula proyecciones de interés compuesto por reinversión de dividendos (DRIP).",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "budget": {"type": "NUMBER", "description": "Presupuesto disponible para invertir (ej: 500000 COP o 200 USD)"},
+                "market": {"type": "STRING", "description": "Mercado bursátil: BVC (Colombia) o US (Wall Street)"},
+                "min_yield_pct": {"type": "NUMBER", "description": "Rentabilidad por dividendo mínima anual deseada (%)"},
+                "reinvest_dividends": {"type": "BOOLEAN", "description": "Si se reinvierten dividendos (plan DRIP)"},
+                "projection_years": {"type": "INTEGER", "description": "Años de proyección de interés compuesto (ej: 5)"}
+            },
+            "required": ["budget"]
+        }
     }
 ]
 
@@ -1421,6 +1455,16 @@ class ActionDispatcher:
             elif name in ("treasury_working_capital", "capital_trabajo", "ktno", "ciclo_efectivo", "ccc", "factoring", "radian"):
                 from app.actions.treasury_working_capital_action import treasury_working_capital_action
                 res = treasury_working_capital_action(parameters=args)
+                return res
+
+            elif name in ("stock_trading", "trading_cuantitativo", "bolsa_valores", "analisis_bursatil", "orden_trading"):
+                from app.actions.stock_trading_action import stock_trading_action
+                res = stock_trading_action(parameters=args)
+                return res
+
+            elif name in ("dividend_screener", "acciones_dividendos", "dividendos_baratos", "portafolio_dividendos", "drip_compounding"):
+                from app.actions.dividend_screener_action import dividend_screener_action
+                res = dividend_screener_action(parameters=args)
                 return res
 
             else:

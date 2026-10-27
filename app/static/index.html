@@ -5973,8 +5973,8 @@
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES (ACCESO DIRECTO PRIORITARIO #1) -->
         <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 36 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
           <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
-          <span style="color: #ffffff; letter-spacing: 0.04em;">36 MÓDULOS HUD</span>
-          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">36</span>
+          <span style="color: #ffffff; letter-spacing: 0.04em;">38 MÓDULOS HUD</span>
+          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">38</span>
         </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
         <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal (Escala de texto, Alto contraste, Lector y Atajos) - Alt+A">
@@ -6171,7 +6171,7 @@
       <!-- Píldoras de Acciones Rápidas -->
       <div class="quick-chips" style="margin-top: 18px;">
         <button class="chip-btn" id="btn-quick-hud-modules" style="border: 1.5px solid #00f0ff; background: rgba(0, 240, 255, 0.18); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); font-weight: 700; color: #ffffff;" title="Abrir catálogo completo de los 30 módulos tácticos de Liseth">
-          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 36 Módulos HUD
+          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 38 Módulos HUD
         </button>
         <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
           <span>⚡</span> Automatizar mi día
@@ -7474,14 +7474,14 @@
           <button type="button" id="hud-search-clear" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;" title="Limpiar búsqueda">&times;</button>
         </div>
         <div class="hud-count-pill" id="hud-visible-count-pill" style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); padding: 9px 16px; border-radius: 10px; color: #00d2ff; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; white-space: nowrap; box-shadow: 0 0 10px rgba(0,210,255,0.2);">
-          36 / 36 MÓDULOS
+          38 / 38 MÓDULOS
         </div>
       </div>
 
       <!-- Pestañas de filtrado de categorías -->
       <div class="hud-filter-tabs">
-        <button class="hud-tab active" data-filter="all">TODOS (36)</button>
-        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (13)</button>
+        <button class="hud-tab active" data-filter="all">TODOS (38)</button>
+        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (15)</button>
         <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
         <button class="hud-tab" data-filter="connectors">CONECTORES</button>
         <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
@@ -7882,6 +7882,27 @@
           <div class="hud-card-title">Tesorería & Factoring</div>
           <div class="hud-card-desc">Ciclo de Conversión de Efectivo (CCC), optimización de KTNO y descuento de facturas electrónicas RADIAN.</div>
           <div class="hud-card-action"><span>Gestionar Tesorería</span> <span>→</span></div>
+        </div>
+        <!-- 37. Terminal Bursátil & Trading Cuantitativo -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-stock-trading">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12);">📈</div>
+            <span class="hud-card-status status-online">MERCADO EN VIVO</span>
+          </div>
+          <div class="hud-card-title">Terminal Bursátil & Trading</div>
+          <div class="hud-card-desc">Análisis cuantitativo de precisión (RSI, MACD, Golden Cross EMA 50/200), Stop-Loss / Take-Profit ATR y regla de riesgo del 1.5%.</div>
+          <div class="hud-card-action"><span>Analizar Trade</span> <span>→</span></div>
+        </div>
+
+        <!-- 38. Radar de Acciones con Dividendos & Presupuesto Ajustado -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-dividend-screener">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.12);">💎</div>
+            <span class="hud-card-status status-online">DIVIDENDOS / DRIP</span>
+          </div>
+          <div class="hud-card-title">Radar de Dividendos (Bajo Presupuesto)</div>
+          <div class="hud-card-desc">Filtro de acciones con alto dividendo (BVC y Wall Street), asignación óptima para presupuestos reducidos y reinversión compuesta DRIP.</div>
+          <div class="hud-card-action"><span>Filtrar Acciones</span> <span>→</span></div>
         </div>
       </div>
     </div>
@@ -10185,6 +10206,234 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
 
       <div class="modal-actions">
         <button class="btn-secondary" onclick="closeTreasuryModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: TERMINAL BURSÁTIL & TRADING CUANTITATIVO (#37)    -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="stock-trading-modal">
+    <div class="modal-card" style="max-width: 860px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.12);">📈</div>
+        <div class="modal-title">
+          <h2>Terminal Bursátil & Trading Cuantitativo de Precisión</h2>
+          <p>Convergencia Técnica (RSI, MACD, Golden Cross EMA 50/200), ATR Stop-Loss dinámico y regla de riesgo del 1.5%</p>
+        </div>
+        <button class="modal-close" onclick="closeStockTradingModal()">&times;</button>
+      </div>
+
+      <!-- Presets de Activos Rápidos -->
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Presets Rápidos:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadStockPreset('ECOPETROL', 1960, 'COP', 44, 'bullish_cross', 1920, 1850, 48)">Ecopetrol (BVC)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadStockPreset('PFBCOLOM', 34800, 'COP', 52, 'bullish_cross', 34200, 33500, 650)">Bancolombia (BVC)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadStockPreset('NVDA', 140, 'USD', 62, 'bullish_cross', 132, 118, 4.2)">Nvidia (NVDA)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadStockPreset('AAPL', 230, 'USD', 48, 'neutral', 225, 215, 3.5)">Apple (AAPL)</button>
+      </div>
+
+      <!-- Formulario de Parámetros -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="font-size: 0.78rem; font-weight: 700; color: #10b981; margin-bottom: 8px;">⚙️ PARÁMETROS DEL ACTIVO & GESTIÓN DE CUENTA</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Símbolo / Ticker:</label>
+            <input type="text" id="st-ticker-input" value="ECOPETROL" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Precio Actual:</label>
+            <input type="number" id="st-price-input" value="1960" step="0.01" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Moneda:</label>
+            <select id="st-currency-input" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;">
+              <option value="COP">COP ($ Pesos)</option>
+              <option value="USD">USD ($ Dólares)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Capital Total Cuenta:</label>
+            <input type="number" id="st-capital-input" value="10000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">RSI (14 períodos):</label>
+            <input type="number" id="st-rsi-input" value="44" step="0.1" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Señal MACD:</label>
+            <select id="st-macd-input" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;">
+              <option value="bullish_cross">Cruce Alcista (Bullish)</option>
+              <option value="bearish_cross">Cruce Bajista (Bearish)</option>
+              <option value="neutral">Neutral / Sin Divergencia</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">EMA 50 / 200 (Autocalc):</label>
+            <input type="text" id="st-ema-input" value="1920 / 1850" placeholder="50 / 200" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">ATR Volatilidad:</label>
+            <input type="number" id="st-atr-input" value="48" step="0.01" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981;" onclick="submitStockTradingAnalysis()">Ejecutar Análisis Cuantitativo de Precisión</button>
+      </div>
+
+      <!-- Panel de Resultados -->
+      <div id="st-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="st-res-recommendation" style="font-size: 1rem; font-weight: 800; color: #10b981;">COMPRA FUERTE</span>
+            <div id="st-res-trend" style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">Estructura de Tendencia</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.7rem; color: #94a3b8; display: block;">NIVEL DE CONFIANZA</span>
+            <span id="st-res-confidence" style="font-size: 1.1rem; font-weight: 800; color: #00f0ff;">92.5%</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center;">
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Precio Entrada</div>
+            <div id="st-res-entry" style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">$1,960.00</div>
+          </div>
+          <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #ef4444; font-weight: 700;">Stop-Loss (1.5x ATR)</div>
+            <div id="st-res-stoploss" style="font-size: 0.95rem; font-weight: 700; color: #ef4444;">$1,888.00</div>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #10b981; font-weight: 700;">Take-Profit (1:2.5)</div>
+            <div id="st-res-takeprofit" style="font-size: 0.95rem; font-weight: 700; color: #10b981;">$2,140.00</div>
+          </div>
+        </div>
+
+        <!-- Regla de Riesgo del 1.5% -->
+        <div style="background: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.25); border-radius: 6px; padding: 10px; font-size: 0.78rem;">
+          <div style="font-weight: 700; color: #00d2ff; margin-bottom: 4px;">🛡️ GESTIÓN DE RIESGO ESTRICTA (REGLA DEL 1.5%)</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div>• Riesgo Máximo Autorizado: <b id="st-res-maxrisk" style="color: #ffd166;">$150,000 COP</b></div>
+            <div>• Acciones Sugeridas: <b id="st-res-shares" style="color: #10b981;">2,083 acciones</b></div>
+            <div>• Inversión Total de la Orden: <b id="st-res-ordervalue" style="color: #ffffff;">$4,082,680 COP</b></div>
+            <div>• Ratio Riesgo-Beneficio: <b style="color: #00d2ff;">1 : 2.5</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeStockTradingModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: RADAR DE ACCIONES CON DIVIDENDOS (#38)            -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="dividend-screener-modal">
+    <div class="modal-card" style="max-width: 860px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.12);">💎</div>
+        <div class="modal-title">
+          <h2>Radar de Acciones con Dividendos & Portafolios de Bajo Presupuesto</h2>
+          <p>Filtro de alto dividendo (BVC y Wall Street), asignación para capital ajustado y reinversión compuesta (DRIP)</p>
+        </div>
+        <button class="modal-close" onclick="closeDividendScreenerModal()">&times;</button>
+      </div>
+
+      <!-- Presets de Presupuesto Rápido -->
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Planes Rápidos:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadDividendPreset(50000, 'BVC', 6.0, 5)">Micro-Ahorro ($50.000 COP)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadDividendPreset(500000, 'BVC', 7.0, 5)">Capital Inicial ($500.000 COP)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadDividendPreset(2000000, 'BVC', 8.0, 5)">Fondo Mayor ($2.000.000 COP)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadDividendPreset(100, 'US', 5.0, 5)">Wall Street ($100 USD)</button>
+      </div>
+
+      <!-- Formulario de Búsqueda -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Presupuesto Disponible:</label>
+            <input type="number" id="div-budget-input" value="500000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Mercado Bursátil:</label>
+            <select id="div-market-input" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" onchange="updateDividendCurrencyLabel()">
+              <option value="BVC">Colombia (BVC - COP)</option>
+              <option value="US">Wall Street (US - USD)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Dividendo Mínimo (%):</label>
+            <input type="number" id="div-yield-input" value="6.0" step="0.5" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Horizonte DRIP (Años):</label>
+            <input type="number" id="div-years-input" value="5" min="1" max="10" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #f59e0b;" onclick="submitDividendScreening()">Escanear Acciones de Dividendos & Generar Portafolio</button>
+      </div>
+
+      <!-- Panel de Resultados -->
+      <div id="div-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <!-- Barra de Resumen -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center;">
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Capital Invertido</div>
+            <div id="div-res-invested" style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">$0</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Saldo Líquido</div>
+            <div id="div-res-remaining" style="font-size: 0.95rem; font-weight: 700; color: #94a3b8;">$0</div>
+          </div>
+          <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #ffd166; font-weight: 700;">Yield Ponderado</div>
+            <div id="div-res-yield" style="font-size: 0.95rem; font-weight: 700; color: #ffd166;">0.0%</div>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #10b981; font-weight: 700;">Dividendo Anual</div>
+            <div id="div-res-dividends" style="font-size: 0.95rem; font-weight: 700; color: #10b981;">$0 / año</div>
+          </div>
+        </div>
+
+        <!-- Tabla de Asignación de Portafolio -->
+        <div style="font-size: 0.74rem; font-weight: 700; color: #ffd166; margin-bottom: 6px;">📋 ASIGNACIÓN SUGERIDA DE ACCIONES</div>
+        <div id="div-portfolio-table-container" style="max-height: 160px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #334155; border-radius: 6px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.74rem; text-align: left;">
+            <thead>
+              <tr style="background: #1e293b; color: #94a3b8;">
+                <th style="padding: 6px;">Ticker</th>
+                <th style="padding: 6px;">Empresa</th>
+                <th style="padding: 6px;">Precio</th>
+                <th style="padding: 6px;">Acciones</th>
+                <th style="padding: 6px;">Inversión</th>
+                <th style="padding: 6px;">Yield</th>
+                <th style="padding: 6px;">Pago</th>
+              </tr>
+            </thead>
+            <tbody id="div-portfolio-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Proyección DRIP Compuesto -->
+        <div style="background: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.25); border-radius: 6px; padding: 10px; font-size: 0.76rem;">
+          <div style="font-weight: 700; color: #00d2ff; margin-bottom: 4px;">📈 PROYECCIÓN DE INTERÉS COMPUESTO CON REINVERSIÓN (DRIP)</div>
+          <div id="div-res-drip-summary" style="color: #e2e8f0; line-height: 1.4;"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeDividendScreenerModal()">Cerrar</button>
       </div>
     </div>
   </div>
@@ -14353,7 +14602,7 @@ Tus habilidades clave:
             });
 
             if (countPill) {
-              countPill.textContent = `${visibleCount} / 36 MÓDULOS`;
+              countPill.textContent = `${visibleCount} / 38 MÓDULOS`;
               countPill.style.color = visibleCount > 0 ? "#00d2ff" : "#ef4444";
               countPill.style.borderColor = visibleCount > 0 ? "rgba(0, 210, 255, 0.45)" : "rgba(239, 68, 68, 0.5)";
             }
@@ -17439,6 +17688,19 @@ const cardEsg = document.getElementById("hud-card-esg");
           document.getElementById("hud-interfaces-modal")?.classList.remove("active");
           window.openTreasuryModal();
         });
+
+        const cardStockTrading = document.getElementById("hud-card-stock-trading");
+        if (cardStockTrading) cardStockTrading.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openStockTradingModal();
+        });
+
+        const cardDividendScreener = document.getElementById("hud-card-dividend-screener");
+        if (cardDividendScreener) cardDividendScreener.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openDividendScreenerModal();
+        });
+
 
 
         // ========================================================

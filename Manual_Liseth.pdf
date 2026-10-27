@@ -4088,7 +4088,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 41 0 R >>
 endobj
 42 0 obj
-<< /Length 772 >>
+<< /Length 5250 >>
 stream
 q
 0.12 0.35 0.55 RG 1.5 w
@@ -4098,12 +4098,128 @@ BT /F2 8 Tf 42.0 811.89 Td (LISETH AI \| COPILOTO AUTONOMO EJECUTIVO) Tj ET
 BT /F3 8 Tf 443.28 811.89 Td (EXCLUSIVO PARA SENOR SANTIAGO) Tj ET
 Q
 q
-0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 783.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+0.90 0.94 0.98 rg
+42.0 767.89 511.28 24 re f
+0.1 0.4 0.65 rg
+42.0 767.89 5 24 re f
+0.08 0.25 0.45 rg
+BT /F2 12 Tf 54.0 774.89 Td (33. Terminal Bursatil Cuantitativo, Trading de Precision y Radar de Dividendos) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 748.89 Td (Liseth alcanza la cúspide de inteligencia bursátil expandiéndose a 38 módulos tácticos HUD con dos) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 736.89 Td (herramientas de nivel institucional: \(1\) Terminal Bursátil Cuantitativo & Trading de Precisión \(Margen de) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 724.89 Td (Error Minimizado\): Algoritmo de convergencia multi-indicador en tiempo real que evalúa fuerza relativa \(RSI) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 712.89 Td (14 períodos\), momentum de convergencia/divergencia \(MACD Signal & Histograma\) y estructura tendencial \(Golden) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 700.89 Td (Cross EMA 50 / 200\). Para eliminar la ruina estadística y minimizar el margen de error operacional, el motor) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 688.89 Td (calcula dinámicamente el Stop-Loss a 1.5 x ATR \(Average True Range\), un Take-Profit matemático con ratio) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 676.89 Td (asimétrico favorable 1 : 2.5 y el dimensionamiento exacto de la posición gobernado por la regla institucional) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 664.89 Td (estricta de arriesgar como máximo el 1.5% del capital total de la cuenta por operación. \(2\) Radar de Acciones) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 652.89 Td (con Dividendos & Portafolios de Presupuesto Ajustado: Rastreador bursátil especializado en empresas) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 640.89 Td (defensivas de alto rendimiento por dividendo \(Dividend Yield\) en la Bolsa de Valores de Colombia - BVC) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 628.89 Td (\(Ecopetrol, Grupo Aval Pref., GEB, Mineros, Celsia, Bancolombia Pref., ISA\) y Wall Street \(Vale, Ford, AT&T,) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 616.89 Td (Pfizer, Realty Income 'O'\). Permite armar portafolios diversificados incluso con presupuestos muy reducidos) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 604.89 Td (\(desde $50.000 COP o $50 USD\), calculando el flujo pasivo mensual/anual y proyectando el crecimiento) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 592.89 Td (exponencial mediante planes de reinversión automática de dividendos \(DRIP a 1, 3 y 5 años\) con interés) Tj ET
+Q
+q
+0.15 0.15 0.15 rg
+BT /F1 9.0 Tf 42.0 580.89 Td (compuesto:) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 528.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 528.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 556.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 561.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 560.89 Td (\"Trading Cuantitativo de Precision \(BVC / Wall Street\)\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 545.89 Td (Pida a Liseth: 'Analiza la accion de Ecopetrol a 1.960 pesos con RSI 44 y cruce alcista MACD con capital de 10 millones' para obtener la orden técnica con Stop-Loss ATR y tamaño de posición.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 533.89 Td (-> Bolsa de Valores & Trading) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 476.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 476.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 504.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 509.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 508.89 Td (\"Radar de Dividendos para Presupuesto Reducido\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 493.89 Td (Pida a Liseth: 'Recomiendame que acciones comprar con presupuesto ajustado de 300.000 pesos que paguen buenos dividendos' para obtener la canasta óptima y flujo anual.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 481.89 Td (-> Portafolio de Dividendos BVC) Tj ET
+Q
+q
+0.97 0.98 0.99 rg
+48.0 424.89 499.28 46.0 re f
+0.85 0.88 0.92 RG 0.75 w
+48.0 424.89 499.28 46.0 re S
+0.05 0.55 0.65 rg
+54.0 452.89 65 14 re f
+1 1 1 rg
+BT /F2 7.5 Tf 58.0 457.89 Td (COMANDO VOZ) Tj ET
+0.1 0.15 0.25 rg
+BT /F2 9.5 Tf 126.0 456.89 Td (\"Proyeccion Compuesta de Reinversion \(DRIP\)\") Tj ET
+0.35 0.38 0.42 rg
+BT /F1 8.5 Tf 56.0 441.89 Td (Pida a Liseth: 'Simula un plan de dividendos con 100 dolares en Wall Street a 5 anos con reinversion DRIP' para proyectar el interés compuesto.) Tj ET
+0.12 0.45 0.35 rg
+BT /F4 8 Tf 56.0 429.89 Td (-> DRIP Compounding Wall Street) Tj ET
 Q
 q
 0.4 0.4 0.4 rg
-BT /F3 8.0 Tf 42.0 771.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
+BT /F3 8.0 Tf 42.0 410.89 Td (*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. Cada) Tj ET
+Q
+q
+0.4 0.4 0.4 rg
+BT /F3 8.0 Tf 42.0 398.89 Td (vez que se añada una nueva capacidad, el PDF se recompilará reflejando las nuevas funciones para su comodidad.) Tj ET
 Q
 q
 0.85 0.88 0.92 RG 1 w
@@ -4143,7 +4259,7 @@ xref
 0000123099 00000 n 
 0000131957 00000 n 
 0000141285 00000 n 
-0000142273 00000 n 
+0000146752 00000 n 
 0000000632 00000 n 
 0000007407 00000 n 
 0000015054 00000 n 
@@ -4165,5 +4281,5 @@ xref
 trailer
 << /Size 43 /Root 1 0 R /Info << /Title (Manual Ejecutivo de Liseth - Senor Santiago) /Author (Liseth AI) >> >>
 startxref
-142437
+146916
 %%EOF

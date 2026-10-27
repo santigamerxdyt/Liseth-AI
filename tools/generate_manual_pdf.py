@@ -885,6 +885,28 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Ciclo de Conversion de Efectivo (CCC)", "Pida a Liseth: 'Calcula el ciclo CCC con cobro de 45 dias, inventario de 30 dias y pago a proveedores de 50 dias' para diagnosticar la liquidez.", "Tesoreria & Capital de Trabajo")
     builder.add_command_box("Simulador de Factoring RADIAN / DIAN", "Pida a Liseth: 'Simula factoring para factura de 35.000.000 COP a 60 dias' para calcular el descuento y la tasa efectiva anual.", "Factoring & Liquidez Inmediata")
 
+
+    # ───
+    # SECCIÓN 33: TERMINAL BURSÁTIL CUANTITATIVO, TRADING DE PRECISIÓN Y RADAR DE ACCIONES CON DIVIDENDOS (38 MÓDULOS)
+    # ───
+    builder.add_section_header("33. Terminal Bursatil Cuantitativo, Trading de Precision y Radar de Dividendos")
+    builder.add_paragraph(
+        "Liseth alcanza la cúspide de inteligencia bursátil expandiéndose a 38 módulos tácticos HUD con dos herramientas de nivel institucional: "
+        "(1) Terminal Bursátil Cuantitativo & Trading de Precisión (Margen de Error Minimizado): Algoritmo de convergencia multi-indicador en tiempo real que evalúa "
+        "fuerza relativa (RSI 14 períodos), momentum de convergencia/divergencia (MACD Signal & Histograma) y estructura tendencial (Golden Cross EMA 50 / 200). "
+        "Para eliminar la ruina estadística y minimizar el margen de error operacional, el motor calcula dinámicamente el Stop-Loss a 1.5 x ATR (Average True Range), "
+        "un Take-Profit matemático con ratio asimétrico favorable 1 : 2.5 y el dimensionamiento exacto de la posición gobernado por la regla institucional estricta "
+        "de arriesgar como máximo el 1.5% del capital total de la cuenta por operación. "
+        "(2) Radar de Acciones con Dividendos & Portafolios de Presupuesto Ajustado: Rastreador bursátil especializado en empresas defensivas de alto rendimiento por dividendo "
+        "(Dividend Yield) en la Bolsa de Valores de Colombia - BVC (Ecopetrol, Grupo Aval Pref., GEB, Mineros, Celsia, Bancolombia Pref., ISA) y Wall Street (Vale, Ford, AT&T, Pfizer, Realty Income 'O'). "
+        "Permite armar portafolios diversificados incluso con presupuestos muy reducidos (desde $50.000 COP o $50 USD), calculando el flujo pasivo mensual/anual y proyectando "
+        "el crecimiento exponencial mediante planes de reinversión automática de dividendos (DRIP a 1, 3 y 5 años) con interés compuesto:",
+        size=9.0
+    )
+    builder.add_command_box("Trading Cuantitativo de Precision (BVC / Wall Street)", "Pida a Liseth: 'Analiza la accion de Ecopetrol a 1.960 pesos con RSI 44 y cruce alcista MACD con capital de 10 millones' para obtener la orden técnica con Stop-Loss ATR y tamaño de posición.", "Bolsa de Valores & Trading")
+    builder.add_command_box("Radar de Dividendos para Presupuesto Reducido", "Pida a Liseth: 'Recomiendame que acciones comprar con presupuesto ajustado de 300.000 pesos que paguen buenos dividendos' para obtener la canasta óptima y flujo anual.", "Portafolio de Dividendos BVC")
+    builder.add_command_box("Proyeccion Compuesta de Reinversion (DRIP)", "Pida a Liseth: 'Simula un plan de dividendos con 100 dolares en Wall Street a 5 anos con reinversion DRIP' para proyectar el interés compuesto.", "DRIP Compounding Wall Street")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

@@ -198,6 +198,9 @@ EXEMPT_API_PATHS = {
     "/api/suite/fleet/freight",
     "/api/suite/biohabits/eval",
     "/api/suite/biohabits/status",
+    "/api/suite/stock-trading/analyze",
+    "/api/suite/dividends/screen",
+    "/api/suite/dividends/catalog",
 }
 
 

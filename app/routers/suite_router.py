@@ -24,6 +24,8 @@ from app.services.tax_payment_service import tax_payment_service
 from app.services.business_valuation_service import business_valuation_service
 from app.services.fleet_routes_service import fleet_routes_service
 from app.services.biocognitive_habits_service import biocognitive_habits_service
+from app.services.stock_trading_service import stock_trading_service
+from app.services.dividend_screener_service import dividend_screener_service
 
 
 
@@ -516,6 +518,62 @@ async def evaluate_biohabits_endpoint(req: BiohabitsLogRequest):
 @router.get("/biohabits/status")
 async def get_biohabits_status_endpoint():
     return biocognitive_habits_service.get_latest_status()
+
+
+# ─── TERMINAL BURSÁTIL & TRADING CUANTITATIVO ───
+class StockTradingRequest(BaseModel):
+    ticker: str = Field(default="ECOPETROL")
+    current_price: float = Field(..., gt=0)
+    rsi: float = Field(default=48.0, ge=0.0, le=100.0)
+    macd_signal: str = Field(default="bullish_cross")
+    ema_50: float = Field(default=0.0)
+    ema_200: float = Field(default=0.0)
+    atr: float = Field(default=0.0)
+    total_trading_capital: float = Field(default=10000000.0, gt=0)
+    currency: str = Field(default="COP")
+
+
+@router.post("/stock-trading/analyze")
+async def analyze_stock_trading_endpoint(req: StockTradingRequest):
+    res = stock_trading_service.analyze_trading_signal(
+        ticker=req.ticker,
+        current_price=req.current_price,
+        rsi=req.rsi,
+        macd_signal=req.macd_signal,
+        ema_50=req.ema_50,
+        ema_200=req.ema_200,
+        atr=req.atr,
+        total_trading_capital=req.total_trading_capital,
+        currency=req.currency
+    )
+    return {"ok": True, "analysis": res}
+
+
+# ─── RADAR DE ACCIONES CON DIVIDENDOS & PRESUPUESTO AJUSTADO ───
+class DividendScreenRequest(BaseModel):
+    budget: float = Field(..., gt=0)
+    market: str = Field(default="BVC")
+    min_yield_pct: float = Field(default=5.0)
+    reinvest_dividends: bool = Field(default=True)
+    projection_years: int = Field(default=5, ge=1, le=10)
+
+
+@router.post("/dividends/screen")
+async def screen_dividends_endpoint(req: DividendScreenRequest):
+    res = dividend_screener_service.screen_dividend_stocks(
+        budget=req.budget,
+        market=req.market,
+        min_yield_pct=req.min_yield_pct,
+        reinvest_dividends=req.reinvest_dividends,
+        projection_years=req.projection_years
+    )
+    return {"ok": True, "screening": res}
+
+
+@router.get("/dividends/catalog")
+async def get_dividends_catalog_endpoint(market: Optional[str] = Query(None)):
+    return {"ok": True, "catalog": dividend_screener_service.list_available_stocks(market=market)}
+
 
 
 
