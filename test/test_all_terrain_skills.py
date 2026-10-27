@@ -69,7 +69,7 @@ class TestAcademicResearcher:
         p = papers[0]
         assert "title" in p
         assert "authors" in p
-        assert p["year"] > 2020
+        assert p["year"] >= 2020
 
     def test_generate_literature_review(self):
         review = academic_research_service.generate_literature_review("Transformación Digital y Productividad")

@@ -104,6 +104,29 @@ class BusinessStrategyService:
         ]
         return "\n".join(lines)
 
+    def generate_pestel(self, topic_or_industry: str) -> str:
+        """Generates PESTEL Macroenvironment Analysis (Political, Economic, Social, Tech, Ecological, Legal)."""
+        target = topic_or_industry.strip() or "Sector Empresarial"
+        lines = [
+            f"### 🌐 Análisis PESTEL del Macroentorno: *{target}*",
+            f"**Diagnóstico Estratégico de Variables Externas para**: Señor Santiago\n",
+            "#### 1. Dimensiones del Entorno",
+            "| Dimensión | Tendencia e Impacto | Variables Críticas |",
+            "| :--- | :---: | :--- |",
+            "| **Político (P)** | 🟡 Moderado | Políticas gubernamentales, estabilidad fiscal y tratados comerciales internacionales. |",
+            "| **Económico (E)** | 🔴 Alto | Tasa de interés de referencia, inflación, fluctuación de tipo de cambio y crecimiento del PIB. |",
+            "| **Social (S)** | 🟢 Favorable | Cambios demográficos, hábitos de consumo digital y teletrabajo flexible. |",
+            "| **Tecnológico (T)** | 🚀 Disruptivo | Inteligencia artificial generativa, automatización cloud y análisis predictivo en tiempo real. |",
+            "| **Ecológico (E)** | 🟡 En alza | Normativas de sostenibilidad, huella de carbono y criterios ESG en inversiones. |",
+            "| **Legal (L)** | 🔴 Riguroso | Protección de datos personales (Habeas Data), regulaciones laborales y propiedad intelectual. |",
+            "",
+            "#### 2. Directrices Estratégicas Ejecutivas",
+            "- **Resiliencia Macroeconómica**: Diseñar coberturas contra volatilidad cambiaria y mantener estructura de costos variables ágiles.",
+            "- **Vanguardia Tecnológica**: Adoptar IA y automatizaciones de forma temprana para sostener ventaja competitiva de primer entrante.",
+            "- **Cumplimiento y Confianza**: Asegurar auditorías periódicas de cumplimiento legal y normativas de datos para blindar la reputación de la firma."
+        ]
+        return "\n".join(lines)
+
     def generate_canvas(self, business_model: str) -> str:
         """Generates Alexander Osterwalder's 9 Building Blocks Business Model Canvas."""
         bm_title = business_model.strip() or "Modelo de Negocio"

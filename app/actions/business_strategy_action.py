@@ -34,6 +34,10 @@ def business_strategy_action(parameters: Optional[Dict[str, Any]] = None) -> str
             industry = params.get("industry") or params.get("sector") or params.get("topic") or "Sector Comercial"
             return business_strategy_service.generate_porter(industry)
 
+        if action in ["pestel", "matriz_pestel", "analisis_pestel"]:
+            topic = params.get("topic") or params.get("industry") or params.get("sector") or "Sector Empresarial"
+            return business_strategy_service.generate_pestel(topic)
+
         if action in ["canvas", "business_model", "modelo_canvas"]:
             topic = params.get("topic") or params.get("business") or params.get("company") or "Negocio Digital"
             return business_strategy_service.generate_canvas(topic)

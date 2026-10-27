@@ -509,7 +509,7 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
     if any(k in norm for k in ["analisis pestel", "matriz pestel"]):
         return (
             "business_strategy",
-            {"action": "porter", "industry": "Sector Empresarial"},
+            {"action": "pestel", "industry": "Sector Empresarial"},
             "Generando análisis del macroentorno empresarial PESTEL..."
         )
 
