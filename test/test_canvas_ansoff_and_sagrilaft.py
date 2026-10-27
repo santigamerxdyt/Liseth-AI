@@ -163,4 +163,5 @@ def test_system_tool_declarations_44():
     assert "sagrilaft_compliance" in tool_names
     assert "pricing_elasticity" in tool_names
     assert "credit_amortization" in tool_names
-    assert len(SYSTEM_TOOL_DECLARATIONS) == 70
+    assert "predictive_intelligence" in tool_names
+    assert len(SYSTEM_TOOL_DECLARATIONS) == 71

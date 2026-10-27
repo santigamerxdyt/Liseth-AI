@@ -3152,6 +3152,421 @@
     }
 
     /* Anillos cuánticos concéntricos adicionales */
+    
+    /* ======================================================== */
+    /* AVATAR HUMANO EJECUTIVO & MENTE PREDICTIVA LISETH        */
+    /* ======================================================== */
+
+    /* Conmutador de Modo de Avatar (Humano vs Reactor Arc) */
+    .avatar-mode-switch {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 20px;
+      padding: 3px;
+      margin-bottom: 12px;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+      z-index: 5;
+    }
+
+    .avatar-switch-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.25s ease;
+      font-family: var(--font-sans, system-ui);
+    }
+
+    .avatar-switch-btn.active {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(0, 119, 255, 0.35));
+      color: #00f0ff;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+      border: 1px solid rgba(0, 240, 255, 0.5);
+    }
+
+    .avatar-switch-btn:hover:not(.active) {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Contenedor del Avatar Humano de Liseth */
+    .liseth-human-avatar-container {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: avatar-breathe 4s ease-in-out infinite;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+    }
+
+    .liseth-human-avatar-container:hover {
+      transform: scale(1.06);
+      filter: drop-shadow(0 0 35px rgba(0, 240, 255, 0.6));
+    }
+
+    @keyframes avatar-breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.025); }
+    }
+
+    /* Anillos Holográficos del Avatar */
+    .avatar-hologram-ring {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .avatar-hologram-ring.ring-outer {
+      inset: -12px;
+      border: 1px dashed rgba(0, 240, 255, 0.45);
+      animation: avatar-spin-slow 24s linear infinite;
+    }
+
+    .avatar-hologram-ring.ring-middle {
+      inset: -5px;
+      border: 1.5px solid rgba(255, 209, 102, 0.35);
+      border-top-color: #00f0ff;
+      border-bottom-color: #ffd166;
+      animation: avatar-spin-rev 16s linear infinite;
+    }
+
+    @keyframes avatar-spin-slow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes avatar-spin-rev {
+      0% { transform: rotate(360deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* Resplandor del Aura */
+    .avatar-aura-glow {
+      position: absolute;
+      inset: -20px;
+      background: radial-gradient(circle, rgba(0, 240, 255, 0.28) 0%, rgba(255, 209, 102, 0.12) 40%, transparent 70%);
+      filter: blur(16px);
+      border-radius: 50%;
+      pointer-events: none;
+      transition: all 0.4s ease;
+    }
+
+    .liseth-human-avatar-container.speaking .avatar-aura-glow {
+      background: radial-gradient(circle, rgba(0, 240, 255, 0.5) 0%, rgba(255, 209, 102, 0.3) 50%, transparent 75%);
+      filter: blur(22px);
+      animation: aura-pulse-fast 1.2s ease-in-out infinite;
+    }
+
+    .liseth-human-avatar-container.listening .avatar-aura-glow {
+      background: radial-gradient(circle, rgba(56, 239, 125, 0.45) 0%, rgba(0, 240, 255, 0.2) 50%, transparent 75%);
+      filter: blur(20px);
+    }
+
+    @keyframes aura-pulse-fast {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    /* Marco del Retrato */
+    .avatar-portrait-frame {
+      position: relative;
+      width: 154px;
+      height: 154px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2.5px solid rgba(0, 240, 255, 0.8);
+      box-shadow: 
+        0 0 25px rgba(0, 240, 255, 0.5),
+        0 0 50px rgba(0, 119, 255, 0.3),
+        inset 0 0 20px rgba(0, 240, 255, 0.4);
+      background: #030712;
+    }
+
+    .avatar-portrait-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 15%;
+      display: block;
+      transition: filter 0.3s ease, transform 0.4s ease;
+    }
+
+    .liseth-human-avatar-container:hover .avatar-portrait-img {
+      transform: scale(1.05);
+    }
+
+    /* Barrido de Brillo Holográfico */
+    .avatar-shimmer-sweep {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: skewX(-20deg);
+      pointer-events: none;
+      animation: avatar-shimmer 5s infinite;
+    }
+
+    @keyframes avatar-shimmer {
+      0% { left: -100%; }
+      20% { left: 200%; }
+      100% { left: 200%; }
+    }
+
+    /* Píldora de Rol Ejecutivo sobre el avatar */
+    .avatar-status-pill {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(3, 7, 18, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.5);
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 0.58rem;
+      font-weight: 800;
+      color: #00f0ff;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .avatar-status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #38ef7d;
+      box-shadow: 0 0 6px #38ef7d;
+      animation: dot-pulse 1.8s infinite;
+    }
+
+    /* Distintivo de Rol Ejecutivo */
+    .assistant-role-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #00f0ff, #ffd166);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-top: -2px;
+      margin-bottom: 6px;
+    }
+
+    /* WIDGET COGNITIVO: MENTE PREDICTIVA // 3 PASOS ADELANTE */
+    .anticipatory-hud-card {
+      max-width: 820px;
+      width: 95%;
+      margin: 16px auto 0;
+      background: rgba(8, 16, 32, 0.75);
+      border: 1px solid rgba(0, 240, 255, 0.32);
+      border-radius: 14px;
+      padding: 12px 16px;
+      backdrop-filter: blur(16px);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.45),
+        0 0 25px rgba(0, 240, 255, 0.12);
+      position: relative;
+      z-index: 3;
+      transition: border-color 0.3s ease;
+    }
+
+    .anticipatory-hud-card:hover {
+      border-color: rgba(0, 240, 255, 0.6);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 35px rgba(0, 240, 255, 0.2);
+    }
+
+    .anticipatory-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .anticipatory-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #e2e8f0;
+    }
+
+    .anticipatory-icon {
+      font-size: 0.95rem;
+      filter: drop-shadow(0 0 8px #a855f7);
+    }
+
+    .anticipatory-label {
+      color: #00f0ff;
+    }
+
+    .anticipatory-badge {
+      background: rgba(168, 85, 247, 0.18);
+      border: 1px solid rgba(168, 85, 247, 0.45);
+      color: #c084fc;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .anticipatory-refresh-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #94a3b8;
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .anticipatory-refresh-btn:hover {
+      background: rgba(0, 240, 255, 0.15);
+      color: #00f0ff;
+      border-color: #00f0ff;
+    }
+
+    .anticipatory-steps-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .anticipatory-steps-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .anticipatory-step {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .anticipatory-step::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: #00f0ff;
+    }
+
+    .anticipatory-step:nth-child(2)::before {
+      background: #ffd166;
+    }
+
+    .anticipatory-step:nth-child(3)::before {
+      background: #a855f7;
+    }
+
+    .anticipatory-step:hover {
+      transform: translateY(-2px);
+      background: rgba(20, 32, 56, 0.85);
+      border-color: rgba(0, 240, 255, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 240, 255, 0.18);
+    }
+
+    .step-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .step-num-badge {
+      display: inline-block;
+      font-size: 0.64rem;
+      font-weight: 900;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(0, 240, 255, 0.18);
+      color: #00f0ff;
+      border: 1px solid rgba(0, 240, 255, 0.35);
+    }
+
+    .step-num-badge.gold {
+      background: rgba(255, 209, 102, 0.18);
+      color: #ffd166;
+      border-color: rgba(255, 209, 102, 0.35);
+    }
+
+    .step-num-badge.purple {
+      background: rgba(168, 85, 247, 0.18);
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, 0.35);
+    }
+
+    .step-timing-tag {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #00f0ff;
+      letter-spacing: 0.04em;
+    }
+
+    .step-timing-tag.gold { color: #ffd166; }
+    .step-timing-tag.purple { color: #c084fc; }
+
+    .step-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    .step-desc {
+      font-size: 0.68rem;
+      color: #94a3b8;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .step-exec-hint {
+      font-size: 0.62rem;
+      color: #64748b;
+      font-style: italic;
+      margin-top: 2px;
+    }
+
     .orb-rings-container {
       position: absolute;
       inset: -12px;
@@ -6134,9 +6549,36 @@
         <canvas id="voice-waves-canvas" width="600" height="600"></canvas>
       </div>
 
-      <!-- Gran Esfera Central -->
+      <!-- Gran Esfera Central / Avatar Humano de Liseth -->
       <div class="orb-stage-wrapper">
-        <div class="orb-container sphere-large sphere-style-reactor" id="orb" title="Liseth • En reposo (Haz clic para pausar/activar habla)">
+        <!-- Conmutador de Modo de Avatar (Humano vs Reactor Arc) -->
+        <div class="avatar-mode-switch" id="avatar-mode-switch">
+          <button type="button" class="avatar-switch-btn active" id="btn-avatar-human" onclick="setAvatarMode('human')" title="Ver a Liseth en apariencia humana ejecutiva">👩‍💼 Avatar Humano</button>
+          <button type="button" class="avatar-switch-btn" id="btn-avatar-reactor" onclick="setAvatarMode('reactor')" title="Ver Núcleo Reactor Cuántico">⚛️ Reactor Arc</button>
+        </div>
+
+        <!-- 1. AVATAR HUMANO EJECUTIVO (PREDETERMINADO) -->
+        <div class="liseth-human-avatar-container" id="liseth-human-avatar-container" onclick="toggleAvatarInteraction()" title="Liseth • Secretaria Ejecutiva de Alta Dirección (Clic para interactuar)">
+          <div class="avatar-hologram-ring ring-outer"></div>
+          <div class="avatar-hologram-ring ring-middle"></div>
+          <div class="avatar-aura-glow" id="avatar-aura-glow"></div>
+          
+          <div class="avatar-portrait-frame">
+            <img src="app/static/images/liseth_avatar.png" 
+                 onerror="if(this.src.indexOf('app/static/')!==-1){this.src='/static/images/liseth_avatar.png';}else if(this.src.indexOf('/static/images/')!==-1){this.src='liseth_avatar.png';}" 
+                 alt="Liseth - Secretaria Ejecutiva CEO" 
+                 class="avatar-portrait-img" 
+                 id="liseth-avatar-img" />
+            <div class="avatar-shimmer-sweep"></div>
+            <div class="avatar-status-pill">
+              <span class="avatar-status-dot"></span>
+              <span class="avatar-status-txt">CEO CHIEF OF STAFF</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. NÚCLEO REACTOR ARC (ALTERNATIVA) -->
+        <div class="orb-container sphere-large sphere-style-reactor" id="orb" style="display: none;" title="Liseth • En reposo (Haz clic para pausar/activar habla)">
           <div class="orb-aura"></div>
           <div class="orb-rings-container">
             <div class="orb-ring ring-1"></div>
@@ -6151,11 +6593,57 @@
         </div>
 
         <h1 class="assistant-title" id="assistant-display-name">LISETH</h1>
+        <div class="assistant-role-badge">SECRETARIA EJECUTIVA DE ALTA DIRECCIÓN & CHIEF OF STAFF</div>
         <div class="assistant-status">
           <span class="status-dot"></span>
-          <span id="status-label">A su entera disposición, Señor Santiago</span>
+          <span id="status-label">Pensando de 2 a 3 pasos por delante para usted, Señor Santiago</span>
         </div>
       </div>
+
+      <!-- WIDGET COGNITIVO: MENTE PREDICTIVA // 3 PASOS ADELANTE -->
+      <div class="anticipatory-hud-card" id="anticipatory-hud-card">
+        <div class="anticipatory-header">
+          <div class="anticipatory-title">
+            <span class="anticipatory-icon">🔮</span>
+            <span class="anticipatory-label">MENTE PREDICTIVA // 3 PASOS ADELANTE</span>
+            <span class="anticipatory-badge" id="predictive-phase-badge">FASE: MATUTINA</span>
+          </div>
+          <button class="anticipatory-refresh-btn" onclick="refreshPredictivePlan()" title="Recalcular anticipación proactiva">↻ Actualizar</button>
+        </div>
+        <div class="anticipatory-steps-container" id="anticipatory-steps-container">
+          <!-- Paso 1 -->
+          <div class="anticipatory-step" onclick="executePredictiveStep(0)" title="Clic para ejecutar este paso con Liseth">
+            <div class="step-header-row">
+              <span class="step-num-badge">P1</span>
+              <span class="step-timing-tag" id="pstep-1-tag">INMEDIATO →</span>
+            </div>
+            <div class="step-title" id="pstep-1-title">Briefing Matutino & Prioridades Clave</div>
+            <div class="step-desc" id="pstep-1-desc">Revisión de agenda Google y telemetría de inversiones.</div>
+            <div class="step-exec-hint">Clic para ejecutar orden ↳</div>
+          </div>
+          <!-- Paso 2 -->
+          <div class="anticipatory-step" onclick="executePredictiveStep(1)" title="Clic para ejecutar este paso con Liseth">
+            <div class="step-header-row">
+              <span class="step-num-badge gold">P2</span>
+              <span class="step-timing-tag gold" id="pstep-1-tag">TÁCTICO →</span>
+            </div>
+            <div class="step-title" id="pstep-2-title">Conciliación de Tesorería & KTNO</div>
+            <div class="step-desc" id="pstep-2-desc">Asegurar flujo de caja y verificación de saldos bancarios.</div>
+            <div class="step-exec-hint">Clic para ejecutar orden ↳</div>
+          </div>
+          <!-- Paso 3 -->
+          <div class="anticipatory-step" onclick="executePredictiveStep(2)" title="Clic para ejecutar este paso con Liseth">
+            <div class="step-header-row">
+              <span class="step-num-badge purple">P3</span>
+              <span class="step-timing-tag purple" id="pstep-3-tag">ESTRATÉGICO →</span>
+            </div>
+            <div class="step-title" id="pstep-3-title">Alineación de Escenarios Comerciales</div>
+            <div class="step-desc" id="pstep-3-desc">Estrategia de precios y modelo Canvas para juntas clave.</div>
+            <div class="step-exec-hint">Clic para ejecutar orden ↳</div>
+          </div>
+        </div>
+      </div>
+
 
       <!-- Subtítulos Holográficos Flotantes -->
       <div class="hud-transcript-display" id="hud-transcript-display">
@@ -19739,6 +20227,115 @@ const cardEsg = document.getElementById("hud-card-esg");
           executeSearch: executeSearch
         };
       }
+
+      
+      // ========================================================
+      // CONTROLADOR DE AVATAR HUMANO & INTELIGENCIA PREDICTIVA
+      // ========================================================
+      let currentPredictivePlan = null;
+
+      window.setAvatarMode = function(mode) {
+        const humanAv = document.getElementById("liseth-human-avatar-container");
+        const reactorAv = document.getElementById("orb");
+        const btnHuman = document.getElementById("btn-avatar-human");
+        const btnReactor = document.getElementById("btn-avatar-reactor");
+
+        if (mode === "human") {
+          if (humanAv) humanAv.style.display = "flex";
+          if (reactorAv) reactorAv.style.display = "none";
+          if (btnHuman) btnHuman.classList.add("active");
+          if (btnReactor) btnReactor.classList.remove("active");
+          localStorage.setItem("liseth_avatar_mode", "human");
+          showToast("Avatar Ejecutivo Humano Activado");
+        } else {
+          if (humanAv) humanAv.style.display = "none";
+          if (reactorAv) reactorAv.style.display = "block";
+          if (btnHuman) btnHuman.classList.remove("active");
+          if (btnReactor) btnReactor.classList.add("active");
+          localStorage.setItem("liseth_avatar_mode", "reactor");
+          showToast("Núcleo Reactor Arc Activado");
+        }
+        playHudSound("click");
+      };
+
+      window.toggleAvatarInteraction = function() {
+        playHudSound("click");
+        const humanAv = document.getElementById("liseth-human-avatar-container");
+        if (humanAv) {
+          humanAv.classList.toggle("speaking");
+          setTimeout(() => humanAv.classList.remove("speaking"), 2500);
+        }
+        showToast("Liseth: 'A su servicio, Señor Santiago. ¿Qué prioridad abordamos ahora?'");
+      };
+
+      window.refreshPredictivePlan = async function() {
+        playHudSound("click");
+        try {
+          const res = await fetch("/api/suite/predictive/anticipate");
+          if (res.ok) {
+            const data = await res.json();
+            currentPredictivePlan = data.anticipation;
+            window.renderPredictivePlan(currentPredictivePlan);
+            showToast("Plan predictivo actualizado (3 pasos adelante)");
+          }
+        } catch(e) {
+          console.error("Error fetching predictive plan:", e);
+        }
+      };
+
+      window.renderPredictivePlan = function(plan) {
+        if (!plan || !plan.steps) return;
+        const badge = document.getElementById("predictive-phase-badge");
+        if (badge) badge.textContent = "FASE: " + (plan.phase_name ? plan.phase_name.toUpperCase() : "ACTIVA");
+
+        plan.steps.forEach((s, idx) => {
+          const tEl = document.getElementById(`pstep-${idx+1}-title`);
+          const dEl = document.getElementById(`pstep-${idx+1}-desc`);
+          const tagEl = document.getElementById(`pstep-${idx+1}-tag`);
+          if (tEl) tEl.textContent = s.title;
+          if (dEl) dEl.textContent = s.description;
+          if (tagEl) tagEl.textContent = s.tag + " →";
+        });
+      };
+
+      window.executePredictiveStep = function(index) {
+        if (!currentPredictivePlan || !currentPredictivePlan.steps || !currentPredictivePlan.steps[index]) {
+          // Fallback if not loaded yet
+          const fallbackPrompts = [
+            "¿Qué tengo programado en mi agenda y cuáles son mis prioridades estratégicas hoy?",
+            "Concilia mi estado de tesorería y evalúa el capital de trabajo neto operativo para hoy.",
+            "Modela el canvas y la estrategia de precios óptima para las propuestas pendientes."
+          ];
+          const prompt = fallbackPrompts[index] || fallbackPrompts[0];
+          playHudSound("click");
+          const input = document.getElementById("user-input");
+          if (input) {
+            input.value = prompt;
+            input.focus();
+            const sendBtn = document.getElementById("send-btn");
+            if (sendBtn) sendBtn.click();
+          }
+          return;
+        }
+
+        const step = currentPredictivePlan.steps[index];
+        playHudSound("click");
+        const input = document.getElementById("user-input");
+        if (input) {
+          input.value = step.action_prompt;
+          input.focus();
+          const sendBtn = document.getElementById("send-btn");
+          if (sendBtn) sendBtn.click();
+        }
+      };
+
+      // Inicializar modo de avatar y plan predictivo al cargar
+      document.addEventListener("DOMContentLoaded", function() {
+        const savedMode = localStorage.getItem("liseth_avatar_mode") || "human";
+        window.setAvatarMode(savedMode);
+        window.refreshPredictivePlan();
+      });
+
 
       // Cargar personalización persistida del servidor
       async function syncPersonalizationFromServer() {

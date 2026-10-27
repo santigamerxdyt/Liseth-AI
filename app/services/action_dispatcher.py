@@ -1148,8 +1148,17 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": ["company_name", "annual_revenue_smmlv", "total_assets_smmlv"]
         }
+    },
+    {
+        "name": "predictive_intelligence",
+        "description": "Inteligencia Predictiva y Mente 3 Pasos Adelante: anticipa de 2 a 3 pasos las necesidades estratégicas, operativas y financieras del Señor Santiago (paso inmediato, táctico preventivo y visión estratégica futura), sugiriendo acciones proactivas y planes secuenciales antes de ser solicitados.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "context": {"type": "STRING", "description": "Contexto opcional o asunto sobre el cual anticipar prioridades"}
+            }
+        }
     }
-
 ]
 
 
@@ -1617,6 +1626,11 @@ class ActionDispatcher:
             elif name in ("sagrilaft_compliance", "auditoria_sagrilaft", "sagrilaft", "ptee", "prevencion_laft", "compliance_colombia"):
                 from app.actions.sagrilaft_compliance_action import sagrilaft_compliance_action
                 res = sagrilaft_compliance_action(parameters=args)
+                return res
+
+            elif name in ("predictive_intelligence", "inteligencia_predictiva", "tres_pasos_adelante", "anticipacion", "proactividad_ceo"):
+                from app.actions.predictive_intelligence_action import predictive_intelligence_action
+                res = predictive_intelligence_action(parameters=args)
                 return res
 
             else:

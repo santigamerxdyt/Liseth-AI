@@ -966,6 +966,22 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Business Model Canvas & Vector Ansoff", "Pida a Liseth: 'Modela mi negocio de SaaS B2B con presupuesto de 40 millones bajo el cuadrante de penetracion de mercado' para evaluar coherencia de los 9 bloques, ROI y roadmap.", "Direccion Estrategica & Ansoff")
     builder.add_command_box("Auditoria SAGRILAFT & Dictamen PTEE", "Pida a Liseth: 'Audita el cumplimiento SAGRILAFT de mi empresa inmobiliaria con ingresos de 35.000 SMMLV, oficial de cumplimiento y vinculacion PEP' para dictamen oficial y semaforo.", "SuperSociedades & Compliance LA/FT")
 
+    # ───
+    # SECCIÓN 37: AVATAR EJECUTIVO HUMANO Y MENTE PREDICTIVA // 3 PASOS ADELANTE
+    # ───
+    builder.add_section_header("37. Avatar Ejecutivo Humano y Mente Predictiva (3 Pasos Adelante)")
+    builder.add_paragraph(
+        "Liseth estrena su presencia visual humana definitiva en la interfaz de inicio, personificando a la Secretaria Ejecutiva de Alta Direccion "
+        "y Chief of Staff personal de Senor Santiago: una figura femenina de porte esbelto y distinguido, con facciones delicadas, dulces y encantadoras, "
+        "con matices seductores de elegancia ejecutiva y atuendo de alta costura corporativa (blazer sastre, blusa de seda y montura sutil). "
+        "Simultaneamente, integra el Motor de Mente Predictiva que opera de 2 a 3 pasos por delante de las necesidades del Senor Santiago, "
+        "evaluando el ritmo circadiano y los ciclos de negocio para anticipar el paso inmediato (proximos 30 min), el paso tactico preventivo "
+        "y la vision estrategica a 24-48 horas con ejecucion a un solo clic o comando vocal:",
+        size=9.0
+    )
+    builder.add_command_box("Anticipacion Cognitiva (3 Pasos Adelante)", "Pida a Liseth: 'Anticipa mis proximos 3 pasos estrategicos para hoy' para obtener el plan secuencial preventivo de alta direccion.", "Inteligencia Predictiva CEO")
+    builder.add_command_box("Conmutacion de Avatar en Inicio", "Haga clic en 'Avatar Humano' o 'Reactor Arc' en la pantalla principal para alternar entre la presencia humana ejecutiva y el nucleo holografico.", "Interfaz & Presencia Visual")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

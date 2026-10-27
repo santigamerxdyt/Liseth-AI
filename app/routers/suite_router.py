@@ -32,6 +32,7 @@ from app.services.pricing_elasticity_service import pricing_elasticity_service
 from app.services.credit_amortization_service import credit_amortization_service
 from app.services.business_canvas_ansoff_service import business_canvas_ansoff_service
 from app.services.sagrilaft_compliance_service import sagrilaft_compliance_service
+from app.services.predictive_intelligence_service import predictive_intelligence_service
 
 
 
@@ -766,4 +767,20 @@ async def audit_sagrilaft_endpoint(req: SagrilaftComplianceRequest):
         international_operations=req.international_operations
     )
     return {"ok": True, "sagrilaft": res}
+
+# ─── INTELIGENCIA PREDICTIVA & ANTICIPACIÓN 3 PASOS ADELANTE ───
+class PredictiveAnticipateRequest(BaseModel):
+    context: Optional[str] = None
+
+
+@router.get("/predictive/anticipate")
+async def get_predictive_plan_endpoint(context: Optional[str] = Query(None)):
+    res = predictive_intelligence_service.get_anticipatory_plan(context=context)
+    return {"ok": True, "anticipation": res}
+
+
+@router.post("/predictive/anticipate")
+async def post_predictive_plan_endpoint(req: PredictiveAnticipateRequest):
+    res = predictive_intelligence_service.get_anticipatory_plan(context=req.context)
+    return {"ok": True, "anticipation": res}
 

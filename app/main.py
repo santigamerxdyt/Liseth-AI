@@ -207,6 +207,7 @@ EXEMPT_API_PATHS = {
     "/api/suite/credit/amortization",
     "/api/suite/business/canvas-ansoff",
     "/api/suite/compliance/sagrilaft",
+    "/api/suite/predictive/anticipate",
 }
 
 
