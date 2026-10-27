@@ -5973,8 +5973,8 @@
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES (ACCESO DIRECTO PRIORITARIO #1) -->
         <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 36 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
           <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
-          <span style="color: #ffffff; letter-spacing: 0.04em;">40 MÓDULOS HUD</span>
-          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">40</span>
+          <span style="color: #ffffff; letter-spacing: 0.04em;">42 MÓDULOS HUD</span>
+          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">42</span>
         </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
         <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal (Escala de texto, Alto contraste, Lector y Atajos) - Alt+A">
@@ -6171,7 +6171,7 @@
       <!-- Píldoras de Acciones Rápidas -->
       <div class="quick-chips" style="margin-top: 18px;">
         <button class="chip-btn" id="btn-quick-hud-modules" style="border: 1.5px solid #00f0ff; background: rgba(0, 240, 255, 0.18); box-shadow: 0 0 16px rgba(0, 240, 255, 0.4); font-weight: 700; color: #ffffff;" title="Abrir catálogo completo de los 30 módulos tácticos de Liseth">
-          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 40 Módulos HUD
+          <span style="color: #00f0ff; font-size: 1rem;">◈</span> 42 Módulos HUD
         </button>
         <button class="chip-btn" data-prompt="Santiago requiere tus ideas de optimización: ¿Cómo puedo automatizar y ahorrar tiempo hoy en mi día a día?">
           <span>⚡</span> Automatizar mi día
@@ -7474,14 +7474,14 @@
           <button type="button" id="hud-search-clear" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer;" title="Limpiar búsqueda">&times;</button>
         </div>
         <div class="hud-count-pill" id="hud-visible-count-pill" style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); padding: 9px 16px; border-radius: 10px; color: #00d2ff; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; white-space: nowrap; box-shadow: 0 0 10px rgba(0,210,255,0.2);">
-          40 / 40 MÓDULOS
+          42 / 42 MÓDULOS
         </div>
       </div>
 
       <!-- Pestañas de filtrado de categorías -->
       <div class="hud-filter-tabs">
-        <button class="hud-tab active" data-filter="all">TODOS (40)</button>
-        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (17)</button>
+        <button class="hud-tab active" data-filter="all">TODOS (42)</button>
+        <button class="hud-tab" data-filter="finance">FINANZAS & ESTRATEGIA (19)</button>
         <button class="hud-tab" data-filter="intelligence">INTELIGENCIA</button>
         <button class="hud-tab" data-filter="connectors">CONECTORES</button>
         <button class="hud-tab" data-filter="automation">AUTOMATIZACIÓN</button>
@@ -7924,6 +7924,27 @@
           <div class="hud-card-title">Simulación Monte Carlo & Stress</div>
           <div class="hud-card-desc">Simulación estocástica de 1.000 a 10.000 iteraciones vectorizadas, P(VAN > 0), Value at Risk (VaR 95% / 99%) y resiliencia.</div>
           <div class="hud-card-action"><span>Simular Riesgo</span> <span>→</span></div>
+        </div>
+        <!-- 41. Estrategia de Precios & Elasticidad de Demanda -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-pricing-elasticity">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.12);">🏷️</div>
+            <span class="hud-card-status status-online">LERNER / PED</span>
+          </div>
+          <div class="hud-card-title">Estrategia de Precios & Elasticidad</div>
+          <div class="hud-card-desc">Fijación de precios óptima (Índice de Lerner), sensibilidad de demanda (Ed) y simulación de curvas de margen y EBITDA.</div>
+          <div class="hud-card-action"><span>Optimizar Precios</span> <span>→</span></div>
+        </div>
+
+        <!-- 42. Simulador de Crédito & Optimización de Deuda -->
+        <div class="hud-card" data-category="automation finance" id="hud-card-credit-amortization">
+          <div class="hud-card-top">
+            <div class="hud-card-icon" style="color: #14b8a6; border-color: rgba(20, 184, 166, 0.4); background: rgba(20, 184, 166, 0.12);">💳</div>
+            <span class="hud-card-status status-online">FRANCÉS / ALEMÁN</span>
+          </div>
+          <div class="hud-card-title">Simulador de Crédito & Deuda</div>
+          <div class="hud-card-desc">Tablas Francés vs Alemán, auditoría de tasa de usura SuperFinanciera y ahorro de intereses con abonos extraordinarios.</div>
+          <div class="hud-card-action"><span>Simular Crédito</span> <span>→</span></div>
         </div>
       </div>
     </div>
@@ -10686,6 +10707,196 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
 
       <div class="modal-actions">
         <button class="btn-secondary" onclick="closeMonteCarloModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ESTRATEGIA DE PRECIOS & ELASTICIDAD (#41)         -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="pricing-elasticity-modal">
+    <div class="modal-card" style="max-width: 860px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.12);">🏷️</div>
+        <div class="modal-title">
+          <h2>Estrategia de Precios & Elasticidad de Demanda (PED)</h2>
+          <p>Índice de Lerner, regla de precios óptimos P* = MC / (1 + 1/Ed) y curvas de sensibilidad de margen</p>
+        </div>
+        <button class="modal-close" onclick="closePricingElasticityModal()">&times;</button>
+      </div>
+
+      <!-- Presets de Precios -->
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Modelos Típicos:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadPricingPreset('Insumo Inelástico B2B', 120000, 50000, 600, -0.65)">Insumo Inelástico B2B (|Ed| = 0.65)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadPricingPreset('Suscripción SaaS Pro', 65000, 15000, 1200, -1.40)">SaaS Competitivo (|Ed| = 1.40)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadPricingPreset('Producto Retail Elástico', 35000, 20000, 2500, -2.10)">Retail Muy Sensible (|Ed| = 2.10)</button>
+      </div>
+
+      <!-- Formulario de Parámetros -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Producto / Servicio:</label>
+            <input type="text" id="pr-name-input" value="Suscripción SaaS Pro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Precio Actual ($):</label>
+            <input type="number" id="pr-price-input" value="65000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Costo Marginal / Unitario ($):</label>
+            <input type="number" id="pr-cost-input" value="15000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Elasticidad Precio (Ed):</label>
+            <input type="number" id="pr-ed-input" value="-1.40" step="0.05" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #a855f7, #9333ea); border-color: #a855f7;" onclick="submitPricingElasticity()">Calcular Precio Óptimo & Curva de Sensibilidad</button>
+      </div>
+
+      <!-- Panel de Resultados -->
+      <div id="pr-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="pr-res-class" style="font-size: 0.95rem; font-weight: 800; color: #a855f7;">DEMANDA ELÁSTICA</span>
+            <div id="pr-res-diag" style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">Diagnóstico de elasticidad</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block;">PRECIO TEÓRICO ÓPTIMO</span>
+            <span id="pr-res-optimal" style="font-size: 1.1rem; font-weight: 800; color: #00f0ff;">$0 COP</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center;">
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Margen Actual</div>
+            <div id="pr-res-cur-margin" style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">$0 COP</div>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #10b981; font-weight: 700;">Margen Optimizado</div>
+            <div id="pr-res-best-margin" style="font-size: 0.95rem; font-weight: 700; color: #10b981;">$0 COP</div>
+          </div>
+          <div style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #00d2ff; font-weight: 700;">Ganancia Potencial</div>
+            <div id="pr-res-gain" style="font-size: 0.95rem; font-weight: 700; color: #00d2ff;">+$0 COP</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.25); border-radius: 6px; padding: 8px; font-size: 0.74rem;">
+          <div style="font-weight: 700; color: #ffd166; margin-bottom: 4px;">💡 RECOMENDACIÓN ESTRATÉGICA DE PRICING:</div>
+          <div id="pr-res-action-plan" style="color: #e2e8f0;"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closePricingElasticityModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: SIMULADOR DE CRÉDITO & AMORTIZACIÓN (#42)         -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="credit-amortization-modal">
+    <div class="modal-card" style="max-width: 860px;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #14b8a6; border-color: rgba(20, 184, 166, 0.4); background: rgba(20, 184, 166, 0.12);">💳</div>
+        <div class="modal-title">
+          <h2>Simulador de Créditos Bancarios & Optimización de Deuda</h2>
+          <p>Sistemas Francés (cuota fija) vs Alemán, auditoría de usura SuperFinanciera y ahorro con abonos extraordinarios</p>
+        </div>
+        <button class="modal-close" onclick="closeCreditAmortizationModal()">&times;</button>
+      </div>
+
+      <!-- Presets de Créditos -->
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: #94a3b8; align-self: center;">Créditos Frecuentes:</span>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadCreditPreset('Capital de Trabajo Bancolombia', 40000000, 18.5, 36, 'french', 500000)">Comercial 40M (Con Abono 500k)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadCreditPreset('Libre Inversión Personal', 20000000, 22.0, 48, 'french', 0)">Libre Inversión 20M (Sin Abonos)</button>
+        <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="loadCreditPreset('Línea Productiva Finagro', 80000000, 14.5, 60, 'german', 1000000)">Línea Productiva 80M (Alemán)</button>
+      </div>
+
+      <!-- Formulario de Crédito -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(20, 184, 166, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Monto del Préstamo ($):</label>
+            <input type="number" id="cr-principal-input" value="40000000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Tasa de Interés (% E.A.):</label>
+            <input type="number" id="cr-rate-input" value="18.5" step="0.1" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Plazo (Meses):</label>
+            <input type="number" id="cr-term-input" value="36" min="1" max="360" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Sistema de Amortización:</label>
+            <select id="cr-system-input" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;">
+              <option value="french" selected>Francés (Cuota Fija)</option>
+              <option value="german">Alemán (Abono Constante)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Abono Extraordinario Mensual a Capital ($):</label>
+            <input type="number" id="cr-prepay-input" value="500000" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Nombre del Crédito:</label>
+            <input type="text" id="cr-name-input" value="Capital de Trabajo Bancolombia" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.8rem;" />
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-primary" style="flex: 1; padding: 8px; font-size: 0.82rem; background: linear-gradient(135deg, #14b8a6, #0d9488); border-color: #14b8a6;" onclick="submitCreditAmortization()">Simular Tabla de Amortización & Ahorro de Intereses</button>
+      </div>
+
+      <!-- Panel de Resultados -->
+      <div id="cr-results-panel" style="display: none; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(20, 184, 166, 0.35); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div>
+            <span id="cr-res-name" style="font-size: 0.95rem; font-weight: 800; color: #14b8a6;">Crédito</span>
+            <div id="cr-res-usury" style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">Conformidad SuperFinanciera</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.68rem; color: #94a3b8; display: block;">CUOTA MENSUAL INICIAL</span>
+            <span id="cr-res-payment" style="font-size: 1.1rem; font-weight: 800; color: #00f0ff;">$0 COP</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center;">
+          <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #94a3b8;">Total Intereses</div>
+            <div id="cr-res-interest" style="font-size: 0.95rem; font-weight: 700; color: #ef4444;">$0 COP</div>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #10b981; font-weight: 700;">Intereses Ahorrados</div>
+            <div id="cr-res-saved" style="font-size: 0.95rem; font-weight: 700; color: #10b981;">$0 COP</div>
+          </div>
+          <div style="background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.3); padding: 8px; border-radius: 6px;">
+            <div style="font-size: 0.68rem; color: #00d2ff; font-weight: 700;">Meses Reducidos</div>
+            <div id="cr-res-months" style="font-size: 0.95rem; font-weight: 700; color: #00d2ff;">0 meses</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.25); border-radius: 6px; padding: 8px; font-size: 0.74rem;">
+          <div style="font-weight: 700; color: #ffd166; margin-bottom: 4px;">⚖️ COMPARATIVO FRANCÉS VS ALEMÁN:</div>
+          <div id="cr-res-compare" style="color: #e2e8f0; line-height: 1.4;"></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeCreditAmortizationModal()">Cerrar</button>
       </div>
     </div>
   </div>
@@ -14854,7 +15065,7 @@ Tus habilidades clave:
             });
 
             if (countPill) {
-              countPill.textContent = `${visibleCount} / 40 MÓDULOS`;
+              countPill.textContent = `${visibleCount} / 42 MÓDULOS`;
               countPill.style.color = visibleCount > 0 ? "#00d2ff" : "#ef4444";
               countPill.style.borderColor = visibleCount > 0 ? "rgba(0, 210, 255, 0.45)" : "rgba(239, 68, 68, 0.5)";
             }
@@ -17963,6 +18174,18 @@ const cardEsg = document.getElementById("hud-card-esg");
         if (cardMonteCarlo) cardMonteCarlo.addEventListener("click", () => {
           document.getElementById("hud-interfaces-modal")?.classList.remove("active");
           window.openMonteCarloModal();
+        });
+
+        const cardPricing = document.getElementById("hud-card-pricing-elasticity");
+        if (cardPricing) cardPricing.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openPricingElasticityModal();
+        });
+
+        const cardCredit = document.getElementById("hud-card-credit-amortization");
+        if (cardCredit) cardCredit.addEventListener("click", () => {
+          document.getElementById("hud-interfaces-modal")?.classList.remove("active");
+          window.openCreditAmortizationModal();
         });
 
 

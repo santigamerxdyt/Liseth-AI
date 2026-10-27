@@ -1068,6 +1068,42 @@ SYSTEM_TOOL_DECLARATIONS: List[Dict[str, Any]] = [
             },
             "required": ["initial_investment", "mean_annual_revenue"]
         }
+    },
+    {
+        "name": "pricing_elasticity",
+        "description": "Estrategia de Precios y Elasticidad de la Demanda: evalúa el coeficiente de elasticidad precio (Ed), clasifica la sensibilidad de la demanda (inelástica, elástica, unitaria), calcula el precio óptimo mediante la regla de Lerner (P* = MC / (1 + 1/Ed)) y simula curvas de variación de precios (-20% a +20%) con impacto en margen de contribución y EBITDA.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "product_name": {"type": "STRING", "description": "Nombre del producto, línea o servicio"},
+                "current_price": {"type": "NUMBER", "description": "Precio unitario de venta actual"},
+                "unit_marginal_cost": {"type": "NUMBER", "description": "Costo marginal o costo variable unitario"},
+                "current_monthly_units": {"type": "NUMBER", "description": "Volumen de ventas mensual actual en unidades"},
+                "price_elasticity": {"type": "NUMBER", "description": "Coeficiente de elasticidad precio estimado (ej: -1.4)"},
+                "test_price": {"type": "NUMBER", "description": "Precio de prueba histórico o proyectado"},
+                "test_volume": {"type": "NUMBER", "description": "Volumen de prueba asociado al precio de prueba"},
+                "currency": {"type": "STRING", "description": "Moneda: COP o USD"}
+            },
+            "required": ["current_price", "unit_marginal_cost"]
+        }
+    },
+    {
+        "name": "credit_amortization",
+        "description": "Simulador de Créditos y Optimización de Deuda Bancaria: genera tablas de amortización en Sistema Francés (cuota fija) y Alemán (abono constante a capital), convierte tasa Efectiva Anual (E.A.) a tasa mensual periódica, audita el límite de usura de la SuperFinanciera y calcula el ahorro de intereses y meses reducidos mediante abonos extraordinarios inteligentes.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "loan_name": {"type": "STRING", "description": "Nombre o concepto del crédito (ej: Préstamo Bancolombia, Capital de Trabajo)"},
+                "principal_amount": {"type": "NUMBER", "description": "Monto del capital solicitado o saldo adeudado"},
+                "annual_interest_rate_ea_pct": {"type": "NUMBER", "description": "Tasa de interés Efectiva Anual en porcentaje (ej: 19.5 para 19.5% E.A.)"},
+                "term_months": {"type": "INTEGER", "description": "Plazo pactado en meses (ej: 36)"},
+                "amortization_system": {"type": "STRING", "description": "french (cuota fija) | german (abono constante a capital)"},
+                "extra_monthly_prepayment": {"type": "NUMBER", "description": "Abono mensual extraordinario a capital (ej: 500000)"},
+                "prepayment_strategy": {"type": "STRING", "description": "reduce_term (reducir plazo) | reduce_payment (reducir cuota)"},
+                "currency": {"type": "STRING", "description": "Moneda: COP o USD"}
+            },
+            "required": ["principal_amount", "annual_interest_rate_ea_pct"]
+        }
     }
 ]
 
@@ -1516,6 +1552,16 @@ class ActionDispatcher:
             elif name in ("monte_carlo_simulation", "simulacion_monte_carlo", "monte_carlo", "stress_testing", "var_financiero", "riesgo_estocastico"):
                 from app.actions.monte_carlo_action import monte_carlo_action
                 res = monte_carlo_action(parameters=args)
+                return res
+
+            elif name in ("pricing_elasticity", "elasticidad_precio", "fijacion_precios", "precio_optimo", "regla_lerner"):
+                from app.actions.pricing_elasticity_action import pricing_elasticity_action
+                res = pricing_elasticity_action(parameters=args)
+                return res
+
+            elif name in ("credit_amortization", "simulador_credito", "tabla_amortizacion", "prestamo_bancario", "abono_capital", "tasa_usura"):
+                from app.actions.credit_amortization_action import credit_amortization_action
+                res = credit_amortization_action(parameters=args)
                 return res
 
             else:

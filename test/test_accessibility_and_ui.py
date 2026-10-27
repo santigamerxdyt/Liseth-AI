@@ -1,6 +1,6 @@
 """
 Test suite verifying the Stark Mark 85 Universal Accessibility (WCAG 2.1 AA/AAA)
-and Visual HUD Enhancements for Liseth (36 Tactical Modules).
+and Visual HUD Enhancements for Liseth (42 Tactical Modules).
 """
 from pathlib import Path
 import re
@@ -108,7 +108,7 @@ def test_hud_modules_prominence_and_chips():
 
     # Quick chip in main view
     assert 'id="btn-quick-hud-modules"' in content
-    assert '40 Módulos HUD' in content
+    assert '42 Módulos HUD' in content
 
     # Responsive styles
     assert "max-width: 1480px" in content
@@ -116,7 +116,7 @@ def test_hud_modules_prominence_and_chips():
 
 
 def test_hud_modules_search_and_finance_tab():
-    """Verify search input, finance tab, and all 40 cards availability."""
+    """Verify search input, finance tab, and all 42 cards availability."""
     content = JARVIS_HTML.read_text(encoding="utf-8")
     assert 'id="hud-modules-search"' in content
     assert 'id="hud-visible-count-pill"' in content
@@ -124,9 +124,9 @@ def test_hud_modules_search_and_finance_tab():
     assert "window.openHudModal" in content
     assert "filterHudModules" in content
 
-    # Verify all 40 cards exist
+    # Verify all 42 cards exist
     cards = re.findall(r'id="(hud-card-[^"]*)"', content)
-    assert len(cards) == 40, f"Expected 40 cards, found {len(cards)}"
+    assert len(cards) == 42, f"Expected 42 cards, found {len(cards)}"
 
     # Specific check for newly added modules
     assert 'id="hud-card-marketing"' in content
@@ -139,6 +139,8 @@ def test_hud_modules_search_and_finance_tab():
     assert 'id="hud-card-dividend-screener"' in content
     assert 'id="hud-card-bank-reconciliation"' in content
     assert 'id="hud-card-monte-carlo"' in content
+    assert 'id="hud-card-pricing-elasticity"' in content
+    assert 'id="hud-card-credit-amortization"' in content
     assert 'id="marketing-modal"' in content
     assert 'id="talent-modal"' in content
     assert 'id="forex-modal"' in content
@@ -148,6 +150,8 @@ def test_hud_modules_search_and_finance_tab():
     assert 'id="dividend-screener-modal"' in content
     assert 'id="bank-reconciliation-modal"' in content
     assert 'id="monte-carlo-modal"' in content
+    assert 'id="pricing-elasticity-modal"' in content
+    assert 'id="credit-amortization-modal"' in content
     assert "window.openMarketingModal" in content
     assert "window.openTalentModal" in content
     assert "window.openForexModal" in content
@@ -157,3 +161,5 @@ def test_hud_modules_search_and_finance_tab():
     assert "window.openDividendScreenerModal" in content
     assert "window.openBankReconciliationModal" in content
     assert "window.openMonteCarloModal" in content
+    assert "window.openPricingElasticityModal" in content
+    assert "window.openCreditAmortizationModal" in content

@@ -28,6 +28,8 @@ from app.services.stock_trading_service import stock_trading_service
 from app.services.dividend_screener_service import dividend_screener_service
 from app.services.bank_reconciliation_service import bank_reconciliation_service
 from app.services.monte_carlo_service import monte_carlo_service
+from app.services.pricing_elasticity_service import pricing_elasticity_service
+from app.services.credit_amortization_service import credit_amortization_service
 
 
 
@@ -639,6 +641,61 @@ async def simulate_monte_carlo_endpoint(req: MonteCarloRequest):
         currency=req.currency
     )
     return {"ok": True, "simulation": res}
+
+
+# ─── ESTRATEGIA DE PRECIOS & ELASTICIDAD DE DEMANDA ───
+class PricingElasticityRequest(BaseModel):
+    product_name: str = Field(default="Producto / Servicio")
+    current_price: float = Field(..., gt=0)
+    unit_marginal_cost: float = Field(..., ge=0)
+    current_monthly_units: float = Field(default=1000.0, gt=0)
+    price_elasticity: Optional[float] = None
+    test_price: Optional[float] = None
+    test_volume: Optional[float] = None
+    currency: str = Field(default="COP")
+
+
+@router.post("/pricing/elasticity")
+async def evaluate_pricing_endpoint(req: PricingElasticityRequest):
+    res = pricing_elasticity_service.evaluate_pricing_strategy(
+        product_name=req.product_name,
+        current_price=req.current_price,
+        unit_marginal_cost=req.unit_marginal_cost,
+        current_monthly_units=req.current_monthly_units,
+        price_elasticity=req.price_elasticity,
+        test_price=req.test_price,
+        test_volume=req.test_volume,
+        currency=req.currency
+    )
+    return {"ok": True, "pricing": res}
+
+
+# ─── SIMULADOR DE CRÉDITOS & OPTIMIZACIÓN DE DEUDA ───
+class CreditAmortizationRequest(BaseModel):
+    loan_name: str = Field(default="Crédito Comercial / Libre Inversión")
+    principal_amount: float = Field(..., gt=0)
+    annual_interest_rate_ea_pct: float = Field(..., gt=0)
+    term_months: int = Field(default=36, ge=1, le=360)
+    amortization_system: str = Field(default="french")
+    extra_monthly_prepayment: float = Field(default=0.0, ge=0)
+    prepayment_strategy: str = Field(default="reduce_term")
+    currency: str = Field(default="COP")
+
+
+@router.post("/credit/amortization")
+async def calculate_credit_endpoint(req: CreditAmortizationRequest):
+    res = credit_amortization_service.calculate_amortization(
+        loan_name=req.loan_name,
+        principal_amount=req.principal_amount,
+        annual_interest_rate_ea_pct=req.annual_interest_rate_ea_pct,
+        term_months=req.term_months,
+        amortization_system=req.amortization_system,
+        extra_monthly_prepayment=req.extra_monthly_prepayment,
+        prepayment_strategy=req.prepayment_strategy,
+        currency=req.currency
+    )
+    return {"ok": True, "amortization": res}
+
 
 
 

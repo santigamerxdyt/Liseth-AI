@@ -928,6 +928,26 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Conciliacion Bancaria & GMF (4x1000)", "Pida a Liseth: 'Concilia mi extracto de Bancolombia con saldo de 45 millones contra libros de 42.5 millones, depositos en transito de 5 millones y cheques pendientes de 7.2 millones' para cuadre y beneficio tributario.", "Tesoreria & Auditoria Bancaria")
     builder.add_command_box("Simulacion Monte Carlo de Inversiones (10K Trials)", "Pida a Liseth: 'Ejecuta simulacion Monte Carlo para proyecto de 60 millones con ingresos de 42 millones desv 5 millones y WACC del 11%' para calcular P(VAN > 0) y Value at Risk.", "Stress Testing Monte Carlo")
 
+    # ───
+    # SECCIÓN 35: ESTRATEGIA DE PRECIOS & ELASTICIDAD PED, Y SIMULADOR DE CRÉDITOS / AMORTIZACIÓN (42 MÓDULOS)
+    # ───
+    builder.add_section_header("35. Estrategia de Precios, Elasticidad PED y Simulador de Creditos (42 Modulos)")
+    builder.add_paragraph(
+        "Liseth alcanza la cifra cumbre de 42 modulos tacticos HUD integrando dos avanzadas herramientas de gestion gerencial y financiera cuantitativa: "
+        "(1) Estrategia de Precios, Elasticidad Precio de la Demanda (PED) & Lerner Markup: Diagnostico microeconomico riguroso que determina el coeficiente de elasticidad arco "
+        "Ed = [(Q2 - Q1) / ((Q1 + Q2)/2)] / [(P2 - P1) / ((P1 + P2)/2)], clasificando la demanda entre Inelastica (|Ed| < 1), Elastica (|Ed| > 1) o Unitaria (|Ed| = 1). "
+        "Calcula la sensibilidad del ingreso total (Price Sensitivity), el precio teorico optimo mediante la Regla del Indice de Lerner P* = MC / (1 + 1/Ed) y simula "
+        "la curva de impacto en ingresos y margen de contribucion para variaciones de precio desde -20% hasta +20%. "
+        "(2) Simulador de Creditos, Amortizacion Francesa/Alemana y Alerta de Usura SuperFinanciera: Motor financiero corporativo que compara de manera simultanea "
+        "el Sistema Frances (cuota mensual fija y abono creciente a capital) frente al Sistema Aleman (abono constante a capital y cuota mensual decreciente), "
+        "mostrando el ahorro real en intereses totales. Realiza la conversion exacta de tasas mediante la formula de interes compuesto i_mv = (1 + EA)^(1/12) - 1, "
+        "audita la tasa contra el limite legal de Usura de la SuperFinanciera (Art. 305 del Codigo Penal Colombiano, ~28.25% E.A.) y computa el beneficio de "
+        "abonos extraordinarios directos a capital para reduccion de plazo o cuota mensual:",
+        size=9.0
+    )
+    builder.add_command_box("Elasticidad de Precios & Lerner Markup", "Pida a Liseth: 'Calcula elasticidad con precio de 50.000 a 55.000 pesos, demanda de 1.000 a 920 unidades y costo marginal de 28.000' para optimizar ingresos y precio optimo.", "Pricing Strategy & Elasticidad PED")
+    builder.add_command_box("Simulador de Creditos Frances vs Aleman", "Pida a Liseth: 'Simula un credito de 40 millones a 36 meses con tasa del 18.5% EA y abono extra de 5 millones en mes 6' para comparar cuotas y auditar tasa de usura.", "Finanzas Bancarias & Amortizacion")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "
