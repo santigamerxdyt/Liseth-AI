@@ -168,7 +168,21 @@ class SoulService:
                 skills_summary.append(f"- **{s['name']}**: {s['description']}")
             sections.append("\n".join(skills_summary))
 
-        # 5. Custom instruction
+        # 5. Temporal context & live web rules
+        from datetime import datetime
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d %H:%M")
+        temporal_context = (
+            f"### CONTEXTO TEMPORAL Y NAVEGACIÓN EN TIEMPO REAL:\n"
+            f"- Fecha y hora actual del sistema: {now_str}.\n"
+            f"- Año en curso: {now.year}.\n"
+            f"- Dispones de la herramienta 'web_search' para consultar información verídica, noticias recientes, "
+            f"cotizaciones y hechos actualizados de internet. Siempre que la consulta requiera datos frescos o verificación, "
+            f"ejecuta la búsqueda web y cita las fuentes correspondientes con enlaces."
+        )
+        sections.append(temporal_context)
+
+        # 6. Custom instruction
         if custom_prompt:
             sections.append(f"### INSTRUCCIONES ESPECÍFICAS DE LA CONSULTA:\n{custom_prompt}")
 

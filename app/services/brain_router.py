@@ -984,6 +984,61 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
             "Abriendo la Bóveda Central de Autenticadores y APIs para usted, señor Santiago."
         )
 
+    # 33m. Real-Time Truthful Web Search & Live Internet Grounding ("busca en internet", "noticias de hoy", "precio de")
+    # News queries: "noticias de hoy", "ultimas noticias de/sobre", "noticias recientes de"
+    if any(k in norm for k in [
+        "ultimas noticias sobre", "ultimas noticias de", "noticias recientes de",
+        "noticias recientes sobre", "noticias de hoy sobre", "noticias de hoy de",
+        "noticias de hoy", "que paso hoy con", "que paso con", "que sucedio con",
+        "que ha pasado con", "noticias sobre", "noticias de "
+    ]):
+        q_news = re.sub(
+            r"^(?:.*?)(?:ultimas noticias(?: de| sobre)?|noticias recientes(?: de| sobre)?|noticias de hoy(?: de| sobre)?|noticias(?: de| sobre)?|que paso hoy con|que paso con|que sucedio con|que ha pasado con)\s*",
+            "", cleaned, flags=re.IGNORECASE
+        ).strip()
+        return (
+            "web_search",
+            {"query": q_news or cleaned, "mode": "news"},
+            f"Consultando las últimas noticias verificadas sobre '{q_news or cleaned}' en tiempo real, señor Santiago..."
+        )
+
+    # Price / Market / Asset quotes: "precio actual de", "precio de hoy de", "cotizacion de", "cuanto vale hoy", "cuanto cuesta hoy"
+    if any(k in norm for k in [
+        "precio actual de", "precio de hoy de", "cotizacion actual de", "cotizacion de",
+        "cuanto vale hoy", "cuanto cuesta hoy", "precio del dolar hoy", "cotizacion del dolar",
+        "precio de mercado de", "valor actual de", "precio de "
+    ]) and not any(ign in norm for ign in ["foda", "canvas", "porter", "van", "tir", "wacc"]):
+        q_price = re.sub(
+            r"^(?:.*?)(?:precio actual de|precio de hoy de|cotizacion actual de|cotizacion de|cuanto vale hoy|cuanto cuesta hoy|precio del dolar hoy|cotizacion del dolar|precio de mercado de|valor actual de|precio de)\s*",
+            "", cleaned, flags=re.IGNORECASE
+        ).strip()
+        return (
+            "web_search",
+            {"query": q_price or cleaned, "mode": "price"},
+            f"Consultando cotización y precio de mercado en tiempo real para '{q_price or cleaned}', señor Santiago..."
+        )
+
+    # Web search & Live Internet Information: "busca en internet", "busca en la web", "busca en google", "informacion reciente de", "informacion veridica de"
+    if any(k in norm for k in [
+        "busca en internet sobre", "busca en internet de", "busca en internet",
+        "buscar en internet", "busca en la web sobre", "busca en la web",
+        "buscar en la web", "busca en google sobre", "busca en google de",
+        "busca en google", "buscar en google", "consulta en internet",
+        "informacion reciente de", "informacion reciente sobre", "informacion veridica de",
+        "informacion veridica sobre", "investiga en internet sobre", "investiga en internet",
+        "busca en la red", "buscar en la red"
+    ]):
+        q_search = re.sub(
+            r"^(?:.*?)(?:busca(?:r)? en internet(?: sobre| de)?|busca(?:r)? en la web(?: sobre| de)?|busca(?:r)? en google(?: sobre| de)?|consulta en internet(?: sobre| de)?|informacion reciente(?: de| sobre)?|informacion veridica(?: de| sobre)?|investiga(?:r)? en internet(?: sobre| de)?|busca(?:r)? en la red(?: sobre| de)?)\s*",
+            "", cleaned, flags=re.IGNORECASE
+        ).strip()
+        mode_search = "research" if any(w in norm for w in ["investiga", "profund", "completo", "analisis"]) else "search"
+        return (
+            "web_search",
+            {"query": q_search or cleaned, "mode": mode_search},
+            f"Buscando información reciente y verídica en internet sobre '{q_search or cleaned}', señor Santiago..."
+        )
+
     # 34. Open App / Program: "abre la calculadora", "abrir bloc de notas", "inicia chrome"
     m_open = _RE_OPEN_APP.match(norm)
     if m_open:
@@ -1762,6 +1817,11 @@ class BrainRouter:
                         reply_text = f"Señor Santiago: {tool_res}"
                     elif tool_name == "undo":
                         reply_text = f"{tool_res}, señor Santiago."
+                    elif tool_name in ("web_search", "academic_research", "business_strategy", "business_finance", "academic_helper", "data_ml_toolkit", "workspace_automation", "unal_pensum", "reverse_engineer", "ego_browser", "vercel_skills", "security_audit", "slopmonster", "git_sync"):
+                        if isinstance(tool_res, str) and tool_res.strip() and not tool_res.startswith("Error"):
+                            reply_text = f"{default_reply}\n\n{tool_res.strip()}"
+                        else:
+                            reply_text = default_reply
                     elif "Error" in tool_res:
                         reply_text = f"Señor Santiago, intenté realizar la acción pero se presentó un aviso: {tool_res}"
                     else:

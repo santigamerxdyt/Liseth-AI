@@ -1308,7 +1308,7 @@ class ActionDispatcher:
                     gpu_str = f", GPU al {gpu:.0f}%" if gpu >= 0 else ""
                     temp_str = f", Temperatura {temp:.1f}°C" if temp > 0 else ""
                     return f"Telemetría actual del sistema: CPU al {cpu:.1f}%, RAM al {ram:.1f}%, Disco al {disk:.1f}%{gpu_str}{temp_str}."
-                res = await loop.run_in_executor(None, _get_telemetry)
+                res = _get_telemetry()
                 return res
 
             elif name == "undo":

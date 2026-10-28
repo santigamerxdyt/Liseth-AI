@@ -23,6 +23,7 @@ _CPU_STREAK = 3
 # ── NVML DLL cache (Windows: nvml.dll, Linux: libnvidia-ml.so.1) ─────────────
 _nvml_lib: object = None
 _nvml_ok:  object = None   # None=untested  True=works  False=unavailable
+_temp_ok:  object = None   # None=untested  True=works  False=unavailable
 
 
 def _nvml_gpu() -> float:
@@ -70,6 +71,9 @@ def _nvml_gpu() -> float:
 
 
 def _get_gpu_usage() -> float:
+    global _nvml_ok
+    if _nvml_ok is False:
+        return -1.0
     # pynvml — subprocess-free, works everywhere if installed
     try:
         import pynvml  # type: ignore
@@ -83,30 +87,53 @@ def _get_gpu_usage() -> float:
 
 
 def _get_cpu_temp() -> float:
+    global _temp_ok
+    if _temp_ok is False:
+        return -1.0
+
     # psutil — works on Linux; occasionally Windows with proper drivers
     try:
         temps = psutil.sensors_temperatures()
         for name in ["coretemp", "k10temp", "cpu_thermal", "acpitz",
                      "cpu-thermal", "zenpower", "it8688"]:
             if name in temps and temps[name]:
+                _temp_ok = True
                 return temps[name][0].current
         for entries in temps.values():
             if entries:
+                _temp_ok = True
                 return entries[0].current
     except Exception:
         pass
 
     # Windows: wmi module (pure Python COM, zero subprocess)
     if _OS == "Windows":
-        try:
-            import wmi  # type: ignore
-            w = wmi.WMI(namespace="root/wmi")
-            tz = w.MSAcpi_ThermalZoneTemperature()
-            if tz:
-                return (tz[0].CurrentTemperature / 10.0) - 273.15
-        except Exception:
-            pass
+        def _read_wmi():
+            try:
+                import wmi  # type: ignore
+                w = wmi.WMI(namespace="root/wmi")
+                tz = w.MSAcpi_ThermalZoneTemperature()
+                if tz:
+                    return (tz[0].CurrentTemperature / 10.0) - 273.15
+            except Exception:
+                pass
+            return -1.0
 
+        import threading
+        box = [-1.0]
+        def _target():
+            box[0] = _read_wmi()
+        t = threading.Thread(target=_target, daemon=True)
+        t.start()
+        t.join(0.3)
+        res = box[0]
+        if res <= 0:
+            _temp_ok = False
+        else:
+            _temp_ok = True
+        return res
+
+    _temp_ok = False
     return -1.0
 
 

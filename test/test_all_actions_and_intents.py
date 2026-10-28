@@ -101,6 +101,9 @@ def test_detect_direct_intents_comprehensive():
         ("rutina de cierre", "execute_routine", "routine", "wrap_up"),
         ("que hiciste hoy", "daily_debrief", "action", "summary"),
         ("bitacora de hoy", "daily_debrief", "action", "summary"),
+        ("busca en internet sobre computacion cuantica", "web_search", "query", "computacion cuantica"),
+        ("noticias de hoy sobre tecnologia", "web_search", "query", "tecnologia"),
+        ("precio actual de bitcoin", "web_search", "query", "bitcoin"),
     ]
 
     for user_input, expected_tool, expected_key, expected_val in cases:
