@@ -295,6 +295,8 @@ async def health_check():
 
 
 @app.get("/", tags=["frontend"])
+@app.get("/index.html", tags=["frontend"], include_in_schema=False)
+@app.get("/jarvis.html", tags=["frontend"], include_in_schema=False)
 async def serve_index():
     """Serves the main Liseth frontend HTML with fresh cache headers."""
     root_index = BASE_DIR / "index.html"
@@ -309,6 +311,14 @@ async def serve_index():
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
+
+
+@app.get("/manifest.json", include_in_schema=False)
+async def serve_manifest():
+    manifest_file = BASE_DIR / "manifest.json"
+    if manifest_file.exists():
+        return FileResponse(manifest_file, media_type="application/manifest+json")
+    return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 @app.get("/liseth.ico", include_in_schema=False)
