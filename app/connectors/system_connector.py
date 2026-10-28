@@ -234,27 +234,36 @@ class SystemConnector(BaseConnector):
         if not app_name:
             raise ValueError("Nombre de la aplicación no especificado.")
 
+        # Security check: disallow command chaining & shell injection characters
+        if any(c in app_name for c in [";", "&", "|", "`", "$", "\n", "\r", "<", ">", "^"]):
+            raise ValueError(f"Caracteres de comando no permitidos en el nombre de la aplicación: {app_name}")
+        for a in args:
+            if any(c in str(a) for c in [";", "&", "|", "`", "$", "\n", "\r", "<", ">", "^"]):
+                raise ValueError(f"Caracteres no permitidos en argumento de aplicación: {a}")
+
         # If it's a URL or recognized protocol
         if app_name.startswith("http://") or app_name.startswith("https://"):
             try:
                 os.startfile(app_name)
                 return {"ok": True, "action": "open_url", "target": app_name}
             except Exception as e:
-                # Fallback to start command via powershell
-                await asyncio.create_subprocess_exec("powershell.exe", "-Command", f"Start-Process '{app_name}'")
+                # Fallback to start command via powershell without raw shell string
+                await asyncio.create_subprocess_exec(
+                    "powershell.exe", "-NoProfile", "-NonInteractive", "Start-Process", app_name
+                )
                 return {"ok": True, "action": "open_url_powershell", "target": app_name}
 
         # Local application or executable
         try:
             full_cmd = [app_name] + [str(a) for a in args]
-            subprocess.Popen(full_cmd, shell=True)
+            subprocess.Popen(full_cmd, shell=False)
             return {"ok": True, "action": "launch_app", "target": app_name, "args": args}
         except Exception as e:
             logger.warning(f"Fallo Popen para {app_name}, intentando Start-Process: {e}")
-            cmd = f"Start-Process '{app_name}'"
+            ps_args = ["powershell.exe", "-NoProfile", "-NonInteractive", "Start-Process", app_name]
             if args:
-                cmd += f" -ArgumentList '{' '.join(args)}'"
-            await asyncio.create_subprocess_exec("powershell.exe", "-Command", cmd)
+                ps_args.extend(["-ArgumentList", ",".join(f"'{str(a)}'" for a in args)])
+            await asyncio.create_subprocess_exec(*ps_args)
             return {"ok": True, "action": "launch_powershell", "target": app_name}
 
     async def _exec_write_file(self, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -266,6 +275,11 @@ class SystemConnector(BaseConnector):
             raise ValueError("Ruta de archivo no especificada.")
 
         target = Path(file_path).resolve()
+
+        # Security check: disallow modifying protected Windows / OS system directories
+        _sys_root = Path(os.environ.get("SystemRoot", r"C:\Windows")).resolve()
+        if target == _sys_root or target.is_relative_to(_sys_root):
+            raise PermissionError(f"Operación bloqueada por seguridad: no se permite modificar archivos en '{_sys_root}'.")
         target.parent.mkdir(parents=True, exist_ok=True)
 
         mode = "a" if append else "w"
@@ -285,6 +299,11 @@ class SystemConnector(BaseConnector):
             raise ValueError("Ruta de archivo no especificada.")
 
         target = Path(file_path).resolve()
+
+        # Security check: disallow deleting protected Windows / OS system directories
+        _sys_root = Path(os.environ.get("SystemRoot", r"C:\Windows")).resolve()
+        if target == _sys_root or target.is_relative_to(_sys_root):
+            raise PermissionError(f"Operación bloqueada por seguridad: no se permite eliminar archivos en '{_sys_root}'.")
         if not target.exists():
             raise FileNotFoundError(f"El archivo '{file_path}' no existe.")
 

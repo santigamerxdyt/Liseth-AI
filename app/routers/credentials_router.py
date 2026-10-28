@@ -40,6 +40,14 @@ def update_env_file(updates: Dict[str, str]) -> None:
     Safely updates or appends environment variables to .env on disk.
     Preserves existing structure and comments.
     """
+    # Security: validate key names and clean newlines
+    for k, v in list(updates.items()):
+        if not re.match(r"^[A-Z0-9_]{1,64}$", k):
+            logger.warning(f"[SECURITY] Clave de entorno no permitida: {k}")
+            updates.pop(k, None)
+            continue
+        if "\n" in str(v) or "\r" in str(v):
+            updates[k] = str(v).replace("\r", "").replace("\n", " ").strip()
     env_file = Path(ENV_PATH)
     lines = []
     if env_file.exists():
@@ -376,8 +384,9 @@ async def update_credentials(req: CredentialsUpdateRequest, request: Request):
     """
     if not is_authenticated(request):
         # Allow initial setup if PIN is provided in payload
+        import hmac
         payload_pin = req.credentials.get("JARVIS_ACCESS_PIN")
-        if not payload_pin or payload_pin != settings.JARVIS_ACCESS_PIN:
+        if not payload_pin or not hmac.compare_digest(str(payload_pin), str(settings.JARVIS_ACCESS_PIN)):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Se requiere autorización o PIN válido para guardar credenciales en el servidor."

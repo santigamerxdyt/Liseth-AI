@@ -1099,6 +1099,12 @@ class BrainRouter:
             or self._http_client_loop != loop
             or (self._http_client_loop and self._http_client_loop.is_closed())
         ):
+            if self._http_client and not self._http_client.is_closed:
+                try:
+                    if loop and not loop.is_closed() and loop.is_running():
+                        asyncio.create_task(self._http_client.aclose())
+                except Exception:
+                    pass
             self._http_client = httpx.AsyncClient(
                 timeout=httpx.Timeout(timeout, connect=5.0),
                 limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),

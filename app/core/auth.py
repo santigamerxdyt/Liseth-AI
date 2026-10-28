@@ -28,6 +28,18 @@ _lockouts: Dict[str, float] = {}
 MAX_ATTEMPTS = 5
 LOCKOUT_WINDOW_SECONDS = 300  # 5 minutes
 SESSION_EXPIRATION_SECONDS = 86400 * 7  # 7 days
+MAX_TRACKED_IPS = 1000  # Cap rate-limiter in-memory storage to prevent unbounded growth
+
+
+def _prune_ip_cache(now: float) -> None:
+    if len(_failed_attempts) > MAX_TRACKED_IPS:
+        stale_ips = [
+            ip for ip, times in _failed_attempts.items()
+            if not times or (now - max(times) >= LOCKOUT_WINDOW_SECONDS)
+        ]
+        for ip in stale_ips:
+            _failed_attempts.pop(ip, None)
+            _lockouts.pop(ip, None)
 
 
 def _get_client_ip(request: Request) -> str:
@@ -45,6 +57,7 @@ def check_rate_limit(ip: str) -> Tuple[bool, int]:
     Returns: (is_blocked, remaining_seconds)
     """
     now = time.time()
+    _prune_ip_cache(now)
     lockout_expiry = _lockouts.get(ip, 0)
     if now < lockout_expiry:
         return True, int(lockout_expiry - now)

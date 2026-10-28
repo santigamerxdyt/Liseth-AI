@@ -4,6 +4,7 @@ Verifies hardware telemetry, process query, and mandatory confirmation intercept
 for modifying/executing actions (commands, apps, files).
 """
 import pytest
+import tempfile
 from pathlib import Path
 from fastapi.testclient import TestClient
 from app.main import app
@@ -26,17 +27,19 @@ async def test_system_info_telemetry():
 
 
 @pytest.mark.asyncio
-async def test_system_read_file_and_list_dir(tmp_path):
-    test_file = tmp_path / "test_note.txt"
-    test_file.write_text("Hola Santiago desde test", encoding="utf-8")
+async def test_system_read_file_and_list_dir():
+    with tempfile.TemporaryDirectory() as td:
+        tmp_path = Path(td)
+        test_file = tmp_path / "test_note.txt"
+        test_file.write_text("Hola Santiago desde test", encoding="utf-8")
 
-    read_res = await system_connector.read_file(str(test_file))
-    assert read_res["content"] == "Hola Santiago desde test"
-    assert read_res["size_bytes"] > 0
+        read_res = await system_connector.read_file(str(test_file))
+        assert read_res["content"] == "Hola Santiago desde test"
+        assert read_res["size_bytes"] > 0
 
-    dir_res = await system_connector.list_directory(str(tmp_path))
-    assert dir_res["count"] >= 1
-    assert any(item["name"] == "test_note.txt" for item in dir_res["items"])
+        dir_res = await system_connector.list_directory(str(tmp_path))
+        assert dir_res["count"] >= 1
+        assert any(item["name"] == "test_note.txt" for item in dir_res["items"])
 
 
 @pytest.mark.asyncio
@@ -64,23 +67,25 @@ async def test_sensitive_command_intercepted_by_audit():
 
 
 @pytest.mark.asyncio
-async def test_sensitive_write_file_intercepted_and_executed(tmp_path):
-    target_file = tmp_path / "audit_created.txt"
-    res = await system_connector.execute_action(
-        "system_write_file",
-        {"path": str(target_file), "content": "Contenido protegido"},
-    )
-    assert res.get("pendingConfirmation") is True
-    confirm_id = res["confirmId"]
+async def test_sensitive_write_file_intercepted_and_executed():
+    with tempfile.TemporaryDirectory() as td:
+        tmp_path = Path(td)
+        target_file = tmp_path / "audit_created.txt"
+        res = await system_connector.execute_action(
+            "system_write_file",
+            {"path": str(target_file), "content": "Contenido protegido"},
+        )
+        assert res.get("pendingConfirmation") is True
+        confirm_id = res["confirmId"]
 
-    # Resolve approval
-    resolve_res = await audit_manager.resolve_confirmation(confirm_id, approved=True)
-    assert resolve_res["approved"] is True
-    assert resolve_res["status"] == "executed"
+        # Resolve approval
+        resolve_res = await audit_manager.resolve_confirmation(confirm_id, approved=True)
+        assert resolve_res["approved"] is True
+        assert resolve_res["status"] == "executed"
 
-    # Verify file actually created on disk
-    assert target_file.exists()
-    assert target_file.read_text(encoding="utf-8") == "Contenido protegido"
+        # Verify file actually created on disk
+        assert target_file.exists()
+        assert target_file.read_text(encoding="utf-8") == "Contenido protegido"
 
 
 def test_api_system_info_endpoint():

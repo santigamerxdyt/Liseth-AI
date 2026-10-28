@@ -107,16 +107,21 @@ def _normalize(raw: str) -> str:
 def _launch_windows(app_name: str) -> bool:
     import os
 
+    # Security check: disallow command chaining & shell injection characters
+    if any(c in app_name for c in [";", "&", "|", "`", "$", "\n", "\r", "<", ">", "^"]):
+        print(f"[open_app] [SECURITY] Caracteres no permitidos en app_name: {app_name}")
+        return False
+
     # 1. URL / Protocol handler (e.g. https://, ms-settings:, calc.exe)
     if app_name.startswith("http://") or app_name.startswith("https://") or ":" in app_name:
         try:
             os.startfile(app_name)
-            time.sleep(0.5)
+            time.sleep(0.1)
             return True
         except Exception:
             try:
-                subprocess.Popen(f'start "" "{app_name}"', shell=True)
-                time.sleep(0.5)
+                subprocess.Popen(["cmd.exe", "/c", "start", "", app_name], shell=False)
+                time.sleep(0.1)
                 return True
             except Exception:
                 pass
@@ -124,20 +129,20 @@ def _launch_windows(app_name: str) -> bool:
     # 2. Native os.startfile for registered Windows App Paths & executables
     try:
         os.startfile(app_name)
-        time.sleep(0.5)
+        time.sleep(0.1)
         return True
     except Exception:
         pass
 
-    # 3. Windows cmd start command
+    # 3. Windows cmd start command safely without shell=True
     try:
         subprocess.Popen(
-            f'start "" "{app_name}"',
-            shell=True,
+            ["cmd.exe", "/c", "start", "", app_name],
+            shell=False,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        time.sleep(0.5)
+        time.sleep(0.1)
         return True
     except Exception:
         pass
