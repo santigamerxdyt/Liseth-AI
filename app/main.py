@@ -152,6 +152,7 @@ EXEMPT_API_PATHS = {
     "/api/voice/state",
     "/api/voice/events",
     "/api/voice/toggle",
+    "/api/voice/stop",
     "/api/credentials",
     "/api/credentials/test",
     "/api/nfc/status",

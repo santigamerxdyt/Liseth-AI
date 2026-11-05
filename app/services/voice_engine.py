@@ -99,6 +99,7 @@ class VoiceEngine:
 
         # Lock for safe thread operations
         self._lock = threading.Lock()
+        self._stop_requested: bool = False
 
     def set_event_loop(self, loop: asyncio.AbstractEventLoop):
         self._loop = loop
@@ -159,6 +160,21 @@ class VoiceEngine:
         self.set_state("off", play_chime=False)
         logger.info("[VoiceEngine] Hilo nativo de captura de audio detenido.")
 
+    def stop_speaking(self):
+        """Immediately halts any active speech output on the native mixer and notifies all clients."""
+        self._stop_requested = True
+        try:
+            import pygame
+            if pygame.mixer.get_init():
+                pygame.mixer.music.stop()
+        except Exception as e:
+            logger.debug(f"[VoiceEngine] Error deteniendo pygame mixer: {e}")
+        self.is_speaking = False
+        self.speech_end_time = time.time()
+        self.broadcast_event("speaking", {"isSpeaking": False, "interrupted": True})
+        self.broadcast_event("stop_speaking", {})
+        logger.info("[VoiceEngine] Habla y audio detenidos inmediatamente por orden del usuario.")
+
     def speak(self, text: str, voice: str = "es-CO-SalomeNeural"):
         """Speaks text asynchronously using high-fidelity edge-tts and pygame mixer."""
         threading.Thread(target=self._speak_blocking, args=(text, voice), daemon=True).start()
@@ -166,6 +182,7 @@ class VoiceEngine:
     def _speak_blocking(self, text: str, voice: str = "es-CO-SalomeNeural"):
         if not text or not text.strip():
             return
+        self._stop_requested = False
         self.is_speaking = True
         self.broadcast_event("speaking", {"isSpeaking": True, "text": text})
         try:
@@ -180,13 +197,15 @@ class VoiceEngine:
             async def get_audio_bytes():
                 chunks = []
                 async for chunk in communicate.stream():
+                    if self._stop_requested:
+                        return b""
                     if chunk["type"] == "audio":
                         chunks.append(chunk["data"])
                 return b"".join(chunks)
 
             # Run coroutine safely
             audio_bytes = asyncio.run(get_audio_bytes())
-            if audio_bytes:
+            if audio_bytes and not self._stop_requested:
                 if self._echo_guard:
                     try:
                         sound = pygame.mixer.Sound(io.BytesIO(audio_bytes))
@@ -202,8 +221,10 @@ class VoiceEngine:
                 mp3_fp = io.BytesIO(audio_bytes)
                 pygame.mixer.music.load(mp3_fp)
                 pygame.mixer.music.play()
-                while pygame.mixer.music.get_busy() and self.is_running:
-                    time.sleep(0.08)
+                while pygame.mixer.music.get_busy() and self.is_running and not self._stop_requested:
+                    time.sleep(0.04)
+                if self._stop_requested:
+                    pygame.mixer.music.stop()
         except Exception as e:
             logger.warning(f"[VoiceEngine] Error reproduciendo voz con pygame: {e}")
         finally:
@@ -236,8 +257,14 @@ class VoiceEngine:
         silence_start_time = 0.0
         energy_threshold = 450
 
+        # Buffer para interrupción instantánea mientras Liseth habla ("¡Cállate!")
+        interrupt_buffer = []
+        is_recording_interrupt = False
+        interrupt_silence_start = 0.0
+
         def audio_callback(indata, frames, time_info, status):
             nonlocal is_recording_speech, silence_start_time
+            nonlocal interrupt_buffer, is_recording_interrupt, interrupt_silence_start
 
             if self.state == "off":
                 return
@@ -247,12 +274,27 @@ class VoiceEngine:
             rms = float(np.sqrt(np.mean(chunk.astype(np.float32) ** 2)))
             level = rms / 32768.0
 
-            # ── Acoustic Echo Protection ─────────────────────────────────────
-            # 1. While Liseth is speaking through speakers, mute mic input
+            # ── 1. Interrupción en tiempo real mientras Liseth habla ("¡Cállate!") ──
             if self.is_speaking:
+                # Si el usuario habla por el micrófono con energía suficiente sobre el altavoz
+                if rms > energy_threshold * 1.05:
+                    if not is_recording_interrupt:
+                        is_recording_interrupt = True
+                        interrupt_buffer.clear()
+                    interrupt_buffer.append(chunk.copy())
+                    interrupt_silence_start = 0.0
+                elif is_recording_interrupt:
+                    interrupt_buffer.append(chunk.copy())
+                    if interrupt_silence_start == 0.0:
+                        interrupt_silence_start = time.time()
                 return
+            else:
+                if is_recording_interrupt:
+                    is_recording_interrupt = False
+                    interrupt_buffer.clear()
+                    interrupt_silence_start = 0.0
 
-            # 2. Echo tail window (within 0.5s of speech finishing):
+            # ── 2. Echo tail window (dentro de 0.5s tras terminar de hablar) ────────
             now = time.time()
             if (now - self.speech_end_time) < 0.50:
                 if self._echo_guard:
@@ -288,10 +330,26 @@ class VoiceEngine:
                 callback=audio_callback,
             ):
                 while self.is_running:
-                    time.sleep(0.05)
+                    time.sleep(0.04)
+
+                    # 0. Verificación ultrarrápida de interrupción "cállate" mientras habla
+                    if self.is_speaking and is_recording_interrupt and interrupt_silence_start > 0.0:
+                        if time.time() - interrupt_silence_start > 0.25:
+                            is_recording_interrupt = False
+                            interrupt_silence_start = 0.0
+                            if len(interrupt_buffer) >= 4:
+                                collected_int = np.concatenate(interrupt_buffer)
+                                interrupt_buffer.clear()
+                                threading.Thread(
+                                    target=self._check_and_handle_interrupt,
+                                    args=(collected_int,),
+                                    daemon=True
+                                ).start()
+                            else:
+                                interrupt_buffer.clear()
 
                     # 1. Check for silence completion of spoken phrase
-                    if is_recording_speech and silence_start_time > 0.0:
+                    if not self.is_speaking and is_recording_speech and silence_start_time > 0.0:
                         # Required silence duration: 0.55s in active, 0.75s in standby
                         silence_needed = 0.55 if self.state == "active" else 0.75
                         if time.time() - silence_start_time > silence_needed:
@@ -313,6 +371,28 @@ class VoiceEngine:
         except Exception as e:
             logger.error(f"[VoiceEngine] Error fatal en captura de micrófono: {e}", exc_info=True)
             self.is_running = False
+
+    def _check_and_handle_interrupt(self, pcm_array: np.ndarray):
+        """Transcribes candidate interrupt audio while speaking; stops speaking immediately if 'cállate' is heard."""
+        if not self.is_speaking:
+            return
+        try:
+            raw_bytes = pcm_array.tobytes()
+            audio_data = sr.AudioData(raw_bytes, RATE, 2)
+            text = self._recognizer.recognize_google(audio_data, language="es-CO")
+            norm = normalize_text(text)
+            logger.info(f"[VoiceEngine] Audio detectado mientras hablaba: '{text}' (norm: '{norm}')")
+            stop_triggers = [
+                "callate", "cállate", "silencio", "para", "parar", "detente", "deténte",
+                "stop", "basta", "deja de hablar", "no hables", "shh", "shhh",
+                "callese", "cállese", "para ya", "basta ya", "silencio ya"
+            ]
+            if any(trig in norm for trig in stop_triggers):
+                logger.info(f"[VoiceEngine] ¡Interrupción 'cállate' recibida ('{text}')! Deteniendo habla de inmediato.")
+                self.stop_speaking()
+                self.set_state("standby", play_chime=False)
+        except Exception:
+            pass
 
     def _process_speech(self, pcm_array: np.ndarray):
         """Transcribes PCM audio buffer and executes commands or wakes up."""
@@ -358,7 +438,26 @@ class VoiceEngine:
             # --- CASO 2: EN MODO ACTIVO (CONVERSACIÓN FLUIDA) ---
             if self.state == "active":
                 norm_text = normalize_text(transcript)
-                sleep_triggers = ["duermete", "ve a dormir", "a dormir", "descansa", "modo reposo", "ponte en reposo", "silencio", "callate"]
+
+                # Orden explícita de callarse/silencio: detener todo y guardar silencio absoluto
+                silence_stop_triggers = [
+                    "callate", "cállate", "silencio", "para", "parar", "detente", "deténte",
+                    "stop", "basta", "deja de hablar", "no hables", "shh", "shhh",
+                    "callese", "cállese", "para ya", "basta ya", "silencio ya"
+                ]
+                if any(trig in norm_text for trig in silence_stop_triggers):
+                    logger.info(f"[VoiceEngine] Orden de silencio/cállate recibida: '{transcript}'")
+                    self.stop_speaking()
+                    self.set_state("standby", play_chime=False)
+                    self.broadcast_event("response", {
+                        "text": "En silencio, señor Santiago.",
+                        "role": "assistant",
+                        "executedTools": [{"name": "stop_speaking"}]
+                    })
+                    self._persist_turn_to_db(transcript, "En silencio, señor Santiago.")
+                    return
+
+                sleep_triggers = ["duermete", "ve a dormir", "a dormir", "descansa", "modo reposo", "ponte en reposo"]
                 if any(trig in norm_text for trig in sleep_triggers):
                     logger.info(f"[VoiceEngine] Orden de reposo detectada: '{transcript}'")
                     self.set_state("standby", play_chime=True)
@@ -425,6 +524,13 @@ class VoiceEngine:
                     "executedTools": executed_tools,
                     "role": "assistant"
                 })
+
+                if any(t.get("name") == "stop_speaking" for t in executed_tools):
+                    self.stop_speaking()
+                    self.set_state("standby", play_chime=False)
+                    self.last_activity_time = time.time()
+                    self._persist_turn_to_db(text, response_text or "En silencio, señor Santiago.")
+                    return
 
                 # Speak response with sweet female voice
                 self.speak(response_text)

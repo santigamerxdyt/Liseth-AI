@@ -1248,6 +1248,14 @@ class ActionDispatcher:
                 res = await loop.run_in_executor(None, lambda: computer_settings(parameters=args))
                 return res or "Ajuste de sistema completado."
 
+            elif name == "stop_speaking":
+                try:
+                    from app.services.voice_engine import voice_engine
+                    voice_engine.stop_speaking()
+                except Exception as ve_err:
+                    logger.debug(f"[ActionDispatcher] Error deteniendo voz: {ve_err}")
+                return "He detenido el habla y guardo silencio absoluto, señor Santiago."
+
             elif name == "computer_control":
                 from app.actions.computer_control import computer_control
                 res = await loop.run_in_executor(None, lambda: computer_control(parameters=args))

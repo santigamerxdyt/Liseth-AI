@@ -23,6 +23,13 @@ class StateChangeRequest(BaseModel):
     state: str  # "active" | "standby" | "off"
 
 
+@router.post("/stop")
+async def stop_voice_speaking():
+    """Immediately halts any active speech output on the server and notifies clients."""
+    voice_engine.stop_speaking()
+    return {"ok": True, "stopped": True}
+
+
 @router.get("/state")
 async def get_voice_state():
     """Returns current voice engine state and activity telemetry."""

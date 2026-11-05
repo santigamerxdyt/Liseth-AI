@@ -13562,11 +13562,6 @@ Tus habilidades clave:
           };
 
           recognition.onresult = (event) => {
-            // Protección contra eco: si Liseth está hablando o terminó hace menos de 400ms, ignorar entrada
-            if (isSpeaking || isThinking || (Date.now() - speechOutputEndTime < 400)) {
-              return;
-            }
-
             let interimTranscript = "";
             let finalTranscript = "";
             let hasFinalResult = false;
@@ -13583,6 +13578,27 @@ Tus habilidades clave:
 
             const currentSpeech = (finalTranscript + (interimTranscript ? (finalTranscript ? " " : "") + interimTranscript : "")).trim();
             if (!currentSpeech) return;
+
+            // Interrupción ultrarrápida: si el usuario dice "cállate", "silencio", "para", detener inmediatamente cualquier habla
+            const normLower = currentSpeech.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const isStopCmd = /\b(callate|silencio|para|parar|detente|stop|basta|deja de hablar|no hables|shh|shhh|callese)\b/i.test(normLower);
+
+            if (isStopCmd) {
+              console.log("[Liseth Voice] ¡ORDEN CÁLLATE DETECTADA! Deteniendo voz y habla:", currentSpeech);
+              stopSpeaking();
+              if (typeof handleSpeechOutputFinished === "function") handleSpeechOutputFinished();
+              fetch("/api/voice/stop", { method: "POST" }).catch(() => {});
+              userInput.value = "";
+              userInput.style.height = "auto";
+              if (voiceInputTimer) clearTimeout(voiceInputTimer);
+              enterStandbyMode();
+              return;
+            }
+
+            // Protección contra eco general: si Liseth está hablando o terminó hace menos de 400ms, ignorar entrada
+            if (isSpeaking || isThinking || (Date.now() - speechOutputEndTime < 400)) {
+              return;
+            }
 
             // Subtítulos flotantes en tiempo real en el HUD
             updateHudTranscript(currentSpeech, (currentCustomization.userTitle || "SANTIAGO").toUpperCase());
@@ -13755,9 +13771,16 @@ Tus habilidades clave:
                 }
 
                 if (data.executedTools && data.executedTools.length > 0) {
+                  if (data.executedTools.some(t => t.name === "stop_speaking")) {
+                    stopSpeaking();
+                    if (typeof handleSpeechOutputFinished === "function") handleSpeechOutputFinished();
+                  }
                   const toolNames = data.executedTools.map(t => t.name).join(", ");
                   showToast(`✓ Liseth ejecutó acción: ${toolNames}`);
                 }
+              } else if (data.type === "stop_speaking") {
+                stopSpeaking();
+                if (typeof handleSpeechOutputFinished === "function") handleSpeechOutputFinished();
               } else if (data.type === "speaking") {
                 if (data.isSpeaking) {
                   orb.classList.add("speaking");

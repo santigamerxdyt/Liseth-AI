@@ -38,15 +38,15 @@ DEFAULT_RATES = {
 
 # Ranked active candidates for Gemini in order of availability and speed
 GEMINI_PRIORITY_MODELS = [
+    "gemini-3.1-flash-lite",
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-1.5-flash",
+    "gemini-flash-latest",
     "gemini-3.8-flash",
     "gemini-3.5-flash-lite",
     "gemini-3.6-flash",
-    "gemini-3.1-flash-lite",
-    "gemini-2.5-flash",
-    "gemini-2.5-flash-lite",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-flash-latest",
 ]
 
 
@@ -116,6 +116,22 @@ def detect_direct_intent(user_text: str) -> Optional[Tuple[str, Dict[str, Any], 
             "computer_settings",
             {"action": "volume_down", "description": cleaned},
             "He bajado el volumen de su equipo, señor Santiago."
+        )
+
+    # 3b. Stop Speaking / Silence Assistant: "cállate", "silencio", "deja de hablar", "para de hablar"
+    _STOP_SPEAKING_EXACT = {
+        "callate", "cállate", "callate ya", "cállate ya", "deja de hablar",
+        "para de hablar", "no hables mas", "no hables", "silencio liseth",
+        "callate liseth", "liseth callate", "liseth cállate", "stop liseth",
+        "para liseth", "basta liseth", "detente liseth", "shh", "shhh",
+        "callese", "cállese", "para ya", "basta ya", "silencio ya",
+        "deten la voz", "para la voz", "deja de decirme", "para de decirme"
+    }
+    if norm in _STOP_SPEAKING_EXACT or any(norm == p or norm.startswith(p + " ") or norm.endswith(" " + p) for p in ["callate", "cállate", "deja de hablar", "para de hablar"]):
+        return (
+            "stop_speaking",
+            {"action": "stop_speaking", "description": cleaned},
+            "En silencio, señor Santiago."
         )
 
     # 4. Volume Mute: "silencia", "silenciar", "mute", "mutear", "silencia el equipo", "quita el sonido"
@@ -1058,14 +1074,14 @@ class BrainRouter:
         self.primary_brain: str = "gemini"
         self.active_brain: str = "gemini"
         self.forced_brain: Optional[str] = None
-        self.active_gemini_model: str = settings.GEMINI_MODEL or "gemini-3.8-flash"
+        self.active_gemini_model: str = settings.GEMINI_MODEL or "gemini-3.1-flash-lite"
         self.last_failover: Optional[dict] = None
         self.known_working_models: List[str] = [
-            "gemini-3.8-flash",
-            "gemini-3.5-flash-lite",
-            "gemini-3.6-flash",
             "gemini-3.1-flash-lite",
             "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-2.5-flash-lite",
+            "gemini-1.5-flash",
         ]
         self._http_client: Optional[httpx.AsyncClient] = None
         self._http_client_loop: Optional[Any] = None
@@ -1100,11 +1116,19 @@ class BrainRouter:
             or (self._http_client_loop and self._http_client_loop.is_closed())
         ):
             if self._http_client and not self._http_client.is_closed:
-                try:
-                    if loop and not loop.is_closed() and loop.is_running():
-                        asyncio.create_task(self._http_client.aclose())
-                except Exception:
-                    pass
+                old_client = self._http_client
+                old_loop = self._http_client_loop
+                # Safely close only if old_loop is still active and matches loop to avoid 'Event loop is closed'
+                if old_loop and not old_loop.is_closed() and old_loop.is_running() and old_loop == loop:
+                    async def _safe_close(c):
+                        try:
+                            await c.aclose()
+                        except Exception:
+                            pass
+                    try:
+                        asyncio.create_task(_safe_close(old_client))
+                    except Exception:
+                        pass
             self._http_client = httpx.AsyncClient(
                 timeout=httpx.Timeout(timeout, connect=5.0),
                 limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
