@@ -6842,6 +6842,10 @@
   <script src="/static/js/three.min.js"></script>
   <script>if(!window.THREE){document.write('<script src="app/static/js/three.min.js"><\/script>');}</script>
   <script>if(!window.THREE){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
+<!-- Firebase Web SDK (App & Authentication) -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  </head>
 </head>
 <body>
 <!-- Saltos de Teclado Accesibles (WCAG 2.1) -->
@@ -6905,6 +6909,12 @@
           <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
           <span style="color: #ffffff; letter-spacing: 0.04em;">48 MÓDULOS</span>
           <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">48</span>
+        </button>
+        <!-- BOTÓN PLATAFORMA SAAS MULTIUSUARIO, PLANES Y PANEL CREATOR -->
+        <button class="hud-deck-btn" id="btn-saas-platform" onclick="openSaasModal()" title="Plataforma SaaS Multiusuario: Cuenta, Conversaciones, Memoria, Planes, Suscripciones y Panel Superadmin CREATOR" style="border: 1px solid rgba(168, 85, 247, 0.75); background: rgba(168, 85, 247, 0.18);">
+          <span class="hud-deck-icon">💎</span>
+          <span>SAAS CLOUD</span>
+          <span class="hud-deck-badge" id="saas-plan-badge" style="background: linear-gradient(135deg, #a855f7, #ec4899); color: #ffffff;">CREATOR</span>
         </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
         <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal (Escala de texto, Alto contraste, Lector y Atajos) - Alt+A">
@@ -9247,33 +9257,255 @@
     </div>
   </div>
 
-  <!-- MODAL: AUTENTICACIÓN SEGURA CON PIN (SCRYPT) -->
-  <div class="modal-overlay" id="auth-modal" style="backdrop-filter: blur(12px); background: rgba(5, 10, 20, 0.92); z-index: 99999;">
-    <div class="modal-card" style="max-width: 400px; text-align: center; border-color: rgba(0, 210, 255, 0.4); box-shadow: 0 0 45px rgba(0, 210, 255, 0.25);">
-      <div style="margin: 0 auto 16px; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0, 210, 255, 0.12); border: 1px solid rgba(0, 210, 255, 0.45); color: var(--accent-blue);">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-        </svg>
-      </div>
-      <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; color: #fff;">Acceso Seguro a JARVIS</h2>
-      <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 22px; line-height: 1.4;">Ingrese su PIN de seguridad personal configurado para desbloquear su asistente.</p>
+  <!-- MODAL OBLIGATORIO DE INICIO: CREACIÓN DE CUENTA FIREBASE + PLANES SAAS (BLOQUEO TOTAL HASTA INICIAR SESIÓN) -->
+  <div class="modal-overlay active" id="auth-modal" style="backdrop-filter: blur(18px); background: radial-gradient(circle at center, rgba(10, 18, 36, 0.97) 0%, rgba(3, 6, 14, 0.99) 100%); z-index: 999999;">
+    <div class="modal-card" style="max-width: 1080px; width: 96%; text-align: left; border: 1px solid rgba(0, 240, 255, 0.45); box-shadow: 0 0 60px rgba(0, 210, 255, 0.28), 0 0 30px rgba(168, 85, 247, 0.2); padding: 20px 24px; max-height: 92vh; overflow-y: auto;">
 
-      <form id="auth-pin-form" onsubmit="return false;">
-        <div style="margin-bottom: 16px;">
-          <input type="password" id="auth-pin-input" placeholder="••••••" maxlength="12" autocomplete="current-password" inputmode="numeric" style="width: 100%; text-align: center; font-size: 1.6rem; letter-spacing: 6px; padding: 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(0, 210, 255, 0.35); border-radius: 12px; color: #fff; outline: none; transition: all 0.2s;" autofocus />
+      <!-- Barra Superior de Vinculación con Proyecto Firebase -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid rgba(148, 163, 184, 0.2);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(0, 210, 255, 0.2)); border: 1px solid rgba(245, 158, 11, 0.55); font-size: 1.4rem;">🔥</div>
+          <div>
+            <h2 style="font-size: 1.22rem; font-weight: 800; color: #fff; margin: 0; letter-spacing: 0.02em;">LISETH AI SAAS • PORTAL DE CUENTAS & PLANES</h2>
+            <div style="font-size: 0.76rem; color: #94a3b8; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span>🔒 Acceso bloqueado hasta iniciar sesión</span>
+              <span>•</span>
+              <span style="color: #fbbf24; font-weight: 700;">🔥 Proyecto Firebase vinculado: <code id="fb-linked-project-badge" style="color: #00f0ff; background: rgba(0, 240, 255, 0.1); padding: 1px 6px; border-radius: 4px;">liseth-saas-ai</code></span>
+            </div>
+          </div>
         </div>
-        <div id="auth-error-msg" style="display: none; color: #ff5c77; font-size: 0.82rem; margin-bottom: 16px; padding: 10px; background: rgba(255, 92, 119, 0.12); border-radius: 8px; border: 1px solid rgba(255, 92, 119, 0.35); text-align: center;"></div>
-        <button type="submit" id="btn-auth-unlock" class="btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem; justify-content: center; font-weight: 600;">
-          Desbloquear Asistente
+        <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 0.74rem; border-color: rgba(251, 191, 36, 0.5); color: #fbbf24;" onclick="toggleFirebaseConfigDrawer()">
+          ⚙️ Configurar Proyecto Firebase
         </button>
-                <button type="button" id="btn-auth-nfc-unlock" style="width: 100%; margin-top: 10px; padding: 10px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; background: rgba(56, 239, 125, 0.12); border: 1px solid rgba(56, 239, 125, 0.45); color: #38ef7d; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onclick="triggerNfcProximityUnlock()">
-          📶 Desbloquear por Contacto NFC (Stark Key)
-        </button>
-        <button type="button" id="btn-auth-guest" style="width: 100%; margin-top: 10px; padding: 10px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; background: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.35); color: #00d2ff; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-          🌐 Entrar en Modo Web / Invitado (GitHub Pages)
-        </button>
-      </form>
+      </div>
+
+      <!-- Cajón Desplegable para Configurar Credenciales del Proyecto Firebase -->
+      <div id="firebase-config-drawer" style="display: none; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(251, 191, 36, 0.45); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: #fbbf24; margin-bottom: 8px;">🔥 VINCULACIÓN DE PROYECTO FIREBASE (FIREBASE CONSOLE & AUTHENTICATION)</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-bottom: 10px;">
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Project ID:</label>
+            <input type="text" id="fb-cfg-project-id" value="liseth-saas-ai" placeholder="mi-proyecto-firebase" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Web API Key (Firebase SDK):</label>
+            <input type="text" id="fb-cfg-api-key" placeholder="AIzaSy..." style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Auth Domain:</label>
+            <input type="text" id="fb-cfg-auth-domain" value="liseth-saas-ai.firebaseapp.com" placeholder="proyecto.firebaseapp.com" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">App ID:</label>
+            <input type="text" id="fb-cfg-app-id" placeholder="1:123456789:web:abcdef" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <span id="fb-cfg-save-msg" style="font-size: 0.74rem; color: #38ef7d;"></span>
+          <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 0.75rem; background: #f59e0b; border-color: #f59e0b; color: #04070d; font-weight: 800;" onclick="saveFirebaseProjectConfigUI()">Guardar y Vincular Firebase</button>
+        </div>
+      </div>
+
+      <!-- Diseño Principal en 2 Columnas: [Izquierda: Crear Cuenta / Login] | [Derecha: Planes de Suscripción] -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; align-items: start;">
+
+        <!-- COLUMNA IZQUIERDA: FORMULARIO DE CREACIÓN DE CUENTA E INICIO DE SESIÓN -->
+        <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(0, 210, 255, 0.35); border-radius: 12px; padding: 16px;">
+          <!-- Selector de Modo: Crear Cuenta (Por Defecto) | Iniciar Sesión | Creador PIN -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 14px; background: rgba(4, 8, 18, 0.8); padding: 4px; border-radius: 8px;">
+            <button type="button" id="gate-tab-register" onclick="switchAuthGateMode('register')" style="padding: 8px 6px; font-size: 0.76rem; font-weight: 700; border-radius: 6px; border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.2); color: #fff; cursor: pointer;">
+              ✨ Crear Cuenta
+            </button>
+            <button type="button" id="gate-tab-login" onclick="switchAuthGateMode('login')" style="padding: 8px 6px; font-size: 0.76rem; font-weight: 700; border-radius: 6px; border: 1px solid transparent; background: transparent; color: #94a3b8; cursor: pointer;">
+              🔐 Iniciar Sesión
+            </button>
+            <button type="button" id="gate-tab-pin" onclick="switchAuthGateMode('pin')" style="padding: 8px 6px; font-size: 0.76rem; font-weight: 700; border-radius: 6px; border: 1px solid transparent; background: transparent; color: #fbbf24; cursor: pointer;">
+              👑 Creador (PIN)
+            </button>
+          </div>
+
+          <!-- Mensajes de Error o Éxito -->
+          <div id="auth-error-msg" style="display: none; color: #ff5c77; font-size: 0.78rem; margin-bottom: 12px; padding: 9px 12px; background: rgba(255, 92, 119, 0.14); border-radius: 8px; border: 1px solid rgba(255, 92, 119, 0.4); text-align: center;"></div>
+
+          <!-- MODO 1 (POR DEFECTO AL INICIAR): CREAR CUENTA VINCULADA A FIREBASE -->
+          <form id="auth-firebase-register-form" onsubmit="handleFirebaseGateSubmit(event, 'register')">
+            <div style="font-size: 0.82rem; font-weight: 700; color: #00f0ff; margin-bottom: 4px;">Crea tu cuenta para empezar a usar Liseth</div>
+            <p style="font-size: 0.74rem; color: #94a3b8; margin-top: 0; margin-bottom: 12px;">Tu perfil, conversaciones privadas y memoria individual quedarán protegidos y vinculados a Firebase Auth.</p>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Nombre Completo:</label>
+              <input type="text" id="gate-reg-name" placeholder="Ej. Carlos Mendoza" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Correo Electrónico (Firebase Auth):</label>
+              <input type="email" id="gate-reg-email" placeholder="tu@correo.com" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Contraseña (mínimo 8 caracteres):</label>
+              <input type="password" id="gate-reg-password" placeholder="••••••••" minlength="8" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+            </div>
+
+            <!-- Plan Seleccionado para la Cuenta -->
+            <div style="margin-bottom: 10px; padding: 9px 11px; background: rgba(168, 85, 247, 0.14); border: 1px solid rgba(168, 85, 247, 0.45); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 0.68rem; color: #d8b4fe; display: block;">PLAN SELECCIONADO (Clic a la derecha para cambiar):</span>
+                <b id="gate-selected-plan-label" style="font-size: 0.86rem; color: #fff;">PLAN FREE — $0 USD / mes</b>
+              </div>
+              <input type="hidden" id="gate-selected-plan-code" value="FREE" />
+              <span id="gate-selected-plan-badge" style="background: #a855f7; color: #fff; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 10px;">FREE</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+              <input type="text" id="gate-reg-promo" placeholder="Cupón (ej. WELCOME20)" style="padding: 7px 9px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.74rem;" />
+              <input type="text" id="gate-reg-referral" placeholder="Cód. Referido (opcional)" style="padding: 7px 9px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.74rem;" />
+            </div>
+
+            <button type="submit" id="btn-gate-register-submit" class="btn-primary" style="width: 100%; padding: 11px; font-size: 0.88rem; font-weight: 700; justify-content: center; background: linear-gradient(135deg, #00d2ff, #7c3aed); border: none;">
+              🔥 Crear Cuenta en Firebase & Desbloquear Liseth
+            </button>
+
+            <button type="button" onclick="handleFirebaseGoogleSignIn()" style="width: 100%; margin-top: 8px; padding: 9px; font-size: 0.8rem; font-weight: 600; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.07); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              🌐 Continuar con Google (Firebase OAuth)
+            </button>
+          </form>
+
+          <!-- MODO 2: INICIAR SESIÓN CON CUENTA EXISTENTE -->
+          <form id="auth-firebase-login-form" style="display: none;" onsubmit="handleFirebaseGateSubmit(event, 'login')">
+            <div style="font-size: 0.82rem; font-weight: 700; color: #00f0ff; margin-bottom: 4px;">Inicia sesión en tu cuenta</div>
+            <p style="font-size: 0.74rem; color: #94a3b8; margin-top: 0; margin-bottom: 12px;">Recupera tus conversaciones privadas, tus memorias y los beneficios de tu plan activo.</p>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Correo Electrónico:</label>
+              <input type="email" id="gate-login-email" placeholder="tu@correo.com" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Contraseña:</label>
+              <input type="password" id="gate-login-password" placeholder="••••••••" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+            </div>
+
+            <button type="submit" id="btn-gate-login-submit" class="btn-primary" style="width: 100%; padding: 11px; font-size: 0.88rem; font-weight: 700; justify-content: center;">
+              🔐 Iniciar Sesión & Desbloquear Liseth
+            </button>
+
+            <button type="button" onclick="handleFirebaseGoogleSignIn()" style="width: 100%; margin-top: 8px; padding: 9px; font-size: 0.8rem; font-weight: 600; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.07); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              🌐 Iniciar Sesión con Google (Firebase OAuth)
+            </button>
+          </form>
+
+          <!-- MODO 3: ACCESO SOBERANO CREADOR (SEÑOR SANTIAGO - PIN / NFC) -->
+          <form id="auth-pin-form" style="display: none;" onsubmit="return false;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">👑 Acceso Soberano CREATOR (Señor Santiago)</div>
+            <p style="font-size: 0.74rem; color: #94a3b8; margin-top: 0; margin-bottom: 12px;">Ingrese su PIN criptográfico de propietario para desbloquear el Nivel 5 CREATOR con control absoluto.</p>
+
+            <div style="margin-bottom: 14px;">
+              <input type="password" id="auth-pin-input" placeholder="••••••" maxlength="12" autocomplete="current-password" inputmode="numeric" style="width: 100%; text-align: center; font-size: 1.5rem; letter-spacing: 6px; padding: 10px; background: rgba(6, 11, 22, 0.9); border: 1px solid rgba(251, 191, 36, 0.45); border-radius: 10px; color: #fff; outline: none;" />
+            </div>
+            <button type="submit" id="btn-auth-unlock" class="btn-primary" style="width: 100%; padding: 11px; font-size: 0.9rem; justify-content: center; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #04070d;">
+              👑 Desbloquear como CREATOR (Santiago)
+            </button>
+            <button type="button" id="btn-auth-nfc-unlock" style="width: 100%; margin-top: 8px; padding: 9px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; background: rgba(56, 239, 125, 0.12); border: 1px solid rgba(56, 239, 125, 0.45); color: #38ef7d; border-radius: 8px; cursor: pointer;" onclick="triggerNfcProximityUnlock()">
+              📶 Desbloquear por Contacto NFC (Stark Key)
+            </button>
+          </form>
+        </div>
+
+        <!-- COLUMNA DERECHA: PLANES Y JERARQUÍAS SAAS (ELIGE TU PLAN ANTES DE ENTRAR) -->
+        <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 12px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div>
+              <div style="font-size: 0.86rem; font-weight: 800; color: #e9d5ff;">💎 PLANES Y MODALIDADES DE ACCESO</div>
+              <div style="font-size: 0.72rem; color: #94a3b8;">Selecciona el plan con el que deseas crear tu cuenta</div>
+            </div>
+            <span style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.18); color: #38ef7d; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 10px; font-weight: 700;">Cupón WELCOME20: -20%</span>
+          </div>
+
+          <!-- Tarjetas Interactivas de Planes -->
+          <div id="gate-plans-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 8px;">
+
+            <!-- PLAN FREE -->
+            <div class="gate-plan-card" id="gate-plan-card-FREE" onclick="selectGatePlan('FREE', 'PLAN FREE — $0 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 2px solid #00f0ff; border-radius: 9px; padding: 10px; transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: #00f0ff;">PLAN FREE</span>
+                <span style="font-size: 0.88rem; font-weight: 900; color: #fff;">$0<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+              </div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+                • Máx. <b>3 cerebros IA</b><br>
+                • Máx. <b>5 conversaciones</b><br>
+                • <b>25 mensajes</b> diarios<br>
+                • Memoria personal limitada<br>
+                • Acceso a skills básicas
+              </div>
+            </div>
+
+            <!-- PLAN LEVEL 1: STARTER -->
+            <div class="gate-plan-card" id="gate-plan-card-STARTER" onclick="selectGatePlan('STARTER', 'LEVEL 1: STARTER — $10 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 9px; padding: 10px; transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: #38ef7d;">L1 • STARTER</span>
+                <span style="font-size: 0.88rem; font-weight: 900; color: #fff;">$10<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+              </div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+                • Máx. <b>5 cerebros IA</b><br>
+                • <b>25 conversaciones</b> activas<br>
+                • <b>150 mensajes</b> diarios<br>
+                • Historial completo y memoria ampliada<br>
+                • Skills básicas + avanzadas
+              </div>
+            </div>
+
+            <!-- PLAN LEVEL 2: PRO -->
+            <div class="gate-plan-card" id="gate-plan-card-PRO" onclick="selectGatePlan('PRO', 'LEVEL 2: PRO — $30 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #a855f7; border-radius: 9px; padding: 10px; transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: #c084fc;">L2 • PRO ⭐</span>
+                <span style="font-size: 0.88rem; font-weight: 900; color: #fff;">$30<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+              </div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+                • Máx. <b>15 cerebros IA</b><br>
+                • <b>500 mensajes</b> diarios<br>
+                • Memoria persistente (500 ítems)<br>
+                • Personalización de agentes<br>
+                • Prioridad de procesamiento
+              </div>
+            </div>
+
+            <!-- PLAN LEVEL 3: BUSINESS -->
+            <div class="gate-plan-card" id="gate-plan-card-BUSINESS" onclick="selectGatePlan('BUSINESS', 'LEVEL 3: BUSINESS — $75 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 9px; padding: 10px; transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: #60a5fa;">L3 • BUSINESS</span>
+                <span style="font-size: 0.88rem; font-weight: 900; color: #fff;">$75<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+              </div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+                • Máx. <b>30 cerebros IA</b><br>
+                • <b>Creación de agentes propios</b><br>
+                • Automatizaciones y Suite CFO<br>
+                • <b>2.000 mensajes</b> diarios<br>
+                • Funciones empresariales
+              </div>
+            </div>
+
+            <!-- PLAN LEVEL 4: ENTERPRISE -->
+            <div class="gate-plan-card" id="gate-plan-card-ENTERPRISE" onclick="selectGatePlan('ENTERPRISE', 'LEVEL 4: ENTERPRISE — $200 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 9px; padding: 10px; transition: all 0.2s; grid-column: 1 / -1;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.78rem; font-weight: 800; color: #f472b6;">LEVEL 4 • ENTERPRISE (CORPORATIVO TOTAL)</span>
+                <span style="font-size: 0.92rem; font-weight: 900; color: #fff;">$200 USD<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+              </div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 4px;">
+                • <b>Todos los cerebros públicos</b> • Agentes especializados • Automatizaciones avanzadas • Acceso a API • <b>10.000 msgs/día</b> • Soporte prioritario
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Nota informativa sobre LEVEL 5 CREATOR -->
+          <div style="margin-top: 8px; padding: 7px 10px; background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 7px; font-size: 0.68rem; color: #fcd34d; display: flex; justify-content: space-between; align-items: center;">
+            <span>👑 <b>LEVEL 5 — CREATOR:</b> Exclusivo para el propietario (Señor Santiago). No comercializable.</span>
+            <button type="button" onclick="switchAuthGateMode('pin')" style="background: transparent; border: 1px solid #fbbf24; color: #fbbf24; border-radius: 4px; padding: 2px 7px; font-size: 0.65rem; cursor: pointer;">Entrar con PIN</button>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -12663,6 +12895,158 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
     </div>
   </div>
 
+  <!-- ======================================================== -->
+  <!-- MODAL: PLATAFORMA SAAS MULTIUSUARIO, PLANES & CREATOR    -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="saas-platform-modal">
+    <div class="modal-card" style="max-width: 940px; width: 95%;">
+      <div class="modal-header">
+        <div class="modal-icon" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.45); background: rgba(168, 85, 247, 0.14);">💎</div>
+        <div class="modal-title">
+          <h2>Liseth SaaS Cloud — Plataforma Multiusuario & Suscripciones</h2>
+          <p>Cuentas aisladas, conversaciones privadas, cerebro de memoria individual, 6 niveles de planes y Panel Superadmin CREATOR</p>
+        </div>
+        <button class="modal-close" onclick="closeSaasModal()">&times;</button>
+      </div>
+
+      <!-- Barra de Navegación de Pestañas SaaS -->
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding-bottom: 10px;">
+        <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-account" onclick="switchSaasTab('account')" style="padding: 6px 12px; font-size: 0.76rem; border-color: #a855f7; color: #fff;">👤 Cuenta & Perfil</button>
+        <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-workspace" onclick="switchSaasTab('workspace')" style="padding: 6px 12px; font-size: 0.76rem;">💬 Conversaciones & 🧠 Memoria</button>
+        <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-plans" onclick="switchSaasTab('plans')" style="padding: 6px 12px; font-size: 0.76rem;">💎 Planes & Suscripción</button>
+        <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-usage" onclick="switchSaasTab('usage')" style="padding: 6px 12px; font-size: 0.76rem;">⚡ Créditos & Consumo</button>
+        <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-catalog" onclick="switchSaasTab('catalog')" style="padding: 6px 12px; font-size: 0.76rem;">🤖 Cerebros, Skills & Agentes</button>
+        <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-creator" onclick="switchSaasTab('creator')" style="padding: 6px 12px; font-size: 0.76rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(168, 85, 247, 0.2)); border-color: #f59e0b; color: #ffd166;">👑 Superadmin CREATOR</button>
+      </div>
+
+      <!-- PESTAÑA 1: CUENTA, AUTENTICACIÓN Y PERFIL -->
+      <div id="saas-pane-account" class="saas-pane">
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px;">
+          <!-- Estado de Cuenta Actual -->
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 0.84rem; font-weight: 700; color: #c084fc;">PERFIL DE USUARIO ACTIVO</span>
+              <span id="saas-ui-plan-pill" style="background: linear-gradient(135deg, #a855f7, #ec4899); color: #fff; font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 12px;">CREATOR</span>
+            </div>
+            <div style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 10px;">
+              <div>ID Único (Tenant): <code id="saas-ui-user-id" style="color: #00f0ff;">user_creator_santiago</code></div>
+              <div>Correo: <b id="saas-ui-user-email" style="color: #fff;">santiago@liseth.ai</b> <span id="saas-ui-verified-badge" style="color: #10b981; font-size: 0.7rem;">✔ Verificado</span></div>
+              <div>Rol del Sistema: <b id="saas-ui-user-role" style="color: #ffd166;">CREATOR</b></div>
+              <div>Código de Referido: <code id="saas-ui-ref-code" style="color: #38ef7d; font-weight: 700;">SANTIAGO-CREATOR</code></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+              <div>
+                <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Nombre Completo:</label>
+                <input type="text" id="saas-prof-name" value="Señor Santiago Huérfano López" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.78rem;" />
+              </div>
+              <div>
+                <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Alias / Trato:</label>
+                <input type="text" id="saas-prof-nick" value="Señor Santiago" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.78rem;" />
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
+              <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 0.76rem;" onclick="saveSaasProfile()">Guardar Perfil</button>
+              <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 0.74rem;" onclick="logoutSaasAccount()">Cerrar Sesión SaaS</button>
+            </div>
+          </div>
+
+          <!-- Inicio de Sesión / Registro Multiusuario -->
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(0, 210, 255, 0.3); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: #00d2ff; margin-bottom: 8px;">🔐 CAMBIAR CUENTA / REGISTRO MULTIUSUARIO</div>
+            <div style="margin-bottom: 6px;">
+              <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Correo Electrónico:</label>
+              <input type="email" id="saas-auth-email" placeholder="usuario@empresa.com" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.78rem;" />
+            </div>
+            <div style="margin-bottom: 6px;">
+              <label style="font-size: 0.7rem; color: #94a3b8; display: block;">Contraseña (mín. 8 caracteres):</label>
+              <input type="password" id="saas-auth-pass" placeholder="••••••••" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.78rem;" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;">
+              <input type="text" id="saas-auth-name" placeholder="Nombre (para registro)" style="background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.74rem;" />
+              <input type="text" id="saas-auth-referral" placeholder="Cód. Referido (opcional)" style="background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px; border-radius: 4px; font-size: 0.74rem;" />
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="btn-primary" style="flex: 1; padding: 6px; font-size: 0.75rem;" onclick="loginSaasUser()">Iniciar Sesión</button>
+              <button type="button" class="btn-secondary" style="flex: 1; padding: 6px; font-size: 0.75rem; border-color: #a855f7; color: #e9d5ff;" onclick="registerSaasUser()">Crear Cuenta Free</button>
+            </div>
+            <div id="saas-auth-feedback" style="font-size: 0.74rem; color: #38ef7d; margin-top: 8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 2: CONVERSACIONES PRIVADAS & CEREBRO DE MEMORIA INDIVIDUAL -->
+      <div id="saas-pane-workspace" class="saas-pane" style="display: none;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <!-- Conversaciones Aisladas por user_id -->
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(0, 210, 255, 0.3); border-radius: 8px; padding: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 0.82rem; font-weight: 700; color: #00d2ff;">💬 CONVERSACIONES DEL USUARIO</span>
+              <button type="button" class="btn-primary" style="padding: 4px 10px; font-size: 0.72rem;" onclick="createSaasConversationUI()">+ Nueva</button>
+            </div>
+            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+              <input type="text" id="saas-conv-title-input" placeholder="Título de nueva conversación..." style="flex: 1; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem;" />
+            </div>
+            <div id="saas-conv-list-box" style="max-height: 230px; overflow-y: auto; font-size: 0.76rem; color: #cbd5e1;"></div>
+          </div>
+
+          <!-- Cerebro de Memoria Individual -->
+          <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 0.82rem; font-weight: 700; color: #10b981;">🧠 CEREBRO DE MEMORIA INDIVIDUAL</span>
+              <label style="font-size: 0.72rem; color: #cbd5e1; display: flex; align-items: center; gap: 4px;">
+                <input type="checkbox" id="saas-memory-toggle" checked onchange="toggleSaasMemoryEnabled(this.checked)" /> Memoria Activa
+              </label>
+            </div>
+            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+              <input type="text" id="saas-mem-input" placeholder="Guardar recuerdo, preferencia o contexto..." style="flex: 1; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem;" />
+              <button type="button" class="btn-primary" style="padding: 5px 10px; font-size: 0.72rem; background: #10b981; border-color: #10b981;" onclick="addSaasMemoryUI()">Guardar</button>
+            </div>
+            <div id="saas-mem-list-box" style="max-height: 230px; overflow-y: auto; font-size: 0.76rem; color: #cbd5e1;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 3: COMPARADOR DE PLANES, CHECKOUT, CUPONES Y FACTURACIÓN -->
+      <div id="saas-pane-plans" class="saas-pane" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; background: rgba(15, 23, 42, 0.8); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.3);">
+          <div>
+            <span style="font-size: 0.78rem; color: #cbd5e1;">Ciclo de Facturación:</span>
+            <select id="saas-billing-cycle" style="background: #0f172a; border: 1px solid #475569; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.76rem; margin-left: 6px;">
+              <option value="monthly">Mensual</option>
+              <option value="annual">Anual (20% Descuento)</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <input type="text" id="saas-promo-input" placeholder="Cupón (ej. WELCOME20)" style="background: #0f172a; border: 1px solid #475569; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem; width: 155px;" />
+            <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 0.74rem;" onclick="validateSaasPromoUI()">Aplicar Cupón</button>
+          </div>
+        </div>
+        <div id="saas-promo-feedback" style="font-size: 0.75rem; color: #38ef7d; margin-bottom: 8px;"></div>
+        <div id="saas-plans-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 12px;"></div>
+        <div id="saas-invoices-box" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; font-size: 0.74rem; color: #cbd5e1;"></div>
+      </div>
+
+      <!-- PESTAÑA 4: CRÉDITOS, TOKENS Y CONTROL DE CONSUMO -->
+      <div id="saas-pane-usage" class="saas-pane" style="display: none;">
+        <div id="saas-usage-summary-box" style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(0, 210, 255, 0.3); border-radius: 8px; padding: 14px; margin-bottom: 12px;"></div>
+      </div>
+
+      <!-- PESTAÑA 5: CATÁLOGO DE CEREBROS IA, SKILLS Y AGENTES PERSONALIZADOS -->
+      <div id="saas-pane-catalog" class="saas-pane" style="display: none;">
+        <div id="saas-catalog-box" style="max-height: 360px; overflow-y: auto; font-size: 0.76rem;"></div>
+      </div>
+
+      <!-- PESTAÑA 6: PANEL SUPERADMINISTRADOR CREATOR (EXCLUSIVO SEÑOR SANTIAGO) -->
+      <div id="saas-pane-creator" class="saas-pane" style="display: none;">
+        <div id="saas-creator-dashboard-box" style="font-size: 0.76rem; color: #e2e8f0;"></div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 12px;">
+        <button class="btn-secondary" onclick="closeSaasModal()">Cerrar Panel SaaS</button>
+      </div>
+    </div>
+  </div>
+
   <div class="liseth-toast" id="liseth-toast"></div>
 
   <script>
@@ -12922,10 +13306,12 @@ Tus habilidades clave:
       let isSpeaking = false;
       let isServerConnected = false;
 
-      // --- DETECCIÓN DE ENTORNO GITHUB PAGES / WEB HOSTING ---
-      const isGitHubPages = window.location.hostname.includes("github.io") || window.location.protocol === "file:";
-      if (isGitHubPages && !localStorage.getItem("liseth_session_token")) {
-        localStorage.setItem("liseth_session_token", "github-pages-guest");
+      // --- BLOQUEO ESTRICTO SAAS + FIREBASE: PROHIBIDO EL USO SIN INICIAR SESIÓN ---
+      const isGitHubPages = false;
+      window.isLisethAuthenticated = false;
+      // Limpiar cualquier token de invitado antiguo para exigir cuenta real vinculada a Firebase
+      if (["github-pages-guest", "liseth-cloud-guest"].includes(localStorage.getItem("liseth_session_token"))) {
+        localStorage.removeItem("liseth_session_token");
       }
 
       let conversationHistory = [];
@@ -14546,15 +14932,11 @@ Tus habilidades clave:
 
         if ((!text && attached.length === 0) || isThinking) return;
 
-        // Verificación de Acceso: en modo Cloud o sin servidor, asegurar sesión de invitado autónoma
-        if (!localStorage.getItem("liseth_session_token")) {
-          if (isGitHubPages || !isServerConnected) {
-            localStorage.setItem("liseth_session_token", "liseth-cloud-guest");
-          } else {
-            showAuthModal();
-            showToast("🔒 Asistente bloqueado. Ingrese su PIN de seguridad para continuar.");
-            return;
-          }
+        // Verificación Estricta de Acceso SaaS + Firebase: Prohibido usar Liseth sin iniciar sesión o crear cuenta
+        if (!window.isLisethAuthenticated || (!localStorage.getItem("liseth_session_token") && !localStorage.getItem("liseth_saas_token"))) {
+          showAuthModal();
+          showToast("🔒 Debes crear una cuenta o iniciar sesión para usar Liseth.");
+          return;
         }
 
         stopSpeaking();
@@ -17016,63 +17398,47 @@ Tus habilidades clave:
 
       function showAuthModal() {
         if (!authModal) return;
+        window.isLisethAuthenticated = false;
         authModal.classList.add("active");
         if (authErrorMsg) authErrorMsg.style.display = "none";
-        if (authPinInput) {
-          authPinInput.value = "";
-          setTimeout(() => authPinInput.focus(), 150);
-        }
       }
 
       function hideAuthModal() {
         if (!authModal) return;
+        window.isLisethAuthenticated = true;
         authModal.classList.remove("active");
         if (authErrorMsg) authErrorMsg.style.display = "none";
       }
 
       async function checkAuthSession() {
-        if (isGitHubPages) {
-          if (!localStorage.getItem("liseth_session_token")) {
-            localStorage.setItem("liseth_session_token", "github-pages-guest");
-          }
-          hideAuthModal();
-          return true;
+        // Cargar configuración del proyecto Firebase vinculado
+        if (typeof window.initFirebaseGateConfig === "function") {
+          window.initFirebaseGateConfig();
         }
-        const token = localStorage.getItem("liseth_session_token");
-        if (!token && isServerConnected) {
+        // Si la ventana acaba de iniciar y el usuario no ha iniciado sesión en esta sesión activa, exigir Crear Cuenta / Login
+        const activeSessionAuth = sessionStorage.getItem("liseth_active_session_authenticated");
+        const saasTok = localStorage.getItem("liseth_saas_token");
+        const pinTok = localStorage.getItem("liseth_session_token");
+        if (!activeSessionAuth || (!saasTok && !pinTok)) {
           showAuthModal();
           return false;
         }
         try {
-          const res = await fetch("/api/auth/status", { cache: "no-store" });
+          const headers = {};
+          if (saasTok) headers["X-SaaS-Token"] = saasTok;
+          if (pinTok) headers["Authorization"] = `Bearer ${pinTok}`;
+          const res = await fetch("/api/saas/profile", { headers, cache: "no-store" });
           if (res.ok) {
             const data = await res.json();
-            if (data.authenticated === false) {
-              localStorage.removeItem("liseth_session_token");
-              showAuthModal();
-              return false;
-            } else {
+            if (data && data.ok && data.user) {
               hideAuthModal();
-              return true;
-            }
-          } else {
-            if (isServerConnected) {
-              showAuthModal();
-              return false;
-            } else {
-              hideAuthModal();
+              if (typeof refreshSaasProfileState === "function") refreshSaasProfileState();
               return true;
             }
           }
-        } catch(e) {
-          // Si no hay respuesta del servidor o estamos en modo web estático, desbloquear en modo Liseth Cloud
-          if (!localStorage.getItem("liseth_session_token")) {
-            localStorage.setItem("liseth_session_token", "liseth-cloud-guest");
-          }
-          hideAuthModal();
-          return true;
-        }
-        return true;
+        } catch (e) {}
+        showAuthModal();
+        return false;
       }
 
       async function handlePinLogin(e) {
@@ -17096,9 +17462,12 @@ Tus habilidades clave:
           if (res.ok && data.ok) {
             if (data.token) {
               localStorage.setItem("liseth_session_token", data.token);
+              localStorage.removeItem("liseth_saas_token");
             }
+            sessionStorage.setItem("liseth_active_session_authenticated", "true");
             hideAuthModal();
-            showToast("✓ Sesión iniciada. Bienvenido, Santiago.");
+            if (typeof refreshSaasProfileState === "function") refreshSaasProfileState();
+            showToast("✓ Sesión CREATOR iniciada. Bienvenido, Señor Santiago.");
             checkServerConnection();
           } else {
             if (authErrorMsg) {
@@ -17120,11 +17489,18 @@ Tus habilidades clave:
 
       async function handleLogout() {
         localStorage.removeItem("liseth_session_token");
+        localStorage.removeItem("liseth_saas_token");
+        sessionStorage.removeItem("liseth_active_session_authenticated");
+        window.isLisethAuthenticated = false;
         try {
           await fetch("/api/auth/logout", { method: "POST" });
+          await fetch("/api/saas/auth/logout", { method: "POST" });
+          if (window.firebase && window.firebase.apps && window.firebase.apps.length) {
+            await window.firebase.auth().signOut();
+          }
         } catch(e) {}
         showAuthModal();
-        showToast("🔒 Sesión bloqueada con éxito.");
+        showToast("🔒 Sesión cerrada. Inicia sesión o crea una cuenta para continuar.");
       }
 
       function setupAuthHandlers() {
@@ -22509,6 +22885,622 @@ const cardEsg = document.getElementById("hud-card-esg");
           }
         });
       }
+
+
+      // =========================================================================
+      // CONTROLADOR FRONTEND: PLATAFORMA SAAS MULTIUSUARIO & PANEL CREATOR
+      // =========================================================================
+      let currentSaasUser = null;
+
+      function getSaasHeaders() {
+        const headers = { "Content-Type": "application/json" };
+        const saasTok = localStorage.getItem("liseth_saas_token");
+        if (saasTok) {
+          headers["X-SaaS-Token"] = saasTok;
+        }
+        return headers;
+      }
+
+      window.openSaasModal = async function(defaultTab) {
+        const modal = document.getElementById("saas-platform-modal");
+        if (modal) modal.classList.add("active");
+        await refreshSaasProfileState();
+        if (defaultTab) {
+          window.switchSaasTab(defaultTab);
+        }
+      };
+
+      window.closeSaasModal = function() {
+        const modal = document.getElementById("saas-platform-modal");
+        if (modal) modal.classList.remove("active");
+      };
+
+      window.switchSaasTab = async function(tabName) {
+        const panes = ["account", "workspace", "plans", "usage", "catalog", "creator"];
+        panes.forEach(p => {
+          const el = document.getElementById("saas-pane-" + p);
+          const btn = document.getElementById("saas-tab-btn-" + p);
+          if (el) el.style.display = (p === tabName) ? "block" : "none";
+          if (btn) {
+            btn.style.borderColor = (p === tabName) ? "#00f0ff" : "";
+            btn.style.boxShadow = (p === tabName) ? "0 0 10px rgba(0, 240, 255, 0.35)" : "none";
+          }
+        });
+        if (tabName === "workspace") {
+          await loadSaasWorkspaceUI();
+        } else if (tabName === "plans") {
+          await loadSaasPlansUI();
+        } else if (tabName === "usage") {
+          await loadSaasUsageUI();
+        } else if (tabName === "catalog") {
+          await loadSaasCatalogUI();
+        } else if (tabName === "creator") {
+          await loadSaasCreatorDashboardUI();
+        }
+      };
+
+      async function refreshSaasProfileState() {
+        try {
+          const res = await fetch("/api/saas/profile", { headers: getSaasHeaders() });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.ok && data.user) {
+            currentSaasUser = data.user;
+            const badge = document.getElementById("saas-plan-badge");
+            if (badge) badge.textContent = data.user.plan_code;
+            const pill = document.getElementById("saas-ui-plan-pill");
+            if (pill) pill.textContent = data.user.plan_code;
+            const uidEl = document.getElementById("saas-ui-user-id");
+            if (uidEl) uidEl.textContent = data.user.id;
+            const emEl = document.getElementById("saas-ui-user-email");
+            if (emEl) emEl.textContent = data.user.email;
+            const rlEl = document.getElementById("saas-ui-user-role");
+            if (rlEl) rlEl.textContent = data.user.role;
+            const refEl = document.getElementById("saas-ui-ref-code");
+            if (refEl) refEl.textContent = data.user.referral_code;
+            const nmEl = document.getElementById("saas-prof-name");
+            if (nmEl) nmEl.value = data.user.full_name || "";
+            const nkEl = document.getElementById("saas-prof-nick");
+            if (nkEl) nkEl.value = data.user.nickname || "";
+            const memChk = document.getElementById("saas-memory-toggle");
+            if (memChk) memChk.checked = Boolean(data.user.memory_enabled);
+            const creatorBtn = document.getElementById("saas-tab-btn-creator");
+            if (creatorBtn) {
+              creatorBtn.style.display = data.user.is_creator ? "inline-block" : "none";
+            }
+          }
+        } catch (err) {
+          console.warn("Aviso cargando estado SaaS:", err);
+        }
+      }
+
+      window.loginSaasUser = async function() {
+        const email = (document.getElementById("saas-auth-email")?.value || "").trim();
+        const password = document.getElementById("saas-auth-pass")?.value || "";
+        const fb = document.getElementById("saas-auth-feedback");
+        try {
+          const res = await fetch("/api/saas/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            if (fb) { fb.style.color = "#ef4444"; fb.textContent = data.detail || "Error de autenticación."; }
+            return;
+          }
+          localStorage.setItem("liseth_saas_token", data.token);
+          if (fb) { fb.style.color = "#38ef7d"; fb.textContent = "Sesión iniciada como " + data.user.email; }
+          await refreshSaasProfileState();
+        } catch (e) {
+          if (fb) { fb.style.color = "#ef4444"; fb.textContent = "Error de red al iniciar sesión."; }
+        }
+      };
+
+      window.registerSaasUser = async function() {
+        const email = (document.getElementById("saas-auth-email")?.value || "").trim();
+        const password = document.getElementById("saas-auth-pass")?.value || "";
+        const full_name = (document.getElementById("saas-auth-name")?.value || "").trim();
+        const referral_code = (document.getElementById("saas-auth-referral")?.value || "").trim() || null;
+        const fb = document.getElementById("saas-auth-feedback");
+        try {
+          const res = await fetch("/api/saas/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, full_name, referral_code })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            if (fb) { fb.style.color = "#ef4444"; fb.textContent = data.detail || "Error en registro."; }
+            return;
+          }
+          localStorage.setItem("liseth_saas_token", data.token);
+          if (fb) { fb.style.color = "#38ef7d"; fb.textContent = "Cuenta creada en Plan FREE: " + data.user.email; }
+          await refreshSaasProfileState();
+        } catch (e) {
+          if (fb) { fb.style.color = "#ef4444"; fb.textContent = "Error de conexión al registrar."; }
+        }
+      };
+
+      window.logoutSaasAccount = async function() {
+        localStorage.removeItem("liseth_saas_token");
+        await fetch("/api/saas/auth/logout", { method: "POST" });
+        await refreshSaasProfileState();
+      };
+
+      window.saveSaasProfile = async function() {
+        const full_name = document.getElementById("saas-prof-name")?.value || "";
+        const nickname = document.getElementById("saas-prof-nick")?.value || "";
+        await fetch("/api/saas/profile", {
+          method: "PUT",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ full_name, nickname })
+        });
+        await refreshSaasProfileState();
+      };
+
+      window.toggleSaasMemoryEnabled = async function(enabled) {
+        await fetch("/api/saas/profile", {
+          method: "PUT",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ memory_enabled: Boolean(enabled) })
+        });
+      };
+
+      async function loadSaasWorkspaceUI() {
+        const convBox = document.getElementById("saas-conv-list-box");
+        const memBox = document.getElementById("saas-mem-list-box");
+        try {
+          const [cRes, mRes] = await Promise.all([
+            fetch("/api/saas/conversations", { headers: getSaasHeaders() }),
+            fetch("/api/saas/memories", { headers: getSaasHeaders() })
+          ]);
+          const cData = await cRes.json();
+          const mData = await mRes.json();
+          if (convBox && cData.conversations) {
+            convBox.innerHTML = cData.conversations.length
+              ? cData.conversations.map(c => `<div style="padding:6px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between;"><span><b>${c.title}</b> <small style="color:#64748b;">(${c.model_used})</small></span><span style="color:#00d2ff;">${c.message_count} msgs</span></div>`).join("")
+              : "<div style='color:#64748b;padding:8px;'>Sin conversaciones aún. Crea la primera arriba.</div>";
+          }
+          if (memBox && mData.memories) {
+            memBox.innerHTML = mData.memories.length
+              ? mData.memories.map(m => `<div style="padding:6px;border-bottom:1px solid #1e293b;"><b>[${m.scope}]</b> ${m.content}</div>`).join("")
+              : "<div style='color:#64748b;padding:8px;'>Sin recuerdos almacenados para este usuario.</div>";
+          }
+        } catch (e) {}
+      }
+
+      window.createSaasConversationUI = async function() {
+        const titleEl = document.getElementById("saas-conv-title-input");
+        const title = (titleEl?.value || "Nueva conversación").trim();
+        const res = await fetch("/api/saas/conversations", {
+          method: "POST",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ title })
+        });
+        if (res.ok && titleEl) titleEl.value = "";
+        await loadSaasWorkspaceUI();
+      };
+
+      window.addSaasMemoryUI = async function() {
+        const memEl = document.getElementById("saas-mem-input");
+        const content = (memEl?.value || "").trim();
+        if (!content) return;
+        const res = await fetch("/api/saas/memories", {
+          method: "POST",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ content, scope: "personal", importance: 4 })
+        });
+        if (res.ok && memEl) memEl.value = "";
+        await loadSaasWorkspaceUI();
+      };
+
+      async function loadSaasPlansUI() {
+        const grid = document.getElementById("saas-plans-grid");
+        const invBox = document.getElementById("saas-invoices-box");
+        try {
+          const [pRes, bRes] = await Promise.all([
+            fetch("/api/saas/plans", { headers: getSaasHeaders() }),
+            fetch("/api/saas/billing/history", { headers: getSaasHeaders() })
+          ]);
+          const pData = await pRes.json();
+          const bData = await bRes.json();
+          const userPlan = currentSaasUser?.plan_code || "FREE";
+
+          if (grid && pData.plans) {
+            grid.innerHTML = pData.plans.map(p => {
+              const isCurrent = p.code === userPlan;
+              const isCreator = p.code === "CREATOR";
+              return `<div style="background:rgba(15,23,42,0.85);border:1px solid ${isCurrent ? '#a855f7' : '#334155'};border-radius:8px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+                <div>
+                  <div style="font-weight:800;color:${isCreator ? '#ffd166' : '#00f0ff'};font-size:0.82rem;">${p.name}</div>
+                  <div style="font-size:1.1rem;font-weight:900;color:#fff;margin:4px 0;">${isCreator ? 'Exclusivo' : '$' + p.price_monthly_usd + ' USD/mes'}</div>
+                  <div style="font-size:0.68rem;color:#94a3b8;margin-bottom:6px;">${p.description}</div>
+                  <div style="font-size:0.68rem;color:#cbd5e1;line-height:1.4;">
+                    • Cerebros IA: <b>${p.max_brains >= 999 ? 'Todos' : p.max_brains}</b><br>
+                    • Conversaciones: <b>${p.max_conversations}</b><br>
+                    • Msgs/día: <b>${p.daily_message_limit}</b><br>
+                    • Créditos/mes: <b>${p.monthly_credits}</b>
+                  </div>
+                </div>
+                <div style="margin-top:8px;">
+                  ${isCurrent ? `<span style="display:block;text-align:center;padding:5px;background:rgba(168,85,247,0.25);color:#e9d5ff;border-radius:4px;font-size:0.72rem;font-weight:700;">Plan Actual</span>` : (isCreator ? `<span style="display:block;text-align:center;font-size:0.68rem;color:#ffd166;">🔒 No comercializable</span>` : `<button type="button" class="btn-primary" style="width:100%;padding:5px;font-size:0.72rem;" onclick="checkoutSaasPlanUI('${p.code}')">Elegir ${p.code}</button>`)}
+                </div>
+              </div>`;
+            }).join("");
+          }
+
+          if (invBox && bData.invoices) {
+            invBox.innerHTML = `<div style="font-weight:700;color:#00d2ff;margin-bottom:6px;">🧾 HISTORIAL DE FACTURAS Y SUSCRIPCIÓN</div>` +
+              (bData.invoices.length
+                ? bData.invoices.map(i => `<div>Factura <b>${i.invoice_number}</b> — Plan ${i.plan_code} (${i.billing_cycle}) — <b>$${i.total_usd} USD</b> [${i.status}]</div>`).join("")
+                : "<div>No hay facturas registradas en esta cuenta.</div>");
+          }
+        } catch (e) {}
+      }
+
+      window.validateSaasPromoUI = async function() {
+        const code = (document.getElementById("saas-promo-input")?.value || "").trim();
+        const fb = document.getElementById("saas-promo-feedback");
+        if (!code) return;
+        const res = await fetch("/api/saas/billing/promo/validate", {
+          method: "POST",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ code, plan_code: "PRO" })
+        });
+        const data = await res.json();
+        if (fb) {
+          fb.style.color = res.ok ? "#38ef7d" : "#ef4444";
+          fb.textContent = res.ok
+            ? `✔ Cupón válido: ${data.promo.description} (-${data.promo.discount_pct}% + ${data.promo.bonus_credits} créditos)`
+            : (data.detail || "Cupón inválido");
+        }
+      };
+
+      window.checkoutSaasPlanUI = async function(planCode) {
+        const cycle = document.getElementById("saas-billing-cycle")?.value || "monthly";
+        const promo = (document.getElementById("saas-promo-input")?.value || "").trim() || null;
+        const fb = document.getElementById("saas-promo-feedback");
+        const res = await fetch("/api/saas/billing/checkout", {
+          method: "POST",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ plan_code: planCode, billing_cycle: cycle, promo_code: promo })
+        });
+        const data = await res.json();
+        if (fb) {
+          fb.style.color = res.ok ? "#38ef7d" : "#ef4444";
+          fb.textContent = res.ok
+            ? `✔ Suscripción actualizada a ${planCode} (Factura ${data.invoice?.invoice_number || 'OK'})`
+            : (data.detail || "No se pudo procesar el cambio de plan.");
+        }
+        await refreshSaasProfileState();
+        await loadSaasPlansUI();
+      };
+
+      async function loadSaasUsageUI() {
+        const box = document.getElementById("saas-usage-summary-box");
+        try {
+          const res = await fetch("/api/saas/usage", { headers: getSaasHeaders() });
+          const data = await res.json();
+          if (box && data.summary) {
+            const s = data.summary;
+            box.innerHTML = `<div style="font-size:0.88rem;font-weight:700;color:#00f0ff;margin-bottom:8px;">⚡ ESTADO DE CRÉDITOS Y CUOTAS (${data.plan_code})</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+                <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;">
+                  <div style="color:#94a3b8;font-size:0.7rem;">Créditos Disponibles</div>
+                  <div style="font-size:1.1rem;font-weight:800;color:#38ef7d;">${s.credits_remaining} / ${s.total_credits_available}</div>
+                  <div style="font-size:0.68rem;color:#cbd5e1;">Consumo: ${s.consumption_pct}%</div>
+                </div>
+                <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;">
+                  <div style="color:#94a3b8;font-size:0.7rem;">Mensajes Hoy</div>
+                  <div style="font-size:1.1rem;font-weight:800;color:#00d2ff;">${s.daily_messages_used} / ${s.daily_message_limit}</div>
+                </div>
+                <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;">
+                  <div style="color:#94a3b8;font-size:0.7rem;">Tokens Mensuales</div>
+                  <div style="font-size:1.1rem;font-weight:800;color:#c084fc;">${s.monthly_tokens_used} / ${s.monthly_token_limit}</div>
+                </div>
+              </div>`;
+          }
+        } catch (e) {}
+      }
+
+      async function loadSaasCatalogUI() {
+        const box = document.getElementById("saas-catalog-box");
+        try {
+          const res = await fetch("/api/saas/catalog", { headers: getSaasHeaders() });
+          const data = await res.json();
+          if (box && data.ok) {
+            const modelsHtml = data.models.map(m => `<div style="padding:5px 8px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between;"><span><b>${m.display_name}</b> <small>(${m.provider_code})</small></span><span style="color:${m.unlocked ? '#38ef7d' : '#f59e0b'};">${m.unlocked ? '✔ Activo' : '🔒 Plan ' + m.required_plan}</span></div>`).join("");
+            const skillsHtml = data.skills.map(s => `<div style="padding:5px 8px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between;"><span><b>${s.name}</b> <small>[${s.tier}]</small></span><span style="color:${s.unlocked ? '#38ef7d' : '#f59e0b'};">${s.unlocked ? '✔ Activa' : '🔒 Plan ' + s.required_plan}</span></div>`).join("");
+            box.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div style="background:rgba(15,23,42,0.75);padding:10px;border-radius:8px;border:1px solid rgba(0,210,255,0.25);">
+                <div style="font-weight:700;color:#00d2ff;margin-bottom:6px;">🧠 CEREBROS IA (${data.models.length})</div>${modelsHtml}
+              </div>
+              <div style="background:rgba(15,23,42,0.75);padding:10px;border-radius:8px;border:1px solid rgba(168,85,247,0.25);">
+                <div style="font-weight:700;color:#c084fc;margin-bottom:6px;">⚡ SKILLS CENTRALIZADAS (${data.skills.length})</div>${skillsHtml}
+              </div>
+            </div>`;
+          }
+        } catch (e) {}
+      }
+
+      async function loadSaasCreatorDashboardUI() {
+        const box = document.getElementById("saas-creator-dashboard-box");
+        try {
+          const res = await fetch("/api/saas/admin/dashboard", { headers: getSaasHeaders() });
+          const data = await res.json();
+          if (!res.ok) {
+            if (box) box.innerHTML = `<div style="color:#ef4444;padding:12px;">🔒 Acceso restringido exclusivamente al propietario CREATOR (Señor Santiago).</div>`;
+            return;
+          }
+          const m = data.metrics;
+          if (box) {
+            box.innerHTML = `<div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);padding:12px;border-radius:8px;margin-bottom:10px;">
+              <div style="font-weight:800;color:#ffd166;font-size:0.86rem;margin-bottom:8px;">👑 CENTRO DE COMANDO SUPERADMINISTRADOR CREATOR — ${data.creator_owner}</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;">
+                <div style="background:rgba(0,0,0,0.35);padding:8px;border-radius:6px;"><div style="font-size:0.68rem;color:#94a3b8;">Usuarios Totales</div><div style="font-size:1.05rem;font-weight:800;color:#fff;">${m.total_users}</div></div>
+                <div style="background:rgba(0,0,0,0.35);padding:8px;border-radius:6px;"><div style="font-size:0.68rem;color:#94a3b8;">MRR (Mensual)</div><div style="font-size:1.05rem;font-weight:800;color:#38ef7d;">$${m.mrr_usd} USD</div></div>
+                <div style="background:rgba(0,0,0,0.35);padding:8px;border-radius:6px;"><div style="font-size:0.68rem;color:#94a3b8;">ARR (Anual)</div><div style="font-size:1.05rem;font-weight:800;color:#00f0ff;">$${m.arr_usd} USD</div></div>
+                <div style="background:rgba(0,0,0,0.35);padding:8px;border-radius:6px;"><div style="font-size:0.68rem;color:#94a3b8;">Ganancia Neta Est.</div><div style="font-size:1.05rem;font-weight:800;color:#ffd166;">$${m.estimated_monthly_profit_usd} USD</div></div>
+              </div>
+            </div>`;
+          }
+        } catch (e) {}
+      }
+
+
+      // =========================================================================
+      // PORTAL OBLIGATORIO DE INICIO: FIREBASE AUTH + SELECCIÓN DE PLANES SAAS
+      // =========================================================================
+      let linkedFirebaseConfig = null;
+
+      window.initFirebaseGateConfig = async function() {
+        try {
+          const res = await fetch("/api/saas/firebase/config");
+          if (!res.ok) return;
+          const cfg = await res.json();
+          if (cfg && cfg.ok) {
+            linkedFirebaseConfig = cfg;
+            const badge = document.getElementById("fb-linked-project-badge");
+            if (badge) badge.textContent = cfg.projectId || "liseth-saas-ai";
+            const pidEl = document.getElementById("fb-cfg-project-id");
+            if (pidEl) pidEl.value = cfg.projectId || "liseth-saas-ai";
+            const keyEl = document.getElementById("fb-cfg-api-key");
+            if (keyEl) keyEl.value = cfg.apiKey || "";
+            const domEl = document.getElementById("fb-cfg-auth-domain");
+            if (domEl) domEl.value = cfg.authDomain || "";
+            const appEl = document.getElementById("fb-cfg-app-id");
+            if (appEl) appEl.value = cfg.appId || "";
+
+            if (cfg.apiKey && window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
+              try {
+                window.firebase.initializeApp({
+                  apiKey: cfg.apiKey,
+                  authDomain: cfg.authDomain,
+                  projectId: cfg.projectId,
+                  storageBucket: cfg.storageBucket,
+                  messagingSenderId: cfg.messagingSenderId,
+                  appId: cfg.appId
+                });
+              } catch (fbErr) {
+                console.warn("Aviso inicializando Firebase SDK:", fbErr);
+              }
+            }
+          }
+        } catch (e) {}
+      };
+
+      window.toggleFirebaseConfigDrawer = function() {
+        const drawer = document.getElementById("firebase-config-drawer");
+        if (!drawer) return;
+        drawer.style.display = (drawer.style.display === "none" || !drawer.style.display) ? "block" : "none";
+      };
+
+      window.saveFirebaseProjectConfigUI = async function() {
+        const projectId = (document.getElementById("fb-cfg-project-id")?.value || "liseth-saas-ai").trim();
+        const apiKey = (document.getElementById("fb-cfg-api-key")?.value || "").trim();
+        const authDomain = (document.getElementById("fb-cfg-auth-domain")?.value || "").trim();
+        const appId = (document.getElementById("fb-cfg-app-id")?.value || "").trim();
+        const msg = document.getElementById("fb-cfg-save-msg");
+        try {
+          const res = await fetch("/api/saas/firebase/config", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ projectId, apiKey, authDomain, appId })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            linkedFirebaseConfig = data;
+            const badge = document.getElementById("fb-linked-project-badge");
+            if (badge) badge.textContent = data.projectId;
+            if (msg) msg.textContent = "✔ Proyecto Firebase '" + data.projectId + "' vinculado correctamente.";
+            if (data.apiKey && window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
+              try { window.firebase.initializeApp(data); } catch (e) {}
+            }
+          }
+        } catch (e) {
+          if (msg) msg.textContent = "Error guardando configuración de Firebase.";
+        }
+      };
+
+      window.switchAuthGateMode = function(mode) {
+        const regForm = document.getElementById("auth-firebase-register-form");
+        const logForm = document.getElementById("auth-firebase-login-form");
+        const pinForm = document.getElementById("auth-pin-form");
+        const tReg = document.getElementById("gate-tab-register");
+        const tLog = document.getElementById("gate-tab-login");
+        const tPin = document.getElementById("gate-tab-pin");
+        const err = document.getElementById("auth-error-msg");
+        if (err) err.style.display = "none";
+
+        if (regForm) regForm.style.display = (mode === "register") ? "block" : "none";
+        if (logForm) logForm.style.display = (mode === "login") ? "block" : "none";
+        if (pinForm) pinForm.style.display = (mode === "pin") ? "block" : "none";
+
+        if (tReg) {
+          tReg.style.borderColor = (mode === "register") ? "#00f0ff" : "transparent";
+          tReg.style.background = (mode === "register") ? "rgba(0, 240, 255, 0.2)" : "transparent";
+          tReg.style.color = (mode === "register") ? "#fff" : "#94a3b8";
+        }
+        if (tLog) {
+          tLog.style.borderColor = (mode === "login") ? "#00f0ff" : "transparent";
+          tLog.style.background = (mode === "login") ? "rgba(0, 240, 255, 0.2)" : "transparent";
+          tLog.style.color = (mode === "login") ? "#fff" : "#94a3b8";
+        }
+        if (tPin) {
+          tPin.style.borderColor = (mode === "pin") ? "#fbbf24" : "transparent";
+          tPin.style.background = (mode === "pin") ? "rgba(251, 191, 36, 0.2)" : "transparent";
+        }
+      };
+
+      window.selectGatePlan = function(planCode, planLabel) {
+        const codeInput = document.getElementById("gate-selected-plan-code");
+        const labelEl = document.getElementById("gate-selected-plan-label");
+        const badgeEl = document.getElementById("gate-selected-plan-badge");
+        if (codeInput) codeInput.value = planCode;
+        if (labelEl) labelEl.textContent = planLabel;
+        if (badgeEl) badgeEl.textContent = planCode;
+
+        ["FREE", "STARTER", "PRO", "BUSINESS", "ENTERPRISE"].forEach(c => {
+          const card = document.getElementById("gate-plan-card-" + c);
+          if (card) {
+            card.style.border = (c === planCode) ? "2px solid #00f0ff" : "1px solid #334155";
+            card.style.boxShadow = (c === planCode) ? "0 0 16px rgba(0, 240, 255, 0.3)" : "none";
+          }
+        });
+      };
+
+      window.handleFirebaseGateSubmit = async function(e, mode) {
+        if (e) e.preventDefault();
+        const errBox = document.getElementById("auth-error-msg");
+        if (errBox) errBox.style.display = "none";
+
+        const isReg = (mode === "register");
+        const email = (document.getElementById(isReg ? "gate-reg-email" : "gate-login-email")?.value || "").trim();
+        const password = document.getElementById(isReg ? "gate-reg-password" : "gate-login-password")?.value || "";
+        const full_name = isReg ? (document.getElementById("gate-reg-name")?.value || "").trim() : "";
+        const selected_plan = isReg ? (document.getElementById("gate-selected-plan-code")?.value || "FREE") : "FREE";
+        const promo_code = isReg ? ((document.getElementById("gate-reg-promo")?.value || "").trim() || null) : null;
+        const referral_code = isReg ? ((document.getElementById("gate-reg-referral")?.value || "").trim() || null) : null;
+
+        let firebase_uid = null;
+        let firebase_id_token = null;
+
+        // Si el cliente de Firebase Auth está configurado con API Key real, autenticar primero en Firebase Cloud
+        if (linkedFirebaseConfig && linkedFirebaseConfig.apiKey && window.firebase && window.firebase.apps && window.firebase.apps.length) {
+          try {
+            let userCred;
+            if (isReg) {
+              userCred = await window.firebase.auth().createUserWithEmailAndPassword(email, password);
+              if (full_name && userCred.user && userCred.user.updateProfile) {
+                await userCred.user.updateProfile({ displayName: full_name });
+              }
+            } else {
+              userCred = await window.firebase.auth().signInWithEmailAndPassword(email, password);
+            }
+            if (userCred && userCred.user) {
+              firebase_uid = userCred.user.uid;
+              firebase_id_token = await userCred.user.getIdToken();
+            }
+          } catch (fbErr) {
+            if (errBox) {
+              errBox.textContent = "Firebase Auth: " + (fbErr.message || "Error de autenticación en Firebase.");
+              errBox.style.display = "block";
+            }
+            return;
+          }
+        }
+
+        try {
+          const res = await fetch("/api/saas/auth/firebase", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mode,
+              email,
+              password,
+              full_name,
+              firebase_uid,
+              firebase_id_token,
+              provider: "password",
+              selected_plan,
+              promo_code,
+              referral_code
+            })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            const detailMsg = (typeof data.detail === "string") ? data.detail : (data.detail?.error || "No se pudo completar la autenticación.");
+            if (errBox) {
+              errBox.textContent = detailMsg;
+              errBox.style.display = "block";
+            }
+            return;
+          }
+
+          localStorage.setItem("liseth_saas_token", data.token);
+          localStorage.setItem("liseth_session_token", data.token);
+          sessionStorage.setItem("liseth_active_session_authenticated", "true");
+          hideAuthModal();
+          await refreshSaasProfileState();
+          showToast(`🔥 Cuenta vinculada a Firebase (${data.firebase?.projectId || 'liseth-saas-ai'}) • Plan ${data.user?.plan_code}`);
+        } catch (netErr) {
+          if (errBox) {
+            errBox.textContent = "Error de conexión con el servidor SaaS.";
+            errBox.style.display = "block";
+          }
+        }
+      };
+
+      window.handleFirebaseGoogleSignIn = async function() {
+        const errBox = document.getElementById("auth-error-msg");
+        if (errBox) errBox.style.display = "none";
+        const selected_plan = document.getElementById("gate-selected-plan-code")?.value || "FREE";
+
+        if (linkedFirebaseConfig && linkedFirebaseConfig.apiKey && window.firebase && window.firebase.apps && window.firebase.apps.length) {
+          try {
+            const provider = new window.firebase.auth.GoogleAuthProvider();
+            const result = await window.firebase.auth().signInWithPopup(provider);
+            const user = result.user;
+            const idToken = await user.getIdToken();
+            const res = await fetch("/api/saas/auth/firebase", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                mode: "login",
+                email: user.email,
+                full_name: user.displayName || "",
+                firebase_uid: user.uid,
+                firebase_id_token: idToken,
+                provider: "google.com",
+                selected_plan
+              })
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+              localStorage.setItem("liseth_saas_token", data.token);
+              localStorage.setItem("liseth_session_token", data.token);
+              sessionStorage.setItem("liseth_active_session_authenticated", "true");
+              hideAuthModal();
+              await refreshSaasProfileState();
+              showToast(`🔥 Sesión Google Firebase iniciada: ${data.user.email}`);
+              return;
+            }
+          } catch (fbErr) {
+            if (errBox) {
+              errBox.textContent = "Firebase Google Sign-In: " + (fbErr.message || "Configura tu Web API Key de Firebase arriba.");
+              errBox.style.display = "block";
+            }
+            return;
+          }
+        } else {
+          window.toggleFirebaseConfigDrawer();
+          if (errBox) {
+            errBox.textContent = "Para usar el popup OAuth de Google, ingresa la Web API Key de tu proyecto Firebase en el panel superior o crea tu cuenta con correo y contraseña.";
+            errBox.style.display = "block";
+          }
+        }
+      };
 
     })();
 

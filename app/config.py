@@ -157,6 +157,21 @@ class Settings:
         self.ELEVENLABS_MODEL_ID: str = os.getenv("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2").strip()
         self.OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
 
+        # Firebase Project & Authentication Configuration
+        self.FIREBASE_PROJECT_ID: str = os.getenv("FIREBASE_PROJECT_ID", "liseth-saas-ai").strip() or "liseth-saas-ai"
+        self.FIREBASE_API_KEY: str = os.getenv("FIREBASE_API_KEY", "").strip()
+        self.FIREBASE_AUTH_DOMAIN: str = os.getenv(
+            "FIREBASE_AUTH_DOMAIN",
+            f"{self.FIREBASE_PROJECT_ID}.firebaseapp.com"
+        ).strip()
+        self.FIREBASE_STORAGE_BUCKET: str = os.getenv(
+            "FIREBASE_STORAGE_BUCKET",
+            f"{self.FIREBASE_PROJECT_ID}.firebasestorage.app"
+        ).strip()
+        self.FIREBASE_MESSAGING_SENDER_ID: str = os.getenv("FIREBASE_MESSAGING_SENDER_ID", "").strip()
+        self.FIREBASE_APP_ID: str = os.getenv("FIREBASE_APP_ID", "").strip()
+        self.STRIPE_WEBHOOK_SECRET: str = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
+
     def validate_security(self, strict: bool = True):
         """
         Validates security credentials to prevent booting with known default/insecure values.

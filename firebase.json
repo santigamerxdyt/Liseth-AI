@@ -1,0 +1,25 @@
+{
+  "auth": {
+    "providers": {
+      "anonymous": false,
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Liseth AI SaaS Platform",
+        "supportEmail": "santiago@liseth.ai",
+        "authorizedRedirectUris": [
+          "https://liseth-saas-ai.firebaseapp.com/__/auth/handler",
+          "http://127.0.0.1:3000",
+          "http://localhost:3000"
+        ]
+      }
+    }
+  },
+  "hosting": {
+    "public": "app/static",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

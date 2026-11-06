@@ -27,6 +27,7 @@ from app.routers.notifications_router import router as notifications_router
 from app.routers.credentials_router import router as credentials_router
 from app.routers.nfc_router import router as nfc_router
 from app.routers.suite_router import router as suite_router
+from app.routers.saas_router import router as saas_router
 
 
 # Setup logger
@@ -52,6 +53,9 @@ async def lifespan(app: FastAPI):
     try:
         migration_stats = await run_migration_if_needed()
         logger.info(f"Base de datos SQLite inicializada. Migración: {migration_stats}")
+        from app.services.saas_service import saas_service
+        await saas_service.ensure_seeded()
+        logger.info("Plataforma SaaS Multiusuario (Planes, Catálogo IA y Cuenta CREATOR) inicializada.")
     except Exception as e:
         logger.error(f"Error inicializando base de datos / migración: {e}", exc_info=True)
 
@@ -222,6 +226,16 @@ EXEMPT_API_PATHS = {
     "/api/suite/market/ticker",
     "/api/suite/meetings/minutes",
     "/api/suite/priorities/evaluate",
+    "/api/saas/auth/register",
+    "/api/saas/auth/login",
+    "/api/saas/auth/logout",
+    "/api/saas/auth/firebase",
+    "/api/saas/auth/verify-email",
+    "/api/saas/auth/forgot-password",
+    "/api/saas/auth/reset-password",
+    "/api/saas/firebase/config",
+    "/api/saas/plans",
+    "/api/saas/billing/webhook",
 }
 
 
@@ -276,6 +290,7 @@ app.include_router(notifications_router)
 app.include_router(credentials_router)
 app.include_router(nfc_router)
 app.include_router(suite_router)
+app.include_router(saas_router)
 
 
 

@@ -155,20 +155,26 @@ def verify_session_token(token: str) -> Optional[dict]:
 
 def extract_token_from_request(request: Request) -> Optional[str]:
     """
-    Extracts session token from Cookie 'liseth_session' or Header 'Authorization: Bearer <token>'.
+    Extracts session token prioritizing explicit headers ('X-SaaS-Token', 'Authorization: Bearer', 'X-Session-Token')
+    over cookies ('liseth_session', 'liseth_saas_session').
     """
-    # 1. Check Cookie
-    token = request.cookies.get("liseth_session")
-    if token:
-        return token
+    # 0. Check X-SaaS-Token header
+    saas_token = request.headers.get("X-SaaS-Token")
+    if saas_token:
+        return saas_token.strip()
 
-    # 2. Check Authorization header
+    # 1. Check Authorization header
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
         return auth_header[7:].strip()
 
-    # 3. Check X-Session-Token header
+    # 2. Check X-Session-Token header
     token = request.headers.get("X-Session-Token")
+    if token:
+        return token
+
+    # 3. Check Cookies
+    token = request.cookies.get("liseth_session") or request.cookies.get("liseth_saas_session")
     if token:
         return token
 
