@@ -617,6 +617,8 @@ class TestFirebaseStartupGateAndProjectLinking:
         assert "wompi_pse_nequi" in gw_data["gateways"]
         assert "paypal" in gw_data["gateways"]
         assert "direct_transfer" in gw_data["gateways"]
+        assert gw_data["gateways"]["direct_transfer"]["nequi_number"] == "3122376474"
+        assert gw_data["gateways"]["direct_transfer"]["whatsapp_sales_phone"] == "+573122376474"
 
         # 2. Live sales quote for PRO annual with WELCOME20 coupon
         quote_resp = client.post(

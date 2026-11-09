@@ -181,10 +181,10 @@ class Settings:
         self.MERCADOPAGO_ACCESS_TOKEN: str = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "").strip()
         self.PAYPAL_CLIENT_ID: str = os.getenv("PAYPAL_CLIENT_ID", "").strip()
         self.PAYPAL_BUSINESS_EMAIL: str = os.getenv("PAYPAL_BUSINESS_EMAIL", "").strip()
-        self.NEQUI_NUMBER: str = os.getenv("NEQUI_NUMBER", "").strip()
+        self.NEQUI_NUMBER: str = os.getenv("NEQUI_NUMBER", "3122376474").strip()
         self.BANCOLOMBIA_ACCOUNT: str = os.getenv("BANCOLOMBIA_ACCOUNT", "").strip()
-        self.BRE_B_KEY: str = os.getenv("BRE_B_KEY", "").strip()
-        self.WHATSAPP_SALES_PHONE: str = os.getenv("WHATSAPP_SALES_PHONE", "").strip()
+        self.BRE_B_KEY: str = os.getenv("BRE_B_KEY", "@santiagoliseth").strip()
+        self.WHATSAPP_SALES_PHONE: str = os.getenv("WHATSAPP_SALES_PHONE", "+573122376474").strip()
         try:
             self.TRM_USD_COP: float = float(os.getenv("TRM_USD_COP", "4200.0").strip())
         except ValueError:

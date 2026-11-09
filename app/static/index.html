@@ -23251,10 +23251,15 @@ const cardEsg = document.getElementById("hud-card-esg");
           const extBtn = q.external_payment_link
             ? `<a href="${q.external_payment_link}" target="_blank" rel="noopener" class="btn-secondary" style="padding:6px 12px;font-size:0.74rem;border-color:#38ef7d;color:#38ef7d;text-decoration:none;">🔗 Abrir Link de Pago Externo (${q.payment_gateway.toUpperCase()})</a>`
             : "";
+          const waRaw = (dt.whatsapp_sales_phone || '+573122376474').replace(/[^0-9]/g, '');
+          const waMsg = encodeURIComponent(`Hola Santiago, acabo de transferir por Nequi (${dt.nequi_number || '3122376474'}) el valor de $${q.total_cop.toLocaleString('es-CO')} COP ($${q.total_usd} USD) para activar mi ${q.plan_name} en Liseth AI.`);
           const dtInfo = (gw === "direct_transfer")
-            ? `<div style="margin-top:6px;padding:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-size:0.72rem;color:#fde68a;">
-                 <b>📲 Datos para Transferencia Directa (${dt.account_holder || 'Santiago'}):</b><br>
-                 • <b>Nequi:</b> <code>${dt.nequi_number || '300 000 0000'}</code> | <b>Bancolombia:</b> <code>${dt.bancolombia_account || 'Ahorros'}</code> | <b>Llave Bre-B:</b> <code>${dt.bre_b_key || '@santiagoliseth'}</code>
+            ? `<div style="margin-top:6px;padding:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-size:0.72rem;color:#fde68a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                 <div>
+                   <b>📲 Datos para Transferencia Directa (${dt.account_holder || 'Santiago'}):</b><br>
+                   • <b>Nequi:</b> <code>${dt.nequi_number || '3122376474'}</code> | <b>WhatsApp:</b> <code>${dt.whatsapp_sales_phone || '+573122376474'}</code> | <b>Llave Bre-B:</b> <code>${dt.bre_b_key || '@santiagoliseth'}</code>
+                 </div>
+                 <a href="https://wa.me/${waRaw}?text=${waMsg}" target="_blank" rel="noopener" style="padding:5px 10px;background:#25D366;color:#04070d;font-weight:800;border-radius:6px;text-decoration:none;font-size:0.7rem;">💬 Enviar Comprobante a WhatsApp (${dt.whatsapp_sales_phone || '+573122376474'})</a>
                </div>`
             : "";
 
@@ -23447,11 +23452,11 @@ const cardEsg = document.getElementById("hud-card-esg");
                 <!-- 4. TRANSFERENCIA DIRECTA NEQUI / BANCOLOMBIA / BRE-B -->
                 <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:10px;">
                   <div style="font-weight:700;color:#ffd166;font-size:0.76rem;margin-bottom:6px;">📲 4. Transferencia Directa (Nequi / Bancolombia / Bre-B)</div>
-                  <input type="text" id="paycfg-dt-nequi" value="${dt.nequi_number || ''}" placeholder="Número Nequi (ej. 300 123 4567)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="text" id="paycfg-dt-nequi" value="${dt.nequi_number || '3122376474'}" placeholder="Número Nequi (3122376474)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
                   <input type="text" id="paycfg-dt-bancolombia" value="${dt.bancolombia_account || ''}" placeholder="Cuenta Bancolombia (ej. Ahorros 000-000000-00)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
                     <input type="text" id="paycfg-dt-breb" value="${dt.bre_b_key || ''}" placeholder="Llave Bre-B (@santiago)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
-                    <input type="text" id="paycfg-dt-wa" value="${dt.whatsapp_sales_phone || ''}" placeholder="WhatsApp (+57300...)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                    <input type="text" id="paycfg-dt-wa" value="${dt.whatsapp_sales_phone || '+573122376474'}" placeholder="WhatsApp (+573122376474)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
                   </div>
                 </div>
               </div>
@@ -23677,7 +23682,7 @@ const cardEsg = document.getElementById("hud-card-esg");
           if (gw === "stripe") inst.textContent = "💳 Pago internacional con Tarjeta Visa, Mastercard, Amex, Apple Pay o Google Pay (Stripe).";
           else if (gw === "wompi_pse_nequi") inst.textContent = "🏦 Débito bancario PSE (todos los bancos en Colombia), Nequi Push o Botón Bancolombia (Wompi/MercadoPago).";
           else if (gw === "paypal") inst.textContent = "🅿️ Pago rápido con tu cuenta PayPal Express Checkout o tarjeta vinculada.";
-          else if (gw === "direct_transfer") inst.innerHTML = `📲 Transfiere a <b>Nequi: ${dt.nequi_number || '300 000 0000'}</b> | <b>${dt.bancolombia_account || 'Bancolombia'}</b> | <b>Bre-B: ${dt.bre_b_key || '@santiagoliseth'}</b> e ingresa los 4 dígitos del comprobante.`;
+          else if (gw === "direct_transfer") inst.innerHTML = `📲 Transfiere a <b>Nequi: ${dt.nequi_number || '3122376474'}</b> | <b>WhatsApp: <a href="https://wa.me/${(dt.whatsapp_sales_phone || '+573122376474').replace(/[^0-9]/g, '')}" target="_blank" style="color:#38ef7d;">${dt.whatsapp_sales_phone || '+573122376474'}</a></b> e ingresa los últimos 4 dígitos del comprobante.`;
         }
         window.updateGateLiveQuote();
       };

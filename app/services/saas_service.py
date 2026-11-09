@@ -3290,12 +3290,20 @@ class SaasPlatformService:
 
         # 4. Direct Transfer (Nequi / Bancolombia / Llave Bre-B / WhatsApp)
         dt_saved = saved_gws.get("direct_transfer") or {}
-        nequi_num = str(dt_saved.get("nequi_number") or getattr(settings, "NEQUI_NUMBER", "300 000 0000")).strip()
+        raw_nequi = str(dt_saved.get("nequi_number") or "").strip()
+        if not raw_nequi or raw_nequi == "300 000 0000":
+            nequi_num = getattr(settings, "NEQUI_NUMBER", "3122376474") or "3122376474"
+        else:
+            nequi_num = raw_nequi
         bancolombia_acc = str(
             dt_saved.get("bancolombia_account") or getattr(settings, "BANCOLOMBIA_ACCOUNT", "Ahorros Bancolombia 000-000000-00")
         ).strip()
         bre_b_key = str(dt_saved.get("bre_b_key") or getattr(settings, "BRE_B_KEY", "@santiagoliseth")).strip()
-        wa_phone = str(dt_saved.get("whatsapp_sales_phone") or getattr(settings, "WHATSAPP_SALES_PHONE", "+573000000000")).strip()
+        raw_wa = str(dt_saved.get("whatsapp_sales_phone") or "").strip()
+        if not raw_wa or raw_wa in {"+57 300 000 0000", "+573000000000"}:
+            wa_phone = getattr(settings, "WHATSAPP_SALES_PHONE", "+573122376474") or "+573122376474"
+        else:
+            wa_phone = raw_wa
         account_holder = str(dt_saved.get("account_holder") or "Santiago (Propietario & Creador Liseth AI)").strip()
         dt_instructions = str(
             dt_saved.get("instructions")
