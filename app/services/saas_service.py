@@ -2408,6 +2408,7 @@ class SaasPlatformService:
         payment_method_last4: str = "4242",
         external_tx_id: Optional[str] = None,
         ip_address: str = "127.0.0.1",
+        payment_gateway: str = "stripe",
     ) -> Dict[str, Any]:
         """
         Processes a subscription purchase, upgrade, or downgrade.
@@ -2415,6 +2416,7 @@ class SaasPlatformService:
         - Always reads plan prices from the database (`SaasPlan`), never from the client request!
         - Enforces idempotency via `external_tx_id` so duplicate requests never charge twice.
         - Never stores raw credit card numbers (only tokenized brand + 4 digits).
+        - Supports Stripe (international card), Wompi/MercadoPago (Nequi/PSE/Bancolombia), PayPal, and Direct Transfer.
         """
         await self.ensure_seeded(db)
         plan_code_up = (target_plan_code or "").strip().upper()
@@ -2447,6 +2449,9 @@ class SaasPlatformService:
             raise HTTPException(status_code=404, detail=f"El plan '{plan_code_up}' no existe.")
 
         cycle = billing_cycle.lower() if billing_cycle in {"monthly", "annual"} else "monthly"
+        gw_clean = (payment_gateway or "stripe").strip().lower()
+        if gw_clean not in {"stripe", "wompi_pse_nequi", "paypal", "direct_transfer"}:
+            gw_clean = "stripe"
 
         # Check idempotency if external_tx_id is provided
         tx_id = external_tx_id or f"tx_{uuid.uuid4().hex[:18]}"
@@ -2481,6 +2486,20 @@ class SaasPlatformService:
         final_amount = round(max(0.0, base_price - discount_usd), 2)
         safe_last4 = re.sub(r"\D", "", payment_method_last4 or "4242")[-4:] or "4242"
 
+        gw_cfg = self.get_payment_gateways_config(include_secrets=False)
+        trm_usd_cop = float(gw_cfg.get("trm_usd_cop") or 4200.0)
+        final_amount_cop = int(round(final_amount * trm_usd_cop))
+        gw_info = (gw_cfg.get("gateways") or {}).get(gw_clean, {})
+        external_payment_link = ((gw_info.get("payment_links") or {}).get(target_plan.code) or "").strip()
+
+        gw_labels = {
+            "stripe": f"{(payment_method_brand or 'VISA').upper()} •••• {safe_last4} (Stripe)",
+            "wompi_pse_nequi": f"PSE / NEQUI •••• {safe_last4} (Wompi Colombia)",
+            "paypal": f"PAYPAL •••• {safe_last4} (Express)",
+            "direct_transfer": f"TRANSFERENCIA NEQUI/BANCOLOMBIA •••• {safe_last4}",
+        }
+        method_summary = "Sin tarjeta requerida" if target_plan.code == "FREE" else gw_labels.get(gw_clean, f"{payment_method_brand.upper()} •••• {safe_last4}")
+
         # Record Payment
         payment = SaasPayment(
             id=f"pay_{uuid.uuid4().hex[:16]}",
@@ -2489,11 +2508,18 @@ class SaasPlatformService:
             amount_usd=final_amount,
             currency="USD",
             status="succeeded",
-            provider="stripe",
+            provider=gw_clean,
             external_tx_id=tx_id,
-            payment_method_brand=(payment_method_brand or "visa")[:30],
+            payment_method_brand=(payment_method_brand or gw_clean)[:30],
             payment_method_last4=safe_last4,
-            metadata_json={"billing_cycle": cycle, "promo_code": applied_promo_code},
+            metadata_json={
+                "billing_cycle": cycle,
+                "promo_code": applied_promo_code,
+                "payment_gateway": gw_clean,
+                "amount_cop": final_amount_cop,
+                "trm_usd_cop": trm_usd_cop,
+                "external_payment_link": external_payment_link,
+            },
         )
         db.add(payment)
 
@@ -2518,7 +2544,7 @@ class SaasPlatformService:
                 cancel_at_period_end=False,
                 current_period_start=now_dt,
                 current_period_end=now_dt + timedelta(days=period_days),
-                payment_method_summary=f"{payment_method_brand.upper()} •••• {safe_last4}",
+                payment_method_summary=method_summary,
             )
             db.add(sub)
         else:
@@ -2533,9 +2559,7 @@ class SaasPlatformService:
             sub.grace_period_ends_at = None
             sub.current_period_start = now_dt
             sub.current_period_end = now_dt + timedelta(days=period_days)
-            sub.payment_method_summary = (
-                "Sin tarjeta requerida" if target_plan.code == "FREE" else f"{payment_method_brand.upper()} •••• {safe_last4}"
-            )
+            sub.payment_method_summary = method_summary
             sub.updated_at = now_dt
 
         payment.subscription_id = sub.id
@@ -2558,10 +2582,13 @@ class SaasPlatformService:
             status="paid",
             line_items=[
                 {
-                    "description": f"Suscripción {target_plan.name} ({cycle})",
+                    "description": f"Suscripción {target_plan.name} ({cycle}) vía {gw_clean.upper()}",
                     "subtotal_usd": base_price,
                     "discount_usd": discount_usd,
                     "total_usd": final_amount,
+                    "total_cop": final_amount_cop,
+                    "trm_usd_cop": trm_usd_cop,
+                    "payment_gateway": gw_clean,
                 }
             ],
             issued_at=now_dt,
@@ -2594,7 +2621,9 @@ class SaasPlatformService:
                 "old_plan": old_plan,
                 "new_plan": target_plan.code,
                 "billing_cycle": cycle,
+                "payment_gateway": gw_clean,
                 "amount_usd": final_amount,
+                "amount_cop": final_amount_cop,
                 "promo_code": applied_promo_code,
             },
         )
@@ -2603,12 +2632,15 @@ class SaasPlatformService:
         return {
             "ok": True,
             "idempotent_duplicate": False,
+            "payment_gateway": gw_clean,
+            "external_payment_link": external_payment_link,
             "subscription": {
                 "id": sub.id,
                 "plan_code": sub.plan_code,
                 "billing_cycle": sub.billing_cycle,
                 "status": sub.status,
                 "price_usd": sub.price_usd,
+                "price_cop": final_amount_cop,
                 "discount_pct": sub.discount_pct,
                 "current_period_end": _iso(sub.current_period_end),
                 "payment_method_summary": sub.payment_method_summary,
@@ -2619,6 +2651,9 @@ class SaasPlatformService:
                 "subtotal_usd": invoice.subtotal_usd,
                 "discount_usd": invoice.discount_usd,
                 "total_usd": invoice.total_usd,
+                "total_cop": final_amount_cop,
+                "trm_usd_cop": trm_usd_cop,
+                "payment_gateway": gw_clean,
                 "status": invoice.status,
                 "issued_at": _iso(invoice.issued_at),
             },
@@ -3212,6 +3247,379 @@ class SaasPlatformService:
 
         return self.get_firebase_config()
 
+    # ==========================================================================
+    # 7. PAYMENT GATEWAYS CONFIGURATION & LIVE PLAN SALES QUOTE ENGINE
+    # ==========================================================================
+
+    def get_payment_gateways_config(self, include_secrets: bool = False) -> Dict[str, Any]:
+        """
+        Returns the active payment gateways configuration for selling SaaS plans.
+        Reads from `data/payment_gateways_config.json` merged with `.env` defaults.
+        """
+        cfg_file = settings.DATA_DIR / "payment_gateways_config.json"
+        saved: Dict[str, Any] = {}
+        if cfg_file.exists():
+            try:
+                saved = json.loads(cfg_file.read_text(encoding="utf-8"))
+            except Exception:
+                saved = {}
+
+        trm_usd_cop = float(saved.get("trm_usd_cop") or getattr(settings, "TRM_USD_COP", 4200.0) or 4200.0)
+        saved_gws = saved.get("gateways") or {}
+
+        # 1. Stripe (International Credit/Debit Cards)
+        st_saved = saved_gws.get("stripe") or {}
+        st_pub = str(st_saved.get("publishable_key") or getattr(settings, "STRIPE_PUBLISHABLE_KEY", "")).strip()
+        st_sec = str(st_saved.get("secret_key") or getattr(settings, "STRIPE_SECRET_KEY", "")).strip()
+        st_wh = str(st_saved.get("webhook_secret") or getattr(settings, "STRIPE_WEBHOOK_SECRET", "")).strip()
+        st_links = st_saved.get("payment_links") or {"STARTER": "", "PRO": "", "BUSINESS": "", "ENTERPRISE": ""}
+
+        # 2. Wompi / MercadoPago (PSE, Nequi, Bancolombia, Tarjetas Colombia)
+        wp_saved = saved_gws.get("wompi_pse_nequi") or {}
+        wp_pub = str(wp_saved.get("wompi_public_key") or getattr(settings, "WOMPI_PUBLIC_KEY", "")).strip()
+        wp_sec = str(wp_saved.get("wompi_integrity_secret") or getattr(settings, "WOMPI_INTEGRITY_SECRET", "")).strip()
+        mp_pub = str(wp_saved.get("mercadopago_public_key") or getattr(settings, "MERCADOPAGO_PUBLIC_KEY", "")).strip()
+        mp_sec = str(wp_saved.get("mercadopago_access_token") or getattr(settings, "MERCADOPAGO_ACCESS_TOKEN", "")).strip()
+        wp_links = wp_saved.get("payment_links") or {"STARTER": "", "PRO": "", "BUSINESS": "", "ENTERPRISE": ""}
+
+        # 3. PayPal Express Checkout
+        pp_saved = saved_gws.get("paypal") or {}
+        pp_cid = str(pp_saved.get("client_id") or getattr(settings, "PAYPAL_CLIENT_ID", "")).strip()
+        pp_email = str(pp_saved.get("business_email") or getattr(settings, "PAYPAL_BUSINESS_EMAIL", "")).strip()
+        pp_links = pp_saved.get("payment_links") or {"STARTER": "", "PRO": "", "BUSINESS": "", "ENTERPRISE": ""}
+
+        # 4. Direct Transfer (Nequi / Bancolombia / Llave Bre-B / WhatsApp)
+        dt_saved = saved_gws.get("direct_transfer") or {}
+        nequi_num = str(dt_saved.get("nequi_number") or getattr(settings, "NEQUI_NUMBER", "300 000 0000")).strip()
+        bancolombia_acc = str(
+            dt_saved.get("bancolombia_account") or getattr(settings, "BANCOLOMBIA_ACCOUNT", "Ahorros Bancolombia 000-000000-00")
+        ).strip()
+        bre_b_key = str(dt_saved.get("bre_b_key") or getattr(settings, "BRE_B_KEY", "@santiagoliseth")).strip()
+        wa_phone = str(dt_saved.get("whatsapp_sales_phone") or getattr(settings, "WHATSAPP_SALES_PHONE", "+573000000000")).strip()
+        account_holder = str(dt_saved.get("account_holder") or "Santiago (Propietario & Creador Liseth AI)").strip()
+        dt_instructions = str(
+            dt_saved.get("instructions")
+            or "Realiza la transferencia por Nequi, Bancolombia o Llave Bre-B por el valor en COP e ingresa los últimos 4 dígitos del comprobante para activar tu plan al instante."
+        ).strip()
+
+        config: Dict[str, Any] = {
+            "ok": True,
+            "trm_usd_cop": trm_usd_cop,
+            "currency_primary": "USD",
+            "currency_secondary": "COP",
+            "annual_discount_pct": 20.0,
+            "config_file_path": str(cfg_file),
+            "env_file_path": str(settings.BASE_DIR / ".env"),
+            "gateways": {
+                "stripe": {
+                    "id": "stripe",
+                    "enabled": bool(st_saved.get("enabled", True)),
+                    "label": "Tarjeta Crédito / Débito Internacional (Stripe)",
+                    "short_label": "💳 Tarjeta (Stripe)",
+                    "icon": "💳",
+                    "publishable_key": st_pub,
+                    "configured": bool(st_pub or any(st_links.values())),
+                    "payment_links": st_links,
+                    "supported_methods": ["Visa", "Mastercard", "Amex", "Apple Pay", "Google Pay"],
+                },
+                "wompi_pse_nequi": {
+                    "id": "wompi_pse_nequi",
+                    "enabled": bool(wp_saved.get("enabled", True)),
+                    "label": "PSE / Nequi / Bancolombia (Wompi / MercadoPago)",
+                    "short_label": "🏦 PSE / Nequi (Wompi)",
+                    "icon": "🏦",
+                    "wompi_public_key": wp_pub,
+                    "mercadopago_public_key": mp_pub,
+                    "configured": bool(wp_pub or mp_pub or any(wp_links.values())),
+                    "payment_links": wp_links,
+                    "supported_methods": ["PSE Todos los Bancos", "Nequi Push", "Boton Bancolombia", "DaviPlata"],
+                },
+                "paypal": {
+                    "id": "paypal",
+                    "enabled": bool(pp_saved.get("enabled", True)),
+                    "label": "PayPal Express Checkout Internacional",
+                    "short_label": "🅿️ PayPal",
+                    "icon": "🅿️",
+                    "client_id": pp_cid,
+                    "business_email": pp_email,
+                    "configured": bool(pp_cid or pp_email or any(pp_links.values())),
+                    "payment_links": pp_links,
+                    "supported_methods": ["Saldo PayPal", "Tarjeta vinculada a PayPal"],
+                },
+                "direct_transfer": {
+                    "id": "direct_transfer",
+                    "enabled": bool(dt_saved.get("enabled", True)),
+                    "label": "Transferencia Directa (Nequi / Bancolombia / Llave Bre-B)",
+                    "short_label": "📲 Nequi / Bancolombia Directo",
+                    "icon": "📲",
+                    "nequi_number": nequi_num,
+                    "bancolombia_account": bancolombia_acc,
+                    "bre_b_key": bre_b_key,
+                    "account_holder": account_holder,
+                    "whatsapp_sales_phone": wa_phone,
+                    "instructions": dt_instructions,
+                    "configured": bool(nequi_num or bancolombia_acc or bre_b_key),
+                    "supported_methods": ["Nequi", "Bancolombia", "Llave Bre-B", "Transfiya"],
+                },
+            },
+        }
+
+        if include_secrets:
+            config["gateways"]["stripe"]["secret_key"] = st_sec
+            config["gateways"]["stripe"]["webhook_secret"] = st_wh
+            config["gateways"]["wompi_pse_nequi"]["wompi_integrity_secret"] = wp_sec
+            config["gateways"]["wompi_pse_nequi"]["mercadopago_access_token"] = mp_sec
+
+        return config
+
+    async def save_payment_gateways_config(
+        self,
+        db: AsyncSession,
+        creator: SaasUser,
+        config_data: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        Persists Señor Santiago's payment gateway configuration to `data/payment_gateways_config.json`.
+        Restricted strictly to CREATOR superadmin.
+        """
+        current = self.get_payment_gateways_config(include_secrets=True)
+        cur_gws = current["gateways"]
+        in_gws = config_data.get("gateways") or {}
+
+        try:
+            trm = float(config_data.get("trm_usd_cop") or current.get("trm_usd_cop") or 4200.0)
+            if trm <= 0:
+                trm = 4200.0
+        except (ValueError, TypeError):
+            trm = 4200.0
+
+        def _merge_links(old_links: Dict[str, Any], new_links: Optional[Dict[str, Any]]) -> Dict[str, str]:
+            merged = dict(old_links or {"STARTER": "", "PRO": "", "BUSINESS": "", "ENTERPRISE": ""})
+            if isinstance(new_links, dict):
+                for k in ("STARTER", "PRO", "BUSINESS", "ENTERPRISE"):
+                    if k in new_links and new_links[k] is not None:
+                        merged[k] = str(new_links[k]).strip()
+            return merged
+
+        st_in = in_gws.get("stripe") or {}
+        wp_in = in_gws.get("wompi_pse_nequi") or {}
+        pp_in = in_gws.get("paypal") or {}
+        dt_in = in_gws.get("direct_transfer") or {}
+
+        updated_payload = {
+            "trm_usd_cop": trm,
+            "updated_at": _iso(utcnow()),
+            "updated_by": creator.email,
+            "gateways": {
+                "stripe": {
+                    "enabled": bool(st_in.get("enabled", cur_gws["stripe"]["enabled"])),
+                    "publishable_key": str(
+                        st_in.get("publishable_key")
+                        if st_in.get("publishable_key") is not None
+                        else cur_gws["stripe"].get("publishable_key", "")
+                    ).strip(),
+                    "secret_key": str(
+                        st_in.get("secret_key")
+                        if st_in.get("secret_key") is not None
+                        else cur_gws["stripe"].get("secret_key", "")
+                    ).strip(),
+                    "webhook_secret": str(
+                        st_in.get("webhook_secret")
+                        if st_in.get("webhook_secret") is not None
+                        else cur_gws["stripe"].get("webhook_secret", "")
+                    ).strip(),
+                    "payment_links": _merge_links(cur_gws["stripe"].get("payment_links", {}), st_in.get("payment_links")),
+                },
+                "wompi_pse_nequi": {
+                    "enabled": bool(wp_in.get("enabled", cur_gws["wompi_pse_nequi"]["enabled"])),
+                    "wompi_public_key": str(
+                        wp_in.get("wompi_public_key")
+                        if wp_in.get("wompi_public_key") is not None
+                        else cur_gws["wompi_pse_nequi"].get("wompi_public_key", "")
+                    ).strip(),
+                    "wompi_integrity_secret": str(
+                        wp_in.get("wompi_integrity_secret")
+                        if wp_in.get("wompi_integrity_secret") is not None
+                        else cur_gws["wompi_pse_nequi"].get("wompi_integrity_secret", "")
+                    ).strip(),
+                    "mercadopago_public_key": str(
+                        wp_in.get("mercadopago_public_key")
+                        if wp_in.get("mercadopago_public_key") is not None
+                        else cur_gws["wompi_pse_nequi"].get("mercadopago_public_key", "")
+                    ).strip(),
+                    "mercadopago_access_token": str(
+                        wp_in.get("mercadopago_access_token")
+                        if wp_in.get("mercadopago_access_token") is not None
+                        else cur_gws["wompi_pse_nequi"].get("mercadopago_access_token", "")
+                    ).strip(),
+                    "payment_links": _merge_links(
+                        cur_gws["wompi_pse_nequi"].get("payment_links", {}), wp_in.get("payment_links")
+                    ),
+                },
+                "paypal": {
+                    "enabled": bool(pp_in.get("enabled", cur_gws["paypal"]["enabled"])),
+                    "client_id": str(
+                        pp_in.get("client_id")
+                        if pp_in.get("client_id") is not None
+                        else cur_gws["paypal"].get("client_id", "")
+                    ).strip(),
+                    "business_email": str(
+                        pp_in.get("business_email")
+                        if pp_in.get("business_email") is not None
+                        else cur_gws["paypal"].get("business_email", "")
+                    ).strip(),
+                    "payment_links": _merge_links(cur_gws["paypal"].get("payment_links", {}), pp_in.get("payment_links")),
+                },
+                "direct_transfer": {
+                    "enabled": bool(dt_in.get("enabled", cur_gws["direct_transfer"]["enabled"])),
+                    "nequi_number": str(
+                        dt_in.get("nequi_number")
+                        if dt_in.get("nequi_number") is not None
+                        else cur_gws["direct_transfer"].get("nequi_number", "")
+                    ).strip(),
+                    "bancolombia_account": str(
+                        dt_in.get("bancolombia_account")
+                        if dt_in.get("bancolombia_account") is not None
+                        else cur_gws["direct_transfer"].get("bancolombia_account", "")
+                    ).strip(),
+                    "bre_b_key": str(
+                        dt_in.get("bre_b_key")
+                        if dt_in.get("bre_b_key") is not None
+                        else cur_gws["direct_transfer"].get("bre_b_key", "")
+                    ).strip(),
+                    "account_holder": str(
+                        dt_in.get("account_holder")
+                        if dt_in.get("account_holder") is not None
+                        else cur_gws["direct_transfer"].get("account_holder", "")
+                    ).strip(),
+                    "whatsapp_sales_phone": str(
+                        dt_in.get("whatsapp_sales_phone")
+                        if dt_in.get("whatsapp_sales_phone") is not None
+                        else cur_gws["direct_transfer"].get("whatsapp_sales_phone", "")
+                    ).strip(),
+                    "instructions": str(
+                        dt_in.get("instructions")
+                        if dt_in.get("instructions") is not None
+                        else cur_gws["direct_transfer"].get("instructions", "")
+                    ).strip(),
+                },
+            },
+        }
+
+        cfg_file = settings.DATA_DIR / "payment_gateways_config.json"
+        cfg_file.write_text(json.dumps(updated_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        await self.log_audit(
+            db=db,
+            action="creator_updated_payment_gateways",
+            actor_user=creator,
+            resource_type="payment_gateways",
+            resource_id="payment_gateways_config",
+            details={"trm_usd_cop": trm},
+        )
+        await db.commit()
+        return self.get_payment_gateways_config(include_secrets=True)
+
+    async def quote_plan_purchase(
+        self,
+        db: AsyncSession,
+        plan_code: str,
+        billing_cycle: str = "monthly",
+        promo_code: Optional[str] = None,
+        payment_gateway: str = "stripe",
+    ) -> Dict[str, Any]:
+        """
+        Calculates a real-time sales quote in USD and COP for any public SaaS plan,
+        including annual billing savings (20% off / 2 months free), promo code discounts,
+        bonus AI credits, and gateway checkout links.
+        """
+        await self.ensure_seeded(db)
+        code_up = (plan_code or "STARTER").strip().upper()
+        if code_up == "CREATOR":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="El plan CREATOR es exclusivo del propietario original y no está a la venta.",
+            )
+
+        plan = await self.get_plan(db, code_up)
+        if not plan or plan.code != code_up:
+            raise HTTPException(status_code=404, detail=f"El plan '{code_up}' no existe.")
+
+        cycle = "annual" if (billing_cycle or "").strip().lower() == "annual" else "monthly"
+        gw_clean = (payment_gateway or "stripe").strip().lower()
+        if gw_clean not in {"stripe", "wompi_pse_nequi", "paypal", "direct_transfer"}:
+            gw_clean = "stripe"
+
+        gw_cfg = self.get_payment_gateways_config(include_secrets=False)
+        trm = float(gw_cfg.get("trm_usd_cop") or 4200.0)
+
+        monthly_ref_usd = round(plan.price_monthly_usd * (12 if cycle == "annual" else 1), 2)
+        base_price_usd = round(plan.price_annual_usd if cycle == "annual" else plan.price_monthly_usd, 2)
+        annual_savings_usd = round(max(0.0, monthly_ref_usd - base_price_usd), 2)
+
+        promo_valid = False
+        promo_msg = ""
+        promo_discount_pct = 0.0
+        promo_discount_usd = 0.0
+        bonus_credits = 0
+        applied_promo = None
+
+        if promo_code and promo_code.strip():
+            try:
+                promo = await self.validate_promo_code(db, promo_code.strip(), code_up)
+                promo_valid = True
+                applied_promo = promo.code
+                promo_discount_pct = promo.discount_pct
+                promo_discount_usd = round((base_price_usd * (promo.discount_pct / 100.0)) + promo.discount_fixed_usd, 2)
+                promo_discount_usd = min(base_price_usd, promo_discount_usd)
+                bonus_credits = promo.bonus_credits
+                promo_msg = f"Cupón {promo.code} aplicado (-{promo.discount_pct:.0f}%)"
+            except HTTPException as exc:
+                promo_valid = False
+                promo_msg = str(exc.detail)
+
+        total_usd = round(max(0.0, base_price_usd - promo_discount_usd), 2)
+        subtotal_cop = int(round(base_price_usd * trm))
+        discount_cop = int(round(promo_discount_usd * trm))
+        total_cop = int(round(total_usd * trm))
+        monthly_eq_usd = round(total_usd / 12.0, 2) if cycle == "annual" else total_usd
+        monthly_eq_cop = int(round(monthly_eq_usd * trm))
+
+        gw_info = (gw_cfg.get("gateways") or {}).get(gw_clean, {})
+        external_link = ((gw_info.get("payment_links") or {}).get(code_up) or "").strip()
+
+        return {
+            "ok": True,
+            "plan": self.serialize_plan(plan),
+            "quote": {
+                "plan_code": plan.code,
+                "plan_name": plan.name,
+                "billing_cycle": cycle,
+                "payment_gateway": gw_clean,
+                "payment_gateway_label": gw_info.get("label", gw_clean),
+                "trm_usd_cop": trm,
+                "monthly_reference_usd": monthly_ref_usd,
+                "subtotal_usd": base_price_usd,
+                "annual_savings_usd": annual_savings_usd,
+                "promo_code": applied_promo,
+                "promo_valid": promo_valid,
+                "promo_message": promo_msg,
+                "promo_discount_pct": promo_discount_pct,
+                "promo_discount_usd": promo_discount_usd,
+                "total_usd": total_usd,
+                "subtotal_cop": subtotal_cop,
+                "discount_cop": discount_cop,
+                "total_cop": total_cop,
+                "monthly_equivalent_usd": monthly_eq_usd,
+                "monthly_equivalent_cop": monthly_eq_cop,
+                "base_credits": plan.monthly_credits,
+                "bonus_credits": bonus_credits,
+                "total_credits_granted": plan.monthly_credits + bonus_credits,
+                "external_payment_link": external_link,
+                "direct_transfer_details": gw_cfg["gateways"]["direct_transfer"],
+            },
+        }
+
     async def authenticate_with_firebase(
         self,
         db: AsyncSession,
@@ -3226,6 +3634,10 @@ class SaasPlatformService:
         promo_code: Optional[str] = None,
         referral_code: Optional[str] = None,
         ip_address: str = "127.0.0.1",
+        billing_cycle: str = "monthly",
+        payment_gateway: str = "stripe",
+        payment_method_brand: str = "visa",
+        payment_method_last4: str = "4242",
     ) -> Dict[str, Any]:
         """
         Registers or logs in a user linked to the configured Firebase project,
@@ -3282,14 +3694,18 @@ class SaasPlatformService:
                 await db.commit()
 
                 # If user picked a commercial plan (STARTER, PRO, BUSINESS, ENTERPRISE) on the startup screen, activate it
+                checkout_info = None
                 if target_plan in PUBLIC_PURCHASABLE_PLANS:
-                    await self.checkout_subscription(
+                    checkout_info = await self.checkout_subscription(
                         db=db,
                         user=user,
                         target_plan_code=target_plan,
-                        billing_cycle="monthly",
+                        billing_cycle=billing_cycle or "monthly",
                         promo_code=promo_code,
+                        payment_method_brand=payment_method_brand or "visa",
+                        payment_method_last4=payment_method_last4 or "4242",
                         ip_address=ip_address,
+                        payment_gateway=payment_gateway or "stripe",
                     )
 
                 plan_obj = await self.get_plan(db, user.plan_code)
@@ -3304,6 +3720,7 @@ class SaasPlatformService:
                         "provider": provider,
                         "linked": True,
                     },
+                    "checkout": checkout_info,
                     "user": self.serialize_user(user, plan_obj, bal_obj),
                 }
             return reg_res
@@ -3327,6 +3744,10 @@ class SaasPlatformService:
                 promo_code=promo_code,
                 referral_code=referral_code,
                 ip_address=ip_address,
+                billing_cycle=billing_cycle,
+                payment_gateway=payment_gateway,
+                payment_method_brand=payment_method_brand,
+                payment_method_last4=payment_method_last4,
             )
 
         login_res = await self.login_user(

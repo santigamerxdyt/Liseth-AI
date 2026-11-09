@@ -170,7 +170,25 @@ class Settings:
         ).strip()
         self.FIREBASE_MESSAGING_SENDER_ID: str = os.getenv("FIREBASE_MESSAGING_SENDER_ID", "").strip()
         self.FIREBASE_APP_ID: str = os.getenv("FIREBASE_APP_ID", "").strip()
+
+        # SaaS Payment Gateways & Monetization Configuration
+        self.STRIPE_PUBLISHABLE_KEY: str = os.getenv("STRIPE_PUBLISHABLE_KEY", "").strip()
+        self.STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "").strip()
         self.STRIPE_WEBHOOK_SECRET: str = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
+        self.WOMPI_PUBLIC_KEY: str = os.getenv("WOMPI_PUBLIC_KEY", "").strip()
+        self.WOMPI_INTEGRITY_SECRET: str = os.getenv("WOMPI_INTEGRITY_SECRET", "").strip()
+        self.MERCADOPAGO_PUBLIC_KEY: str = os.getenv("MERCADOPAGO_PUBLIC_KEY", "").strip()
+        self.MERCADOPAGO_ACCESS_TOKEN: str = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "").strip()
+        self.PAYPAL_CLIENT_ID: str = os.getenv("PAYPAL_CLIENT_ID", "").strip()
+        self.PAYPAL_BUSINESS_EMAIL: str = os.getenv("PAYPAL_BUSINESS_EMAIL", "").strip()
+        self.NEQUI_NUMBER: str = os.getenv("NEQUI_NUMBER", "").strip()
+        self.BANCOLOMBIA_ACCOUNT: str = os.getenv("BANCOLOMBIA_ACCOUNT", "").strip()
+        self.BRE_B_KEY: str = os.getenv("BRE_B_KEY", "").strip()
+        self.WHATSAPP_SALES_PHONE: str = os.getenv("WHATSAPP_SALES_PHONE", "").strip()
+        try:
+            self.TRM_USD_COP: float = float(os.getenv("TRM_USD_COP", "4200.0").strip())
+        except ValueError:
+            self.TRM_USD_COP = 4200.0
 
     def validate_security(self, strict: bool = True):
         """

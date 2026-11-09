@@ -599,6 +599,132 @@ class TestFirebaseStartupGateAndProjectLinking:
         assert '<div class="modal-overlay active" id="auth-modal"' in html
         assert 'id="auth-firebase-register-form"' in html
         assert 'id="gate-plans-cards-container"' in html
+        assert 'id="gate-selected-payment-gateway"' in html
+        assert 'id="saas-payment-gateway-select"' in html
+        assert 'id="saas-checkout-quote-box"' in html
+        assert "saveCreatorPaymentConfigUI" in html
         assert "firebase-app-compat.js" in html
         assert "firebase-auth-compat.js" in html
+
+    def test_public_payment_gateways_and_live_sales_quote(self):
+        # 1. Public payment gateways endpoint (no auth required for startup gate)
+        gw_resp = client.get("/api/saas/billing/gateways")
+        assert gw_resp.status_code == 200
+        gw_data = gw_resp.json()
+        assert gw_data["ok"] is True
+        assert gw_data["trm_usd_cop"] > 0
+        assert "stripe" in gw_data["gateways"]
+        assert "wompi_pse_nequi" in gw_data["gateways"]
+        assert "paypal" in gw_data["gateways"]
+        assert "direct_transfer" in gw_data["gateways"]
+
+        # 2. Live sales quote for PRO annual with WELCOME20 coupon
+        quote_resp = client.post(
+            "/api/saas/billing/quote",
+            json={
+                "plan_code": "PRO",
+                "billing_cycle": "annual",
+                "promo_code": "WELCOME20",
+                "payment_gateway": "wompi_pse_nequi",
+            },
+        )
+        assert quote_resp.status_code == 200
+        q = quote_resp.json()["quote"]
+        assert q["plan_code"] == "PRO"
+        assert q["billing_cycle"] == "annual"
+        # Annual base for PRO ($30/mo): 30 * 12 * 0.8 = 288 USD
+        assert q["subtotal_usd"] == 288.0
+        assert q["annual_savings_usd"] == 72.0
+        # WELCOME20 gives 20% off 288 = 57.60 discount -> 230.40 USD final
+        assert q["promo_discount_pct"] == 20.0
+        assert q["total_usd"] == 230.4
+        assert q["total_cop"] > 0
+        assert q["bonus_credits"] > 0
+
+        # 3. CREATOR plan cannot be quoted for sale
+        creator_quote = client.post(
+            "/api/saas/billing/quote",
+            json={"plan_code": "CREATOR", "billing_cycle": "monthly"},
+        )
+        assert creator_quote.status_code == 403
+
+    def test_creator_payment_gateway_config_and_multi_gateway_checkout(self):
+        cfg_file = settings.DATA_DIR / "payment_gateways_config.json"
+        prior_bytes = cfg_file.read_bytes() if cfg_file.exists() else None
+        try:
+            # Regular user cannot access or modify payment gateway configuration
+            reg_u = client.post(
+                "/api/saas/auth/register",
+                json={
+                    "email": _unique_email("buyer_colombia"),
+                    "password": "SafePass123!",
+                    "full_name": "Buyer Colombia",
+                },
+            ).json()
+            u_headers = _auth_headers(reg_u["token"])
+
+            forbidden_get = client.get("/api/saas/admin/payment-config", headers=u_headers)
+            assert forbidden_get.status_code == 403
+
+            # Authenticate as Creator to configure payment gateways & TRM
+            c_headers = _get_creator_headers()
+
+            save_cfg = client.post(
+                "/api/saas/admin/payment-config",
+                headers=c_headers,
+                json={
+                    "trm_usd_cop": 4150.0,
+                    "gateways": {
+                        "stripe": {
+                            "enabled": True,
+                            "publishable_key": "pk_live_test123",
+                            "payment_links": {"PRO": "https://buy.stripe.com/test_pro_link"},
+                        },
+                        "wompi_pse_nequi": {
+                            "enabled": True,
+                            "wompi_public_key": "pub_prod_wompi123",
+                            "payment_links": {"PRO": "https://checkout.wompi.co/l/test_pro_cop"},
+                        },
+                        "direct_transfer": {
+                            "enabled": True,
+                            "nequi_number": "300 123 4567",
+                            "bancolombia_account": "Ahorros 123-456789-00",
+                            "bre_b_key": "@santiago.liseth",
+                            "account_holder": "Santiago (Creator)",
+                        },
+                    },
+                },
+            )
+            assert save_cfg.status_code == 200
+            cfg_json = save_cfg.json()
+            assert cfg_json["trm_usd_cop"] == 4150.0
+            assert cfg_json["gateways"]["direct_transfer"]["nequi_number"] == "300 123 4567"
+
+            # Buyer checks out PRO plan using Wompi PSE / Nequi
+            checkout_resp = client.post(
+                "/api/saas/billing/checkout",
+                headers=u_headers,
+                json={
+                    "plan_code": "PRO",
+                    "billing_cycle": "monthly",
+                    "payment_gateway": "wompi_pse_nequi",
+                    "payment_method_brand": "PSE / Nequi",
+                    "payment_method_last4": "NEQU",
+                    "promo_code": "WELCOME20",
+                },
+            )
+            assert checkout_resp.status_code == 200
+            co_data = checkout_resp.json()
+            assert co_data["subscription"]["plan_code"] == "PRO"
+            assert co_data["payment_gateway"] == "wompi_pse_nequi"
+            assert co_data["subscription"]["price_usd"] == 24.0
+            assert co_data["subscription"]["price_cop"] == round(24.0 * 4150.0)
+            assert co_data["invoice"]["total_cop"] == round(24.0 * 4150.0)
+            assert co_data["external_payment_link"] == "https://checkout.wompi.co/l/test_pro_cop"
+        finally:
+            if prior_bytes is not None:
+                cfg_file.write_bytes(prior_bytes)
+
+
+
 

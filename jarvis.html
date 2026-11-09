@@ -9354,11 +9354,40 @@
                 <b id="gate-selected-plan-label" style="font-size: 0.86rem; color: #fff;">PLAN FREE — $0 USD / mes</b>
               </div>
               <input type="hidden" id="gate-selected-plan-code" value="FREE" />
+              <input type="hidden" id="gate-selected-billing-cycle" value="monthly" />
+              <input type="hidden" id="gate-selected-payment-gateway" value="stripe" />
               <span id="gate-selected-plan-badge" style="background: #a855f7; color: #fff; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 10px;">FREE</span>
             </div>
 
+            <!-- Pasarela de Pago Interactiva (Se despliega automáticamente al elegir un plan comercial STARTER/PRO/BUSINESS/ENTERPRISE) -->
+            <div id="gate-payment-selector-box" style="display: none; margin-bottom: 10px; padding: 10px 11px; background: rgba(6, 14, 28, 0.92); border: 1px solid rgba(56, 239, 125, 0.45); border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 0.72rem; font-weight: 800; color: #38ef7d;">💳 MÉTODO DE PAGO & RESUMEN DE COMPRA</span>
+                <span id="gate-live-quote-cop" style="font-size: 0.72rem; font-weight: 800; color: #ffd166;">~$42,000 COP</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-bottom: 8px;">
+                <button type="button" id="gate-gw-btn-stripe" onclick="selectGatePaymentGateway('stripe')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.18); color: #fff; cursor: pointer;">💳 Tarjeta (Stripe)</button>
+                <button type="button" id="gate-gw-btn-wompi_pse_nequi" onclick="selectGatePaymentGateway('wompi_pse_nequi')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">🏦 PSE / Nequi (Wompi)</button>
+                <button type="button" id="gate-gw-btn-paypal" onclick="selectGatePaymentGateway('paypal')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">🅿️ PayPal Express</button>
+                <button type="button" id="gate-gw-btn-direct_transfer" onclick="selectGatePaymentGateway('direct_transfer')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">📲 Nequi / Bancolombia</button>
+              </div>
+              <div id="gate-gw-instructions-box" style="font-size: 0.68rem; color: #94a3b8; margin-bottom: 6px; line-height: 1.35;">
+                Pago seguro tokenizado con Visa, Mastercard, Amex o billetera digital.
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <select id="gate-pay-brand" style="padding: 5px 7px; background: #090d16; border: 1px solid #334155; border-radius: 5px; color: #fff; font-size: 0.72rem;">
+                  <option value="visa">Visa / Mastercard</option>
+                  <option value="nequi">Nequi Colombia</option>
+                  <option value="pse">PSE Débito Bancario</option>
+                  <option value="bancolombia">Bancolombia / Bre-B</option>
+                  <option value="paypal">PayPal Balance</option>
+                </select>
+                <input type="text" id="gate-pay-last4" maxlength="6" placeholder="Últ. 4 dígitos / Ref (4242)" value="4242" style="padding: 5px 7px; background: #090d16; border: 1px solid #334155; border-radius: 5px; color: #fff; font-size: 0.72rem;" />
+              </div>
+            </div>
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-              <input type="text" id="gate-reg-promo" placeholder="Cupón (ej. WELCOME20)" style="padding: 7px 9px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.74rem;" />
+              <input type="text" id="gate-reg-promo" oninput="updateGateLiveQuote()" placeholder="Cupón (ej. WELCOME20)" style="padding: 7px 9px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.74rem;" />
               <input type="text" id="gate-reg-referral" placeholder="Cód. Referido (opcional)" style="padding: 7px 9px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.74rem;" />
             </div>
 
@@ -9414,12 +9443,15 @@
 
         <!-- COLUMNA DERECHA: PLANES Y JERARQUÍAS SAAS (ELIGE TU PLAN ANTES DE ENTRAR) -->
         <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 12px; padding: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;">
             <div>
               <div style="font-size: 0.86rem; font-weight: 800; color: #e9d5ff;">💎 PLANES Y MODALIDADES DE ACCESO</div>
-              <div style="font-size: 0.72rem; color: #94a3b8;">Selecciona el plan con el que deseas crear tu cuenta</div>
+              <div style="font-size: 0.72rem; color: #94a3b8;">Precios en USD y Pesos Colombianos (COP) • Cancela cuando quieras</div>
             </div>
-            <span style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.18); color: #38ef7d; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 10px; font-weight: 700;">Cupón WELCOME20: -20%</span>
+            <div style="display: flex; gap: 4px; align-items: center; background: rgba(4, 8, 18, 0.85); padding: 3px; border-radius: 8px; border: 1px solid #334155;">
+              <button type="button" id="gate-cycle-btn-monthly" onclick="setGateBillingCycle('monthly')" style="padding: 4px 8px; font-size: 0.68rem; font-weight: 700; border-radius: 5px; border: none; background: #00d2ff; color: #04070d; cursor: pointer;">Mensual</button>
+              <button type="button" id="gate-cycle-btn-annual" onclick="setGateBillingCycle('annual')" style="padding: 4px 8px; font-size: 0.68rem; font-weight: 700; border-radius: 5px; border: none; background: transparent; color: #38ef7d; cursor: pointer;">Anual (-20% 🎁)</button>
+            </div>
           </div>
 
           <!-- Tarjetas Interactivas de Planes -->
@@ -9429,9 +9461,10 @@
             <div class="gate-plan-card" id="gate-plan-card-FREE" onclick="selectGatePlan('FREE', 'PLAN FREE — $0 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 2px solid #00f0ff; border-radius: 9px; padding: 10px; transition: all 0.2s;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.75rem; font-weight: 800; color: #00f0ff;">PLAN FREE</span>
-                <span style="font-size: 0.88rem; font-weight: 900; color: #fff;">$0<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+                <span id="gate-price-tag-FREE" style="font-size: 0.88rem; font-weight: 900; color: #fff;">$0<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
               </div>
-              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+              <div id="gate-cop-tag-FREE" style="font-size: 0.65rem; color: #38ef7d; font-weight: 700;">Gratis • $0 COP</div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 5px; line-height: 1.4;">
                 • Máx. <b>3 cerebros IA</b><br>
                 • Máx. <b>5 conversaciones</b><br>
                 • <b>25 mensajes</b> diarios<br>
@@ -9444,9 +9477,10 @@
             <div class="gate-plan-card" id="gate-plan-card-STARTER" onclick="selectGatePlan('STARTER', 'LEVEL 1: STARTER — $10 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 9px; padding: 10px; transition: all 0.2s;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.75rem; font-weight: 800; color: #38ef7d;">L1 • STARTER</span>
-                <span style="font-size: 0.88rem; font-weight: 900; color: #fff;">$10<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+                <span id="gate-price-tag-STARTER" style="font-size: 0.88rem; font-weight: 900; color: #fff;">$10<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
               </div>
-              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+              <div id="gate-cop-tag-STARTER" style="font-size: 0.65rem; color: #ffd166; font-weight: 700;">~$42,000 COP / mes</div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 5px; line-height: 1.4;">
                 • Máx. <b>5 cerebros IA</b><br>
                 • <b>25 conversaciones</b> activas<br>
                 • <b>150 mensajes</b> diarios<br>
@@ -9459,9 +9493,10 @@
             <div class="gate-plan-card" id="gate-plan-card-PRO" onclick="selectGatePlan('PRO', 'LEVEL 2: PRO — $30 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #a855f7; border-radius: 9px; padding: 10px; transition: all 0.2s;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.75rem; font-weight: 800; color: #c084fc;">L2 • PRO ⭐</span>
-                <span style="font-size: 0.88rem; font-weight: 900; color: #fff;">$30<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+                <span id="gate-price-tag-PRO" style="font-size: 0.88rem; font-weight: 900; color: #fff;">$30<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
               </div>
-              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+              <div id="gate-cop-tag-PRO" style="font-size: 0.65rem; color: #ffd166; font-weight: 700;">~$126,000 COP / mes</div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 5px; line-height: 1.4;">
                 • Máx. <b>15 cerebros IA</b><br>
                 • <b>500 mensajes</b> diarios<br>
                 • Memoria persistente (500 ítems)<br>
@@ -9474,9 +9509,10 @@
             <div class="gate-plan-card" id="gate-plan-card-BUSINESS" onclick="selectGatePlan('BUSINESS', 'LEVEL 3: BUSINESS — $75 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 9px; padding: 10px; transition: all 0.2s;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.75rem; font-weight: 800; color: #60a5fa;">L3 • BUSINESS</span>
-                <span style="font-size: 0.88rem; font-weight: 900; color: #fff;">$75<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+                <span id="gate-price-tag-BUSINESS" style="font-size: 0.88rem; font-weight: 900; color: #fff;">$75<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
               </div>
-              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 6px; line-height: 1.4;">
+              <div id="gate-cop-tag-BUSINESS" style="font-size: 0.65rem; color: #ffd166; font-weight: 700;">~$315,000 COP / mes</div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 5px; line-height: 1.4;">
                 • Máx. <b>30 cerebros IA</b><br>
                 • <b>Creación de agentes propios</b><br>
                 • Automatizaciones y Suite CFO<br>
@@ -9489,10 +9525,11 @@
             <div class="gate-plan-card" id="gate-plan-card-ENTERPRISE" onclick="selectGatePlan('ENTERPRISE', 'LEVEL 4: ENTERPRISE — $200 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 9px; padding: 10px; transition: all 0.2s; grid-column: 1 / -1;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.78rem; font-weight: 800; color: #f472b6;">LEVEL 4 • ENTERPRISE (CORPORATIVO TOTAL)</span>
-                <span style="font-size: 0.92rem; font-weight: 900; color: #fff;">$200 USD<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+                <span id="gate-price-tag-ENTERPRISE" style="font-size: 0.92rem; font-weight: 900; color: #fff;">$200 USD<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
               </div>
-              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 4px;">
-                • <b>Todos los cerebros públicos</b> • Agentes especializados • Automatizaciones avanzadas • Acceso a API • <b>10.000 msgs/día</b> • Soporte prioritario
+              <div id="gate-cop-tag-ENTERPRISE" style="font-size: 0.65rem; color: #ffd166; font-weight: 700;">~$840,000 COP / mes • Incluye API, 10.000 msgs/día y todos los cerebros públicos</div>
+              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 3px;">
+                • <b>Todos los cerebros públicos</b> • Agentes especializados • Automatizaciones avanzadas • Acceso a API • Soporte prioritario VIP
               </div>
             </div>
 
@@ -13006,23 +13043,39 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
         </div>
       </div>
 
-      <!-- PESTAÑA 3: COMPARADOR DE PLANES, CHECKOUT, CUPONES Y FACTURACIÓN -->
+      <!-- PESTAÑA 3: COMPARADOR DE PLANES, CHECKOUT MULTIPASARELA, CUPONES Y FACTURACIÓN -->
       <div id="saas-pane-plans" class="saas-pane" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; background: rgba(15, 23, 42, 0.8); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.3);">
-          <div>
-            <span style="font-size: 0.78rem; color: #cbd5e1;">Ciclo de Facturación:</span>
-            <select id="saas-billing-cycle" style="background: #0f172a; border: 1px solid #475569; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.76rem; margin-left: 6px;">
-              <option value="monthly">Mensual</option>
-              <option value="annual">Anual (20% Descuento)</option>
-            </select>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; background: rgba(15, 23, 42, 0.85); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.35);">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div>
+              <span style="font-size: 0.76rem; color: #cbd5e1;">Facturación:</span>
+              <select id="saas-billing-cycle" onchange="loadSaasPlansUI(); updateSaasCheckoutQuoteUI();" style="background: #0f172a; border: 1px solid #475569; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.76rem; margin-left: 4px;">
+                <option value="monthly">Mensual</option>
+                <option value="annual">Anual (-20% • 2 Meses Gratis)</option>
+              </select>
+            </div>
+            <div>
+              <span style="font-size: 0.76rem; color: #cbd5e1;">Método de Pago:</span>
+              <select id="saas-payment-gateway-select" onchange="updateSaasCheckoutQuoteUI()" style="background: #0f172a; border: 1px solid #00d2ff; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.76rem; margin-left: 4px;">
+                <option value="stripe">💳 Tarjeta Crédito / Débito (Stripe)</option>
+                <option value="wompi_pse_nequi">🏦 PSE / Nequi / Bancolombia (Wompi / MercadoPago)</option>
+                <option value="paypal">🅿️ PayPal Express Checkout</option>
+                <option value="direct_transfer">📲 Transferencia Directa (Nequi / Bancolombia / Bre-B)</option>
+              </select>
+            </div>
           </div>
           <div style="display: flex; gap: 6px; align-items: center;">
-            <input type="text" id="saas-promo-input" placeholder="Cupón (ej. WELCOME20)" style="background: #0f172a; border: 1px solid #475569; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem; width: 155px;" />
+            <input type="text" id="saas-promo-input" oninput="updateSaasCheckoutQuoteUI()" placeholder="Cupón (ej. WELCOME20)" style="background: #0f172a; border: 1px solid #475569; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem; width: 145px;" />
             <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 0.74rem;" onclick="validateSaasPromoUI()">Aplicar Cupón</button>
+            <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 0.74rem; border-color: #f59e0b; color: #ffd166;" onclick="switchSaasTab('creator')">⚙️ Configurar Pagos</button>
           </div>
         </div>
         <div id="saas-promo-feedback" style="font-size: 0.75rem; color: #38ef7d; margin-bottom: 8px;"></div>
         <div id="saas-plans-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 12px;"></div>
+
+        <!-- Caja de Cotización & Checkout Multipasarela en Vivo -->
+        <div id="saas-checkout-quote-box" style="background: rgba(6, 14, 28, 0.92); border: 1px solid rgba(0, 240, 255, 0.38); border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 0.76rem; color: #e2e8f0;"></div>
+
         <div id="saas-invoices-box" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; font-size: 0.74rem; color: #cbd5e1;"></div>
       </div>
 
@@ -23095,10 +23148,26 @@ const cardEsg = document.getElementById("hud-card-esg");
         await loadSaasWorkspaceUI();
       };
 
+      let selectedCheckoutPlanCode = "PRO";
+      let cachedGatewaysConfig = null;
+
+      async function fetchGatewaysMetadata() {
+        try {
+          const res = await fetch("/api/saas/billing/gateways");
+          if (res.ok) {
+            cachedGatewaysConfig = await res.json();
+          }
+        } catch (e) {}
+        return cachedGatewaysConfig;
+      }
+
       async function loadSaasPlansUI() {
         const grid = document.getElementById("saas-plans-grid");
         const invBox = document.getElementById("saas-invoices-box");
+        const cycle = document.getElementById("saas-billing-cycle")?.value || "monthly";
         try {
+          await fetchGatewaysMetadata();
+          const trm = cachedGatewaysConfig?.trm_usd_cop || 4200;
           const [pRes, bRes] = await Promise.all([
             fetch("/api/saas/plans", { headers: getSaasHeaders() }),
             fetch("/api/saas/billing/history", { headers: getSaasHeaders() })
@@ -23111,33 +23180,103 @@ const cardEsg = document.getElementById("hud-card-esg");
             grid.innerHTML = pData.plans.map(p => {
               const isCurrent = p.code === userPlan;
               const isCreator = p.code === "CREATOR";
-              return `<div style="background:rgba(15,23,42,0.85);border:1px solid ${isCurrent ? '#a855f7' : '#334155'};border-radius:8px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+              const isSelectedForQuote = p.code === selectedCheckoutPlanCode;
+              const usdPrice = (cycle === "annual") ? p.price_annual_usd : p.price_monthly_usd;
+              const copPrice = Math.round(usdPrice * trm).toLocaleString("es-CO");
+              const periodSuffix = (cycle === "annual") ? "/año" : "/mes";
+              return `<div style="background:rgba(15,23,42,0.9);border:${isSelectedForQuote ? '2px solid #00f0ff' : (isCurrent ? '1px solid #a855f7' : '1px solid #334155')};border-radius:8px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
                 <div>
-                  <div style="font-weight:800;color:${isCreator ? '#ffd166' : '#00f0ff'};font-size:0.82rem;">${p.name}</div>
-                  <div style="font-size:1.1rem;font-weight:900;color:#fff;margin:4px 0;">${isCreator ? 'Exclusivo' : '$' + p.price_monthly_usd + ' USD/mes'}</div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:800;color:${isCreator ? '#ffd166' : '#00f0ff'};font-size:0.8rem;">${p.name}</span>
+                    ${isCurrent ? `<span style="font-size:0.62rem;background:#a855f7;color:#fff;padding:1px 6px;border-radius:8px;">ACTUAL</span>` : ""}
+                  </div>
+                  <div style="font-size:1.08rem;font-weight:900;color:#fff;margin:4px 0 1px;">${isCreator ? 'Exclusivo' : '$' + usdPrice + ' USD' + periodSuffix}</div>
+                  <div style="font-size:0.66rem;color:#ffd166;font-weight:700;margin-bottom:5px;">${isCreator ? 'Propietario Original' : '~$' + copPrice + ' COP' + periodSuffix}</div>
                   <div style="font-size:0.68rem;color:#94a3b8;margin-bottom:6px;">${p.description}</div>
                   <div style="font-size:0.68rem;color:#cbd5e1;line-height:1.4;">
                     • Cerebros IA: <b>${p.max_brains >= 999 ? 'Todos' : p.max_brains}</b><br>
                     • Conversaciones: <b>${p.max_conversations}</b><br>
                     • Msgs/día: <b>${p.daily_message_limit}</b><br>
-                    • Créditos/mes: <b>${p.monthly_credits}</b>
+                    • Créditos/mes: <b>${p.monthly_credits.toLocaleString()}</b>
                   </div>
                 </div>
-                <div style="margin-top:8px;">
-                  ${isCurrent ? `<span style="display:block;text-align:center;padding:5px;background:rgba(168,85,247,0.25);color:#e9d5ff;border-radius:4px;font-size:0.72rem;font-weight:700;">Plan Actual</span>` : (isCreator ? `<span style="display:block;text-align:center;font-size:0.68rem;color:#ffd166;">🔒 No comercializable</span>` : `<button type="button" class="btn-primary" style="width:100%;padding:5px;font-size:0.72rem;" onclick="checkoutSaasPlanUI('${p.code}')">Elegir ${p.code}</button>`)}
+                <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
+                  ${isCreator
+                    ? `<span style="display:block;text-align:center;font-size:0.68rem;color:#ffd166;">🔒 No comercializable</span>`
+                    : `<button type="button" class="btn-secondary" style="width:100%;padding:4px;font-size:0.68rem;border-color:#00f0ff;color:#00f0ff;" onclick="selectSaasPlanForQuote('${p.code}')">🧾 Cotizar ${p.code}</button>
+                       <button type="button" class="btn-primary" style="width:100%;padding:5px;font-size:0.72rem;" onclick="checkoutSaasPlanUI('${p.code}')">🛒 Comprar ${p.code}</button>`
+                  }
                 </div>
               </div>`;
             }).join("");
           }
 
+          await updateSaasCheckoutQuoteUI();
+
           if (invBox && bData.invoices) {
-            invBox.innerHTML = `<div style="font-weight:700;color:#00d2ff;margin-bottom:6px;">🧾 HISTORIAL DE FACTURAS Y SUSCRIPCIÓN</div>` +
+            invBox.innerHTML = `<div style="font-weight:700;color:#00d2ff;margin-bottom:6px;">🧾 HISTORIAL DE FACTURAS Y SUSCRIPCIÓN ACTIVA</div>` +
               (bData.invoices.length
-                ? bData.invoices.map(i => `<div>Factura <b>${i.invoice_number}</b> — Plan ${i.plan_code} (${i.billing_cycle}) — <b>$${i.total_usd} USD</b> [${i.status}]</div>`).join("")
-                : "<div>No hay facturas registradas en esta cuenta.</div>");
+                ? bData.invoices.map(i => `<div style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Factura <b>${i.invoice_number}</b> — Plan <b>${i.plan_code}</b> (${i.billing_cycle}) — <b style="color:#38ef7d;">$${i.total_usd} USD</b> [${i.status}]</div>`).join("")
+                : "<div>No hay facturas registradas aún en esta cuenta.</div>");
           }
         } catch (e) {}
       }
+
+      window.selectSaasPlanForQuote = async function(planCode) {
+        selectedCheckoutPlanCode = planCode;
+        await loadSaasPlansUI();
+      };
+
+      window.updateSaasCheckoutQuoteUI = async function() {
+        const box = document.getElementById("saas-checkout-quote-box");
+        if (!box) return;
+        const cycle = document.getElementById("saas-billing-cycle")?.value || "monthly";
+        const gw = document.getElementById("saas-payment-gateway-select")?.value || "stripe";
+        const promo = (document.getElementById("saas-promo-input")?.value || "").trim() || null;
+        try {
+          const res = await fetch("/api/saas/billing/quote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              plan_code: selectedCheckoutPlanCode || "PRO",
+              billing_cycle: cycle,
+              promo_code: promo,
+              payment_gateway: gw
+            })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.ok) return;
+          const q = data.quote;
+          const dt = q.direct_transfer_details || {};
+          const extBtn = q.external_payment_link
+            ? `<a href="${q.external_payment_link}" target="_blank" rel="noopener" class="btn-secondary" style="padding:6px 12px;font-size:0.74rem;border-color:#38ef7d;color:#38ef7d;text-decoration:none;">🔗 Abrir Link de Pago Externo (${q.payment_gateway.toUpperCase()})</a>`
+            : "";
+          const dtInfo = (gw === "direct_transfer")
+            ? `<div style="margin-top:6px;padding:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-size:0.72rem;color:#fde68a;">
+                 <b>📲 Datos para Transferencia Directa (${dt.account_holder || 'Santiago'}):</b><br>
+                 • <b>Nequi:</b> <code>${dt.nequi_number || '300 000 0000'}</code> | <b>Bancolombia:</b> <code>${dt.bancolombia_account || 'Ahorros'}</code> | <b>Llave Bre-B:</b> <code>${dt.bre_b_key || '@santiagoliseth'}</code>
+               </div>`
+            : "";
+
+          box.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+              <div>
+                <div style="font-weight:800;color:#00f0ff;font-size:0.82rem;">🛒 RESUMEN DE VENTA EN VIVO — ${q.plan_name} (${q.billing_cycle === 'annual' ? 'Anual -20%' : 'Mensual'})</div>
+                <div style="font-size:0.72rem;color:#94a3b8;">Pasarela seleccionada: <b style="color:#fff;">${q.payment_gateway_label}</b> • TRM: $${q.trm_usd_cop.toLocaleString("es-CO")} COP/USD</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:1.05rem;font-weight:900;color:#38ef7d;">Total: $${q.total_usd} USD <span style="font-size:0.8rem;color:#ffd166;">(~$${q.total_cop.toLocaleString("es-CO")} COP)</span></div>
+                <div style="font-size:0.68rem;color:#cbd5e1;">Créditos IA incluidos: <b>${q.total_credits_granted.toLocaleString()}</b> ${q.annual_savings_usd > 0 ? ' • Ahorro anual: $' + q.annual_savings_usd + ' USD' : ''} ${q.promo_discount_usd > 0 ? ' • Descuento cupón: -$' + q.promo_discount_usd + ' USD' : ''}</div>
+              </div>
+            </div>
+            ${dtInfo}
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;flex-wrap:wrap;">
+              ${extBtn}
+              <button type="button" class="btn-primary" style="padding:6px 14px;font-size:0.75rem;background:linear-gradient(135deg,#10b981,#059669);border:none;" onclick="checkoutSaasPlanUI('${q.plan_code}')">⚡ Confirmar Compra y Activar ${q.plan_code} Ahora</button>
+            </div>
+          `;
+        } catch (e) {}
+      };
 
       window.validateSaasPromoUI = async function() {
         const code = (document.getElementById("saas-promo-input")?.value || "").trim();
@@ -23146,7 +23285,7 @@ const cardEsg = document.getElementById("hud-card-esg");
         const res = await fetch("/api/saas/billing/promo/validate", {
           method: "POST",
           headers: getSaasHeaders(),
-          body: JSON.stringify({ code, plan_code: "PRO" })
+          body: JSON.stringify({ code, plan_code: selectedCheckoutPlanCode || "PRO" })
         });
         const data = await res.json();
         if (fb) {
@@ -23155,22 +23294,32 @@ const cardEsg = document.getElementById("hud-card-esg");
             ? `✔ Cupón válido: ${data.promo.description} (-${data.promo.discount_pct}% + ${data.promo.bonus_credits} créditos)`
             : (data.detail || "Cupón inválido");
         }
+        await updateSaasCheckoutQuoteUI();
       };
 
       window.checkoutSaasPlanUI = async function(planCode) {
+        selectedCheckoutPlanCode = planCode;
         const cycle = document.getElementById("saas-billing-cycle")?.value || "monthly";
+        const gw = document.getElementById("saas-payment-gateway-select")?.value || "stripe";
         const promo = (document.getElementById("saas-promo-input")?.value || "").trim() || null;
         const fb = document.getElementById("saas-promo-feedback");
         const res = await fetch("/api/saas/billing/checkout", {
           method: "POST",
           headers: getSaasHeaders(),
-          body: JSON.stringify({ plan_code: planCode, billing_cycle: cycle, promo_code: promo })
+          body: JSON.stringify({
+            plan_code: planCode,
+            billing_cycle: cycle,
+            promo_code: promo,
+            payment_gateway: gw,
+            payment_method_brand: gw,
+            payment_method_last4: "4242"
+          })
         });
         const data = await res.json();
         if (fb) {
           fb.style.color = res.ok ? "#38ef7d" : "#ef4444";
           fb.textContent = res.ok
-            ? `✔ Suscripción actualizada a ${planCode} (Factura ${data.invoice?.invoice_number || 'OK'})`
+            ? `✔ Suscripción actualizada a ${planCode} vía ${gw.toUpperCase()} (Factura ${data.invoice?.invoice_number || 'OK'} • $${data.invoice?.total_usd || 0} USD / ~$${(data.invoice?.total_cop || 0).toLocaleString('es-CO')} COP)`
             : (data.detail || "No se pudo procesar el cambio de plan.");
         }
         await refreshSaasProfileState();
@@ -23227,15 +23376,25 @@ const cardEsg = document.getElementById("hud-card-esg");
       async function loadSaasCreatorDashboardUI() {
         const box = document.getElementById("saas-creator-dashboard-box");
         try {
-          const res = await fetch("/api/saas/admin/dashboard", { headers: getSaasHeaders() });
+          const [res, payRes] = await Promise.all([
+            fetch("/api/saas/admin/dashboard", { headers: getSaasHeaders() }),
+            fetch("/api/saas/admin/payment-config", { headers: getSaasHeaders() })
+          ]);
           const data = await res.json();
           if (!res.ok) {
-            if (box) box.innerHTML = `<div style="color:#ef4444;padding:12px;">🔒 Acceso restringido exclusivamente al propietario CREATOR (Señor Santiago).</div>`;
+            if (box) box.innerHTML = `<div style="color:#ef4444;padding:12px;">🔒 Acceso restringido exclusivamente al propietario CREATOR (Señor Santiago). Desbloquea primero con tu PIN de Creador.</div>`;
             return;
           }
+          const payCfg = payRes.ok ? await payRes.json() : (await fetchGatewaysMetadata() || {});
+          const gws = payCfg.gateways || {};
+          const st = gws.stripe || {};
+          const wp = gws.wompi_pse_nequi || {};
+          const pp = gws.paypal || {};
+          const dt = gws.direct_transfer || {};
           const m = data.metrics;
+
           if (box) {
-            box.innerHTML = `<div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);padding:12px;border-radius:8px;margin-bottom:10px;">
+            box.innerHTML = `<div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);padding:12px;border-radius:8px;margin-bottom:12px;">
               <div style="font-weight:800;color:#ffd166;font-size:0.86rem;margin-bottom:8px;">👑 CENTRO DE COMANDO SUPERADMINISTRADOR CREATOR — ${data.creator_owner}</div>
               <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;">
                 <div style="background:rgba(0,0,0,0.35);padding:8px;border-radius:6px;"><div style="font-size:0.68rem;color:#94a3b8;">Usuarios Totales</div><div style="font-size:1.05rem;font-weight:800;color:#fff;">${m.total_users}</div></div>
@@ -23243,10 +23402,121 @@ const cardEsg = document.getElementById("hud-card-esg");
                 <div style="background:rgba(0,0,0,0.35);padding:8px;border-radius:6px;"><div style="font-size:0.68rem;color:#94a3b8;">ARR (Anual)</div><div style="font-size:1.05rem;font-weight:800;color:#00f0ff;">$${m.arr_usd} USD</div></div>
                 <div style="background:rgba(0,0,0,0.35);padding:8px;border-radius:6px;"><div style="font-size:0.68rem;color:#94a3b8;">Ganancia Neta Est.</div><div style="font-size:1.05rem;font-weight:800;color:#ffd166;">$${m.estimated_monthly_profit_usd} USD</div></div>
               </div>
+            </div>
+
+            <!-- PANEL VISUAL DE CONFIGURACIÓN DE PASARELAS Y MÉTODOS DE PAGO -->
+            <div style="background:rgba(15,23,42,0.9);border:1px solid rgba(0,240,255,0.4);border-radius:10px;padding:14px;max-height:340px;overflow-y:auto;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+                <div>
+                  <div style="font-weight:800;color:#00f0ff;font-size:0.84rem;">💳 CONFIGURACIÓN DE MÉTODOS DE PAGO & PASARELAS DE VENTA</div>
+                  <div style="font-size:0.7rem;color:#94a3b8;">Guarda tus llaves y cuentas aquí (se persisten en <code>data/payment_gateways_config.json</code> y <code>.env</code>)</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <label style="font-size:0.7rem;color:#ffd166;">TRM (COP/USD):</label>
+                  <input type="number" id="paycfg-trm" value="${payCfg.trm_usd_cop || 4200}" style="width:85px;background:#090d16;border:1px solid #475569;color:#fff;padding:4px 6px;border-radius:4px;font-size:0.74rem;" />
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <!-- 1. STRIPE -->
+                <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:10px;">
+                  <div style="font-weight:700;color:#38bdf8;font-size:0.76rem;margin-bottom:6px;">💳 1. Stripe (Tarjetas Internacionales USD/COP)</div>
+                  <input type="text" id="paycfg-stripe-pub" value="${st.publishable_key || ''}" placeholder="Publishable Key (pk_live_... o pk_test_...)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="password" id="paycfg-stripe-sec" value="${st.secret_key || ''}" placeholder="Secret Key (sk_live_... o sk_test_...)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="password" id="paycfg-stripe-wh" value="${st.webhook_secret || ''}" placeholder="Webhook Secret (whsec_...)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="text" id="paycfg-stripe-link-pro" value="${(st.payment_links && st.payment_links.PRO) || ''}" placeholder="Stripe Payment Link Plan PRO (https://buy.stripe.com/...)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                </div>
+
+                <!-- 2. WOMPI / MERCADOPAGO (COLOMBIA PSE / NEQUI) -->
+                <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:10px;">
+                  <div style="font-weight:700;color:#38ef7d;font-size:0.76rem;margin-bottom:6px;">🏦 2. Wompi Bancolombia / MercadoPago (PSE & Nequi)</div>
+                  <input type="text" id="paycfg-wompi-pub" value="${wp.wompi_public_key || ''}" placeholder="Wompi Llave Pública (pub_prod_... o pub_test_...)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="password" id="paycfg-wompi-sec" value="${wp.wompi_integrity_secret || ''}" placeholder="Wompi Secreto de Integridad (prod_integrity_...)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="text" id="paycfg-mp-pub" value="${wp.mercadopago_public_key || ''}" placeholder="MercadoPago Public Key (APP_USR-...)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="text" id="paycfg-wompi-link-pro" value="${(wp.payment_links && wp.payment_links.PRO) || ''}" placeholder="Link de Pago Wompi/MercadoPago Plan PRO (https://checkout.wompi.co/...)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                </div>
+
+                <!-- 3. PAYPAL EXPRESS -->
+                <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:10px;">
+                  <div style="font-weight:700;color:#c084fc;font-size:0.76rem;margin-bottom:6px;">🅿️ 3. PayPal Express Checkout Internacional</div>
+                  <input type="text" id="paycfg-paypal-cid" value="${pp.client_id || ''}" placeholder="PayPal Client ID (Live o Sandbox)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="email" id="paycfg-paypal-email" value="${pp.business_email || ''}" placeholder="Correo PayPal Business (pagos@tudominio.com)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="text" id="paycfg-paypal-link-pro" value="${(pp.payment_links && pp.payment_links.PRO) || ''}" placeholder="Link PayPal.Me o Suscripción Plan PRO" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                </div>
+
+                <!-- 4. TRANSFERENCIA DIRECTA NEQUI / BANCOLOMBIA / BRE-B -->
+                <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:10px;">
+                  <div style="font-weight:700;color:#ffd166;font-size:0.76rem;margin-bottom:6px;">📲 4. Transferencia Directa (Nequi / Bancolombia / Bre-B)</div>
+                  <input type="text" id="paycfg-dt-nequi" value="${dt.nequi_number || ''}" placeholder="Número Nequi (ej. 300 123 4567)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <input type="text" id="paycfg-dt-bancolombia" value="${dt.bancolombia_account || ''}" placeholder="Cuenta Bancolombia (ej. Ahorros 000-000000-00)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+                    <input type="text" id="paycfg-dt-breb" value="${dt.bre_b_key || ''}" placeholder="Llave Bre-B (@santiago)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                    <input type="text" id="paycfg-dt-wa" value="${dt.whatsapp_sales_phone || ''}" placeholder="WhatsApp (+57300...)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <span id="paycfg-save-feedback" style="font-size:0.74rem;color:#38ef7d;"></span>
+                <button type="button" class="btn-primary" style="padding:7px 16px;font-size:0.76rem;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#04070d;font-weight:800;" onclick="saveCreatorPaymentConfigUI()">💾 Guardar Configuración de Métodos de Pago</button>
+              </div>
             </div>`;
           }
         } catch (e) {}
       }
+
+      window.saveCreatorPaymentConfigUI = async function() {
+        const fb = document.getElementById("paycfg-save-feedback");
+        const payload = {
+          trm_usd_cop: parseFloat(document.getElementById("paycfg-trm")?.value || "4200"),
+          gateways: {
+            stripe: {
+              enabled: true,
+              publishable_key: (document.getElementById("paycfg-stripe-pub")?.value || "").trim(),
+              secret_key: (document.getElementById("paycfg-stripe-sec")?.value || "").trim(),
+              webhook_secret: (document.getElementById("paycfg-stripe-wh")?.value || "").trim(),
+              payment_links: { PRO: (document.getElementById("paycfg-stripe-link-pro")?.value || "").trim() }
+            },
+            wompi_pse_nequi: {
+              enabled: true,
+              wompi_public_key: (document.getElementById("paycfg-wompi-pub")?.value || "").trim(),
+              wompi_integrity_secret: (document.getElementById("paycfg-wompi-sec")?.value || "").trim(),
+              mercadopago_public_key: (document.getElementById("paycfg-mp-pub")?.value || "").trim(),
+              payment_links: { PRO: (document.getElementById("paycfg-wompi-link-pro")?.value || "").trim() }
+            },
+            paypal: {
+              enabled: true,
+              client_id: (document.getElementById("paycfg-paypal-cid")?.value || "").trim(),
+              business_email: (document.getElementById("paycfg-paypal-email")?.value || "").trim(),
+              payment_links: { PRO: (document.getElementById("paycfg-paypal-link-pro")?.value || "").trim() }
+            },
+            direct_transfer: {
+              enabled: true,
+              nequi_number: (document.getElementById("paycfg-dt-nequi")?.value || "").trim(),
+              bancolombia_account: (document.getElementById("paycfg-dt-bancolombia")?.value || "").trim(),
+              bre_b_key: (document.getElementById("paycfg-dt-breb")?.value || "").trim(),
+              whatsapp_sales_phone: (document.getElementById("paycfg-dt-wa")?.value || "").trim()
+            }
+          }
+        };
+        try {
+          const res = await fetch("/api/saas/admin/payment-config", {
+            method: "POST",
+            headers: getSaasHeaders(),
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            cachedGatewaysConfig = data;
+            if (fb) fb.textContent = "✔ Métodos de pago guardados en data/payment_gateways_config.json.";
+            showToast("💳 Pasarelas y métodos de pago actualizados correctamente");
+          } else {
+            if (fb) fb.textContent = data.detail || "Error al guardar métodos de pago.";
+          }
+        } catch (e) {
+          if (fb) fb.textContent = "Error de red al guardar métodos de pago.";
+        }
+      };
 
 
       // =========================================================================
@@ -23255,6 +23525,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       let linkedFirebaseConfig = null;
 
       window.initFirebaseGateConfig = async function() {
+        fetchGatewaysMetadata();
         try {
           const res = await fetch("/api/saas/firebase/config");
           if (!res.ok) return;
@@ -23353,12 +23624,104 @@ const cardEsg = document.getElementById("hud-card-esg");
         }
       };
 
+      const GATE_PLAN_PRICES = {
+        FREE: { monthly: 0, annual: 0, title: "PLAN FREE" },
+        STARTER: { monthly: 10, annual: 96, title: "LEVEL 1: STARTER" },
+        PRO: { monthly: 30, annual: 288, title: "LEVEL 2: PRO" },
+        BUSINESS: { monthly: 75, annual: 720, title: "LEVEL 3: BUSINESS" },
+        ENTERPRISE: { monthly: 200, annual: 1920, title: "LEVEL 4: ENTERPRISE" }
+      };
+
+      window.setGateBillingCycle = function(cycle) {
+        const cInput = document.getElementById("gate-selected-billing-cycle");
+        if (cInput) cInput.value = cycle;
+        const bM = document.getElementById("gate-cycle-btn-monthly");
+        const bA = document.getElementById("gate-cycle-btn-annual");
+        if (bM) {
+          bM.style.background = (cycle === "monthly") ? "#00d2ff" : "transparent";
+          bM.style.color = (cycle === "monthly") ? "#04070d" : "#cbd5e1";
+        }
+        if (bA) {
+          bA.style.background = (cycle === "annual") ? "#38ef7d" : "transparent";
+          bA.style.color = (cycle === "annual") ? "#04070d" : "#38ef7d";
+        }
+        const trm = cachedGatewaysConfig?.trm_usd_cop || 4200;
+        Object.keys(GATE_PLAN_PRICES).forEach(code => {
+          const p = GATE_PLAN_PRICES[code];
+          const usd = (cycle === "annual") ? p.annual : p.monthly;
+          const cop = Math.round(usd * trm).toLocaleString("es-CO");
+          const suffix = (cycle === "annual") ? "/año" : "/mes";
+          const pEl = document.getElementById("gate-price-tag-" + code);
+          const cEl = document.getElementById("gate-cop-tag-" + code);
+          if (pEl) pEl.innerHTML = `$${usd}<small style="font-size:0.65rem;color:#94a3b8;">${suffix}</small>`;
+          if (cEl && code !== "FREE") cEl.textContent = `~$${cop} COP ${suffix}`;
+        });
+        const curCode = document.getElementById("gate-selected-plan-code")?.value || "FREE";
+        window.selectGatePlan(curCode);
+      };
+
+      window.selectGatePaymentGateway = function(gw) {
+        const gwInput = document.getElementById("gate-selected-payment-gateway");
+        if (gwInput) gwInput.value = gw;
+        ["stripe", "wompi_pse_nequi", "paypal", "direct_transfer"].forEach(id => {
+          const btn = document.getElementById("gate-gw-btn-" + id);
+          if (btn) {
+            btn.style.borderColor = (id === gw) ? "#00f0ff" : "#334155";
+            btn.style.background = (id === gw) ? "rgba(0, 240, 255, 0.18)" : "rgba(15, 23, 42, 0.8)";
+            btn.style.color = (id === gw) ? "#fff" : "#cbd5e1";
+          }
+        });
+        const inst = document.getElementById("gate-gw-instructions-box");
+        const dt = cachedGatewaysConfig?.gateways?.direct_transfer || {};
+        if (inst) {
+          if (gw === "stripe") inst.textContent = "💳 Pago internacional con Tarjeta Visa, Mastercard, Amex, Apple Pay o Google Pay (Stripe).";
+          else if (gw === "wompi_pse_nequi") inst.textContent = "🏦 Débito bancario PSE (todos los bancos en Colombia), Nequi Push o Botón Bancolombia (Wompi/MercadoPago).";
+          else if (gw === "paypal") inst.textContent = "🅿️ Pago rápido con tu cuenta PayPal Express Checkout o tarjeta vinculada.";
+          else if (gw === "direct_transfer") inst.innerHTML = `📲 Transfiere a <b>Nequi: ${dt.nequi_number || '300 000 0000'}</b> | <b>${dt.bancolombia_account || 'Bancolombia'}</b> | <b>Bre-B: ${dt.bre_b_key || '@santiagoliseth'}</b> e ingresa los 4 dígitos del comprobante.`;
+        }
+        window.updateGateLiveQuote();
+      };
+
+      window.updateGateLiveQuote = async function() {
+        const planCode = document.getElementById("gate-selected-plan-code")?.value || "FREE";
+        const cycle = document.getElementById("gate-selected-billing-cycle")?.value || "monthly";
+        const gw = document.getElementById("gate-selected-payment-gateway")?.value || "stripe";
+        const promo = (document.getElementById("gate-reg-promo")?.value || "").trim() || null;
+        const payBox = document.getElementById("gate-payment-selector-box");
+        if (payBox) {
+          payBox.style.display = (planCode === "FREE") ? "none" : "block";
+        }
+        if (planCode === "FREE") return;
+        try {
+          const res = await fetch("/api/saas/billing/quote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan_code: planCode, billing_cycle: cycle, promo_code: promo, payment_gateway: gw })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok && data.quote) {
+            const q = data.quote;
+            const copEl = document.getElementById("gate-live-quote-cop");
+            const labelEl = document.getElementById("gate-selected-plan-label");
+            const suffix = (cycle === "annual") ? "/ año" : "/ mes";
+            if (copEl) copEl.textContent = `$${q.total_usd} USD (~$${q.total_cop.toLocaleString("es-CO")} COP)`;
+            if (labelEl) labelEl.textContent = `${q.plan_name} — $${q.total_usd} USD (~$${q.total_cop.toLocaleString("es-CO")} COP) ${suffix}`;
+          }
+        } catch (e) {}
+      };
+
       window.selectGatePlan = function(planCode, planLabel) {
         const codeInput = document.getElementById("gate-selected-plan-code");
         const labelEl = document.getElementById("gate-selected-plan-label");
         const badgeEl = document.getElementById("gate-selected-plan-badge");
+        const cycle = document.getElementById("gate-selected-billing-cycle")?.value || "monthly";
+        const pInfo = GATE_PLAN_PRICES[planCode] || GATE_PLAN_PRICES.FREE;
+        const usd = (cycle === "annual") ? pInfo.annual : pInfo.monthly;
+        const suffix = (cycle === "annual") ? "año" : "mes";
+        const computedLabel = planLabel || `${pInfo.title} — $${usd} USD / ${suffix}`;
+
         if (codeInput) codeInput.value = planCode;
-        if (labelEl) labelEl.textContent = planLabel;
+        if (labelEl) labelEl.textContent = computedLabel;
         if (badgeEl) badgeEl.textContent = planCode;
 
         ["FREE", "STARTER", "PRO", "BUSINESS", "ENTERPRISE"].forEach(c => {
@@ -23368,6 +23731,7 @@ const cardEsg = document.getElementById("hud-card-esg");
             card.style.boxShadow = (c === planCode) ? "0 0 16px rgba(0, 240, 255, 0.3)" : "none";
           }
         });
+        window.updateGateLiveQuote();
       };
 
       window.handleFirebaseGateSubmit = async function(e, mode) {
@@ -23382,6 +23746,10 @@ const cardEsg = document.getElementById("hud-card-esg");
         const selected_plan = isReg ? (document.getElementById("gate-selected-plan-code")?.value || "FREE") : "FREE";
         const promo_code = isReg ? ((document.getElementById("gate-reg-promo")?.value || "").trim() || null) : null;
         const referral_code = isReg ? ((document.getElementById("gate-reg-referral")?.value || "").trim() || null) : null;
+        const billing_cycle = isReg ? (document.getElementById("gate-selected-billing-cycle")?.value || "monthly") : "monthly";
+        const payment_gateway = isReg ? (document.getElementById("gate-selected-payment-gateway")?.value || "stripe") : "stripe";
+        const payment_method_brand = isReg ? (document.getElementById("gate-pay-brand")?.value || payment_gateway) : "visa";
+        const payment_method_last4 = isReg ? (document.getElementById("gate-pay-last4")?.value || "4242") : "4242";
 
         let firebase_uid = null;
         let firebase_id_token = null;
@@ -23425,7 +23793,11 @@ const cardEsg = document.getElementById("hud-card-esg");
               provider: "password",
               selected_plan,
               promo_code,
-              referral_code
+              referral_code,
+              billing_cycle,
+              payment_gateway,
+              payment_method_brand,
+              payment_method_last4
             })
           });
           const data = await res.json();

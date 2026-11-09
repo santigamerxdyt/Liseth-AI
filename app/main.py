@@ -235,6 +235,8 @@ EXEMPT_API_PATHS = {
     "/api/saas/auth/reset-password",
     "/api/saas/firebase/config",
     "/api/saas/plans",
+    "/api/saas/billing/gateways",
+    "/api/saas/billing/quote",
     "/api/saas/billing/webhook",
 }
 

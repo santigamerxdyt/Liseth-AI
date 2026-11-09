@@ -118,9 +118,17 @@ class CheckoutRequest(BaseModel):
     plan_code: str
     billing_cycle: Optional[str] = "monthly"
     promo_code: Optional[str] = None
+    payment_gateway: Optional[str] = "stripe"
     payment_method_brand: Optional[str] = "visa"
     payment_method_last4: Optional[str] = "4242"
     external_tx_id: Optional[str] = None
+
+
+class QuoteRequest(BaseModel):
+    plan_code: str
+    billing_cycle: Optional[str] = "monthly"
+    promo_code: Optional[str] = None
+    payment_gateway: Optional[str] = "stripe"
 
 
 class CancelSubscriptionRequest(BaseModel):
@@ -148,6 +156,10 @@ class FirebaseAuthRequest(BaseModel):
     selected_plan: Optional[str] = "FREE"
     promo_code: Optional[str] = None
     referral_code: Optional[str] = None
+    billing_cycle: Optional[str] = "monthly"
+    payment_gateway: Optional[str] = "stripe"
+    payment_method_brand: Optional[str] = "visa"
+    payment_method_last4: Optional[str] = "4242"
 
 
 # ==============================================================================
@@ -186,6 +198,10 @@ async def firebase_auth_endpoint(
         promo_code=req.promo_code,
         referral_code=req.referral_code,
         ip_address=_get_client_ip(request),
+        billing_cycle=req.billing_cycle or "monthly",
+        payment_gateway=req.payment_gateway or "stripe",
+        payment_method_brand=req.payment_method_brand or "visa",
+        payment_method_last4=req.payment_method_last4 or "4242",
     )
     for cookie_name in ("liseth_saas_session", "liseth_session"):
         response.set_cookie(
@@ -563,6 +579,25 @@ async def delete_memory_endpoint(
 # 5. BILLING, SUBSCRIPTIONS, PROMO CODES, REFERRALS & USAGE
 # ==============================================================================
 
+@router.get("/billing/gateways")
+async def get_billing_gateways_endpoint():
+    return saas_service.get_payment_gateways_config(include_secrets=False)
+
+
+@router.post("/billing/quote")
+async def quote_plan_purchase_endpoint(
+    req: QuoteRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    return await saas_service.quote_plan_purchase(
+        db=db,
+        plan_code=req.plan_code,
+        billing_cycle=req.billing_cycle or "monthly",
+        promo_code=req.promo_code,
+        payment_gateway=req.payment_gateway or "stripe",
+    )
+
+
 @router.post("/billing/promo/validate")
 async def validate_promo_endpoint(
     req: PromoValidateRequest,
@@ -601,6 +636,7 @@ async def checkout_endpoint(
         payment_method_last4=req.payment_method_last4 or "4242",
         external_tx_id=req.external_tx_id,
         ip_address=_get_client_ip(request),
+        payment_gateway=req.payment_gateway or "stripe",
     )
 
 
@@ -812,3 +848,24 @@ async def creator_create_promo_endpoint(
     )
     await db.commit()
     return {"ok": True, "code": promo.code, "discount_pct": promo.discount_pct}
+
+
+@router.get("/admin/payment-config")
+async def creator_get_payment_config_endpoint(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    await saas_service.require_creator(request, db)
+    return saas_service.get_payment_gateways_config(include_secrets=True)
+
+
+@router.post("/admin/payment-config")
+@router.put("/admin/payment-config")
+async def creator_save_payment_config_endpoint(
+    config_data: Dict[str, Any],
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    creator = await saas_service.require_creator(request, db)
+    return await saas_service.save_payment_gateways_config(db, creator, config_data)
+
