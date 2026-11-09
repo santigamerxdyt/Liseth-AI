@@ -529,10 +529,14 @@ class TestFirebaseStartupGateAndProjectLinking:
         cfg = cfg_res.json()
         assert cfg["ok"] is True
         assert cfg["isLinked"] is True
+        assert cfg["hasClientSdkKey"] is True
         assert cfg["projectName"] == "liseth-saas-ai"
         assert cfg["projectId"] == "liseth-saas-ai"
         assert cfg["projectNumber"] == "353398586852"
         assert cfg["messagingSenderId"] == "353398586852"
+        assert cfg["apiKey"] == "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q"
+        assert cfg["appId"] == "1:353398586852:web:8a548c1b56e8948b065bf1"
+        assert cfg["measurementId"] == "G-33Y6VVGX3K"
         assert cfg["hostingEnabled"] is False
         assert "emailPassword" in cfg["providers"]
 
@@ -543,13 +547,19 @@ class TestFirebaseStartupGateAndProjectLinking:
                 "projectName": "liseth-saas-ai",
                 "projectId": "liseth-saas-ai",
                 "projectNumber": "353398586852",
+                "apiKey": "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q",
                 "authDomain": "liseth-saas-ai.firebaseapp.com",
+                "appId": "1:353398586852:web:8a548c1b56e8948b065bf1",
+                "measurementId": "G-33Y6VVGX3K",
                 "hostingEnabled": False,
             },
         )
         assert upd_cfg.status_code == 200
         assert upd_cfg.json()["projectId"] == "liseth-saas-ai"
         assert upd_cfg.json()["projectNumber"] == "353398586852"
+        assert upd_cfg.json()["apiKey"] == "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q"
+        assert upd_cfg.json()["appId"] == "1:353398586852:web:8a548c1b56e8948b065bf1"
+        assert upd_cfg.json()["measurementId"] == "G-33Y6VVGX3K"
         assert upd_cfg.json()["hostingEnabled"] is False
 
         # 3. Attempt to create a Firebase account selecting CREATOR plan -> must fail with 403
@@ -623,6 +633,11 @@ class TestFirebaseStartupGateAndProjectLinking:
         assert "saveCreatorPaymentConfigUI" in html
         assert "firebase-app-compat.js" in html
         assert "firebase-auth-compat.js" in html
+        assert "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js" in html
+        assert "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js" in html
+        assert "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q" in html
+        assert "1:353398586852:web:8a548c1b56e8948b065bf1" in html
+        assert "G-33Y6VVGX3K" in html
 
     def test_public_payment_gateways_and_live_sales_quote(self):
         # 1. Public payment gateways endpoint (no auth required for startup gate)

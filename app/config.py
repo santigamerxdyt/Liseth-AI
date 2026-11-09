@@ -161,7 +161,10 @@ class Settings:
         self.FIREBASE_PROJECT_NAME: str = os.getenv("FIREBASE_PROJECT_NAME", "liseth-saas-ai").strip() or "liseth-saas-ai"
         self.FIREBASE_PROJECT_ID: str = os.getenv("FIREBASE_PROJECT_ID", "liseth-saas-ai").strip() or "liseth-saas-ai"
         self.FIREBASE_PROJECT_NUMBER: str = os.getenv("FIREBASE_PROJECT_NUMBER", "353398586852").strip() or "353398586852"
-        self.FIREBASE_API_KEY: str = os.getenv("FIREBASE_API_KEY", "").strip()
+        self.FIREBASE_API_KEY: str = (
+            os.getenv("FIREBASE_API_KEY", "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q").strip()
+            or "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q"
+        )
         self.FIREBASE_AUTH_DOMAIN: str = os.getenv(
             "FIREBASE_AUTH_DOMAIN",
             f"{self.FIREBASE_PROJECT_ID}.firebaseapp.com"
@@ -175,8 +178,12 @@ class Settings:
             or self.FIREBASE_PROJECT_NUMBER
         )
         self.FIREBASE_APP_ID: str = (
-            os.getenv("FIREBASE_APP_ID", f"1:{self.FIREBASE_MESSAGING_SENDER_ID}:web:lisethsaas2026").strip()
-            or f"1:{self.FIREBASE_MESSAGING_SENDER_ID}:web:lisethsaas2026"
+            os.getenv("FIREBASE_APP_ID", "1:353398586852:web:8a548c1b56e8948b065bf1").strip()
+            or "1:353398586852:web:8a548c1b56e8948b065bf1"
+        )
+        self.FIREBASE_MEASUREMENT_ID: str = (
+            os.getenv("FIREBASE_MEASUREMENT_ID", "G-33Y6VVGX3K").strip()
+            or "G-33Y6VVGX3K"
         )
         self.FIREBASE_HOSTING_ENABLED: bool = os.getenv("FIREBASE_HOSTING_ENABLED", "false").lower() in ("true", "1", "yes")
 

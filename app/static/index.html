@@ -6842,10 +6842,39 @@
   <script src="/static/js/three.min.js"></script>
   <script>if(!window.THREE){document.write('<script src="app/static/js/three.min.js"><\/script>');}</script>
   <script>if(!window.THREE){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');}</script>
-<!-- Firebase Web SDK (App & Authentication) -->
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  </head>
+  <!-- Firebase Web SDK (Compat Auth + Modular v13.2.0 App & Analytics) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q",
+      authDomain: "liseth-saas-ai.firebaseapp.com",
+      projectId: "liseth-saas-ai",
+      storageBucket: "liseth-saas-ai.firebasestorage.app",
+      messagingSenderId: "353398586852",
+      appId: "1:353398586852:web:8a548c1b56e8948b065bf1",
+      measurementId: "G-33Y6VVGX3K"
+    };
+
+    window.lisethFirebaseConfig = firebaseConfig;
+    try {
+      const app = initializeApp(firebaseConfig);
+      window.lisethFirebaseApp = app;
+      if (window.location.protocol.startsWith("http")) {
+        window.lisethFirebaseAnalytics = getAnalytics(app);
+      }
+    } catch (e) {
+      console.warn("Aviso inicializando Firebase v13.2.0:", e);
+    }
+    try {
+      if (window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
+        window.firebase.initializeApp(firebaseConfig);
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
 <!-- Saltos de Teclado Accesibles (WCAG 2.1) -->
@@ -9305,7 +9334,7 @@
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Web API Key (Firebase SDK):</label>
-            <input type="text" id="fb-cfg-api-key" placeholder="AIzaSy..." style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-api-key" value="AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q" placeholder="AIzaSy..." style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Auth Domain:</label>
@@ -9313,7 +9342,11 @@
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">App ID:</label>
-            <input type="text" id="fb-cfg-app-id" value="1:353398586852:web:lisethsaas2026" placeholder="1:353398586852:web:abcdef" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-app-id" value="1:353398586852:web:8a548c1b56e8948b065bf1" placeholder="1:353398586852:web:8a548c1b56e8948b065bf1" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Measurement ID (Analytics):</label>
+            <input type="text" id="fb-cfg-measurement-id" value="G-33Y6VVGX3K" placeholder="G-33Y6VVGX3K" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
@@ -23591,11 +23624,13 @@ const cardEsg = document.getElementById("hud-card-esg");
             const pnumEl = document.getElementById("fb-cfg-project-number");
             if (pnumEl) pnumEl.value = pnum;
             const keyEl = document.getElementById("fb-cfg-api-key");
-            if (keyEl) keyEl.value = cfg.apiKey || "";
+            if (keyEl) keyEl.value = cfg.apiKey || "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q";
             const domEl = document.getElementById("fb-cfg-auth-domain");
-            if (domEl) domEl.value = cfg.authDomain || "";
+            if (domEl) domEl.value = cfg.authDomain || "liseth-saas-ai.firebaseapp.com";
             const appEl = document.getElementById("fb-cfg-app-id");
-            if (appEl) appEl.value = cfg.appId || `1:${pnum}:web:lisethsaas2026`;
+            if (appEl) appEl.value = cfg.appId || "1:353398586852:web:8a548c1b56e8948b065bf1";
+            const measEl = document.getElementById("fb-cfg-measurement-id");
+            if (measEl) measEl.value = cfg.measurementId || "G-33Y6VVGX3K";
 
             if (cfg.apiKey && window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
               try {
@@ -23626,13 +23661,14 @@ const cardEsg = document.getElementById("hud-card-esg");
         const projectNumber = (document.getElementById("fb-cfg-project-number")?.value || "353398586852").trim();
         const apiKey = (document.getElementById("fb-cfg-api-key")?.value || "").trim();
         const authDomain = (document.getElementById("fb-cfg-auth-domain")?.value || "").trim();
-        const appId = (document.getElementById("fb-cfg-app-id")?.value || "").trim();
+        const appId = (document.getElementById("fb-cfg-app-id")?.value || "1:353398586852:web:8a548c1b56e8948b065bf1").trim();
+        const measurementId = (document.getElementById("fb-cfg-measurement-id")?.value || "G-33Y6VVGX3K").trim();
         const msg = document.getElementById("fb-cfg-save-msg");
         try {
           const res = await fetch("/api/saas/firebase/config", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projectName: projectId, projectId, projectNumber, messagingSenderId: projectNumber, apiKey, authDomain, appId, hostingEnabled: false })
+            body: JSON.stringify({ projectName: projectId, projectId, projectNumber, messagingSenderId: projectNumber, apiKey, authDomain, appId, measurementId, hostingEnabled: false })
           });
           const data = await res.json();
           if (res.ok && data.ok) {
