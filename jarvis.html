@@ -6845,6 +6845,22 @@
   <!-- Firebase Web SDK (Compat Auth + Modular v13.2.0 App & Analytics) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script>
+    window.lisethFirebaseConfig = {
+      apiKey: "AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q",
+      authDomain: "liseth-saas-ai.firebaseapp.com",
+      projectId: "liseth-saas-ai",
+      storageBucket: "liseth-saas-ai.firebasestorage.app",
+      messagingSenderId: "353398586852",
+      appId: "1:353398586852:web:8a548c1b56e8948b065bf1",
+      measurementId: "G-33Y6VVGX3K"
+    };
+    try {
+      if (window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
+        window.firebase.initializeApp(window.lisethFirebaseConfig);
+      }
+    } catch (e) {}
+  </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
@@ -6859,7 +6875,6 @@
       measurementId: "G-33Y6VVGX3K"
     };
 
-    window.lisethFirebaseConfig = firebaseConfig;
     try {
       const app = initializeApp(firebaseConfig);
       window.lisethFirebaseApp = app;
@@ -6869,11 +6884,6 @@
     } catch (e) {
       console.warn("Aviso inicializando Firebase v13.2.0:", e);
     }
-    try {
-      if (window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
-        window.firebase.initializeApp(firebaseConfig);
-      }
-    } catch (e) {}
   </script>
 </head>
 <body>
@@ -23599,7 +23609,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       // =========================================================================
       // PORTAL OBLIGATORIO DE INICIO: FIREBASE AUTH + SELECCIÓN DE PLANES SAAS
       // =========================================================================
-      let linkedFirebaseConfig = null;
+      let linkedFirebaseConfig = window.lisethFirebaseConfig || null;
 
       window.initFirebaseGateConfig = async function() {
         fetchGatewaysMetadata();
