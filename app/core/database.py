@@ -3,6 +3,7 @@ Database connection and session management for JARVIS / Liseth.
 Uses SQLite with aiosqlite and WAL mode for high performance.
 """
 from typing import AsyncGenerator
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -15,8 +16,23 @@ from app.core.models import Base
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=False,
-    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {},
+    connect_args={"check_same_thread": False, "timeout": 15.0} if "sqlite" in settings.DATABASE_URL else {},
 )
+
+if "sqlite" in settings.DATABASE_URL:
+    @event.listens_for(engine.sync_engine, "connect")
+    def _set_sqlite_pragmas(dbapi_conn, connection_record) -> None:
+        """Guarantees high-performance & safe SQLite PRAGMAs on every pooled connection."""
+        cursor = dbapi_conn.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL;")
+            cursor.execute("PRAGMA synchronous=NORMAL;")
+            cursor.execute("PRAGMA busy_timeout=5000;")
+            cursor.execute("PRAGMA foreign_keys=ON;")
+            cursor.execute("PRAGMA temp_store=MEMORY;")
+            cursor.execute("PRAGMA cache_size=-32000;")
+        finally:
+            cursor.close()
 
 # Async session factory
 AsyncSessionLocal = async_sessionmaker(
@@ -26,10 +42,21 @@ AsyncSessionLocal = async_sessionmaker(
     autoflush=False,
 )
 
+_PERFORMANCE_INDEX_DDL = (
+    "CREATE INDEX IF NOT EXISTS idx_chat_messages_session_ts ON chat_messages (session_id, timestamp);",
+    "CREATE INDEX IF NOT EXISTS idx_audit_entries_status_ts ON audit_entries (status, timestamp);",
+    "CREATE INDEX IF NOT EXISTS idx_saas_conv_user_archived_upd ON saas_conversations (user_id, is_archived, updated_at);",
+    "CREATE INDEX IF NOT EXISTS idx_saas_msg_conv_created ON saas_messages (conversation_id, created_at);",
+    "CREATE INDEX IF NOT EXISTS idx_saas_usage_user_created ON saas_usage_records (user_id, created_at);",
+    "CREATE INDEX IF NOT EXISTS idx_saas_audit_created ON saas_audit_logs (created_at);",
+    "CREATE INDEX IF NOT EXISTS idx_saas_invoices_user_issued ON saas_invoices (user_id, issued_at);",
+    "CREATE INDEX IF NOT EXISTS idx_saas_payments_user_created ON saas_payments (user_id, created_at);",
+)
+
 
 async def init_db() -> None:
     """
-    Initializes database tables and enables SQLite WAL mode.
+    Initializes database tables, enables SQLite WAL mode, and ensures composite performance indexes.
     """
     async with engine.begin() as conn:
         # Enable WAL mode for SQLite
@@ -39,6 +66,9 @@ async def init_db() -> None:
             await conn.exec_driver_sql("PRAGMA busy_timeout=5000;")
         # Create all tables if they don't exist
         await conn.run_sync(Base.metadata.create_all)
+        if "sqlite" in settings.DATABASE_URL:
+            for ddl in _PERFORMANCE_INDEX_DDL:
+                await conn.exec_driver_sql(ddl)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

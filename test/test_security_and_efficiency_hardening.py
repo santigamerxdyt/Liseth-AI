@@ -109,3 +109,65 @@ def test_credentials_env_key_sanitization():
             assert "\nline2" not in content  # Newlines in value sanitized
         finally:
             credentials_router.ENV_PATH = original_env
+
+
+def test_sensitive_log_redaction_filter():
+    """Verifies that SensitiveLogRedactionFilter redacts Telegram bot tokens and API keys in logs."""
+    from app.main import SensitiveLogRedactionFilter
+
+    raw_tg = 'HTTP Request: GET https://api.telegram.org/bot8820455447:AAF432kpgvJugbwzYTW7emzMCi2RspJj2WY/getUpdates?offset=0 "HTTP/1.1 200 OK"'
+    redacted_tg = SensitiveLogRedactionFilter.sanitize_text(raw_tg)
+    assert "AAF432kpgvJugbwzYTW7emzMCi2RspJj2WY" not in redacted_tg
+    assert "[REDACTED_BOT_TOKEN]" in redacted_tg
+
+    raw_gemini = "GET https://generativelanguage.googleapis.com/v1beta/models?key=AIzaSySecretKey123456789"
+    redacted_gemini = SensitiveLogRedactionFilter.sanitize_text(raw_gemini)
+    assert "AIzaSySecretKey123456789" not in redacted_gemini
+    assert "key=[REDACTED]" in redacted_gemini
+
+
+def test_credentials_unauthenticated_masking_and_test_guard():
+    """Verifies unauthenticated callers cannot see secret prefixes/suffixes or probe stored keys."""
+    client = TestClient(app)
+    resp = client.get("/api/credentials?reveal=true")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["authenticated"] is False
+    for cat in data["categories"].values():
+        for item in cat.get("items", []):
+            st = item.get("status", {})
+            if "masked" in st and st.get("is_set"):
+                assert st.get("value") == "••••••••"
+                assert st.get("masked") == "••••••••"
+
+    # Unauthenticated probing of stored server credentials must be blocked with 401
+    probe = client.post("/api/credentials/test", json={"provider": "gemini"})
+    assert probe.status_code == 401
+
+
+def test_file_upload_size_limit_and_executable_extension_block():
+    """Verifies upload constraints reject dangerous extensions (.exe, .bat) and oversized payloads (>25MB)."""
+    from fastapi import HTTPException
+    from app.routers.files_router import validate_upload_constraints, MAX_UPLOAD_SIZE_BYTES
+
+    with pytest.raises(HTTPException) as exc_ext:
+        validate_upload_constraints("malware.exe", 1024)
+    assert exc_ext.value.status_code == 400
+
+    with pytest.raises(HTTPException) as exc_size:
+        validate_upload_constraints("large_video.mp4", MAX_UPLOAD_SIZE_BYTES + 1)
+    assert exc_size.value.status_code == 413
+
+
+def test_no_duplicate_static_dom_ids_in_html():
+    """Verifies index.html has zero duplicate static HTML element IDs."""
+    import re
+    from collections import Counter
+    from app.config import BASE_DIR
+
+    html = (BASE_DIR / "index.html").read_text(encoding="utf-8")
+    html_no_script = re.sub(r"<script\b[^>]*>.*?</script>", "", html, flags=re.DOTALL | re.IGNORECASE)
+    ids = re.findall(r'\bid=["\']([^"\']+)["\']', html_no_script)
+    dup_ids = [(k, v) for k, v in Counter(ids).items() if v > 1 and "${" not in k]
+    assert dup_ids == [], f"Duplicate static HTML IDs found: {dup_ids}"
+

@@ -3254,13 +3254,19 @@ class SaasPlatformService:
     def get_payment_gateways_config(self, include_secrets: bool = False) -> Dict[str, Any]:
         """
         Returns the active payment gateways configuration for selling SaaS plans.
-        Reads from `data/payment_gateways_config.json` merged with `.env` defaults.
+        Reads from `data/payment_gateways_config.json` (with mtime cache) merged with `.env` defaults.
         """
         cfg_file = settings.DATA_DIR / "payment_gateways_config.json"
         saved: Dict[str, Any] = {}
         if cfg_file.exists():
             try:
-                saved = json.loads(cfg_file.read_text(encoding="utf-8"))
+                mtime = cfg_file.stat().st_mtime_ns
+                if getattr(self, "_pay_cfg_mtime", None) == mtime and getattr(self, "_pay_cfg_raw", None) is not None:
+                    saved = self._pay_cfg_raw
+                else:
+                    saved = json.loads(cfg_file.read_text(encoding="utf-8"))
+                    self._pay_cfg_mtime = mtime
+                    self._pay_cfg_raw = saved
             except Exception:
                 saved = {}
 

@@ -7099,6 +7099,7 @@
           
           <div class="avatar-portrait-frame">
             <img src="app/static/images/liseth_avatar.png" 
+                 decoding="async"
                  onerror="if(this.src.indexOf('app/static/')!==-1){this.src='/static/images/liseth_avatar.png';}else if(this.src.indexOf('/static/images/')!==-1){this.src='liseth_avatar.png';}" 
                  alt="Liseth - Secretaria Ejecutiva CEO" 
                  class="avatar-portrait-img" 
@@ -7159,7 +7160,7 @@
           <div class="anticipatory-step" onclick="executePredictiveStep(1)" title="Clic para ejecutar este paso con Liseth">
             <div class="step-header-row">
               <span class="step-num-badge gold">P2</span>
-              <span class="step-timing-tag gold" id="pstep-1-tag">TÁCTICO →</span>
+              <span class="step-timing-tag gold" id="pstep-2-tag">TÁCTICO →</span>
             </div>
             <div class="step-title" id="pstep-2-title">Conciliación de Tesorería & KTNO</div>
             <div class="step-desc" id="pstep-2-desc">Asegurar flujo de caja y verificación de saldos bancarios.</div>
@@ -18281,33 +18282,51 @@ Tus habilidades clave:
           btnHoloTheme.addEventListener("click", () => cycleArmorTheme());
         }
 
-        // Parallax 3D interactivo con el cursor en escritorios
+        // Parallax 3D interactivo con el cursor en escritorios (optimizado con requestAnimationFrame y nodos cacheados)
         if (window.matchMedia("(min-width: 861px)").matches) {
+          let parallaxRafPending = false;
+          let lastMouseX = 0;
+          let lastMouseY = 0;
+          const cachedOrbWrapper = document.querySelector(".orb-stage-wrapper");
+          const cachedLeftWing = document.getElementById("stark-hud-wing-left");
+          const cachedRightWing = document.getElementById("stark-hud-wing-right");
+
           window.addEventListener("mousemove", (e) => {
-            const xPct = (e.clientX / window.innerWidth - 0.5) * 2;
-            const yPct = (e.clientY / window.innerHeight - 0.5) * 2;
-            const rotY = xPct * 7;
-            const rotX = -yPct * 5;
+            if (document.hidden) return;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            if (!parallaxRafPending) {
+              parallaxRafPending = true;
+              window.requestAnimationFrame(() => {
+                parallaxRafPending = false;
+                const xPct = (lastMouseX / (window.innerWidth || 1) - 0.5) * 2;
+                const yPct = (lastMouseY / (window.innerHeight || 1) - 0.5) * 2;
+                const rotY = xPct * 7;
+                const rotX = -yPct * 5;
 
-            const orbWrapper = document.querySelector(".orb-stage-wrapper");
-            if (orbWrapper) {
-              orbWrapper.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
-            }
-
-            const leftWing = document.getElementById("stark-hud-wing-left");
-            const rightWing = document.getElementById("stark-hud-wing-right");
-            if (leftWing) {
-              leftWing.style.transform = `translateY(-50%) perspective(1000px) rotateY(${rotY * 0.5 + 8}deg) translateZ(6px)`;
-            }
-            if (rightWing) {
-              rightWing.style.transform = `translateY(-50%) perspective(1000px) rotateY(${rotY * 0.5 - 8}deg) translateZ(6px)`;
+                const orbWrapper = cachedOrbWrapper || document.querySelector(".orb-stage-wrapper");
+                if (orbWrapper) {
+                  orbWrapper.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+                }
+                const leftWing = cachedLeftWing || document.getElementById("stark-hud-wing-left");
+                const rightWing = cachedRightWing || document.getElementById("stark-hud-wing-right");
+                if (leftWing) {
+                  leftWing.style.transform = `translateY(-50%) perspective(1000px) rotateY(${rotY * 0.5 + 8}deg) translateZ(6px)`;
+                }
+                if (rightWing) {
+                  rightWing.style.transform = `translateY(-50%) perspective(1000px) rotateY(${rotY * 0.5 - 8}deg) translateZ(6px)`;
+                }
+              });
             }
           }, { passive: true });
         }
 
-        // Bucle de telemetría y reloj digital en vivo
+        // Bucle de telemetría y reloj digital en vivo (pausa inteligente en pestañas ocultas + referencias DOM cacheadas)
+        const cachedHudClockEl = document.getElementById("hud-live-clock");
+        const cachedHudCpuBar = document.getElementById("hud-bar-cpu");
         function updateLiveStarkHud() {
-          const clockEl = document.getElementById("hud-live-clock");
+          if (document.hidden) return;
+          const clockEl = cachedHudClockEl || document.getElementById("hud-live-clock");
           if (clockEl) {
             const now = new Date();
             const hh = String(now.getHours()).padStart(2, "0");
@@ -18317,7 +18336,7 @@ Tus habilidades clave:
             clockEl.textContent = `${hh}:${mm}:${ss}.${ms}`;
           }
 
-          const cpuBar = document.getElementById("hud-bar-cpu");
+          const cpuBar = cachedHudCpuBar || document.getElementById("hud-bar-cpu");
           if (cpuBar) {
             const base = 88 + Math.sin(Date.now() / 1400) * 8;
             cpuBar.style.width = `${Math.min(99, Math.max(78, base)).toFixed(1)}%`;

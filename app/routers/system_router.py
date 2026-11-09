@@ -403,14 +403,12 @@ async def create_background_task(req: BackgroundTaskCreateRequest):
     """Enqueues an autonomous background task."""
     from app.services.background_worker_service import background_worker
 
-    def _async_job():
-        import time
-        time.sleep(1.0)
+    def _background_job():
         return f"Tarea '{req.title}' procesada en segundo plano."
 
     task = background_worker.submit_task(
         title=req.title,
-        func=_async_job,
+        func=_background_job,
         description=req.description or "",
         notify_user=bool(req.notifyUser)
     )

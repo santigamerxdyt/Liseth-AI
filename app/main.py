@@ -30,11 +30,52 @@ from app.routers.suite_router import router as suite_router
 from app.routers.saas_router import router as saas_router
 
 
-# Setup logger
+# Setup logger with automatic secret/token redaction filter (CWE-532 protection)
+import re as _re
+
+
+class SensitiveLogRedactionFilter(logging.Filter):
+    """Redacts API keys, Telegram bot tokens, and bearer tokens from log records."""
+
+    _PATTERNS = (
+        (_re.compile(r"(https?://api\.telegram\.org/bot)\d+:[A-Za-z0-9_-]+"), r"\1[REDACTED_BOT_TOKEN]"),
+        (_re.compile(r"([?&](?:key|api_key|token|access_token)=)[^&\s\"']+"), r"\1[REDACTED]"),
+        (_re.compile(r"\b(sk-ant-[A-Za-z0-9_-]{8,}|sk-[A-Za-z0-9_-]{16,}|gsk_[A-Za-z0-9_-]{16,}|AQ\.[A-Za-z0-9_-]{16,})\b"), "[REDACTED_API_KEY]"),
+    )
+
+    @classmethod
+    def sanitize_text(cls, text: str) -> str:
+        if not isinstance(text, str) or not text:
+            return text
+        out = text
+        for pattern, repl in cls._PATTERNS:
+            out = pattern.sub(repl, out)
+        return out
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        try:
+            msg = record.getMessage()
+            redacted = self.sanitize_text(msg)
+            if redacted != msg:
+                record.msg = redacted
+                record.args = ()
+        except Exception:
+            pass
+        return True
+
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
+_redaction_filter = SensitiveLogRedactionFilter()
+logging.getLogger().addFilter(_redaction_filter)
+for _handler in logging.getLogger().handlers:
+    _handler.addFilter(_redaction_filter)
+# Prevent httpx/httpcore from logging full outbound URLs with tokens at INFO level
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 logger = logging.getLogger("jarvis.server")
 
 

@@ -19,6 +19,9 @@ from app.core.models import UploadedFile
 
 router = APIRouter(prefix="/api", tags=["files"])
 
+MAX_UPLOAD_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB maximum upload size (DoS protection)
+BLOCKED_UPLOAD_EXTENSIONS = {".exe", ".bat", ".cmd", ".vbs", ".scr", ".pif", ".msi"}
+
 
 def sanitize_filename(filename: str) -> str:
     """Removes path traversal components and unsafe characters."""
@@ -26,6 +29,22 @@ def sanitize_filename(filename: str) -> str:
     # Keep alphanumeric, dots, underscores, dashes
     filename = re.sub(r"[^\w\.-]", "_", filename)
     return filename or "unnamed_file"
+
+
+def validate_upload_constraints(filename: str, content_len: int) -> None:
+    """Enforces maximum upload size and blocks dangerous executable extensions."""
+    http_413 = getattr(status, "HTTP_413_CONTENT_TOO_LARGE", 413)
+    if content_len > MAX_UPLOAD_SIZE_BYTES:
+        raise HTTPException(
+            status_code=http_413,
+            detail=f"El archivo excede el tamaño máximo permitido ({MAX_UPLOAD_SIZE_BYTES // (1024 * 1024)} MB)."
+        )
+    ext = Path(filename).suffix.lower()
+    if ext in BLOCKED_UPLOAD_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Extensión de archivo ejecutable no permitida por seguridad ({ext})."
+        )
 
 
 def verify_path_safe(target_path: Path, allowed_root: Path) -> Path:
@@ -67,12 +86,18 @@ async def upload_file(
         b64_data = body.get("data", "")
         if "," in b64_data:
             b64_data = b64_data.split(",", 1)[1]
+        if len(b64_data) > int(MAX_UPLOAD_SIZE_BYTES * 1.4):
+            raise HTTPException(
+                status_code=getattr(status, "HTTP_413_CONTENT_TOO_LARGE", 413),
+                detail="El archivo codificado en Base64 excede el límite de 25 MB."
+            )
         try:
             content = base64.b64decode(b64_data)
         except Exception:
             raise HTTPException(status_code=400, detail="Formato base64 inválido")
 
         safe_name = sanitize_filename(raw_name)
+        validate_upload_constraints(safe_name, len(content))
         file_id = str(uuid.uuid4())
         stored_name = f"{file_id[:8]}_{safe_name}"
         target_path = settings.UPLOADS_DIR / stored_name
@@ -117,7 +142,8 @@ async def upload_file(
     target_path = settings.UPLOADS_DIR / stored_name
     verify_path_safe(target_path, settings.UPLOADS_DIR)
 
-    content = await file.read()
+    content = await file.read(MAX_UPLOAD_SIZE_BYTES + 1)
+    validate_upload_constraints(safe_name, len(content))
     with open(target_path, "wb") as f:
         f.write(content)
 

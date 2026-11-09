@@ -115,11 +115,12 @@ def get_credentials(request: Request, reveal: bool = False):
 
     def format_val(key_name: str, current_val: str) -> Dict[str, Any]:
         val = (current_val or os.getenv(key_name, "")).strip()
+        safe_masked = mask_secret(val) if user_auth else ("••••••••" if val else "")
         return {
             "key": key_name,
             "is_set": bool(val),
-            "masked": mask_secret(val),
-            "value": val if allow_full else (mask_secret(val) if val else "")
+            "masked": safe_masked,
+            "value": val if allow_full else safe_masked
         }
 
     inventory = {
@@ -421,12 +422,18 @@ async def update_credentials(req: CredentialsUpdateRequest, request: Request):
 
 
 @router.post("/test")
-async def test_credential(req: CredentialTestRequest):
+async def test_credential(req: CredentialTestRequest, request: Request):
     """
     Executes a fast test ping to verify whether an API key or service token is valid.
+    Probing stored server credentials without supplying an explicit key requires authentication.
     """
     provider = req.provider.lower().strip()
     key = (req.key or "").strip()
+    if not key and not is_authenticated(request):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Se requiere sesión autenticada para probar credenciales almacenadas en el servidor."
+        )
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
