@@ -18,7 +18,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from app.config import BASE_DIR, ENV_PATH, settings
-from app.core.auth import is_authenticated
+from app.core.auth import is_authenticated, is_owner_or_creator_authenticated
 
 logger = logging.getLogger("jarvis.credentials_router")
 
@@ -108,9 +108,9 @@ class CredentialTestRequest(BaseModel):
 def get_credentials(request: Request, reveal: bool = False):
     """
     Returns the comprehensive inventory of all configurable APIs and authenticators.
-    Secrets are masked by default. If 'reveal=true' is requested, user must be authenticated.
+    Secrets are masked by default. Only the Host Owner (PIN) or CREATOR superadmin can reveal or see partial masks.
     """
-    user_auth = is_authenticated(request)
+    user_auth = is_owner_or_creator_authenticated(request)
     allow_full = reveal and user_auth
 
     def format_val(key_name: str, current_val: str) -> Dict[str, Any]:
@@ -381,16 +381,16 @@ def get_credentials(request: Request, reveal: bool = False):
 async def update_credentials(req: CredentialsUpdateRequest, request: Request):
     """
     Saves and persists credential updates to .env and runtime system configuration.
-    Requires authenticated session or valid access PIN.
+    Requires authenticated Owner/CREATOR session or valid access PIN.
     """
-    if not is_authenticated(request):
+    if not is_owner_or_creator_authenticated(request):
         # Allow initial setup if PIN is provided in payload
         import hmac
         payload_pin = req.credentials.get("JARVIS_ACCESS_PIN")
         if not payload_pin or not hmac.compare_digest(str(payload_pin), str(settings.JARVIS_ACCESS_PIN)):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Se requiere autorización o PIN válido para guardar credenciales en el servidor."
+                detail="Se requiere autorización de propietario (CREATOR) o PIN válido para guardar credenciales en el servidor."
             )
 
     updates = {}
@@ -429,10 +429,10 @@ async def test_credential(req: CredentialTestRequest, request: Request):
     """
     provider = req.provider.lower().strip()
     key = (req.key or "").strip()
-    if not key and not is_authenticated(request):
+    if not key and not is_owner_or_creator_authenticated(request):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Se requiere sesión autenticada para probar credenciales almacenadas en el servidor."
+            detail="Se requiere sesión autenticada de propietario (CREATOR) para probar credenciales almacenadas en el servidor."
         )
 
     async with httpx.AsyncClient(timeout=10.0) as client:

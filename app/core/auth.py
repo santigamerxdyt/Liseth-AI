@@ -195,6 +195,23 @@ def is_authenticated(request: Request) -> bool:
     return payload is not None
 
 
+def is_owner_or_creator_authenticated(request: Request) -> bool:
+    """
+    Checks if the request is authenticated specifically as the Host Owner (PIN session)
+    or as the SaaS CREATOR superadmin (Señor Santiago).
+    Blocks standard multi-tenant SaaS users (role='USER') from host-level administration.
+    """
+    token = extract_token_from_request(request)
+    if not token:
+        return False
+    payload = verify_session_token(token)
+    if not payload:
+        return False
+    if payload.get("type") == "saas_user":
+        return payload.get("role") == "CREATOR"
+    return bool(payload.get("sid"))
+
+
 async def require_auth(request: Request) -> dict:
     """
     FastAPI dependency that enforces authentication.

@@ -3191,12 +3191,18 @@ class SaasPlatformService:
     # ==========================================================================
 
     def get_firebase_config(self) -> Dict[str, Any]:
-        """Returns the linked Firebase project configuration from data/firebase_config.json or .env."""
+        """Returns the linked Firebase project configuration from data/firebase_config.json (with mtime cache) or .env."""
         cfg_file = settings.DATA_DIR / "firebase_config.json"
         saved: Dict[str, Any] = {}
         if cfg_file.exists():
             try:
-                saved = json.loads(cfg_file.read_text(encoding="utf-8"))
+                mtime = cfg_file.stat().st_mtime_ns
+                if getattr(self, "_fb_cfg_mtime", None) == mtime and getattr(self, "_fb_cfg_raw", None) is not None:
+                    saved = self._fb_cfg_raw
+                else:
+                    saved = json.loads(cfg_file.read_text(encoding="utf-8"))
+                    self._fb_cfg_mtime = mtime
+                    self._fb_cfg_raw = saved
             except Exception:
                 saved = {}
 
@@ -3217,23 +3223,41 @@ class SaasPlatformService:
             "storageBucket": storage_bucket,
             "messagingSenderId": messaging_sender_id,
             "appId": app_id,
+            "consoleUrl": f"https://console.firebase.google.com/project/{project_id}/overview",
+            "authUsersUrl": f"https://console.firebase.google.com/project/{project_id}/authentication/users",
+            "authProvidersUrl": f"https://console.firebase.google.com/project/{project_id}/authentication/providers",
             "providers": ["emailPassword", "google.com"],
         }
 
     def save_firebase_config(self, config_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Saves and links a Firebase project configuration to data/firebase_config.json and .firebaserc."""
+        """Saves and links a sanitized Firebase project configuration to data/firebase_config.json and .firebaserc."""
+        import re as _re
+
         current = self.get_firebase_config()
-        project_id = str(config_data.get("projectId") or current["projectId"]).strip() or "liseth-saas-ai"
+        raw_pid = str(config_data.get("projectId") or current["projectId"]).strip()
+        project_id = _re.sub(r"[^a-zA-Z0-9_-]", "", raw_pid)[:64] or "liseth-saas-ai"
+        raw_domain = str(config_data.get("authDomain") or f"{project_id}.firebaseapp.com").strip()
+        auth_domain = _re.sub(r"[^a-zA-Z0-9._-]", "", raw_domain)[:128] or f"{project_id}.firebaseapp.com"
+        raw_bucket = str(config_data.get("storageBucket") or f"{project_id}.firebasestorage.app").strip()
+        storage_bucket = _re.sub(r"[^a-zA-Z0-9._-]", "", raw_bucket)[:128] or f"{project_id}.firebasestorage.app"
+        raw_key = str(config_data.get("apiKey") if config_data.get("apiKey") is not None else current["apiKey"]).strip()
+        api_key = _re.sub(r"[^a-zA-Z0-9._-]", "", raw_key)[:128]
+        raw_sender = str(config_data.get("messagingSenderId") or current["messagingSenderId"]).strip()
+        messaging_sender_id = _re.sub(r"[^0-9]", "", raw_sender)[:32] or "108492039481"
+        raw_app_id = str(config_data.get("appId") or current["appId"]).strip()
+        app_id = _re.sub(r"[^a-zA-Z0-9:_-]", "", raw_app_id)[:128] or f"1:{messaging_sender_id}:web:lisethsaas2026"
+
         updated = {
             "projectId": project_id,
-            "apiKey": str(config_data.get("apiKey") if config_data.get("apiKey") is not None else current["apiKey"]).strip(),
-            "authDomain": str(config_data.get("authDomain") or f"{project_id}.firebaseapp.com").strip(),
-            "storageBucket": str(config_data.get("storageBucket") or f"{project_id}.firebasestorage.app").strip(),
-            "messagingSenderId": str(config_data.get("messagingSenderId") or current["messagingSenderId"]).strip(),
-            "appId": str(config_data.get("appId") or current["appId"]).strip(),
+            "apiKey": api_key,
+            "authDomain": auth_domain,
+            "storageBucket": storage_bucket,
+            "messagingSenderId": messaging_sender_id,
+            "appId": app_id,
         }
         cfg_file = settings.DATA_DIR / "firebase_config.json"
         cfg_file.write_text(json.dumps(updated, indent=2), encoding="utf-8")
+        self._fb_cfg_mtime = None
 
         # Also keep .firebaserc in sync
         try:

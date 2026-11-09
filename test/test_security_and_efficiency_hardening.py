@@ -171,3 +171,107 @@ def test_no_duplicate_static_dom_ids_in_html():
     dup_ids = [(k, v) for k, v in Counter(ids).items() if v > 1 and "${" not in k]
     assert dup_ids == [], f"Duplicate static HTML IDs found: {dup_ids}"
 
+
+def test_saas_free_user_blocked_from_host_owner_endpoints():
+    """
+    Verifies SEC-04 (CWE-269): A standard SaaS tenant (role='USER', plan='FREE')
+    cannot escalate privileges to read/modify host .env credentials or execute
+    host OS commands, whereas the CREATOR owner token is permitted.
+    """
+    from app.services.saas_service import sign_saas_token
+
+    client = TestClient(app)
+    free_user_token = sign_saas_token(
+        user_id="user_tenant_test_01",
+        email="tenant@example.com",
+        role="USER",
+        plan_code="FREE",
+    )
+    creator_token = sign_saas_token(
+        user_id="user_creator_santiago",
+        email="santiago@liseth.ai",
+        role="CREATOR",
+        plan_code="CREATOR",
+    )
+
+    free_headers = {"Authorization": f"Bearer {free_user_token}"}
+    creator_headers = {"Authorization": f"Bearer {creator_token}"}
+
+    # 1. FREE SaaS tenant must NOT be recognized as host owner on GET /api/credentials?reveal=true
+    r_free_creds = client.get("/api/credentials?reveal=true", headers=free_headers)
+    assert r_free_creds.status_code == 200
+    assert r_free_creds.json()["authenticated"] is False
+
+    # 2. CREATOR must be recognized as authenticated host owner
+    r_creator_creds = client.get("/api/credentials", headers=creator_headers)
+    assert r_creator_creds.status_code == 200
+    assert r_creator_creds.json()["authenticated"] is True
+
+    # 3. FREE SaaS tenant must be blocked (401) from overwriting host .env credentials
+    r_free_save = client.post(
+        "/api/credentials",
+        headers=free_headers,
+        json={"credentials": {"DAILY_TOKEN_LIMIT": "999999"}},
+    )
+    assert r_free_save.status_code == 401
+
+    # 4. FREE SaaS tenant must be blocked (403) from host-only OS endpoints
+    r_free_sys = client.post(
+        "/api/system/execute",
+        headers=free_headers,
+        json={"action": "open_app", "params": {"app_name": "notepad"}},
+    )
+    assert r_free_sys.status_code == 403
+
+
+def test_all_html_event_functions_exposed_on_window():
+    """
+    Verifies BUG-03: Every JS function called from an inline HTML event attribute
+    (onclick, onchange, oninput, onsubmit) in index.html is assigned to window.<fn>.
+    """
+    import re
+    from app.config import BASE_DIR
+
+    html = (BASE_DIR / "index.html").read_text(encoding="utf-8")
+    attrs = re.findall(r'\bon(?:click|change|input|submit|keydown|keyup)=["\']([^"\']+)["\']', html)
+    builtins = {
+        "return", "if", "event", "this", "document", "window", "localStorage",
+        "console", "alert", "confirm", "fetch", "setTimeout", "clearTimeout", "navigator",
+    }
+    called_fns = set()
+    for a in attrs:
+        for m in re.finditer(r"([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(", a):
+            fn = m.group(1)
+            if fn not in builtins and not a[max(0, m.start() - 1) : m.start()].endswith("."):
+                called_fns.add(fn)
+
+    missing_from_window = [
+        fn for fn in sorted(called_fns)
+        if not re.search(rf"\bwindow\.{re.escape(fn)}\s*=", html)
+    ]
+    assert missing_from_window == [], f"Functions missing window.<fn> assignment: {missing_from_window}"
+
+
+def test_firebase_config_sanitization_and_console_urls():
+    """Verifies SEC-05: Firebase config sanitizes unsafe characters and returns console URLs."""
+    from app.services.saas_service import saas_service
+
+    original = saas_service.get_firebase_config()
+    try:
+        saved = saas_service.save_firebase_config({
+            "projectId": "liseth-saas-ai<script>alert(1)</script>",
+            "apiKey": "AIzaSyTestKey_12345<>\"'",
+            "authDomain": "liseth-saas-ai.firebaseapp.com\"onload=alert(1)",
+            "appId": "1:123456:web:abcdef<script>",
+        })
+        assert "<" not in saved["projectId"] and ">" not in saved["projectId"] and "(" not in saved["projectId"]
+        assert "<" not in saved["apiKey"] and '"' not in saved["apiKey"] and "'" not in saved["apiKey"]
+        assert '"' not in saved["authDomain"] and "=" not in saved["authDomain"]
+        assert "<" not in saved["appId"] and ">" not in saved["appId"]
+        assert "https://console.firebase.google.com/project/" in saved["consoleUrl"]
+        assert "/authentication/users" in saved["authUsersUrl"]
+        assert "/authentication/providers" in saved["authProvidersUrl"]
+    finally:
+        saas_service.save_firebase_config(original)
+
+

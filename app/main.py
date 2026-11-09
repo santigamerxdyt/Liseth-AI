@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings, BASE_DIR
-from app.core.auth import is_authenticated
+from app.core.auth import is_authenticated, is_owner_or_creator_authenticated
 from app.core.database import engine, init_db
 from app.core.migrator import run_migration_if_needed
 from app.routers.auth_router import router as auth_router
@@ -285,11 +285,20 @@ EXEMPT_API_PATHS = {
 
 
 
+HOST_OWNER_ONLY_API_PATHS = {
+    "/api/system/execute",
+    "/api/system/read",
+    "/api/system/search",
+    "/api/system/clean-storage",
+    "/api/audit/confirm",
+}
+
+
 @app.middleware("http")
 async def api_auth_middleware(request: Request, call_next):
     """
     Protects all /api/* routes by verifying authentication sessions.
-    Returns 401 JSON if unauthorized.
+    Returns 401 JSON if unauthorized, or 403 if a standard SaaS tenant attempts host-level commands.
     """
     path = request.url.path
     clean_path = path.rstrip("/") or "/"
@@ -305,6 +314,14 @@ async def api_auth_middleware(request: Request, call_next):
                         "ok": False,
                         "authRequired": True,
                         "error": "Acceso restringido. Por favor ingrese su PIN de acceso personal (Santiago).",
+                    },
+                )
+            if clean_path in HOST_OWNER_ONLY_API_PATHS and not is_owner_or_creator_authenticated(request):
+                return JSONResponse(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    content={
+                        "ok": False,
+                        "error": "Acceso denegado: Esta acción de control del sistema anfitrión es exclusiva del propietario CREATOR (Señor Santiago).",
                     },
                 )
 

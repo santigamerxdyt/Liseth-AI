@@ -9282,7 +9282,18 @@
 
       <!-- Cajón Desplegable para Configurar Credenciales del Proyecto Firebase -->
       <div id="firebase-config-drawer" style="display: none; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(251, 191, 36, 0.45); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
-        <div style="font-size: 0.8rem; font-weight: 700; color: #fbbf24; margin-bottom: 8px;">🔥 VINCULACIÓN DE PROYECTO FIREBASE (FIREBASE CONSOLE & AUTHENTICATION)</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: #fbbf24;">🔥 VINCULACIÓN DE PROYECTO FIREBASE (FIREBASE CONSOLE & AUTHENTICATION)</div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <a id="fb-link-console" href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" style="padding: 4px 9px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; background: rgba(251, 191, 36, 0.16); border: 1px solid rgba(251, 191, 36, 0.5); color: #fbbf24; text-decoration: none;">🌐 Abrir Consola Firebase ↗</a>
+            <a id="fb-link-auth-providers" href="https://console.firebase.google.com/project/liseth-saas-ai/authentication/providers" target="_blank" rel="noopener noreferrer" style="padding: 4px 9px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; background: rgba(0, 210, 255, 0.14); border: 1px solid rgba(0, 210, 255, 0.45); color: #00f0ff; text-decoration: none;">🔑 Activar Correo/Google ↗</a>
+            <a id="fb-link-auth-users" href="https://console.firebase.google.com/project/liseth-saas-ai/authentication/users" target="_blank" rel="noopener noreferrer" style="padding: 4px 9px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; background: rgba(56, 239, 125, 0.14); border: 1px solid rgba(56, 239, 125, 0.45); color: #38ef7d; text-decoration: none;">👥 Ver Usuarios Registrados ↗</a>
+            <a id="fb-link-project-settings" href="https://console.firebase.google.com/project/liseth-saas-ai/settings/general" target="_blank" rel="noopener noreferrer" style="padding: 4px 9px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; background: rgba(168, 85, 247, 0.16); border: 1px solid rgba(168, 85, 247, 0.45); color: #e9d5ff; text-decoration: none;">⚙️ Obtener API Key / SDK ↗</a>
+          </div>
+        </div>
+        <div style="font-size: 0.72rem; color: #cbd5e1; margin-bottom: 10px; line-height: 1.45; background: rgba(4, 8, 18, 0.65); padding: 8px 10px; border-radius: 6px; border-left: 3px solid #fbbf24;">
+          <b>¿Cómo obtener tus llaves en 1 minuto?</b> Entra a <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" style="color: #00f0ff; text-decoration: underline;">console.firebase.google.com</a> &rarr; Crea o abre tu proyecto &rarr; Ve a <b>Configuración del proyecto (⚙️) &rarr; Tus apps &rarr; Web (&lt;/&gt;)</b> y copia los 4 valores abajo. En <b>Compilación &rarr; Authentication &rarr; Método de acceso</b> habilita <b>Correo electrónico/Contraseña</b> y <b>Google</b>.
+        </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-bottom: 10px;">
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Project ID:</label>
@@ -23180,6 +23191,7 @@ const cardEsg = document.getElementById("hud-card-esg");
         return cachedGatewaysConfig;
       }
 
+      window.loadSaasWorkspaceUI = loadSaasWorkspaceUI;
       async function loadSaasPlansUI() {
         const grid = document.getElementById("saas-plans-grid");
         const invBox = document.getElementById("saas-invoices-box");
@@ -23350,6 +23362,7 @@ const cardEsg = document.getElementById("hud-card-esg");
         await loadSaasPlansUI();
       };
 
+      window.loadSaasPlansUI = loadSaasPlansUI;
       async function loadSaasUsageUI() {
         const box = document.getElementById("saas-usage-summary-box");
         try {
@@ -23489,6 +23502,9 @@ const cardEsg = document.getElementById("hud-card-esg");
         } catch (e) {}
       }
 
+      window.loadSaasUsageUI = loadSaasUsageUI;
+      window.loadSaasCatalogUI = loadSaasCatalogUI;
+      window.loadSaasCreatorDashboardUI = loadSaasCreatorDashboardUI;
       window.saveCreatorPaymentConfigUI = async function() {
         const fb = document.getElementById("paycfg-save-feedback");
         const payload = {
@@ -23556,8 +23572,15 @@ const cardEsg = document.getElementById("hud-card-esg");
           const cfg = await res.json();
           if (cfg && cfg.ok) {
             linkedFirebaseConfig = cfg;
+            const pid = cfg.projectId || "liseth-saas-ai";
             const badge = document.getElementById("fb-linked-project-badge");
-            if (badge) badge.textContent = cfg.projectId || "liseth-saas-ai";
+            if (badge) badge.textContent = pid;
+            const lnkProv = document.getElementById("fb-link-auth-providers");
+            if (lnkProv) lnkProv.href = `https://console.firebase.google.com/project/${encodeURIComponent(pid)}/authentication/providers`;
+            const lnkUsers = document.getElementById("fb-link-auth-users");
+            if (lnkUsers) lnkUsers.href = `https://console.firebase.google.com/project/${encodeURIComponent(pid)}/authentication/users`;
+            const lnkSettings = document.getElementById("fb-link-project-settings");
+            if (lnkSettings) lnkSettings.href = `https://console.firebase.google.com/project/${encodeURIComponent(pid)}/settings/general`;
             const pidEl = document.getElementById("fb-cfg-project-id");
             if (pidEl) pidEl.value = cfg.projectId || "liseth-saas-ai";
             const keyEl = document.getElementById("fb-cfg-api-key");
@@ -23608,6 +23631,12 @@ const cardEsg = document.getElementById("hud-card-esg");
             linkedFirebaseConfig = data;
             const badge = document.getElementById("fb-linked-project-badge");
             if (badge) badge.textContent = data.projectId;
+            const lnkProv = document.getElementById("fb-link-auth-providers");
+            if (lnkProv) lnkProv.href = `https://console.firebase.google.com/project/${encodeURIComponent(data.projectId)}/authentication/providers`;
+            const lnkUsers = document.getElementById("fb-link-auth-users");
+            if (lnkUsers) lnkUsers.href = `https://console.firebase.google.com/project/${encodeURIComponent(data.projectId)}/authentication/users`;
+            const lnkSettings = document.getElementById("fb-link-project-settings");
+            if (lnkSettings) lnkSettings.href = `https://console.firebase.google.com/project/${encodeURIComponent(data.projectId)}/settings/general`;
             if (msg) msg.textContent = "✔ Proyecto Firebase '" + data.projectId + "' vinculado correctamente.";
             if (data.apiKey && window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
               try { window.firebase.initializeApp(data); } catch (e) {}
