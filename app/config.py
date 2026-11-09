@@ -157,8 +157,10 @@ class Settings:
         self.ELEVENLABS_MODEL_ID: str = os.getenv("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2").strip()
         self.OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
 
-        # Firebase Project & Authentication Configuration
+        # Firebase Project & Authentication Configuration (No Firebase Hosting)
+        self.FIREBASE_PROJECT_NAME: str = os.getenv("FIREBASE_PROJECT_NAME", "liseth-saas-ai").strip() or "liseth-saas-ai"
         self.FIREBASE_PROJECT_ID: str = os.getenv("FIREBASE_PROJECT_ID", "liseth-saas-ai").strip() or "liseth-saas-ai"
+        self.FIREBASE_PROJECT_NUMBER: str = os.getenv("FIREBASE_PROJECT_NUMBER", "353398586852").strip() or "353398586852"
         self.FIREBASE_API_KEY: str = os.getenv("FIREBASE_API_KEY", "").strip()
         self.FIREBASE_AUTH_DOMAIN: str = os.getenv(
             "FIREBASE_AUTH_DOMAIN",
@@ -168,8 +170,15 @@ class Settings:
             "FIREBASE_STORAGE_BUCKET",
             f"{self.FIREBASE_PROJECT_ID}.firebasestorage.app"
         ).strip()
-        self.FIREBASE_MESSAGING_SENDER_ID: str = os.getenv("FIREBASE_MESSAGING_SENDER_ID", "").strip()
-        self.FIREBASE_APP_ID: str = os.getenv("FIREBASE_APP_ID", "").strip()
+        self.FIREBASE_MESSAGING_SENDER_ID: str = (
+            os.getenv("FIREBASE_MESSAGING_SENDER_ID", self.FIREBASE_PROJECT_NUMBER).strip()
+            or self.FIREBASE_PROJECT_NUMBER
+        )
+        self.FIREBASE_APP_ID: str = (
+            os.getenv("FIREBASE_APP_ID", f"1:{self.FIREBASE_MESSAGING_SENDER_ID}:web:lisethsaas2026").strip()
+            or f"1:{self.FIREBASE_MESSAGING_SENDER_ID}:web:lisethsaas2026"
+        )
+        self.FIREBASE_HOSTING_ENABLED: bool = os.getenv("FIREBASE_HOSTING_ENABLED", "false").lower() in ("true", "1", "yes")
 
         # SaaS Payment Gateways & Monetization Configuration
         self.STRIPE_PUBLISHABLE_KEY: str = os.getenv("STRIPE_PUBLISHABLE_KEY", "").strip()

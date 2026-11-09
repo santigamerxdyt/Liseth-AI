@@ -9271,7 +9271,7 @@
             <div style="font-size: 0.76rem; color: #94a3b8; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <span>🔒 Acceso bloqueado hasta iniciar sesión</span>
               <span>•</span>
-              <span style="color: #fbbf24; font-weight: 700;">🔥 Proyecto Firebase vinculado: <code id="fb-linked-project-badge" style="color: #00f0ff; background: rgba(0, 240, 255, 0.1); padding: 1px 6px; border-radius: 4px;">liseth-saas-ai</code></span>
+              <span style="color: #fbbf24; font-weight: 700;">🔥 Proyecto Firebase vinculado: <code id="fb-linked-project-badge" style="color: #00f0ff; background: rgba(0, 240, 255, 0.1); padding: 1px 6px; border-radius: 4px;">liseth-saas-ai (#353398586852 • Sin Hosting)</code></span>
             </div>
           </div>
         </div>
@@ -9294,10 +9294,14 @@
         <div style="font-size: 0.72rem; color: #cbd5e1; margin-bottom: 10px; line-height: 1.45; background: rgba(4, 8, 18, 0.65); padding: 8px 10px; border-radius: 6px; border-left: 3px solid #fbbf24;">
           <b>¿Cómo obtener tus llaves en 1 minuto?</b> Entra a <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" style="color: #00f0ff; text-decoration: underline;">console.firebase.google.com</a> &rarr; Crea o abre tu proyecto &rarr; Ve a <b>Configuración del proyecto (⚙️) &rarr; Tus apps &rarr; Web (&lt;/&gt;)</b> y copia los 4 valores abajo. En <b>Compilación &rarr; Authentication &rarr; Método de acceso</b> habilita <b>Correo electrónico/Contraseña</b> y <b>Google</b>.
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-bottom: 10px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 8px; margin-bottom: 10px;">
           <div>
-            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Project ID:</label>
-            <input type="text" id="fb-cfg-project-id" value="liseth-saas-ai" placeholder="mi-proyecto-firebase" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Project ID / Nombre:</label>
+            <input type="text" id="fb-cfg-project-id" value="liseth-saas-ai" placeholder="liseth-saas-ai" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+          </div>
+          <div>
+            <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Número del Proyecto (Sender ID):</label>
+            <input type="text" id="fb-cfg-project-number" value="353398586852" placeholder="353398586852" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Web API Key (Firebase SDK):</label>
@@ -9305,11 +9309,11 @@
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Auth Domain:</label>
-            <input type="text" id="fb-cfg-auth-domain" value="liseth-saas-ai.firebaseapp.com" placeholder="proyecto.firebaseapp.com" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-auth-domain" value="liseth-saas-ai.firebaseapp.com" placeholder="liseth-saas-ai.firebaseapp.com" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">App ID:</label>
-            <input type="text" id="fb-cfg-app-id" placeholder="1:123456789:web:abcdef" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-app-id" value="1:353398586852:web:lisethsaas2026" placeholder="1:353398586852:web:abcdef" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
@@ -23573,8 +23577,9 @@ const cardEsg = document.getElementById("hud-card-esg");
           if (cfg && cfg.ok) {
             linkedFirebaseConfig = cfg;
             const pid = cfg.projectId || "liseth-saas-ai";
+            const pnum = cfg.projectNumber || cfg.messagingSenderId || "353398586852";
             const badge = document.getElementById("fb-linked-project-badge");
-            if (badge) badge.textContent = pid;
+            if (badge) badge.textContent = `${pid} (#${pnum} • Sin Hosting)`;
             const lnkProv = document.getElementById("fb-link-auth-providers");
             if (lnkProv) lnkProv.href = `https://console.firebase.google.com/project/${encodeURIComponent(pid)}/authentication/providers`;
             const lnkUsers = document.getElementById("fb-link-auth-users");
@@ -23582,13 +23587,15 @@ const cardEsg = document.getElementById("hud-card-esg");
             const lnkSettings = document.getElementById("fb-link-project-settings");
             if (lnkSettings) lnkSettings.href = `https://console.firebase.google.com/project/${encodeURIComponent(pid)}/settings/general`;
             const pidEl = document.getElementById("fb-cfg-project-id");
-            if (pidEl) pidEl.value = cfg.projectId || "liseth-saas-ai";
+            if (pidEl) pidEl.value = pid;
+            const pnumEl = document.getElementById("fb-cfg-project-number");
+            if (pnumEl) pnumEl.value = pnum;
             const keyEl = document.getElementById("fb-cfg-api-key");
             if (keyEl) keyEl.value = cfg.apiKey || "";
             const domEl = document.getElementById("fb-cfg-auth-domain");
             if (domEl) domEl.value = cfg.authDomain || "";
             const appEl = document.getElementById("fb-cfg-app-id");
-            if (appEl) appEl.value = cfg.appId || "";
+            if (appEl) appEl.value = cfg.appId || `1:${pnum}:web:lisethsaas2026`;
 
             if (cfg.apiKey && window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
               try {
@@ -23616,6 +23623,7 @@ const cardEsg = document.getElementById("hud-card-esg");
 
       window.saveFirebaseProjectConfigUI = async function() {
         const projectId = (document.getElementById("fb-cfg-project-id")?.value || "liseth-saas-ai").trim();
+        const projectNumber = (document.getElementById("fb-cfg-project-number")?.value || "353398586852").trim();
         const apiKey = (document.getElementById("fb-cfg-api-key")?.value || "").trim();
         const authDomain = (document.getElementById("fb-cfg-auth-domain")?.value || "").trim();
         const appId = (document.getElementById("fb-cfg-app-id")?.value || "").trim();
@@ -23624,13 +23632,13 @@ const cardEsg = document.getElementById("hud-card-esg");
           const res = await fetch("/api/saas/firebase/config", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projectId, apiKey, authDomain, appId })
+            body: JSON.stringify({ projectName: projectId, projectId, projectNumber, messagingSenderId: projectNumber, apiKey, authDomain, appId, hostingEnabled: false })
           });
           const data = await res.json();
           if (res.ok && data.ok) {
             linkedFirebaseConfig = data;
             const badge = document.getElementById("fb-linked-project-badge");
-            if (badge) badge.textContent = data.projectId;
+            if (badge) badge.textContent = `${data.projectId} (#${data.projectNumber || '353398586852'} • Sin Hosting)`;
             const lnkProv = document.getElementById("fb-link-auth-providers");
             if (lnkProv) lnkProv.href = `https://console.firebase.google.com/project/${encodeURIComponent(data.projectId)}/authentication/providers`;
             const lnkUsers = document.getElementById("fb-link-auth-users");

@@ -3206,23 +3206,29 @@ class SaasPlatformService:
             except Exception:
                 saved = {}
 
+        project_name = str(saved.get("projectName") or getattr(settings, "FIREBASE_PROJECT_NAME", "liseth-saas-ai") or "liseth-saas-ai").strip()
         project_id = str(saved.get("projectId") or getattr(settings, "FIREBASE_PROJECT_ID", "liseth-saas-ai") or "liseth-saas-ai").strip()
+        project_number = str(saved.get("projectNumber") or saved.get("messagingSenderId") or getattr(settings, "FIREBASE_PROJECT_NUMBER", "353398586852") or "353398586852").strip()
         api_key = str(saved.get("apiKey") or getattr(settings, "FIREBASE_API_KEY", "") or "").strip()
         auth_domain = str(saved.get("authDomain") or getattr(settings, "FIREBASE_AUTH_DOMAIN", "") or f"{project_id}.firebaseapp.com").strip()
         storage_bucket = str(saved.get("storageBucket") or getattr(settings, "FIREBASE_STORAGE_BUCKET", "") or f"{project_id}.firebasestorage.app").strip()
-        messaging_sender_id = str(saved.get("messagingSenderId") or getattr(settings, "FIREBASE_MESSAGING_SENDER_ID", "") or "108492039481").strip()
+        messaging_sender_id = str(saved.get("messagingSenderId") or project_number or "353398586852").strip()
         app_id = str(saved.get("appId") or getattr(settings, "FIREBASE_APP_ID", "") or f"1:{messaging_sender_id}:web:lisethsaas2026").strip()
+        hosting_enabled = bool(saved.get("hostingEnabled", getattr(settings, "FIREBASE_HOSTING_ENABLED", False)))
 
         return {
             "ok": True,
             "isLinked": True,
             "hasClientSdkKey": bool(api_key),
+            "projectName": project_name,
             "projectId": project_id,
+            "projectNumber": project_number,
             "apiKey": api_key,
             "authDomain": auth_domain,
             "storageBucket": storage_bucket,
             "messagingSenderId": messaging_sender_id,
             "appId": app_id,
+            "hostingEnabled": hosting_enabled,
             "consoleUrl": f"https://console.firebase.google.com/project/{project_id}/overview",
             "authUsersUrl": f"https://console.firebase.google.com/project/{project_id}/authentication/users",
             "authProvidersUrl": f"https://console.firebase.google.com/project/{project_id}/authentication/providers",
@@ -3236,24 +3242,36 @@ class SaasPlatformService:
         current = self.get_firebase_config()
         raw_pid = str(config_data.get("projectId") or current["projectId"]).strip()
         project_id = _re.sub(r"[^a-zA-Z0-9_-]", "", raw_pid)[:64] or "liseth-saas-ai"
+        raw_pname = str(config_data.get("projectName") or current.get("projectName") or project_id).strip()
+        project_name = _re.sub(r"[^a-zA-Z0-9 _-]", "", raw_pname)[:64] or project_id
+        raw_pnum = str(
+            config_data.get("projectNumber")
+            or config_data.get("messagingSenderId")
+            or current.get("projectNumber")
+            or "353398586852"
+        ).strip()
+        project_number = _re.sub(r"[^0-9]", "", raw_pnum)[:32] or "353398586852"
+        messaging_sender_id = project_number
         raw_domain = str(config_data.get("authDomain") or f"{project_id}.firebaseapp.com").strip()
         auth_domain = _re.sub(r"[^a-zA-Z0-9._-]", "", raw_domain)[:128] or f"{project_id}.firebaseapp.com"
         raw_bucket = str(config_data.get("storageBucket") or f"{project_id}.firebasestorage.app").strip()
         storage_bucket = _re.sub(r"[^a-zA-Z0-9._-]", "", raw_bucket)[:128] or f"{project_id}.firebasestorage.app"
         raw_key = str(config_data.get("apiKey") if config_data.get("apiKey") is not None else current["apiKey"]).strip()
         api_key = _re.sub(r"[^a-zA-Z0-9._-]", "", raw_key)[:128]
-        raw_sender = str(config_data.get("messagingSenderId") or current["messagingSenderId"]).strip()
-        messaging_sender_id = _re.sub(r"[^0-9]", "", raw_sender)[:32] or "108492039481"
-        raw_app_id = str(config_data.get("appId") or current["appId"]).strip()
+        raw_app_id = str(config_data.get("appId") or f"1:{messaging_sender_id}:web:lisethsaas2026").strip()
         app_id = _re.sub(r"[^a-zA-Z0-9:_-]", "", raw_app_id)[:128] or f"1:{messaging_sender_id}:web:lisethsaas2026"
+        hosting_enabled = bool(config_data.get("hostingEnabled", False))
 
         updated = {
+            "projectName": project_name,
             "projectId": project_id,
+            "projectNumber": project_number,
             "apiKey": api_key,
             "authDomain": auth_domain,
             "storageBucket": storage_bucket,
             "messagingSenderId": messaging_sender_id,
             "appId": app_id,
+            "hostingEnabled": hosting_enabled,
         }
         cfg_file = settings.DATA_DIR / "firebase_config.json"
         cfg_file.write_text(json.dumps(updated, indent=2), encoding="utf-8")

@@ -515,24 +515,42 @@ class TestCreatorSuperadminControlCenter:
 
 class TestFirebaseStartupGateAndProjectLinking:
     def test_firebase_project_config_and_account_creation_with_plan_selection(self):
+        import json as _json
+        from pathlib import Path
+
+        # 0. Verify firebase.json has NO Firebase Hosting configured
+        fb_json = _json.loads((Path(settings.BASE_DIR) / "firebase.json").read_text(encoding="utf-8"))
+        assert "hosting" not in fb_json
+        assert "auth" in fb_json
+
         # 1. Verify Firebase project config endpoint
         cfg_res = client.get("/api/saas/firebase/config")
         assert cfg_res.status_code == 200
         cfg = cfg_res.json()
         assert cfg["ok"] is True
         assert cfg["isLinked"] is True
+        assert cfg["projectName"] == "liseth-saas-ai"
+        assert cfg["projectId"] == "liseth-saas-ai"
+        assert cfg["projectNumber"] == "353398586852"
+        assert cfg["messagingSenderId"] == "353398586852"
+        assert cfg["hostingEnabled"] is False
         assert "emailPassword" in cfg["providers"]
 
         # 2. Update/link Firebase project config
         upd_cfg = client.post(
             "/api/saas/firebase/config",
             json={
+                "projectName": "liseth-saas-ai",
                 "projectId": "liseth-saas-ai",
+                "projectNumber": "353398586852",
                 "authDomain": "liseth-saas-ai.firebaseapp.com",
+                "hostingEnabled": False,
             },
         )
         assert upd_cfg.status_code == 200
         assert upd_cfg.json()["projectId"] == "liseth-saas-ai"
+        assert upd_cfg.json()["projectNumber"] == "353398586852"
+        assert upd_cfg.json()["hostingEnabled"] is False
 
         # 3. Attempt to create a Firebase account selecting CREATOR plan -> must fail with 403
         bad_fb = client.post(
