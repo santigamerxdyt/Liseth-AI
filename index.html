@@ -7790,6 +7790,39 @@
 
 
   
+    /* 8. ADAPTACIÓN RESPONSIVA MÓVIL Y PANTALLAS PEQUEÑAS (< 640px) */
+    @media (max-width: 640px) {
+      .hud-top-bar {
+        padding: 0 8px !important;
+        height: 48px !important;
+        gap: 6px !important;
+      }
+      .hud-orb-state-indicator {
+        display: none !important;
+      }
+      .hud-model-select {
+        max-width: 130px !important;
+        font-size: 0.68rem !important;
+        padding: 4px 6px !important;
+      }
+      #btn-quick-hudmodules,
+      #btn-quick-nfc,
+      #btn-quick-saas {
+        display: none !important;
+      }
+      .ai-core-orb-wrapper {
+        width: 170px !important;
+        height: 170px !important;
+      }
+      .ai-core-title {
+        font-size: 1.15rem !important;
+        letter-spacing: 0.08em !important;
+      }
+      .ai-core-status-text {
+        font-size: 0.72rem !important;
+      }
+    }
+
     /* ====================================================================== */
     /* HUD JARVIS 3.8: SUPRESIÓN VISUAL DE ELEMENTOS LEGACY (BARRA FLOTANTE Y ESFERA 2D) */
     /* ====================================================================== */
@@ -8126,8 +8159,8 @@
     </div>
   </div>
 
-  <!-- CINTA BURSÁTIL & MACRO EN TIEMPO REAL (TICKER TAPE EJECUTIVO) -->
-  <div class="executive-ticker-tape" id="executive-ticker-tape" title="Cinta bursátil ejecutiva en vivo • Clic en cualquier cotización para análisis detallado">
+  <!-- CINTA BURSÁTIL & MACRO EN TIEMPO REAL (TICKER TAPE EJECUTIVO - HIDDEN FOR HUD 3.8) -->
+  <div class="executive-ticker-tape" id="executive-ticker-tape" style="display: none !important;" hidden aria-hidden="true" title="Cinta bursátil ejecutiva en vivo • Clic en cualquier cotización para análisis detallado">
     <div class="ticker-tape-track" id="ticker-tape-track">
       <div class="ticker-item" onclick="openForexModal()"><span class="ticker-symbol">TRM USD/COP:</span> <span class="ticker-val">$4.185,50</span> <span class="ticker-trend-up">▲ +0.42%</span></div>
       <div class="ticker-item" onclick="openForexModal()"><span class="ticker-symbol">EUR/COP:</span> <span class="ticker-val">$4.522,10</span> <span class="ticker-trend-down">▼ -0.18%</span></div>
@@ -8140,75 +8173,73 @@
     </div>
   </div>
 
-  <!-- Encabezado con el Orbe de Luz Azul -->
-  <header>
-    <div class="header-top">
-      <div class="server-badge" id="server-badge" title="Estado del servidor local (Clic para detectar o sincronizar)">
+  <!-- Encabezado con el Orbe de Luz Azul (LEGACY - HIDDEN FOR CLEAN FUTURISTIC HUD 3.8) -->
+  <header style="display: none !important;" hidden aria-hidden="true">
+    <div class="header-top" style="display: none !important;" hidden>
+      <div class="server-badge" id="legacy-server-badge" title="Estado del servidor local" style="display: none !important;">
         <span class="badge-dot"></span>
-        <span id="server-status-text">Detectando servidor...</span>
+        <span id="legacy-server-status-text">Detectando servidor...</span>
       </div>
 
       <div class="top-actions">
         <!-- BOTÓN CENTRAL HUD FUTURISTA DE INTERFACES (ACCESO DIRECTO PRIORITARIO #1) -->
-        <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 48 Módulos" style="border: 2px solid #00f0ff; background: rgba(0, 240, 255, 0.22); box-shadow: 0 0 18px rgba(0, 240, 255, 0.55); font-weight: 700; flex-shrink: 0;">
-          <span class="hud-deck-icon" style="color: #00f0ff; font-size: 1.05rem;">◈</span>
-          <span style="color: #ffffff; letter-spacing: 0.04em;">48 MÓDULOS</span>
-          <span class="hud-deck-badge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #04070d; font-weight: 900;">48</span>
+        <button class="hud-deck-btn hud-deck-btn-primary" id="btn-hud-menu" title="Desplegar Centro de Control de Interfaces e Inteligencia (Alt+H) - 48 Módulos" style="display: none !important;">
+          <span class="hud-deck-icon">◈</span>
+          <span>48 MÓDULOS</span>
+          <span class="hud-deck-badge">48</span>
         </button>
         <!-- BOTÓN PLATAFORMA SAAS MULTIUSUARIO, PLANES Y PANEL CREATOR -->
-        <button class="hud-deck-btn" id="btn-saas-platform" onclick="openSaasModal()" title="Plataforma SaaS Multiusuario: Cuenta, Conversaciones, Memoria, Planes, Suscripciones y Panel Superadmin CREATOR" style="border: 1px solid rgba(168, 85, 247, 0.75); background: rgba(168, 85, 247, 0.18);">
+        <button class="hud-deck-btn" id="btn-saas-platform" onclick="openSaasModal()" title="Plataforma SaaS Multiusuario" style="display: none !important;">
           <span class="hud-deck-icon">💎</span>
           <span>SAAS CLOUD</span>
-          <span class="hud-deck-badge" id="saas-plan-badge" style="background: linear-gradient(135deg, #a855f7, #ec4899); color: #ffffff;">CREATOR</span>
+          <span class="hud-deck-badge" id="saas-plan-badge">CREATOR</span>
         </button>
         <!-- BOTÓN ACCESIBILIDAD UNIVERSAL STARK (A11Y) -->
-        <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal (Escala de texto, Alto contraste, Lector y Atajos) - Alt+A">
+        <button class="hud-deck-btn" id="btn-a11y-panel" title="Centro de Accesibilidad Universal" style="display: none !important;">
           <span class="hud-deck-icon">♿</span>
           <span>A11Y</span>
           <span class="hud-deck-badge" id="a11y-badge">A11Y</span>
         </button>
 
         <!-- BOTÓN CONMUTAR SONIDO HUD -->
-        <button class="icon-btn active" id="btn-sound-fx-toggle" title="Efectos de Sonido Táctiles HUD (Activo)">
-          <span id="sound-fx-icon" style="font-size: 0.95rem;">🔊</span>
+        <button class="icon-btn active" id="btn-sound-fx-toggle" title="Efectos de Sonido Táctiles HUD" style="display: none !important;">
+          <span id="sound-fx-icon">🔊</span>
         </button>
 
         <!-- BOTÓN RÁPIDO ALTERNAR ARMADURA STARK -->
-        <button class="hud-deck-btn" id="btn-holo-theme" title="Alternar Armadura Stark (Cyan Arc / Mark 50 Gold / War Machine Emerald / Cyberpunk)">
+        <button class="hud-deck-btn" id="btn-holo-theme" title="Alternar Armadura Stark" style="display: none !important;">
           <span class="hud-deck-icon">⚡</span>
           <span>ARMADURA</span>
         </button>
 
         <!-- BOTÓN TERMINAL NFC & PAGOS POR CONTACTO -->
-        <button class="hud-deck-btn" id="btn-nfc-terminal" title="Terminal NFC y Pagos por Contacto (Contactless & Beam)">
+        <button class="hud-deck-btn" id="btn-nfc-terminal" title="Terminal NFC y Pagos por Contacto" style="display: none !important;">
           <span class="hud-deck-icon">📶</span>
           <span>NFC PAY</span>
           <span class="hud-deck-badge" id="nfc-status-badge">PAY</span>
         </button>
 
         <!-- BOTÓN PERSONALIZACIÓN (ESTUDIO COMPLETO) -->
-        <button class="hud-deck-btn" id="btn-open-personalization" title="Estudio de Personalización (Trato, Colores, Forma de la Esfera)">
+        <button class="hud-deck-btn" id="btn-open-personalization" title="Estudio de Personalización" style="display: none !important;">
           <span class="hud-deck-icon">🎨</span>
           <span>ESTUDIO</span>
         </button>
 
         <!-- BOTÓN VENTANA DINÁMICA / VISOR HUD -->
-        <button class="hud-deck-btn" id="btn-open-dynamic-viewer" title="Ventana Dinámica: Búsquedas, Archivos, Documentos y Formatos">
+        <button class="hud-deck-btn" id="btn-open-dynamic-viewer" title="Ventana Dinámica" style="display: none !important;">
           <span class="hud-deck-icon">🪟</span>
           <span>VISOR</span>
           <span class="hud-deck-badge" id="dynamic-viewer-badge" style="display: none;">1</span>
         </button>
 
-
-
         <!-- BOTÓN ALTERNAR VISTA: ESFERA HOLOGRÁFICA vs CONSOLA -->
-        <button class="hud-view-toggle-btn active" id="btn-toggle-view" title="Cambiar modo de visualización: Esfera Holográfica / Consola Historial">
+        <button class="hud-view-toggle-btn active" id="btn-toggle-view" title="Cambiar modo de visualización" style="display: none !important;">
           <span id="toggle-view-icon">🔮</span>
           <span id="toggle-view-text">Esfera</span>
         </button>
 
         <!-- Botón de Voz Dulce de Liseth (Activar/Silenciar) -->
-        <button class="icon-btn active" id="btn-voice-toggle" title="Voz de Liseth (Activa)">
+        <button class="icon-btn active" id="btn-voice-toggle" title="Voz de Liseth" style="display: none !important;">
           <svg id="voice-icon-on" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
@@ -8222,7 +8253,7 @@
         </button>
 
         <!-- Botón Limpiar conversación -->
-        <button class="icon-btn" id="btn-clear-chat" title="Nueva conversación (Limpiar actual)">
+        <button class="icon-btn" id="btn-clear-chat" title="Nueva conversación" style="display: none !important;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6"></polyline>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -8230,7 +8261,7 @@
         </button>
 
         <!-- Botón Bloquear Sesión (PIN) -->
-        <button class="icon-btn" id="btn-session-lock" title="Bloquear Sesión (PIN)">
+        <button class="icon-btn" id="btn-session-lock" title="Bloquear Sesión" style="display: none !important;">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -8239,6 +8270,8 @@
 
         <!-- CONTENEDOR OCULTO DE BOTONES LEGACY (Mantiene compatibilidad de eventos DOM intacta) -->
         <div style="display: none !important;">
+          <span id="div-budget-label" style="display:none;"></span>
+          <span id="ribbon-power-val" style="display:none;"></span>
           <button class="icon-btn" id="btn-services-dashboard"></button>
           <button class="icon-btn" id="btn-brain-router"></button>
           <button class="icon-btn" id="btn-audit-logs"></button>
@@ -8255,8 +8288,8 @@
 
   <!-- ESCENARIO PRINCIPAL HOLOGRÁFICO: ESFERA CON ONDAS SONORAS Y TRANSCIPCIÓN -->
   <div class="holographic-main-stage" id="holographic-main-stage">
-    <!-- 1. VISTA PREDETERMINADA: ESFERA HOLOGRÁFICA CON ONDAS -->
-    <div class="sphere-workspace" id="sphere-workspace">
+    <!-- 1. VISTA LEGACY ESFERA: OCULTA PERMANENTEMENTE PARA PRESENTAR JARVIS HUD PURO -->
+    <div class="sphere-workspace hidden" id="sphere-workspace" style="display: none !important;" hidden aria-hidden="true">
       <!-- ALAS DE TELEMETRÍA HOLOGRÁFICA STARK HUD (MARK 85) -->
       <div class="stark-hud-wing wing-left" id="stark-hud-wing-left">
         <div class="hud-wing-header">
@@ -8372,11 +8405,11 @@
           </div>
         </div>
 
-        <h1 class="assistant-title" id="assistant-display-name">LISETH</h1>
+        <h1 class="assistant-title" id="legacy-assistant-display-name">LISETH</h1>
         <div class="assistant-role-badge">SECRETARIA EJECUTIVA DE ALTA DIRECCIÓN & CHIEF OF STAFF</div>
         <div class="assistant-status">
           <span class="status-dot"></span>
-          <span id="status-label">Pensando de 2 a 3 pasos por delante para usted, Señor Santiago</span>
+          <span id="legacy-status-label">Pensando de 2 a 3 pasos por delante para usted, Señor Santiago</span>
         </div>
       </div>
 
@@ -8456,8 +8489,8 @@
       </div>
     </div>
 
-    <!-- 2. VISTA ALTERNATIVA: CONSOLA DE MENSAJES CLÁSICA -->
-    <div class="console-workspace hidden" id="console-workspace">
+    <!-- 2. VISTA PRINCIPAL: CONSOLA DE MENSAJES HUD JARVIS -->
+    <div class="console-workspace" id="console-workspace" style="display: flex !important;">
       <main id="chat-container">
         <!-- Banner de Alerta de Almacenamiento -->
         <div id="storage-warning-banner" class="storage-warning-banner" style="display: none;">
@@ -19508,8 +19541,14 @@ Tus habilidades clave:
 
       function setViewMode(mode) {
         // En HUD JARVIS 3.8, la consola siempre está activa y el AI Core Orb 3D reemplaza la esfera 2D
-        sphereWorkspace?.classList.add("hidden");
-        consoleWorkspace?.classList.remove("hidden");
+        if (sphereWorkspace) {
+          sphereWorkspace.classList.add("hidden");
+          sphereWorkspace.style.display = "none";
+        }
+        if (consoleWorkspace) {
+          consoleWorkspace.classList.remove("hidden");
+          consoleWorkspace.style.display = "flex";
+        }
         currentViewMode = "console";
         localStorage.setItem("liseth_view_mode", "console");
         if (btnToggleView) {
@@ -27047,6 +27086,12 @@ const cardEsg = document.getElementById("hud-card-esg");
         aiCoreOrb.rafId = requestAnimationFrame(renderAICoreOrbFrame);
         if (!aiCoreOrb.isInitialized || document.hidden) return;
 
+        // Throttling adaptativo si el usuario activa el Modo Bajo Consumo
+        if (document.body.classList.contains("low-power-mode")) {
+          aiCoreOrb.lowPowerSkip = !aiCoreOrb.lowPowerSkip;
+          if (aiCoreOrb.lowPowerSkip) return;
+        }
+
         const time = aiCoreOrb.clock.getElapsedTime();
 
         // Smooth state lerp
@@ -27336,10 +27381,16 @@ const cardEsg = document.getElementById("hud-card-esg");
 
       window.switchMainStageView = function(view) {
         if (view === "chat") {
-          const sphereWs = document.getElementById("sphere-workspace");
           const consoleWs = document.getElementById("console-workspace");
-          if (sphereWs) sphereWs.classList.remove("hidden");
-          if (consoleWs) consoleWs.classList.remove("hidden");
+          if (consoleWs) {
+            consoleWs.classList.remove("hidden");
+            consoleWs.style.display = "flex";
+          }
+          const sphereWs = document.getElementById("sphere-workspace");
+          if (sphereWs) {
+            sphereWs.classList.add("hidden");
+            sphereWs.style.display = "none";
+          }
         }
       };
 
