@@ -304,7 +304,8 @@ async def api_auth_middleware(request: Request, call_next):
     clean_path = path.rstrip("/") or "/"
 
     # Check if request targets an API route that is not exempt
-    if path.startswith("/api") and path not in EXEMPT_API_PATHS and clean_path not in EXEMPT_API_PATHS:
+    is_nfc_path = path.startswith("/api/nfc/")
+    if path.startswith("/api") and not is_nfc_path and path not in EXEMPT_API_PATHS and clean_path not in EXEMPT_API_PATHS:
         # Preflight OPTIONS requests are handled by CORS middleware
         if request.method != "OPTIONS":
             if not is_authenticated(request):

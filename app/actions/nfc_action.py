@@ -177,9 +177,34 @@ def nfc_action(parameters: Optional[Dict[str, Any]] = None) -> str:
                 ver = nfc_service.verify_security_badge(uid)
                 return f"Verificación de credencial NFC: {ver['message']} (Autorizado: `{ver['authorized']}`)"
 
+        if action in ["dynamic_link", "enlace_dinamico", "crear_enlace_nfc"]:
+            short_code = str(params.get("short_code") or f"link-{params.get('title', 'nfc')[:10]}").lower().strip()
+            title = str(params.get("title") or "Enlace Dinámico NFC")
+            url = str(params.get("url") or params.get("destination_url") or "https://liseth.ai")
+            l = nfc_service.create_dynamic_link(short_code=short_code, title=title, destination_url=url)
+            return (
+                f"### 🔗 Enlace Dinámico NFC Creado\n"
+                f"- **Código Corto**: `{l['short_code']}`\n"
+                f"- **Título**: {l['title']}\n"
+                f"- **Destino**: {l['destination_url']}\n"
+                f"Puede actualizar el destino desde la plataforma sin reprogramar la etiqueta física."
+            )
+
+        if action in ["ai_trigger", "smart_tag", "etiqueta_ia"]:
+            agent_id = str(params.get("agent_id") or "jarvis_productivity")
+            prompt = str(params.get("prompt") or "Iniciar sesión de trabajo")
+            trig = nfc_service.create_ai_trigger_payload(agent_id=agent_id, prompt_template=prompt)
+            return (
+                f"### 🤖 Disparador IA NFC Generado (Smart AI Tag)\n"
+                f"- **Agente**: `{trig['agent_id']}`\n"
+                f"- **Prompt**: {trig['prompt']}\n"
+                f"- **ID**: `{trig['id']}`\n"
+                f"Acerque la etiqueta NFC para programar el inicio automático de este asistente."
+            )
+
         return (
             f"Acción NFC '{action}' no reconocida. Opciones disponibles: "
-            f"'payment_request', 'beam_vcard', 'read_tag', 'invoice', 'convert', 'badge', 'history', 'status'."
+            f"'payment_request', 'beam_vcard', 'read_tag', 'dynamic_link', 'ai_trigger', 'invoice', 'convert', 'badge', 'history', 'status'."
         )
 
 

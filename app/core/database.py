@@ -54,6 +54,12 @@ _PERFORMANCE_INDEX_DDL = (
     "CREATE INDEX IF NOT EXISTS idx_ref_rel_referrer_status ON referral_relationships (referrer_user_id, status);",
     "CREATE INDEX IF NOT EXISTS idx_ref_rewards_user_status_prio ON referral_rewards (user_id, status, priority_order, created_at);",
     "CREATE INDEX IF NOT EXISTS idx_ref_coupons_user_status ON referral_coupons (user_id, status, priority_order, created_at);",
+    "CREATE INDEX IF NOT EXISTS idx_nfc_tags_uid_status ON nfc_registered_tags (uid, status);",
+    "CREATE INDEX IF NOT EXISTS idx_nfc_tags_owner_cat ON nfc_registered_tags (owner_user_id, category);",
+    "CREATE INDEX IF NOT EXISTS idx_nfc_dynlinks_code_active ON nfc_dynamic_links (short_code, is_active);",
+    "CREATE INDEX IF NOT EXISTS idx_nfc_filetrans_token ON nfc_file_transfers (access_token, status);",
+    "CREATE INDEX IF NOT EXISTS idx_nfc_audit_tag_event ON nfc_audit_logs (tag_id, event_type, created_at);",
+    "CREATE INDEX IF NOT EXISTS idx_ai_tokopt_user_created ON ai_token_optimization_logs (user_id, created_at);",
 )
 
 

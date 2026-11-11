@@ -1017,3 +1017,48 @@ async def creator_grant_manual_reward_endpoint(
         notes=str(payload.get("notes") or "Otorgado manualmente por Superadmin CREATOR"),
     )
 
+
+# ==============================================================================
+# 7. AI PERFORMANCE CENTER & RESOURCE OPTIMIZATION ENDPOINTS
+# ==============================================================================
+
+@router.get("/admin/ai-performance")
+async def creator_ai_performance_endpoint(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Telemetry for CREATOR 'AI Performance Center': tokens saved, cost, routing, cache."""
+    await saas_service.require_creator(request, db)
+    from app.services.token_optimizer_service import token_optimizer_service
+    return token_optimizer_service.get_performance_dashboard()
+
+
+@router.get("/admin/resource-metrics")
+async def creator_resource_metrics_endpoint(
+    request: Request,
+    force_gc: bool = Query(False),
+    db: AsyncSession = Depends(get_db),
+):
+    """Host and process telemetry: RAM, CPU, threads, garbage collection."""
+    await saas_service.require_creator(request, db)
+    from app.services.resource_optimizer_service import resource_optimizer_service
+    if force_gc:
+        resource_optimizer_service.trigger_memory_cleanup(force=True)
+    return {
+        "ok": True,
+        "metrics": resource_optimizer_service.get_system_metrics(),
+    }
+
+
+@router.post("/system/low-power")
+async def toggle_low_power_mode_endpoint(
+    payload: Dict[str, Any],
+    request: Request,
+):
+    """Toggles Low-Power Mode ('Modo de Bajo Consumo') for resource-constrained clients."""
+    from app.services.resource_optimizer_service import resource_optimizer_service
+    client_id = str(payload.get("client_id") or (request.client.host if request.client else "unknown_client"))
+    enabled = bool(payload.get("enabled", True))
+    return resource_optimizer_service.register_client_low_power_mode(client_id, enabled)
+
+

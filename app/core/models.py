@@ -804,6 +804,149 @@ class SaasAuditLog(Base):
     created_at = Column(DateTime, default=utcnow)
 
 
+# ==============================================================================
+# NFC CORE & AI OPTIMIZATION EXTENDED MODELS
+# ==============================================================================
+
+class NfcRegisteredTag(Base):
+    """
+    Physical or virtual NFC Tag registered in Liseth NFC Core Engine.
+    Tracks hardware UID, internal identifier, assigned role, dynamic actions,
+    cryptographic challenge protection, and access permissions.
+    """
+    __tablename__ = "nfc_registered_tags"
+
+    id = Column(String(64), primary_key=True)  # e.g. ntag_a1b2c3d4e5f6
+    uid = Column(String(128), index=True, nullable=False)  # Hardware serial or NFC UID
+    owner_user_id = Column(String(64), index=True, nullable=True)  # SaasUser.id or None
+    name = Column(String(160), nullable=False, default="Etiqueta NFC Inteligente")
+    description = Column(String(255), nullable=True)
+    category = Column(String(50), default="smart_link")  # business_card, smart_link, file_transfer, ai_trigger, payment_terminal, security_key, merchant_loyalty
+    action_type = Column(String(50), default="open_url")  # vcard, open_url, ai_agent_prompt, ai_context_link, payment_checkout, pos_tap, file_download, workspace_unlock, custom_workflow
+    action_payload = Column(JSON, default=dict)
+    tag_type = Column(String(60), default="NFC Forum Type 2 (NTAG215)")  # Type 2, Type 4, Type 5, MIFARE, Virtual
+    memory_capacity_bytes = Column(Integer, default=504)
+    is_locked = Column(Boolean, default=False)  # True if write-protected
+    status = Column(String(30), default="active")  # active, suspended, revoked, pending_setup
+    cryptographic_secret_hash = Column(String(128), nullable=True)  # For HMAC-SHA256 challenge authentication
+    last_challenge = Column(String(64), nullable=True)  # Nonce against replay attacks
+    tap_count = Column(Integer, default=0)
+    last_tapped_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+
+class NfcDynamicLink(Base):
+    """
+    Dynamic short link associated with NFC tags.
+    Allows changing destination URL, AI prompt, or action on the fly
+    without reflashing the physical NFC tag.
+    """
+    __tablename__ = "nfc_dynamic_links"
+
+    id = Column(String(64), primary_key=True)  # nlnk_xxxx
+    short_code = Column(String(64), unique=True, index=True, nullable=False)  # e.g. 'santiago-vcard', 'demo-agent'
+    tag_id = Column(String(64), index=True, nullable=True)
+    owner_user_id = Column(String(64), index=True, nullable=True)
+    title = Column(String(160), nullable=False)
+    destination_url = Column(Text, nullable=False)
+    destination_type = Column(String(50), default="url")  # profile, agent, conversation, checkout, document, product, automation, custom
+    requires_auth = Column(Boolean, default=False)
+    access_token = Column(String(128), nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+    clicks_count = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+
+class NfcFileTransfer(Base):
+    """
+    Secure P2P file exchange initiated by NFC tap handshake.
+    High-bandwidth file payload is served over secure, expiring HTTPS token.
+    """
+    __tablename__ = "nfc_file_transfers"
+
+    id = Column(String(64), primary_key=True)  # nftrans_xxxx
+    sender_user_id = Column(String(64), index=True, nullable=False)
+    recipient_user_id = Column(String(64), index=True, nullable=True)
+    tag_id = Column(String(64), index=True, nullable=True)
+    file_id = Column(String(64), nullable=True)
+    file_name = Column(String(255), nullable=False)
+    file_size_bytes = Column(Integer, default=0)
+    file_mime_type = Column(String(100), default="application/octet-stream")
+    file_url = Column(Text, nullable=False)
+    access_token = Column(String(128), unique=True, index=True, nullable=False)
+    requires_owner_consent = Column(Boolean, default=True)
+    consent_granted = Column(Boolean, default=False)
+    downloads_count = Column(Integer, default=0)
+    max_downloads = Column(Integer, default=1)
+    status = Column(String(30), default="ready_to_beam")  # ready_to_beam, downloaded, expired, revoked
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=utcnow)
+
+
+class NfcMerchantProfile(Base):
+    """
+    NFC infrastructure for commercial stores, restaurants, and businesses.
+    Enables digital catalog, loyalty points, coupons, voluntary check-ins, and POS tap.
+    """
+    __tablename__ = "nfc_merchant_profiles"
+
+    id = Column(String(64), primary_key=True)  # merch_xxxx
+    user_id = Column(String(64), unique=True, index=True, nullable=False)
+    business_name = Column(String(200), nullable=False)
+    category = Column(String(80), default="general")
+    description = Column(Text, nullable=True)
+    contact_phone = Column(String(50), nullable=True)
+    contact_email = Column(String(120), nullable=True)
+    catalog = Column(JSON, default=list)  # list of products/services
+    loyalty_program = Column(JSON, default=dict)  # points per purchase, reward levels
+    coupons = Column(JSON, default=list)  # list of promo codes and discounts
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+
+class NfcAuditLog(Base):
+    """
+    Security audit trail for all physical and simulated NFC events.
+    """
+    __tablename__ = "nfc_audit_logs"
+
+    id = Column(String(64), primary_key=True)  # naud_xxxx
+    tag_id = Column(String(64), index=True, nullable=True)
+    tag_uid = Column(String(128), index=True, nullable=True)
+    actor_user_id = Column(String(64), index=True, nullable=True)
+    event_type = Column(String(60), index=True, nullable=False)  # read, write, tap_action, payment_intent, access_granted, access_denied, revoked, fraud_alert
+    status = Column(String(30), default="success")  # success, failure, suspicious
+    ip_address = Column(String(64), default="127.0.0.1")
+    device_info = Column(String(255), default="Unknown Device")
+    details = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=utcnow)
+
+
+class AITokenOptimizationLog(Base):
+    """
+    Log of token optimization, context compression, model routing, and token savings.
+    """
+    __tablename__ = "ai_token_optimization_logs"
+
+    id = Column(String(64), primary_key=True)  # toklog_xxxx
+    user_id = Column(String(64), index=True, nullable=True)
+    conversation_id = Column(String(64), index=True, nullable=True)
+    original_prompt_tokens = Column(Integer, default=0)
+    optimized_prompt_tokens = Column(Integer, default=0)
+    tokens_saved = Column(Integer, default=0)
+    model_routed = Column(String(80), nullable=False)
+    response_profile = Column(String(40), default="standard")  # brief, technical, explanatory, structured, standard
+    cache_hit = Column(Boolean, default=False)
+    latency_ms = Column(Float, default=0.0)
+    estimated_cost_usd = Column(Float, default=0.0)
+    quality_score = Column(Float, default=1.0)
+    created_at = Column(DateTime, default=utcnow)
+
+
 
 
 

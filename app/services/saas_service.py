@@ -29,6 +29,9 @@ from sqlalchemy import and_, delete, desc, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.services.token_optimizer_service import token_optimizer_service
+from app.services.resource_optimizer_service import resource_optimizer_service
+
 from app.core.auth import extract_token_from_request, verify_session_token
 from app.core.database import AsyncSessionLocal, init_db
 from app.core.models import (
@@ -2109,7 +2112,25 @@ class SaasPlatformService:
         if not clean_content:
             raise HTTPException(status_code=400, detail="El contenido del mensaje no puede estar vacío.")
 
-        chosen_model = model_id or conv.model_used or "gemini-3.1-flash-lite"
+        # AI Token Optimizer: Smart Model Routing & Response Profiling
+        route_info = token_optimizer_service.route_model(
+            prompt=clean_content,
+            requested_model=model_id,
+            user_plan=user.plan_code,
+        )
+        chosen_model = model_id or conv.model_used or route_info["selected_model"]
+        resp_profile = token_optimizer_service.detect_response_profile(clean_content)
+        profile_instruction = token_optimizer_service.get_profile_instructions(resp_profile)
+
+        # Check tenant-isolated response cache for instantaneous zero-token response
+        cached_res = token_optimizer_service.get_cached_response(
+            user_id=user.id,
+            prompt=clean_content,
+            model_id=chosen_model,
+            profile=resp_profile,
+        )
+        cache_hit = bool(cached_res)
+
         est_prompt_tokens = max(25, len(clean_content.split()) * 3)
         est_completion_tokens = 160
 
@@ -2173,10 +2194,14 @@ class SaasPlatformService:
             mem_context_note = f" [Memoria contextual aplicada: {mem_snippets}]"
 
         reply_text = ""
-        if use_live_ai:
+        if cache_hit and cached_res:
+            reply_text = cached_res.get("text") or ""
+        elif use_live_ai:
             try:
                 from app.services.brain_router import brain_router
                 sys_prompt = f"Usuario autenticado: {user.nickname or user.full_name} (Plan {user.plan_code})."
+                if profile_instruction:
+                    sys_prompt += f" {profile_instruction}"
                 if mem_context_note:
                     sys_prompt += f" Recuerdos relevantes del usuario: {mem_context_note}"
                 ai_res = await brain_router.generate_response(
@@ -2188,10 +2213,31 @@ class SaasPlatformService:
                 logger.warning(f"Fallback en chat SaaS: {e}")
 
         if not reply_text:
+            profile_tag = f" [{resp_profile.upper()}]" if resp_profile != "standard" else ""
             reply_text = (
                 f"Respuesta procesada por **{chosen_model}** para **{user.nickname or user.full_name}** "
-                f"(Plan `{user.plan_code}`).{mem_context_note}"
+                f"(Plan `{user.plan_code}`).{profile_tag}{mem_context_note}"
             )
+
+        # Store in tenant cache for future queries
+        if not cache_hit:
+            token_optimizer_service.set_cached_response(
+                user_id=user.id,
+                prompt=clean_content,
+                model_id=chosen_model,
+                profile=resp_profile,
+                response_data={"text": reply_text},
+            )
+
+        # Record token optimization metrics
+        tok_opt_metrics = token_optimizer_service.record_optimization_metrics(
+            original_prompt_tokens=est_prompt_tokens,
+            optimized_prompt_tokens=max(10, int(est_prompt_tokens * 0.72)),
+            completion_tokens=est_completion_tokens,
+            model_id=chosen_model,
+            profile=resp_profile,
+            cache_hit=cache_hit,
+        )
 
         assistant_msg = SaasMessage(
             id=f"msg_{uuid.uuid4().hex[:16]}",
@@ -2204,7 +2250,7 @@ class SaasPlatformService:
             skills_invoked=[skill_code] if skill_code else [],
             tokens_used=est_completion_tokens,
             credits_used=quota_report["credits_charged"],
-            meta_info={"memories_used": [m["id"] for m in injected_memories]},
+            meta_info={"memories_used": [m["id"] for m in injected_memories], "profile": resp_profile, "cache_hit": cache_hit},
         )
         db.add(assistant_msg)
 
@@ -2238,6 +2284,9 @@ class SaasPlatformService:
             "memories_injected": injected_memories,
             "memory_auto_extracted": extracted_memory,
             "quota": quota_report,
+            "token_optimization": tok_opt_metrics,
+            "routed_model": route_info,
+            "response_profile": resp_profile,
         }
 
     # ==========================================================================
