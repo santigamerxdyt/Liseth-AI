@@ -2494,6 +2494,7 @@ class SaasPlatformService:
         external_payment_link = ((gw_info.get("payment_links") or {}).get(target_plan.code) or "").strip()
         dt_cfg = (gw_cfg.get("gateways") or {}).get("direct_transfer") or {}
         nequi_number = str(dt_cfg.get("nequi_number") or "3122376474")
+        bre_b_key = str(dt_cfg.get("bre_b_key") or "@NEQUISAN243100")
         wa_phone = str(dt_cfg.get("whatsapp_sales_phone") or "+573122376474")
         wa_phone_digits = re.sub(r"\D", "", wa_phone) or "573122376474"
         wa_msg = (
@@ -2507,7 +2508,7 @@ class SaasPlatformService:
             "stripe": f"{(payment_method_brand or 'VISA').upper()} •••• {safe_last4} (Stripe)",
             "wompi_pse_nequi": f"PSE / NEQUI •••• {safe_last4} (Wompi Colombia)",
             "paypal": f"PAYPAL •••• {safe_last4} (Express)",
-            "direct_transfer": f"TRANSFERENCIA NEQUI ({nequi_number}) •••• {safe_last4}",
+            "direct_transfer": f"NEQUI ({nequi_number}) / BRE-B ({bre_b_key}) •••• {safe_last4}",
         }
         method_summary = "Sin tarjeta requerida" if target_plan.code == "FREE" else gw_labels.get(gw_clean, f"{payment_method_brand.upper()} •••• {safe_last4}")
 
@@ -2646,6 +2647,7 @@ class SaasPlatformService:
             "payment_gateway": gw_clean,
             "external_payment_link": external_payment_link,
             "nequi_number": nequi_number,
+            "bre_b_key": bre_b_key,
             "whatsapp_sales_phone": wa_phone,
             "whatsapp_checkout_url": whatsapp_checkout_url,
             "subscription": {
@@ -2670,6 +2672,7 @@ class SaasPlatformService:
                 "payment_gateway": gw_clean,
                 "payment_method_summary": method_summary,
                 "nequi_number": nequi_number,
+                "bre_b_key": bre_b_key,
                 "whatsapp_sales_phone": wa_phone,
                 "whatsapp_checkout_url": whatsapp_checkout_url,
                 "status": invoice.status,
@@ -3398,7 +3401,11 @@ class SaasPlatformService:
         bancolombia_acc = str(
             dt_saved.get("bancolombia_account") or getattr(settings, "BANCOLOMBIA_ACCOUNT", "Ahorros Bancolombia 000-000000-00")
         ).strip()
-        bre_b_key = str(dt_saved.get("bre_b_key") or getattr(settings, "BRE_B_KEY", "@santiagoliseth")).strip()
+        raw_bre_b = str(dt_saved.get("bre_b_key") or "").strip()
+        if not raw_bre_b or raw_bre_b in {"@santiagoliseth", "@santiago"}:
+            bre_b_key = getattr(settings, "BRE_B_KEY", "@NEQUISAN243100") or "@NEQUISAN243100"
+        else:
+            bre_b_key = raw_bre_b
         raw_wa = str(dt_saved.get("whatsapp_sales_phone") or "").strip()
         if not raw_wa or raw_wa in {"+57 300 000 0000", "+573000000000"}:
             wa_phone = getattr(settings, "WHATSAPP_SALES_PHONE", "+573122376474") or "+573122376474"
@@ -3407,7 +3414,7 @@ class SaasPlatformService:
         account_holder = str(dt_saved.get("account_holder") or "Santiago (Propietario & Creador Liseth AI)").strip()
         dt_instructions = str(
             dt_saved.get("instructions")
-            or "Realiza la transferencia por Nequi, Bancolombia o Llave Bre-B por el valor en COP e ingresa los últimos 4 dígitos del comprobante para activar tu plan al instante."
+            or f"Realiza la transferencia por Nequi {nequi_num}, Llave Bre-B {bre_b_key} o Bancolombia por el valor en COP e ingresa los últimos 4 dígitos del comprobante para activar tu plan al instante."
         ).strip()
 
         config: Dict[str, Any] = {
@@ -3698,10 +3705,11 @@ class SaasPlatformService:
         external_link = ((gw_info.get("payment_links") or {}).get(code_up) or "").strip()
         dt_details = gw_cfg["gateways"]["direct_transfer"]
         nequi_number = str(dt_details.get("nequi_number") or "3122376474")
+        bre_b_key = str(dt_details.get("bre_b_key") or "@NEQUISAN243100")
         wa_phone = str(dt_details.get("whatsapp_sales_phone") or "+573122376474")
         wa_phone_digits = re.sub(r"\D", "", wa_phone) or "573122376474"
         wa_msg = (
-            f"Hola Santiago, acabo de transferir por Nequi ({nequi_number}) el valor de "
+            f"Hola Santiago, acabo de transferir por Nequi ({nequi_number}) / Llave Bre-B ({bre_b_key}) el valor de "
             f"${total_cop:,} COP (${total_usd:.2f} USD) para activar mi {plan.name} "
             f"({'Anual -20%' if cycle == 'annual' else 'Mensual'}) en Liseth AI."
         ).replace(",", ".")
@@ -3737,6 +3745,7 @@ class SaasPlatformService:
                 "total_credits_granted": plan.monthly_credits + bonus_credits,
                 "external_payment_link": external_link,
                 "nequi_number": nequi_number,
+                "bre_b_key": bre_b_key,
                 "whatsapp_sales_phone": wa_phone,
                 "whatsapp_checkout_url": whatsapp_checkout_url,
                 "direct_transfer_details": dt_details,

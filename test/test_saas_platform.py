@@ -690,6 +690,7 @@ class TestFirebaseStartupGateAndProjectLinking:
         assert "paypal" in gw_data["gateways"]
         assert "direct_transfer" in gw_data["gateways"]
         assert gw_data["gateways"]["direct_transfer"]["nequi_number"] == "3122376474"
+        assert gw_data["gateways"]["direct_transfer"]["bre_b_key"] == "@NEQUISAN243100"
         assert gw_data["gateways"]["direct_transfer"]["whatsapp_sales_phone"] == "+573122376474"
 
         # 2. Live sales quote for PRO annual with WELCOME20 coupon
@@ -715,6 +716,7 @@ class TestFirebaseStartupGateAndProjectLinking:
         assert q["total_cop"] > 0
         assert q["bonus_credits"] > 0
         assert q["nequi_number"] == "3122376474"
+        assert q["bre_b_key"] == "@NEQUISAN243100"
         assert q["whatsapp_sales_phone"] == "+573122376474"
         assert "https://wa.me/573122376474?text=" in q["whatsapp_checkout_url"]
 

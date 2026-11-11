@@ -9437,7 +9437,7 @@
                 <button type="button" id="gate-gw-btn-stripe" onclick="selectGatePaymentGateway('stripe')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.18); color: #fff; cursor: pointer;">💳 Tarjeta (Stripe)</button>
                 <button type="button" id="gate-gw-btn-wompi_pse_nequi" onclick="selectGatePaymentGateway('wompi_pse_nequi')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">🏦 PSE / Nequi (Wompi)</button>
                 <button type="button" id="gate-gw-btn-paypal" onclick="selectGatePaymentGateway('paypal')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">🅿️ PayPal Express</button>
-                <button type="button" id="gate-gw-btn-direct_transfer" onclick="selectGatePaymentGateway('direct_transfer')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">📲 Nequi 3122376474</button>
+                <button type="button" id="gate-gw-btn-direct_transfer" onclick="selectGatePaymentGateway('direct_transfer')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">📲 Nequi / Bre-B Directo</button>
               </div>
               <div id="gate-gw-instructions-box" style="font-size: 0.69rem; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4; padding: 7px 8px; background: rgba(15, 23, 42, 0.85); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
                 💳 Pago internacional con Tarjeta Visa, Mastercard, Amex, Apple Pay o Google Pay (Stripe).
@@ -9446,10 +9446,11 @@
               <div id="gate-quote-breakdown-box" style="font-size: 0.68rem; color: #94a3b8; margin-bottom: 8px; padding: 6px 8px; background: rgba(0, 0, 0, 0.35); border-radius: 6px;"></div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                 <select id="gate-pay-brand" style="padding: 6px 7px; background: #090d16; border: 1px solid #334155; border-radius: 5px; color: #fff; font-size: 0.72rem;">
-                  <option value="nequi">📲 Nequi Colombia (3122376474)</option>
+                  <option value="nequi">📲 Nequi (3122376474)</option>
+                  <option value="bre_b">🔑 Llave Bre-B Personal (@NEQUISAN243100)</option>
+                  <option value="bancolombia">🏦 Bancolombia / Transferencia</option>
                   <option value="visa">💳 Visa / Mastercard</option>
                   <option value="pse">🏦 PSE Débito Bancario</option>
-                  <option value="bancolombia">🏦 Bancolombia / Llave Bre-B</option>
                   <option value="paypal">🅿️ PayPal Balance</option>
                 </select>
                 <input type="text" id="gate-pay-last4" maxlength="8" placeholder="Últ. 4 dígitos o Ref Comprobante" value="4242" style="padding: 6px 7px; background: #090d16; border: 1px solid #334155; border-radius: 5px; color: #fff; font-size: 0.72rem;" />
@@ -23440,7 +23441,7 @@ const cardEsg = document.getElementById("hud-card-esg");
             <div class="row"><span>Estado:</span><b style="color:#38ef7d;">PAGADO (${inv.status.toUpperCase()})</b></div>
             <div class="row"><span>Fecha de Emisión:</span><b>${inv.issued_at || new Date().toISOString()}</b></div>
             <div class="total"><span>TOTAL PAGADO:</span><span>$${inv.total_usd} USD (~$${copFormatted} COP)</span></div>
-            <p style="font-size:12px;color:#94a3b8;margin-top:14px;">Soporte & Ventas WhatsApp: +573122376474 • Nequi Oficial: 3122376474</p>
+            <p style="font-size:12px;color:#94a3b8;margin-top:14px;">Soporte & Ventas WhatsApp: +573122376474 • Nequi Oficial: 3122376474 • Llave Bre-B (Personal): @NEQUISAN243100</p>
             <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar en PDF</button>
           </div></body></html>`);
         w.document.close();
@@ -23474,7 +23475,7 @@ const cardEsg = document.getElementById("hud-card-esg");
           const dt = q.direct_transfer_details || {};
           const nequiNum = q.nequi_number || dt.nequi_number || "3122376474";
           const waPhone = q.whatsapp_sales_phone || dt.whatsapp_sales_phone || "+573122376474";
-          const breB = dt.bre_b_key || "@santiagoliseth";
+          const breB = q.bre_b_key || dt.bre_b_key || "@NEQUISAN243100";
           const waUrl = q.whatsapp_checkout_url || `https://wa.me/${waPhone.replace(/[^0-9]/g, '')}`;
           const extBtn = q.external_payment_link
             ? `<a href="${q.external_payment_link}" target="_blank" rel="noopener" class="btn-secondary" style="padding:6px 12px;font-size:0.74rem;border-color:#38ef7d;color:#38ef7d;text-decoration:none;">🔗 Abrir Link de Pago Externo (${q.payment_gateway.toUpperCase()})</a>`
@@ -23482,10 +23483,10 @@ const cardEsg = document.getElementById("hud-card-esg");
           const dtInfo = (gw === "direct_transfer" || gw === "wompi_pse_nequi")
             ? `<div style="margin-top:8px;padding:9px 11px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:7px;font-size:0.72rem;color:#fde68a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
                  <div>
-                   <b>📲 Pago Inmediato por Nequi / Bancolombia / Bre-B (${dt.account_holder || 'Santiago'}):</b><br>
+                   <b>📲 Pago Inmediato por Nequi / Llave Bre-B Personal (${dt.account_holder || 'Santiago'}):</b><br>
                    • <b>Nequi:</b> <code>${nequiNum}</code>
                    <button type="button" onclick="copyPaymentValueUI('${nequiNum}', 'Número Nequi')" style="margin-left:4px;padding:1px 6px;font-size:0.65rem;background:#f59e0b;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">📋 Copiar Nequi</button>
-                   | <b>Llave Bre-B:</b> <code>${breB}</code>
+                   | <b>Llave Bre-B (Personal):</b> <code style="color:#38bdf8;font-weight:800;">${breB}</code>
                    <button type="button" onclick="copyPaymentValueUI('${breB}', 'Llave Bre-B')" style="margin-left:4px;padding:1px 6px;font-size:0.65rem;background:#38bdf8;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">📋 Copiar Bre-B</button>
                  </div>
                  <a href="${waUrl}" target="_blank" rel="noopener" style="padding:6px 11px;background:#25D366;color:#04070d;font-weight:800;border-radius:6px;text-decoration:none;font-size:0.71rem;">💬 Enviar Comprobante a WhatsApp (${waPhone})</a>
@@ -23686,7 +23687,7 @@ const cardEsg = document.getElementById("hud-card-esg");
                   <input type="text" id="paycfg-dt-nequi" value="${dt.nequi_number || '3122376474'}" placeholder="Número Nequi (3122376474)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
                   <input type="text" id="paycfg-dt-bancolombia" value="${dt.bancolombia_account || ''}" placeholder="Cuenta Bancolombia (ej. Ahorros 000-000000-00)" style="width:100%;margin-bottom:5px;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-                    <input type="text" id="paycfg-dt-breb" value="${dt.bre_b_key || ''}" placeholder="Llave Bre-B (@santiago)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
+                    <input type="text" id="paycfg-dt-breb" value="${dt.bre_b_key || '@NEQUISAN243100'}" placeholder="Llave Bre-B (@NEQUISAN243100)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
                     <input type="text" id="paycfg-dt-wa" value="${dt.whatsapp_sales_phone || '+573122376474'}" placeholder="WhatsApp (+573122376474)" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.72rem;" />
                   </div>
                 </div>
@@ -24127,7 +24128,7 @@ const cardEsg = document.getElementById("hud-card-esg");
             const dt = q.direct_transfer_details || {};
             const nequiNum = q.nequi_number || dt.nequi_number || "3122376474";
             const waPhone = q.whatsapp_sales_phone || dt.whatsapp_sales_phone || "+573122376474";
-            const breB = dt.bre_b_key || "@santiagoliseth";
+            const breB = q.bre_b_key || dt.bre_b_key || "@NEQUISAN243100";
             const waUrl = q.whatsapp_checkout_url || `https://wa.me/${waPhone.replace(/[^0-9]/g, '')}`;
             const copEl = document.getElementById("gate-live-quote-cop");
             const labelEl = document.getElementById("gate-selected-plan-label");
@@ -24151,8 +24152,9 @@ const cardEsg = document.getElementById("hud-card-esg");
                     <button type="button" onclick="copyPaymentValueUI('${nequiNum}', 'Número Nequi')" style="padding:2px 7px;font-size:0.65rem;background:#f59e0b;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">📋 Copiar Nequi</button>
                   </div>
                   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-top:4px;">
-                    <span>🔑 <b>Llave Bre-B:</b> <code>${breB}</code></span>
-                    <a href="${waUrl}" target="_blank" rel="noopener" style="padding:2px 8px;font-size:0.65rem;background:#25D366;color:#04070d;border-radius:4px;font-weight:800;text-decoration:none;">💬 Enviar Comprobante WhatsApp (${waPhone})</a>
+                    <span>🔑 <b>Llave Bre-B (Personal):</b> <code style="color:#38bdf8;font-weight:800;">${breB}</code></span>
+                    <button type="button" onclick="copyPaymentValueUI('${breB}', 'Llave Bre-B')" style="padding:2px 7px;font-size:0.65rem;background:#38bdf8;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">📋 Copiar Bre-B</button>
+                    <a href="${waUrl}" target="_blank" rel="noopener" style="padding:2px 8px;font-size:0.65rem;background:#25D366;color:#04070d;border-radius:4px;font-weight:800;text-decoration:none;">💬 WhatsApp (${waPhone})</a>
                   </div>`;
               }
             }
