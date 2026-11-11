@@ -937,6 +937,15 @@ class SaasPlatformService:
         await self.check_and_revert_expired_referral_upgrades(db, user)
         return user
 
+    async def get_current_user_optional(self, request: Request, db: AsyncSession) -> Optional[SaasUser]:
+        """
+        Resolves the authenticated SaaS user from request if valid; returns None without raising exceptions.
+        """
+        try:
+            return await self.get_current_user(request, db)
+        except Exception:
+            return None
+
     async def require_creator(self, request: Request, db: AsyncSession) -> SaasUser:
         """
         Strict server-side guard for the CREATOR Superadmin Panel.
@@ -1016,7 +1025,30 @@ class SaasPlatformService:
 
         return balance
 
+    @staticmethod
+    def mask_api_key(key: Optional[str]) -> str:
+        if not key or not str(key).strip():
+            return ""
+        s = str(key).strip()
+        if len(s) <= 8:
+            return "••••••••"
+        return f"{s[:4]}••••••••{s[-4:]}"
+
+    def get_user_masked_api_keys(self, user: SaasUser) -> Dict[str, Any]:
+        user_keys = (user.preferences or {}).get("api_keys", {})
+        return {
+            "gemini_api_key": self.mask_api_key(user_keys.get("gemini_api_key")),
+            "groq_api_key": self.mask_api_key(user_keys.get("groq_api_key")),
+            "openai_api_key": self.mask_api_key(user_keys.get("openai_api_key")),
+            "anthropic_api_key": self.mask_api_key(user_keys.get("anthropic_api_key")),
+            "has_gemini": bool(user_keys.get("gemini_api_key")),
+            "has_groq": bool(user_keys.get("groq_api_key")),
+            "has_openai": bool(user_keys.get("openai_api_key")),
+            "has_anthropic": bool(user_keys.get("anthropic_api_key")),
+        }
+
     def serialize_user(self, user: SaasUser, plan: Optional[SaasPlan] = None, balance: Optional[SaasCreditBalance] = None) -> Dict[str, Any]:
+        user_keys = (user.preferences or {}).get("api_keys", {})
         data: Dict[str, Any] = {
             "id": user.id,
             "email": user.email,
@@ -1032,6 +1064,16 @@ class SaasPlatformService:
             "email_verified": user.email_verified,
             "memory_enabled": user.memory_enabled,
             "preferences": user.preferences or {},
+            "api_keys_status": {
+                "has_gemini": bool(user_keys.get("gemini_api_key")),
+                "has_groq": bool(user_keys.get("groq_api_key")),
+                "has_openai": bool(user_keys.get("openai_api_key")),
+                "has_anthropic": bool(user_keys.get("anthropic_api_key")),
+                "gemini_masked": self.mask_api_key(user_keys.get("gemini_api_key")),
+                "groq_masked": self.mask_api_key(user_keys.get("groq_api_key")),
+                "openai_masked": self.mask_api_key(user_keys.get("openai_api_key")),
+                "anthropic_masked": self.mask_api_key(user_keys.get("anthropic_api_key")),
+            },
             "referral_code": user.referral_code,
             "referred_by_id": user.referred_by_id,
             "created_at": _iso(user.created_at),
@@ -1308,6 +1350,11 @@ class SaasPlatformService:
         requested_role: Optional[str] = None,
         attribution_source: str = "invite_link",
         clicked_at_iso: Optional[str] = None,
+        gemini_api_key: Optional[str] = None,
+        groq_api_key: Optional[str] = None,
+        openai_api_key: Optional[str] = None,
+        anthropic_api_key: Optional[str] = None,
+        api_keys: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         await self.ensure_seeded(db)
         clean_email = (email or "").strip().lower()
@@ -1467,6 +1514,20 @@ class SaasPlatformService:
                                 )
                             )
 
+        user_api_keys: Dict[str, str] = {}
+        if api_keys and isinstance(api_keys, dict):
+            for k, v in api_keys.items():
+                if v and str(v).strip():
+                    user_api_keys[str(k).strip()] = str(v).strip()
+        if gemini_api_key and str(gemini_api_key).strip():
+            user_api_keys["gemini_api_key"] = str(gemini_api_key).strip()
+        if groq_api_key and str(groq_api_key).strip():
+            user_api_keys["groq_api_key"] = str(groq_api_key).strip()
+        if openai_api_key and str(openai_api_key).strip():
+            user_api_keys["openai_api_key"] = str(openai_api_key).strip()
+        if anthropic_api_key and str(anthropic_api_key).strip():
+            user_api_keys["anthropic_api_key"] = str(anthropic_api_key).strip()
+
         new_user = SaasUser(
             id=user_id,
             email=clean_email,
@@ -1488,6 +1549,7 @@ class SaasPlatformService:
                 "language": "es",
                 "referral_attribution_locked": bool(referred_by_id),
                 "referral_code_used": referrer_user.referral_code if referrer_user else None,
+                "api_keys": user_api_keys,
             },
             last_login_at=utcnow(),
         )
@@ -2204,9 +2266,14 @@ class SaasPlatformService:
                     sys_prompt += f" {profile_instruction}"
                 if mem_context_note:
                     sys_prompt += f" Recuerdos relevantes del usuario: {mem_context_note}"
+                user_keys = (user.preferences or {}).get("api_keys", {})
                 ai_res = await brain_router.generate_response(
                     prompt=clean_content,
                     system_prompt=sys_prompt,
+                    api_key_gemini=user_keys.get("gemini_api_key"),
+                    api_key_claude=user_keys.get("anthropic_api_key"),
+                    api_key_groq=user_keys.get("groq_api_key"),
+                    api_key_openai=user_keys.get("openai_api_key"),
                 )
                 reply_text = ai_res.get("text") or ""
             except Exception as e:
@@ -4307,6 +4374,11 @@ class SaasPlatformService:
         payment_gateway: str = "stripe",
         payment_method_brand: str = "visa",
         payment_method_last4: str = "4242",
+        gemini_api_key: Optional[str] = None,
+        groq_api_key: Optional[str] = None,
+        openai_api_key: Optional[str] = None,
+        anthropic_api_key: Optional[str] = None,
+        api_keys: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Registers or logs in a user linked to the configured Firebase project,
@@ -4351,6 +4423,11 @@ class SaasPlatformService:
                 referral_code_used=referral_code,
                 ip_address=ip_address,
                 requested_plan="FREE",
+                gemini_api_key=gemini_api_key,
+                groq_api_key=groq_api_key,
+                openai_api_key=openai_api_key,
+                anthropic_api_key=anthropic_api_key,
+                api_keys=api_keys,
             )
             res_u = await db.execute(select(SaasUser).where(SaasUser.email == clean_email))
             user = res_u.scalars().first()
@@ -4418,6 +4495,11 @@ class SaasPlatformService:
                 payment_gateway=payment_gateway,
                 payment_method_brand=payment_method_brand,
                 payment_method_last4=payment_method_last4,
+                gemini_api_key=gemini_api_key,
+                groq_api_key=groq_api_key,
+                openai_api_key=openai_api_key,
+                anthropic_api_key=anthropic_api_key,
+                api_keys=api_keys,
             )
 
         # If existing non-CREATOR user authenticated via Google OAuth or reset their password in Firebase Cloud,
@@ -4456,6 +4538,23 @@ class SaasPlatformService:
             prefs["firebase_uid"] = prefs.get("firebase_uid") or resolved_fb_uid
             prefs["firebase_project_id"] = project_id
             prefs["firebase_provider"] = provider
+
+            # Merge any passed brain API keys if supplied during login
+            user_keys = dict(prefs.get("api_keys") or {})
+            if api_keys and isinstance(api_keys, dict):
+                for k, v in api_keys.items():
+                    if v and str(v).strip():
+                        user_keys[str(k).strip()] = str(v).strip()
+            if gemini_api_key and str(gemini_api_key).strip():
+                user_keys["gemini_api_key"] = str(gemini_api_key).strip()
+            if groq_api_key and str(groq_api_key).strip():
+                user_keys["groq_api_key"] = str(groq_api_key).strip()
+            if openai_api_key and str(openai_api_key).strip():
+                user_keys["openai_api_key"] = str(openai_api_key).strip()
+            if anthropic_api_key and str(anthropic_api_key).strip():
+                user_keys["anthropic_api_key"] = str(anthropic_api_key).strip()
+            prefs["api_keys"] = user_keys
+
             user.preferences = prefs
             await db.commit()
             plan_obj = await self.get_plan(db, user.plan_code)
@@ -4468,6 +4567,73 @@ class SaasPlatformService:
                 "linked": True,
             }
         return login_res
+
+    async def update_user_api_keys(
+        self,
+        db: AsyncSession,
+        user: SaasUser,
+        gemini_api_key: Optional[str] = None,
+        groq_api_key: Optional[str] = None,
+        openai_api_key: Optional[str] = None,
+        anthropic_api_key: Optional[str] = None,
+        api_keys: Optional[Dict[str, str]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Updates and safely stores the user's personal AI brain API keys in their tenant preferences.
+        """
+        prefs = dict(user.preferences or {})
+        current_keys = dict(prefs.get("api_keys") or {})
+
+        if api_keys and isinstance(api_keys, dict):
+            for k, v in api_keys.items():
+                if v is not None:
+                    v_str = str(v).strip()
+                    if v_str:
+                        current_keys[str(k).strip()] = v_str
+                    elif str(k).strip() in current_keys:
+                        current_keys.pop(str(k).strip(), None)
+
+        if gemini_api_key is not None:
+            v_str = str(gemini_api_key).strip()
+            if v_str:
+                current_keys["gemini_api_key"] = v_str
+            elif "gemini_api_key" in current_keys:
+                current_keys.pop("gemini_api_key", None)
+
+        if groq_api_key is not None:
+            v_str = str(groq_api_key).strip()
+            if v_str:
+                current_keys["groq_api_key"] = v_str
+            elif "groq_api_key" in current_keys:
+                current_keys.pop("groq_api_key", None)
+
+        if openai_api_key is not None:
+            v_str = str(openai_api_key).strip()
+            if v_str:
+                current_keys["openai_api_key"] = v_str
+            elif "openai_api_key" in current_keys:
+                current_keys.pop("openai_api_key", None)
+
+        if anthropic_api_key is not None:
+            v_str = str(anthropic_api_key).strip()
+            if v_str:
+                current_keys["anthropic_api_key"] = v_str
+            elif "anthropic_api_key" in current_keys:
+                current_keys.pop("anthropic_api_key", None)
+
+        prefs["api_keys"] = current_keys
+        user.preferences = prefs
+        user.updated_at = utcnow()
+        await db.commit()
+
+        plan = await self.get_plan(db, user.plan_code)
+        bal = await self.get_or_create_credit_balance(db, user)
+        return {
+            "ok": True,
+            "message": "Claves de API de cerebros actualizadas correctamente.",
+            "api_keys": self.get_user_masked_api_keys(user),
+            "user": self.serialize_user(user, plan, bal),
+        }
 
     # ==========================================================================
     # 8. PROGRAMA DE REFERIDOS, RECOMPENSAS PROGRESIVAS, DESCUENTOS AUTOMÁTICOS,

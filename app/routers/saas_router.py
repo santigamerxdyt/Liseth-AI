@@ -51,6 +51,11 @@ class RegisterRequest(BaseModel):
     attribution_source: Optional[str] = "invite_link"
     clicked_at: Optional[str] = None
     referral_clicked_at: Optional[str] = None
+    gemini_api_key: Optional[str] = None
+    groq_api_key: Optional[str] = None
+    openai_api_key: Optional[str] = None
+    anthropic_api_key: Optional[str] = None
+    api_keys: Optional[Dict[str, str]] = None
 
 
 class LoginRequest(BaseModel):
@@ -163,6 +168,19 @@ class FirebaseAuthRequest(BaseModel):
     payment_gateway: Optional[str] = "stripe"
     payment_method_brand: Optional[str] = "visa"
     payment_method_last4: Optional[str] = "4242"
+    gemini_api_key: Optional[str] = None
+    groq_api_key: Optional[str] = None
+    openai_api_key: Optional[str] = None
+    anthropic_api_key: Optional[str] = None
+    api_keys: Optional[Dict[str, str]] = None
+
+
+class UserApiKeysUpdateRequest(BaseModel):
+    gemini_api_key: Optional[str] = None
+    groq_api_key: Optional[str] = None
+    openai_api_key: Optional[str] = None
+    anthropic_api_key: Optional[str] = None
+    api_keys: Optional[Dict[str, str]] = None
 
 
 # ==============================================================================
@@ -205,6 +223,11 @@ async def firebase_auth_endpoint(
         payment_gateway=req.payment_gateway or "stripe",
         payment_method_brand=req.payment_method_brand or "visa",
         payment_method_last4=req.payment_method_last4 or "4242",
+        gemini_api_key=req.gemini_api_key,
+        groq_api_key=req.groq_api_key,
+        openai_api_key=req.openai_api_key,
+        anthropic_api_key=req.anthropic_api_key,
+        api_keys=req.api_keys,
     )
     for cookie_name in ("liseth_saas_session", "liseth_session"):
         response.set_cookie(
@@ -240,6 +263,11 @@ async def register_endpoint(
         requested_role=req.role,
         attribution_source=req.attribution_source or "invite_link",
         clicked_at_iso=req.clicked_at or req.referral_clicked_at,
+        gemini_api_key=req.gemini_api_key,
+        groq_api_key=req.groq_api_key,
+        openai_api_key=req.openai_api_key,
+        anthropic_api_key=req.anthropic_api_key,
+        api_keys=req.api_keys,
     )
     for cookie_name in ("liseth_saas_session", "liseth_session"):
         response.set_cookie(
@@ -332,6 +360,37 @@ async def update_profile_endpoint(
 ):
     user = await saas_service.get_current_user(request, db)
     return await saas_service.update_profile(db, user, updates)
+
+
+@router.put("/profile/api-keys")
+@router.post("/profile/api-keys")
+async def update_user_api_keys_endpoint(
+    req: UserApiKeysUpdateRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    user = await saas_service.get_current_user(request, db)
+    return await saas_service.update_user_api_keys(
+        db=db,
+        user=user,
+        gemini_api_key=req.gemini_api_key,
+        groq_api_key=req.groq_api_key,
+        openai_api_key=req.openai_api_key,
+        anthropic_api_key=req.anthropic_api_key,
+        api_keys=req.api_keys,
+    )
+
+
+@router.get("/profile/api-keys")
+async def get_user_api_keys_endpoint(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    user = await saas_service.get_current_user(request, db)
+    return {
+        "ok": True,
+        "api_keys": saas_service.get_user_masked_api_keys(user),
+    }
 
 
 @router.post("/profile/password")

@@ -1795,6 +1795,8 @@ class BrainRouter:
         tools: Optional[list] = None,
         api_key_gemini: Optional[str] = None,
         api_key_claude: Optional[str] = None,
+        api_key_groq: Optional[str] = None,
+        api_key_openai: Optional[str] = None,
         user_id: Optional[str] = None,
         platform: Optional[str] = None,
         **kwargs: Any,
@@ -1893,9 +1895,9 @@ class BrainRouter:
             logger.warning(f"[FAILOVER] Gemini no disponible ({err}). Activando cascada de cerebros auxiliares...")
 
         # 2. Auxiliary Brain 1: Groq (ultra-rápido Llama 3.3 / GPT-OSS 120b)
-        if settings.GROQ_API_KEY or hasattr(self.call_groq, "assert_awaited"):
+        if settings.GROQ_API_KEY or api_key_groq or hasattr(self.call_groq, "assert_awaited"):
             try:
-                res = await self.call_groq(prompt, contents, system_prompt, tools)
+                res = await self.call_groq(prompt, contents, system_prompt, tools, api_key_override=api_key_groq)
                 self.active_brain = "groq"
                 self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "groq"}
                 return res
@@ -1915,9 +1917,9 @@ class BrainRouter:
                 logger.warning(f"Claude fallback falló: {claude_err}")
 
         # 4. Auxiliary Brain 3: OpenAI
-        if settings.OPENAI_API_KEY or hasattr(self.call_openai, "assert_awaited"):
+        if settings.OPENAI_API_KEY or api_key_openai or hasattr(self.call_openai, "assert_awaited"):
             try:
-                res = await self.call_openai(prompt, contents, system_prompt, tools)
+                res = await self.call_openai(prompt, contents, system_prompt, tools, api_key_override=api_key_openai)
                 self.active_brain = "openai"
                 self.last_failover = {"timestamp": datetime.now(timezone.utc).isoformat(), "reason": str(gemini_err), "fallback": "openai"}
                 return res

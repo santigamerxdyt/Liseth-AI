@@ -6,8 +6,10 @@ tracks token metrics, and reports brain status.
 import logging
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
-from fastapi import APIRouter, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database import get_db
 from app.services.brain_router import brain_router
 
 logger = logging.getLogger("jarvis.brain_router")
@@ -28,7 +30,11 @@ class ForceBrainRequest(BaseModel):
 
 
 @router.post("/chat")
-async def chat_endpoint(req: ChatRequest):
+async def chat_endpoint(
+    req: ChatRequest,
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+):
     """
     Unified chat endpoint.
     Attempts primary brain (Gemini with automatic model fallback).
@@ -38,12 +44,34 @@ async def chat_endpoint(req: ChatRequest):
         from app.services.soul_service import soul_service
         enriched_system_instruction = soul_service.build_system_instruction(req.systemInstruction)
 
+        user_gemini_key = (req.apiKey or "").strip() or None
+        user_claude_key = None
+        user_groq_key = None
+        user_openai_key = None
+
+        if request and db:
+            try:
+                from app.services.saas_service import saas_service
+                user = await saas_service.get_current_user_optional(request, db)
+                if user and user.preferences:
+                    u_keys = (user.preferences or {}).get("api_keys", {})
+                    if not user_gemini_key and u_keys.get("gemini_api_key"):
+                        user_gemini_key = u_keys.get("gemini_api_key")
+                    user_claude_key = u_keys.get("anthropic_api_key")
+                    user_groq_key = u_keys.get("groq_api_key")
+                    user_openai_key = u_keys.get("openai_api_key")
+            except Exception as e:
+                logger.debug(f"[BrainRouter] No se pudieron extraer claves de usuario: {e}")
+
         res = await brain_router.generate_response(
             prompt=req.prompt,
             contents=req.contents,
             system_prompt=enriched_system_instruction,
             tools=req.tools,
-            api_key_gemini=req.apiKey,
+            api_key_gemini=user_gemini_key,
+            api_key_claude=user_claude_key,
+            api_key_groq=user_groq_key,
+            api_key_openai=user_openai_key,
         )
 
         return {
