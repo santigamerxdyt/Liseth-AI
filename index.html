@@ -7789,6 +7789,80 @@
     }
 
 
+  
+    /* ====================================================================== */
+    /* HUD JARVIS 3.8: SUPRESIÓN VISUAL DE ELEMENTOS LEGACY (BARRA FLOTANTE Y ESFERA 2D) */
+    /* ====================================================================== */
+    header,
+    .header-top,
+    .top-actions,
+    .sphere-workspace,
+    .executive-ticker-tape,
+    .anticipatory-hud-card,
+    .liseth-3d-avatar-container,
+    .avatar-mode-switch,
+    .stark-hud-wing {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      max-height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      pointer-events: none !important;
+      opacity: 0 !important;
+    }
+
+    .holographic-main-stage {
+      flex: 1 1 auto !important;
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      width: 100% !important;
+      min-height: 0 !important;
+      padding: 4px 16px 12px !important;
+      z-index: 10 !important;
+      box-sizing: border-box !important;
+    }
+
+    .console-workspace,
+    .console-workspace.hidden {
+      position: relative !important;
+      inset: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 auto !important;
+      width: 100% !important;
+      max-width: 960px !important;
+      margin: 0 auto !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: none !important;
+      min-height: 0 !important;
+      z-index: 5 !important;
+    }
+
+    #chat-container {
+      flex: 1 1 auto !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-y: visible !important;
+      padding: 8px 0 24px !important;
+      min-height: 120px !important;
+      box-sizing: border-box !important;
+    }
+
+    .chat-wrapper {
+      width: 100% !important;
+      max-width: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 14px !important;
+    }
+
   </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#04070d">
@@ -8008,6 +8082,9 @@
           </button>
           <button type="button" class="orb-dock-toggle-btn" onclick="openAgentHubModal()" style="border-color:#a855f7;color:#c084fc;" title="Ver AI Agent Hub">
             <span>🤖 Agentes IA</span>
+          </button>
+          <button type="button" class="orb-dock-toggle-btn" onclick="openHudModulesModal()" style="border-color:#00e5ff;color:#00e5ff;" title="Desplegar Centro de Control de 48 Módulos HUD">
+            <span>◈ 48 Módulos</span>
           </button>
           <button type="button" class="orb-dock-toggle-btn" onclick="openNfcModal()" style="border-color:#38ef7d;color:#38ef7d;" title="Terminal NFC">
             <span>📶 NFC Pay</span>
@@ -19211,7 +19288,7 @@ Tus habilidades clave:
       const btnRunPcCommand = document.getElementById("btn-run-pc-command");
       const pcCommandInput = document.getElementById("pc-command-input");
 
-      let currentViewMode = localStorage.getItem("liseth_view_mode") || "sphere";
+      let currentViewMode = "console"; localStorage.setItem("liseth_view_mode", "console");
 
       function updateHudTranscript(text, speaker = "LISETH") {
         if (!hudTranscriptText) return;
@@ -19230,27 +19307,18 @@ Tus habilidades clave:
       }
 
       function setViewMode(mode) {
-        currentViewMode = mode;
-        localStorage.setItem("liseth_view_mode", mode);
-        if (mode === "sphere") {
-          sphereWorkspace?.classList.remove("hidden");
-          consoleWorkspace?.classList.add("hidden");
-          if (btnToggleView) {
-            btnToggleView.classList.add("active");
-            if (toggleViewIcon) toggleViewIcon.textContent = "📜";
-            if (toggleViewText) toggleViewText.textContent = "Consola";
-          }
-        } else {
-          sphereWorkspace?.classList.add("hidden");
-          consoleWorkspace?.classList.remove("hidden");
-          if (btnToggleView) {
-            btnToggleView.classList.remove("active");
-            btnToggleView.classList.remove("has-unread");
-            if (toggleViewIcon) toggleViewIcon.textContent = "🔮";
-            if (toggleViewText) toggleViewText.textContent = "Esfera";
-          }
-          scrollToBottom();
+        // En HUD JARVIS 3.8, la consola siempre está activa y el AI Core Orb 3D reemplaza la esfera 2D
+        sphereWorkspace?.classList.add("hidden");
+        consoleWorkspace?.classList.remove("hidden");
+        currentViewMode = "console";
+        localStorage.setItem("liseth_view_mode", "console");
+        if (btnToggleView) {
+          btnToggleView.classList.remove("active");
+          btnToggleView.classList.remove("has-unread");
+          if (toggleViewIcon) toggleViewIcon.textContent = "⚡";
+          if (toggleViewText) toggleViewText.textContent = "HUD 3.8";
         }
+        if (typeof scrollToBottom === "function") scrollToBottom();
       }
 
       if (btnToggleView) {
@@ -26990,6 +27058,45 @@ const cardEsg = document.getElementById("hud-card-esg");
         const modal = document.getElementById("agent-hub-modal");
         if (modal) modal.style.display = "none";
         if (typeof playHudSound === "function") playHudSound("close");
+      };
+
+      
+      // Modular Navigation & Modal Openers HUD JARVIS 3.8
+      window.openHudModulesModal = function() {
+        const modal = document.getElementById("hud-interfaces-modal");
+        if (modal) {
+          modal.classList.add("active");
+          modal.style.display = "flex";
+          if (typeof playHudSound === "function") playHudSound("open");
+        } else {
+          const btn = document.getElementById("btn-hud-menu");
+          if (btn) btn.click();
+        }
+      };
+
+      window.openConvListModal = function() {
+        const modal = document.getElementById("conversations-modal");
+        if (modal) {
+          modal.classList.add("active");
+          modal.style.display = "flex";
+          if (typeof renderConversationsList === "function") renderConversationsList();
+          if (typeof updateStorageMeter === "function") updateStorageMeter();
+          if (typeof playHudSound === "function") playHudSound("open");
+        }
+      };
+
+      window.openMemoryViewerModal = function() {
+        if (typeof openSaasModal === "function") {
+          openSaasModal();
+          if (typeof switchSaasTab === "function") switchSaasTab("memory");
+          return;
+        }
+        const modal = document.getElementById("brain-modal");
+        if (modal) {
+          modal.classList.add("active");
+          modal.style.display = "flex";
+          if (typeof playHudSound === "function") playHudSound("open");
+        }
       };
 
       window.activateAgentPersona = function(agentKey) {
