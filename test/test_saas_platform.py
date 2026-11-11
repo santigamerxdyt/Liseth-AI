@@ -805,5 +805,323 @@ class TestFirebaseStartupGateAndProjectLinking:
                 cfg_file.write_bytes(prior_bytes)
 
 
+class TestProgressiveReferralRewardsAndLegalSystem:
+    def test_complete_17_point_referral_rewards_antifraud_and_legal_suite(self):
+        from datetime import datetime, timedelta, timezone
+
+        creator_headers = _get_creator_headers()
+
+        # 1. Creación de código de referido único y enlace personal
+        ref_owner_email = _unique_email("referrer_pro")
+        ref_owner_reg = client.post(
+            "/api/saas/auth/register",
+            json={
+                "email": ref_owner_email,
+                "password": "StrongPassword123!",
+                "full_name": "Invitador Principal",
+            },
+        ).json()
+        ref_owner_hdr = _auth_headers(ref_owner_reg["token"])
+        ref_code = ref_owner_reg["user"]["referral_code"]
+        assert ref_code.startswith("LISETH-")
+
+        dash0 = client.get("/api/saas/referrals?base_url=https://liseth.ai", headers=ref_owner_hdr).json()
+        assert dash0["ok"] is True
+        assert dash0["referral_code"] == ref_code
+        assert dash0["referral_link"] == f"https://liseth.ai/register?ref={ref_code}"
+        assert dash0["invited_count"] == 0
+        assert dash0["verified_purchases_count"] == 0
+
+        # 2. Validación y tracking de clic en enlace de referido (?ref=CODIGO)
+        val_res = client.get(f"/api/saas/referrals/validate/{ref_code}")
+        assert val_res.status_code == 200
+        assert val_res.json()["valid"] is True
+
+        click_res = client.post(
+            "/api/saas/referrals/track-click",
+            json={"referral_code": ref_code, "landing_url": f"https://liseth.ai/register?ref={ref_code}"},
+        )
+        assert click_res.status_code == 200
+        assert click_res.json()["valid"] is True
+
+        # 3. Registro con código inválido o ventana de atribución expirada
+        bad_val = client.get("/api/saas/referrals/validate/CODIGO-INEXISTENTE-999")
+        assert bad_val.status_code == 200
+        assert bad_val.json()["valid"] is False
+
+        expired_click_time = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+        exp_reg = client.post(
+            "/api/saas/auth/register",
+            json={
+                "email": _unique_email("expired_window"),
+                "password": "StrongPassword123!",
+                "full_name": "Usuario Ventana Expirada",
+                "referral_code": ref_code,
+                "referral_clicked_at": expired_click_time,
+            },
+        ).json()
+        assert exp_reg["referral_attribution_status"] == "attribution_window_expired"
+
+        # 4. Bloqueo de autorreferido (mismo correo normalizado con +alias e intento post-registro)
+        alias_email = ref_owner_email.replace("@", "+autoalias@")
+        self_reg_res = client.post(
+            "/api/saas/auth/register",
+            json={
+                "email": alias_email,
+                "password": "StrongPassword123!",
+                "full_name": "Intento Autorreferido",
+                "referral_code": ref_code,
+            },
+        )
+        assert self_reg_res.status_code == 400
+        assert "propio código" in self_reg_res.json()["detail"]
+
+        post_reg_change = client.post(
+            "/api/saas/referrals/apply-code",
+            headers=_auth_headers(exp_reg["token"]),
+            json={"referral_code": ref_code},
+        )
+        assert post_reg_change.status_code in (400, 403)
+
+        # 5. Registro gratuito (FREE) con código válido NO otorga recompensa de referido (queda pending_purchase)
+        guest1_reg = client.post(
+            "/api/saas/auth/register",
+            json={
+                "email": _unique_email("guest1_starter"),
+                "password": "StrongPassword123!",
+                "full_name": "Invitado Uno",
+                "referral_code": ref_code,
+            },
+        ).json()
+        assert guest1_reg["referral_attribution_status"] == "attributed_pending_purchase"
+        guest1_hdr = _auth_headers(guest1_reg["token"])
+
+        dash_after_free = client.get("/api/saas/referrals", headers=ref_owner_hdr).json()
+        assert dash_after_free["invited_count"] == 1
+        assert dash_after_free["verified_purchases_count"] == 0
+        assert dash_after_free["pending_purchases_count"] == 1
+        assert len(dash_after_free["rewards"]) == 0
+
+        # Compra de un plan NO elegible por defecto (PRO sin habilitar allow_all_paid_plans) no dispara recompensa
+        guest_non_elig = client.post(
+            "/api/saas/auth/register",
+            json={
+                "email": _unique_email("guest_non_elig"),
+                "password": "StrongPassword123!",
+                "full_name": "Invitado Plan No Elegible",
+                "referral_code": ref_code,
+            },
+        ).json()
+        chk_non_elig = client.post(
+            "/api/saas/billing/checkout",
+            headers=_auth_headers(guest_non_elig["token"]),
+            json={"plan_code": "PRO", "billing_cycle": "monthly", "payment_method_last4": "1111"},
+        ).json()
+        assert chk_non_elig["referral_conversion"]["converted"] is False
+        assert chk_non_elig["referral_conversion"]["reason"] == "plan_not_in_qualifying_plans"
+
+        # 6. Compra del Plan Elegible (STARTER / Básico / Nivel 1) por Invitado 1 -> Activa 1° Hito: 50% de descuento
+        chk_g1 = client.post(
+            "/api/saas/billing/checkout",
+            headers=guest1_hdr,
+            json={
+                "plan_code": "BASICO",  # Alias de STARTER / Nivel 1
+                "billing_cycle": "monthly",
+                "payment_method_brand": "visa",
+                "payment_method_last4": "2001",
+            },
+        )
+        assert chk_g1.status_code == 200, chk_g1.text
+        conv1 = chk_g1.json()["referral_conversion"]
+        assert conv1 is not None
+        assert conv1["converted"] is True
+        assert conv1["milestone_number"] == 1
+        assert conv1["reward_type"] == "discount_50_pct"
+
+        dash_m1 = client.get("/api/saas/referrals", headers=ref_owner_hdr).json()
+        assert dash_m1["verified_purchases_count"] == 1
+        assert any(r["reward_type"] == "discount_50_pct" and r["status"] == "available" for r in dash_m1["rewards"])
+        assert any("50%" in n["message"] for n in dash_m1["notifications"])
+
+        # 15. Bloqueo de recompensas duplicadas por el mismo usuario invitado (recompra / cambio de plan)
+        chk_g1_repeat = client.post(
+            "/api/saas/billing/checkout",
+            headers=guest1_hdr,
+            json={"plan_code": "STARTER", "billing_cycle": "monthly", "payment_method_last4": "2001"},
+        ).json()
+        assert chk_g1_repeat["referral_conversion"]["converted"] is False
+        dash_m1_again = client.get("/api/saas/referrals", headers=ref_owner_hdr).json()
+        assert dash_m1_again["verified_purchases_count"] == 1
+
+        # 7. Aplicación automática del 50% de descuento en la siguiente factura del invitador
+        # El invitador compra STARTER ($10 USD) -> se aplica automáticamente 50% (-$5.00 USD = $5.00 USD)
+        owner_chk1 = client.post(
+            "/api/saas/billing/checkout",
+            headers=ref_owner_hdr,
+            json={"plan_code": "STARTER", "billing_cycle": "monthly", "payment_method_last4": "9001"},
+        ).json()
+        assert owner_chk1["invoice"]["subtotal_usd"] == 10.0
+        assert owner_chk1["invoice"]["discount_usd"] == 5.0
+        assert owner_chk1["invoice"]["total_usd"] == 5.0
+        assert owner_chk1["applied_referral_reward"]["reward_type"] == "discount_50_pct"
+
+        # Verificar que la recompensa del 50% quedó marcada como 'redeemed'
+        dash_after_redeem1 = client.get("/api/saas/referrals", headers=ref_owner_hdr).json()
+        r50 = next(r for r in dash_after_redeem1["rewards"] if r["reward_type"] == "discount_50_pct")
+        assert r50["status"] == "redeemed"
+        assert r50["redeemed_at"] is not None
+
+        # 8. Segundo referido válido comprando STARTER -> Activa 2° Hito: 25% de descuento
+        guest2_reg = client.post(
+            "/api/saas/auth/register",
+            json={
+                "email": _unique_email("guest2_starter"),
+                "password": "StrongPassword123!",
+                "full_name": "Invitado Dos",
+                "referral_code": ref_code,
+            },
+        ).json()
+        chk_g2 = client.post(
+            "/api/saas/billing/checkout",
+            headers=_auth_headers(guest2_reg["token"]),
+            json={"plan_code": "LEVEL_1", "billing_cycle": "monthly", "payment_method_last4": "2002"},
+        ).json()
+        assert chk_g2["referral_conversion"]["milestone_number"] == 2
+        assert chk_g2["referral_conversion"]["reward_type"] == "discount_25_pct"
+
+        # 9. Aplicación automática del 25% de descuento en la siguiente factura del invitador (PRO=$30 -> -$7.50 = $22.50)
+        owner_chk2 = client.post(
+            "/api/saas/billing/checkout",
+            headers=ref_owner_hdr,
+            json={"plan_code": "PRO", "billing_cycle": "monthly", "payment_method_last4": "9001"},
+        ).json()
+        assert owner_chk2["invoice"]["subtotal_usd"] == 30.0
+        assert owner_chk2["invoice"]["discount_usd"] == 7.5
+        assert owner_chk2["invoice"]["total_usd"] == 22.5
+        assert owner_chk2["applied_referral_reward"]["reward_type"] == "discount_25_pct"
+
+        # 10. Tercer referido válido comprando STARTER -> Activa 3° Hito: 30 días GRATIS de Plan Nivel 3 (BUSINESS)
+        guest3_reg = client.post(
+            "/api/saas/auth/register",
+            json={
+                "email": _unique_email("guest3_starter"),
+                "password": "StrongPassword123!",
+                "full_name": "Invitado Tres",
+                "referral_code": ref_code,
+            },
+        ).json()
+        chk_g3 = client.post(
+            "/api/saas/billing/checkout",
+            headers=_auth_headers(guest3_reg["token"]),
+            json={"plan_code": "STARTER", "billing_cycle": "monthly", "payment_method_last4": "2003"},
+        ).json()
+        assert chk_g3["referral_conversion"]["milestone_number"] == 3
+        assert chk_g3["referral_conversion"]["reward_type"] == "free_upgrade_level_3"
+
+        # Verificar que el invitador fue promovido automáticamente a BUSINESS (Nivel 3) conservando su plan previo PRO
+        prof_m3 = client.get("/api/saas/profile", headers=ref_owner_hdr).json()["user"]
+        assert prof_m3["plan_code"] == "BUSINESS"
+        assert prof_m3["preferences"]["active_referral_upgrade"]["previous_plan_code"] == "PRO"
+
+        # 11. Expiración automática del upgrade temporal de 30 días y retorno al plan anterior (PRO) sin borrar suscripción
+        revert_res = client.post(
+            "/api/saas/referrals/check-upgrades",
+            headers=ref_owner_hdr,
+            json={"force_expire": True},
+        ).json()
+        assert revert_res["ok"] is True
+        assert revert_res["reverted_upgrade"] is not None
+        assert revert_res["current_plan"] == "PRO"
+        prof_reverted = client.get("/api/saas/profile", headers=ref_owner_hdr).json()["user"]
+        assert prof_reverted["plan_code"] == "PRO"
+
+        # 12 & 13. Cuarto, quinto y sexto referidos válidos -> Otorgan cupones acumulables de 10% sin límite (Hitos 4, 5, 6)
+        payment_id_m6 = None
+        for idx in (4, 5, 6):
+            g_reg = client.post(
+                "/api/saas/auth/register",
+                json={
+                    "email": _unique_email(f"guest_{idx}_starter"),
+                    "password": "StrongPassword123!",
+                    "full_name": f"Invitado {idx}",
+                    "referral_code": ref_code,
+                },
+            ).json()
+            chk_g = client.post(
+                "/api/saas/billing/checkout",
+                headers=_auth_headers(g_reg["token"]),
+                json={"plan_code": "STARTER", "billing_cycle": "monthly", "payment_method_last4": f"200{idx}"},
+            ).json()
+            assert chk_g["referral_conversion"]["milestone_number"] == idx
+            assert chk_g["referral_conversion"]["reward_type"] == "discount_10_pct"
+            assert chk_g["referral_conversion"]["coupon_code"].startswith("REF10-")
+            if idx == 6:
+                payment_id_m6 = chk_g["payment_id"]
+
+        dash_m6 = client.get("/api/saas/referrals", headers=ref_owner_hdr).json()
+        assert dash_m6["verified_purchases_count"] == 6
+        avail_10_coupons = [c for c in dash_m6["coupons"] if c["status"] == "available"]
+        assert len(avail_10_coupons) == 3
+
+        # 14. Uso individual de cupones del 10% (máximo 1 por factura en orden FIFO, no acumulables en la misma compra)
+        owner_chk_fifo1 = client.post(
+            "/api/saas/billing/checkout",
+            headers=ref_owner_hdr,
+            json={"plan_code": "PRO", "billing_cycle": "monthly", "payment_method_last4": "9001"},
+        ).json()
+        # PRO cuesta $30.00 -> solo se aplica UN cupón del 10% (-$3.00 = $27.00), quedando 2 cupones disponibles
+        assert owner_chk_fifo1["invoice"]["subtotal_usd"] == 30.0
+        assert owner_chk_fifo1["invoice"]["discount_usd"] == 3.0
+        assert owner_chk_fifo1["invoice"]["total_usd"] == 27.0
+        assert owner_chk_fifo1["applied_referral_reward"]["reward_type"] == "discount_10_pct"
+        assert owner_chk_fifo1["applied_referral_reward"]["milestone_number"] == 4
+
+        dash_after_fifo1 = client.get("/api/saas/referrals", headers=ref_owner_hdr).json()
+        avail_after_fifo1 = [c for c in dash_after_fifo1["coupons"] if c["status"] == "available"]
+        assert len(avail_after_fifo1) == 2
+
+        # 16. Revocación automática de recompensa cuando se reembolsa la compra de un referido (Hito #6)
+        admin_ref_dash = client.get("/api/saas/admin/referrals/dashboard", headers=creator_headers).json()
+        assert admin_ref_dash["ok"] is True
+        assert admin_ref_dash["metrics"]["verified_conversions"] >= 6
+        assert payment_id_m6 is not None
+        refund_res = client.post(
+            "/api/saas/admin/refunds",
+            headers=creator_headers,
+            json={"payment_id": payment_id_m6, "reason": "Reembolso solicitado por cliente"},
+        )
+        assert refund_res.status_code == 200
+        assert refund_res.json()["referral_revocation"]["revoked"] is True
+
+        dash_after_refund = client.get("/api/saas/referrals", headers=ref_owner_hdr).json()
+        avail_after_refund = [c for c in dash_after_refund["coupons"] if c["status"] == "available"]
+        assert len(avail_after_refund) == 1  # El cupón del Hito #6 fue revocado automáticamente
+
+        # 17. Gestión desde CREATOR (otorgar recompensa manual) + Verificación de Contrato Legal y Derechos de Autor
+        manual_grant = client.post(
+            "/api/saas/admin/referrals/rewards/manual",
+            headers=creator_headers,
+            json={
+                "user_id": ref_owner_reg["user"]["id"],
+                "reward_type": "discount_25_pct",
+                "discount_pct": 25.0,
+                "notes": "Premio especial otorgado por Señor Santiago",
+            },
+        )
+        assert manual_grant.status_code == 200
+        assert manual_grant.json()["reward_type"] == "discount_25_pct"
+
+        legal_res = client.get("/api/saas/legal")
+        assert legal_res.status_code == 200
+        legal_data = legal_res.json()
+        assert legal_data["ok"] is True
+        assert "Santiago Huérfano López" in legal_data["copyright_notice"]
+        assert legal_data["owner"]["nequi_official"] == "3122376474"
+        assert legal_data["owner"]["bre_b_personal_key"] == "@NEQUISAN243100"
+        assert len(legal_data["sections"]) >= 5
+        assert "PROPIEDAD INTELECTUAL" in legal_data["markdown_document"]
+
+
+
 
 

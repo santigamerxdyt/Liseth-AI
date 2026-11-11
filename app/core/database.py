@@ -51,6 +51,9 @@ _PERFORMANCE_INDEX_DDL = (
     "CREATE INDEX IF NOT EXISTS idx_saas_audit_created ON saas_audit_logs (created_at);",
     "CREATE INDEX IF NOT EXISTS idx_saas_invoices_user_issued ON saas_invoices (user_id, issued_at);",
     "CREATE INDEX IF NOT EXISTS idx_saas_payments_user_created ON saas_payments (user_id, created_at);",
+    "CREATE INDEX IF NOT EXISTS idx_ref_rel_referrer_status ON referral_relationships (referrer_user_id, status);",
+    "CREATE INDEX IF NOT EXISTS idx_ref_rewards_user_status_prio ON referral_rewards (user_id, status, priority_order, created_at);",
+    "CREATE INDEX IF NOT EXISTS idx_ref_coupons_user_status ON referral_coupons (user_id, status, priority_order, created_at);",
 )
 
 

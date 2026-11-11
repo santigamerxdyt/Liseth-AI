@@ -48,6 +48,9 @@ class RegisterRequest(BaseModel):
     referral_code: Optional[str] = None
     plan_code: Optional[str] = None
     role: Optional[str] = None
+    attribution_source: Optional[str] = "invite_link"
+    clicked_at: Optional[str] = None
+    referral_clicked_at: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
@@ -235,6 +238,8 @@ async def register_endpoint(
         ip_address=_get_client_ip(request),
         requested_plan=req.plan_code,
         requested_role=req.role,
+        attribution_source=req.attribution_source or "invite_link",
+        clicked_at_iso=req.clicked_at or req.referral_clicked_at,
     )
     for cookie_name in ("liseth_saas_session", "liseth_session"):
         response.set_cookie(
@@ -587,14 +592,21 @@ async def get_billing_gateways_endpoint():
 @router.post("/billing/quote")
 async def quote_plan_purchase_endpoint(
     req: QuoteRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
+    opt_user = None
+    try:
+        opt_user = await saas_service.get_current_user(request, db)
+    except Exception:
+        opt_user = None
     return await saas_service.quote_plan_purchase(
         db=db,
         plan_code=req.plan_code,
         billing_cycle=req.billing_cycle or "monthly",
         promo_code=req.promo_code,
         payment_gateway=req.payment_gateway or "stripe",
+        user=opt_user,
     )
 
 
@@ -721,30 +733,83 @@ async def get_usage_details_endpoint(
 @router.get("/referrals")
 async def get_referrals_endpoint(
     request: Request,
+    base_url: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     user = await saas_service.get_current_user(request, db)
-    refs_res = await db.execute(
-        select(SaasReferral).where(SaasReferral.referrer_user_id == user.id).order_by(desc(SaasReferral.created_at))
+    effective_base = (base_url or str(request.base_url)).rstrip("/")
+    return await saas_service.get_user_referrals_dashboard(db, user, base_url=effective_base)
+
+
+@router.get("/referrals/validate/{code}")
+async def validate_referral_code_endpoint(
+    code: str,
+    request: Request,
+    track_click: bool = Query(True),
+    db: AsyncSession = Depends(get_db),
+):
+    return await saas_service.validate_and_track_referral_click(
+        db=db,
+        code=code,
+        ip_address=_get_client_ip(request),
+        track_click=track_click,
     )
-    referrals = refs_res.scalars().all()
+
+
+@router.post("/referrals/track-click")
+async def track_referral_click_endpoint(
+    payload: Dict[str, Any],
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    code = str(payload.get("code") or payload.get("referral_code") or "").strip()
+    return await saas_service.validate_and_track_referral_click(
+        db=db,
+        code=code,
+        ip_address=_get_client_ip(request),
+        track_click=True,
+    )
+
+
+@router.post("/referrals/apply-code")
+async def apply_referral_code_post_register_endpoint(
+    payload: Dict[str, Any],
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    user = await saas_service.get_current_user(request, db)
+    code = str(payload.get("code") or payload.get("referral_code") or "").strip()
+    return await saas_service.attempt_post_registration_referral_change(
+        db=db,
+        user=user,
+        code=code,
+        ip_address=_get_client_ip(request),
+    )
+
+
+@router.post("/referrals/check-upgrades")
+async def check_referral_upgrades_endpoint(
+    payload: Optional[Dict[str, Any]] = None,
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+):
+    user = await saas_service.get_current_user(request, db)
+    force_expire = bool((payload or {}).get("force_expire", False))
+    reverted = await saas_service.check_and_revert_expired_referral_upgrades(
+        db=db,
+        user=user,
+        force_expire_for_test=force_expire,
+    )
     return {
         "ok": True,
-        "referral_code": user.referral_code,
-        "total_referrals": len(referrals),
-        "rewarded_referrals": sum(1 for r in referrals if r.status == "rewarded"),
-        "total_credits_earned": sum(r.referrer_reward_credits for r in referrals if r.status == "rewarded"),
-        "referrals": [
-            {
-                "id": r.id,
-                "referred_user_id": r.referred_user_id,
-                "status": r.status,
-                "reward_credits": r.referrer_reward_credits,
-                "created_at": r.created_at.isoformat() if r.created_at else None,
-            }
-            for r in referrals
-        ],
+        "current_plan": user.plan_code,
+        "reverted_upgrade": reverted,
     }
+
+
+@router.get("/legal")
+async def get_legal_terms_endpoint():
+    return saas_service.get_legal_terms_and_copyright()
 
 
 # ==============================================================================
@@ -868,4 +933,87 @@ async def creator_save_payment_config_endpoint(
 ):
     creator = await saas_service.require_creator(request, db)
     return await saas_service.save_payment_gateways_config(db, creator, config_data)
+
+
+@router.get("/admin/referrals/dashboard")
+async def creator_referrals_dashboard_endpoint(
+    request: Request,
+    search: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    creator = await saas_service.require_creator(request, db)
+    return await saas_service.admin_get_referrals_dashboard(
+        db=db,
+        creator=creator,
+        search=search,
+        status_filter=status,
+    )
+
+
+@router.get("/admin/referrals/config")
+async def creator_get_referrals_config_endpoint(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    await saas_service.require_creator(request, db)
+    return saas_service.get_referral_program_config()
+
+
+@router.post("/admin/referrals/config")
+@router.put("/admin/referrals/config")
+async def creator_save_referrals_config_endpoint(
+    config_data: Dict[str, Any],
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    creator = await saas_service.require_creator(request, db)
+    return await saas_service.save_referral_program_config(db, creator, config_data)
+
+
+@router.post("/admin/referrals/invalidate")
+async def creator_invalidate_referral_endpoint(
+    payload: Dict[str, Any],
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    creator = await saas_service.require_creator(request, db)
+    rel_id = str(payload.get("relationship_id") or payload.get("referred_user_id") or "").strip()
+    reason = str(payload.get("reason") or "Invalidado por Superadmin CREATOR")
+    if not rel_id:
+        raise HTTPException(status_code=400, detail="Se requiere relationship_id o referred_user_id.")
+    return await saas_service.admin_invalidate_referral(db, creator, rel_id, reason)
+
+
+@router.post("/admin/referrals/rewards/{reward_id}/revoke")
+async def creator_revoke_referral_reward_endpoint(
+    reward_id: str,
+    payload: Optional[Dict[str, Any]] = None,
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+):
+    creator = await saas_service.require_creator(request, db)
+    reason = str((payload or {}).get("reason") or "Revocado por Superadmin CREATOR")
+    return await saas_service.admin_revoke_reward(db, creator, reward_id, reason)
+
+
+@router.post("/admin/referrals/rewards/manual")
+async def creator_grant_manual_reward_endpoint(
+    payload: Dict[str, Any],
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    creator = await saas_service.require_creator(request, db)
+    target_uid = str(payload.get("user_id") or payload.get("email") or "").strip()
+    if not target_uid:
+        raise HTTPException(status_code=400, detail="Se requiere user_id o email del usuario.")
+    return await saas_service.admin_grant_manual_reward(
+        db=db,
+        creator=creator,
+        target_user_id=target_uid,
+        reward_type=str(payload.get("reward_type") or "discount_10_pct"),
+        discount_pct=float(payload.get("discount_pct") or 10.0),
+        duration_days=int(payload.get("duration_days") or 30),
+        notes=str(payload.get("notes") or "Otorgado manualmente por Superadmin CREATOR"),
+    )
 

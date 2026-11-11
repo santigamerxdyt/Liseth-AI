@@ -371,6 +371,8 @@ async def health_check():
 
 
 @app.get("/", tags=["frontend"])
+@app.get("/register", tags=["frontend"], include_in_schema=False)
+@app.get("/legal", tags=["frontend"], include_in_schema=False)
 @app.get("/index.html", tags=["frontend"], include_in_schema=False)
 @app.get("/jarvis.html", tags=["frontend"], include_in_schema=False)
 async def serve_index():

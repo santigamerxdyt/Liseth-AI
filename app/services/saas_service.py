@@ -32,6 +32,15 @@ from app.config import settings
 from app.core.auth import extract_token_from_request, verify_session_token
 from app.core.database import AsyncSessionLocal, init_db
 from app.core.models import (
+    ReferralAuditLog,
+    ReferralCode,
+    ReferralConversion,
+    ReferralCoupon,
+    ReferralFraudFlag,
+    ReferralNotification,
+    ReferralRelationship,
+    ReferralReward,
+    ReferralRewardRedemption,
     SaasAgent,
     SaasAIModel,
     SaasAIProvider,
@@ -64,6 +73,62 @@ PLAN_LEVELS: Dict[str, int] = {
     "ENTERPRISE": 4,
     "CREATOR": 5,
 }
+
+PLAN_ALIASES: Dict[str, str] = {
+    "FREE": "FREE",
+    "GRATIS": "FREE",
+    "STARTER": "STARTER",
+    "BASICO": "STARTER",
+    "BÁSICO": "STARTER",
+    "BASIC": "STARTER",
+    "LEVEL_1": "STARTER",
+    "NIVEL_1": "STARTER",
+    "NIVEL 1": "STARTER",
+    "PRO": "PRO",
+    "PROFESSIONAL": "PRO",
+    "LEVEL_2": "PRO",
+    "NIVEL_2": "PRO",
+    "BUSINESS": "BUSINESS",
+    "LEVEL_3": "BUSINESS",
+    "NIVEL_3": "BUSINESS",
+    "NIVEL 3": "BUSINESS",
+    "ENTERPRISE": "ENTERPRISE",
+    "LEVEL_4": "ENTERPRISE",
+    "NIVEL_4": "ENTERPRISE",
+    "CREATOR": "CREATOR",
+}
+
+
+def normalize_plan_code(code: Optional[str]) -> str:
+    raw = (code or "FREE").strip().upper()
+    return PLAN_ALIASES.get(raw, raw)
+
+
+def normalize_email_for_antifraud(email: str) -> str:
+    """Normalizes email addresses (e.g. stripping +aliases and gmail dots) to detect self-referral abuse."""
+    clean = (email or "").strip().lower()
+    if "@" not in clean:
+        return clean
+    local, domain = clean.split("@", 1)
+    if "+" in local:
+        local = local.split("+", 1)[0]
+    if domain in {"gmail.com", "googlemail.com"}:
+        local = local.replace(".", "")
+        domain = "gmail.com"
+    return f"{local}@{domain}"
+
+
+def mask_email_for_privacy(email: str) -> str:
+    """Masks an email address so referrers see progress without exposing full third-party PII."""
+    clean = (email or "").strip()
+    if "@" not in clean:
+        return "u***@liseth.ai"
+    local, domain = clean.split("@", 1)
+    if len(local) <= 2:
+        masked_local = local[0] + "***"
+    else:
+        masked_local = local[:2] + "***" + local[-1]
+    return f"{masked_local}@{domain}"
 
 PUBLIC_PURCHASABLE_PLANS = {"STARTER", "PRO", "BUSINESS", "ENTERPRISE"}
 PUBLIC_VISIBLE_PLANS = {"FREE", "STARTER", "PRO", "BUSINESS", "ENTERPRISE"}
@@ -743,6 +808,21 @@ class SaasPlatformService:
                 if pr["code"] not in existing_promos:
                     session.add(SaasPromoCode(**pr))
 
+            # 8. Ensure ReferralCode exists for Señor Santiago's CREATOR account
+            ref_code_res = await session.execute(
+                select(ReferralCode).where(ReferralCode.user_id == CREATOR_USER_ID)
+            )
+            if not ref_code_res.scalars().first():
+                session.add(
+                    ReferralCode(
+                        id="refcode_creator_santiago",
+                        user_id=CREATOR_USER_ID,
+                        code="SANTIAGO-CREATOR",
+                        is_active=True,
+                        attribution_window_days=30,
+                    )
+                )
+
             await session.commit()
             self._seeded = True
         except Exception as e:
@@ -851,6 +931,7 @@ class SaasPlatformService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Cuenta suspendida: {user.suspension_reason or 'Contacte a soporte.'}",
             )
+        await self.check_and_revert_expired_referral_upgrades(db, user)
         return user
 
     async def require_creator(self, request: Request, db: AsyncSession) -> SaasUser:
@@ -881,7 +962,8 @@ class SaasPlatformService:
 
     async def get_plan(self, db: AsyncSession, plan_code: str) -> SaasPlan:
         await self.ensure_seeded(db)
-        res = await db.execute(select(SaasPlan).where(SaasPlan.code == plan_code.upper()))
+        norm_code = normalize_plan_code(plan_code)
+        res = await db.execute(select(SaasPlan).where(SaasPlan.code == norm_code))
         plan = res.scalars().first()
         if not plan:
             res = await db.execute(select(SaasPlan).where(SaasPlan.code == "FREE"))
@@ -1221,6 +1303,8 @@ class SaasPlatformService:
         ip_address: str = "127.0.0.1",
         requested_plan: Optional[str] = None,
         requested_role: Optional[str] = None,
+        attribution_source: str = "invite_link",
+        clicked_at_iso: Optional[str] = None,
     ) -> Dict[str, Any]:
         await self.ensure_seeded(db)
         clean_email = (email or "").strip().lower()
@@ -1257,15 +1341,128 @@ class SaasPlatformService:
         my_ref_code = f"LISETH-{secrets.token_hex(3).upper()}"
         verif_token = secrets.token_urlsafe(24)
 
+        ref_cfg = self.get_referral_program_config()
+        attribution_window_days = int(ref_cfg.get("attribution_window_days") or 30)
         referred_by_id: Optional[str] = None
         referrer_user: Optional[SaasUser] = None
-        if referral_code_used:
-            ref_res = await db.execute(
-                select(SaasUser).where(SaasUser.referral_code == referral_code_used.strip().upper())
-            )
-            referrer_user = ref_res.scalars().first()
-            if referrer_user:
-                referred_by_id = referrer_user.id
+        referral_attribution_status = "none"
+        parsed_clicked_at: Optional[datetime] = None
+
+        if clicked_at_iso:
+            try:
+                parsed_clicked_at = datetime.fromisoformat(clicked_at_iso.replace("Z", "+00:00"))
+                if parsed_clicked_at.tzinfo is None:
+                    parsed_clicked_at = parsed_clicked_at.replace(tzinfo=timezone.utc)
+            except Exception:
+                parsed_clicked_at = None
+
+        if referral_code_used and str(referral_code_used).strip():
+            clean_ref_code = str(referral_code_used).strip().upper()
+            if not ref_cfg.get("program_enabled", True):
+                referral_attribution_status = "program_disabled"
+            else:
+                ref_res = await db.execute(
+                    select(SaasUser).where(SaasUser.referral_code == clean_ref_code)
+                )
+                candidate_referrer = ref_res.scalars().first()
+                ref_code_row_res = await db.execute(
+                    select(ReferralCode).where(ReferralCode.code == clean_ref_code)
+                )
+                ref_code_row = ref_code_row_res.scalars().first()
+
+                if not candidate_referrer or not candidate_referrer.is_active or candidate_referrer.is_suspended:
+                    referral_attribution_status = "invalid_code"
+                    db.add(
+                        ReferralAuditLog(
+                            actor_user_id=user_id,
+                            actor_role="USER",
+                            action="invalid_referral_code_rejected",
+                            ip_address=ip_address,
+                            details={"attempted_code": clean_ref_code, "email": clean_email},
+                        )
+                    )
+                elif ref_code_row and not ref_code_row.is_active:
+                    referral_attribution_status = "expired_or_disabled_code"
+                    db.add(
+                        ReferralAuditLog(
+                            actor_user_id=user_id,
+                            actor_role="USER",
+                            target_user_id=candidate_referrer.id,
+                            action="disabled_referral_code_rejected",
+                            ip_address=ip_address,
+                            details={"attempted_code": clean_ref_code, "email": clean_email},
+                        )
+                    )
+                elif normalize_email_for_antifraud(clean_email) == normalize_email_for_antifraud(candidate_referrer.email):
+                    # Self-referral attempt via email or +alias
+                    db.add(
+                        ReferralFraudFlag(
+                            id=f"ff_{uuid.uuid4().hex[:14]}",
+                            referrer_user_id=candidate_referrer.id,
+                            referred_user_id=user_id,
+                            flag_type="self_referral_attempt",
+                            severity="high",
+                            status="open",
+                            reason="Intento de autorreferido detectado durante el registro (mismo correo o alias).",
+                            details={
+                                "referrer_email": candidate_referrer.email,
+                                "attempted_email": clean_email,
+                                "code": clean_ref_code,
+                                "ip": ip_address,
+                            },
+                        )
+                    )
+                    db.add(
+                        ReferralAuditLog(
+                            actor_user_id=candidate_referrer.id,
+                            actor_role="USER",
+                            target_user_id=candidate_referrer.id,
+                            action="self_referral_blocked",
+                            ip_address=ip_address,
+                            details={"attempted_email": clean_email, "code": clean_ref_code},
+                        )
+                    )
+                    await db.commit()
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Operación bloqueada por antifraude: No puedes usar tu propio código de referido (autorreferido prohibido).",
+                    )
+                else:
+                    eff_window = ref_code_row.attribution_window_days if ref_code_row else attribution_window_days
+                    if parsed_clicked_at and (utcnow() - parsed_clicked_at) > timedelta(days=eff_window):
+                        referral_attribution_status = "attribution_window_expired"
+                        db.add(
+                            ReferralAuditLog(
+                                actor_user_id=user_id,
+                                actor_role="USER",
+                                target_user_id=candidate_referrer.id,
+                                action="referral_attribution_window_expired",
+                                ip_address=ip_address,
+                                details={
+                                    "code": clean_ref_code,
+                                    "clicked_at": _iso(parsed_clicked_at),
+                                    "window_days": eff_window,
+                                },
+                            )
+                        )
+                    else:
+                        referrer_user = candidate_referrer
+                        referred_by_id = referrer_user.id
+                        referral_attribution_status = "attributed_pending_purchase"
+                        if ref_code_row:
+                            ref_code_row.registrations_count = (ref_code_row.registrations_count or 0) + 1
+                            ref_code_row.updated_at = utcnow()
+                        else:
+                            db.add(
+                                ReferralCode(
+                                    id=f"refcode_{uuid.uuid4().hex[:14]}",
+                                    user_id=referrer_user.id,
+                                    code=referrer_user.referral_code,
+                                    is_active=True,
+                                    registrations_count=1,
+                                    attribution_window_days=attribution_window_days,
+                                )
+                            )
 
         new_user = SaasUser(
             id=user_id,
@@ -1283,10 +1480,26 @@ class SaasPlatformService:
             memory_enabled=True,
             referral_code=my_ref_code,
             referred_by_id=referred_by_id,
-            preferences={"theme": "cyber-hud", "language": "es"},
+            preferences={
+                "theme": "cyber-hud",
+                "language": "es",
+                "referral_attribution_locked": bool(referred_by_id),
+                "referral_code_used": referrer_user.referral_code if referrer_user else None,
+            },
             last_login_at=utcnow(),
         )
         db.add(new_user)
+
+        # Create dedicated ReferralCode row for the new user
+        db.add(
+            ReferralCode(
+                id=f"refcode_{uuid.uuid4().hex[:14]}",
+                user_id=user_id,
+                code=my_ref_code,
+                is_active=True,
+                attribution_window_days=attribution_window_days,
+            )
+        )
 
         # Create initial FREE subscription
         sub = SaasSubscription(
@@ -1317,7 +1530,7 @@ class SaasPlatformService:
         )
         db.add(balance)
 
-        # Create referral record if invited
+        # Create referral records if invited
         if referrer_user:
             ref_record = SaasReferral(
                 id=f"ref_{uuid.uuid4().hex[:14]}",
@@ -1330,6 +1543,37 @@ class SaasPlatformService:
             )
             db.add(ref_record)
 
+            rel_id = f"rel_{uuid.uuid4().hex[:14]}"
+            rel_record = ReferralRelationship(
+                id=rel_id,
+                referrer_user_id=referrer_user.id,
+                referred_user_id=user_id,
+                referral_code_used=referrer_user.referral_code,
+                attribution_source=(attribution_source or "invite_link")[:40],
+                status="pending_purchase",  # Free signups do NOT grant progressive rewards until qualifying purchase
+                client_ip=ip_address,
+                clicked_at=parsed_clicked_at or utcnow(),
+                registered_at=utcnow(),
+            )
+            db.add(rel_record)
+
+            db.add(
+                ReferralAuditLog(
+                    actor_user_id=user_id,
+                    actor_role="USER",
+                    target_user_id=referrer_user.id,
+                    relationship_id=rel_id,
+                    action="referral_attributed_on_register",
+                    ip_address=ip_address,
+                    details={
+                        "referrer_user_id": referrer_user.id,
+                        "referred_user_id": user_id,
+                        "referral_code_used": referrer_user.referral_code,
+                        "status": "pending_purchase",
+                    },
+                )
+            )
+
         await self.log_audit(
             db=db,
             action="user_registered",
@@ -1338,7 +1582,11 @@ class SaasPlatformService:
             resource_type="user",
             resource_id=user_id,
             ip_address=ip_address,
-            details={"email": clean_email, "referred_by": referred_by_id},
+            details={
+                "email": clean_email,
+                "referred_by": referred_by_id,
+                "referral_attribution_status": referral_attribution_status,
+            },
         )
         await db.commit()
 
@@ -1347,6 +1595,7 @@ class SaasPlatformService:
             "ok": True,
             "token": token,
             "verification_token": verif_token,
+            "referral_attribution_status": referral_attribution_status,
             "user": self.serialize_user(new_user, free_plan, balance),
         }
 
@@ -1499,8 +1748,18 @@ class SaasPlatformService:
         user: SaasUser,
         updates: Dict[str, Any],
     ) -> Dict[str, Any]:
-        # Strictly forbid changing role, plan_code, id, or email via profile update
-        forbidden_keys = {"role", "plan_code", "id", "is_creator", "password_hash", "password_salt"}
+        # Strictly forbid changing role, plan_code, id, referral attribution, or email via profile update
+        forbidden_keys = {
+            "role",
+            "plan_code",
+            "id",
+            "is_creator",
+            "password_hash",
+            "password_salt",
+            "referred_by_id",
+            "referral_code",
+            "referral_code_used",
+        }
         attempted_forbidden = forbidden_keys.intersection(set(updates.keys()))
         if attempted_forbidden:
             await self.log_audit(
@@ -2420,10 +2679,11 @@ class SaasPlatformService:
         - Supports Stripe (international card), Wompi/MercadoPago (Nequi/PSE/Bancolombia), PayPal, and Direct Transfer.
         """
         await self.ensure_seeded(db)
-        plan_code_up = (target_plan_code or "").strip().upper()
+        raw_plan_up = (target_plan_code or "").strip().upper()
+        plan_code_up = normalize_plan_code(raw_plan_up)
 
         # CRITICAL: CREATOR plan can NEVER be purchased or acquired via checkout
-        if plan_code_up == "CREATOR":
+        if plan_code_up == "CREATOR" or raw_plan_up == "CREATOR":
             await self.log_audit(
                 db=db,
                 action="blocked_creator_plan_purchase_attempt",
@@ -2447,7 +2707,7 @@ class SaasPlatformService:
 
         target_plan = await self.get_plan(db, plan_code_up)
         if not target_plan or target_plan.code != plan_code_up:
-            raise HTTPException(status_code=404, detail=f"El plan '{plan_code_up}' no existe.")
+            raise HTTPException(status_code=404, detail=f"El plan '{raw_plan_up}' no existe.")
 
         cycle = billing_cycle.lower() if billing_cycle in {"monthly", "annual"} else "monthly"
         gw_clean = (payment_gateway or "stripe").strip().lower()
@@ -2474,15 +2734,78 @@ class SaasPlatformService:
         discount_usd = 0.0
         bonus_credits = 0
         applied_promo_code: Optional[str] = None
+        selected_referral_reward: Optional[ReferralReward] = None
+        selected_referral_coupon: Optional[ReferralCoupon] = None
 
         if promo_code and promo_code.strip():
-            promo = await self.validate_promo_code(db, promo_code, plan_code_up)
-            discount_pct = promo.discount_pct
-            discount_usd = round((base_price * (discount_pct / 100.0)) + promo.discount_fixed_usd, 2)
-            discount_usd = min(base_price, discount_usd)
-            bonus_credits = promo.bonus_credits
-            applied_promo_code = promo.code
-            promo.current_uses += 1
+            clean_pcode = promo_code.strip().upper()
+            # Check if promo_code is a personal ReferralCoupon first
+            rc_res = await db.execute(select(ReferralCoupon).where(ReferralCoupon.code == clean_pcode))
+            ref_coupon = rc_res.scalars().first()
+            if ref_coupon:
+                if ref_coupon.user_id != user.id:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Los cupones de recompensa por referidos son personales e intransferibles.",
+                    )
+                if ref_coupon.status != "available":
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"El cupón de referido '{clean_pcode}' no está disponible (estado: {ref_coupon.status}).",
+                    )
+                if ref_coupon.expires_at:
+                    exp_dt = ref_coupon.expires_at
+                    if exp_dt.tzinfo is None:
+                        exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+                    if utcnow() > exp_dt:
+                        ref_coupon.status = "expired"
+                        await db.commit()
+                        raise HTTPException(status_code=400, detail="El cupón de referido ha expirado.")
+
+                rw_res = await db.execute(
+                    select(ReferralReward).where(
+                        and_(
+                            ReferralReward.id == ref_coupon.reward_id,
+                            ReferralReward.user_id == user.id,
+                            ReferralReward.status == "available",
+                        )
+                    )
+                )
+                ref_reward = rw_res.scalars().first()
+                if not ref_reward:
+                    raise HTTPException(status_code=400, detail="La recompensa asociada a este cupón ya no está disponible.")
+
+                selected_referral_reward = ref_reward
+                selected_referral_coupon = ref_coupon
+                if ref_reward.reward_type == "promo_credit_usd" and ref_reward.credit_amount_usd > 0:
+                    discount_usd = min(base_price, round(ref_reward.credit_amount_usd, 2))
+                    discount_pct = round((discount_usd / base_price) * 100.0, 2) if base_price > 0 else 0.0
+                else:
+                    discount_pct = ref_reward.discount_pct
+                    discount_usd = min(base_price, round(base_price * (discount_pct / 100.0), 2))
+                applied_promo_code = ref_coupon.code
+            else:
+                promo = await self.validate_promo_code(db, promo_code, plan_code_up)
+                discount_pct = promo.discount_pct
+                discount_usd = round((base_price * (discount_pct / 100.0)) + promo.discount_fixed_usd, 2)
+                discount_usd = min(base_price, discount_usd)
+                bonus_credits = promo.bonus_credits
+                applied_promo_code = promo.code
+                promo.current_uses += 1
+        elif base_price > 0 and target_plan.code in PUBLIC_PURCHASABLE_PLANS:
+            # Automatically select the single highest-priority available referral reward for this user
+            # Priority order: 1 (50% 1st referral) -> 2 (25% 2nd referral) -> 3 (Level 3 credit) -> 4 (10% FIFO coupons)
+            best_reward, best_coupon = await self._select_next_available_referral_reward(db, user.id)
+            if best_reward:
+                selected_referral_reward = best_reward
+                selected_referral_coupon = best_coupon
+                if best_reward.reward_type == "promo_credit_usd" and best_reward.credit_amount_usd > 0:
+                    discount_usd = min(base_price, round(best_reward.credit_amount_usd, 2))
+                    discount_pct = round((discount_usd / base_price) * 100.0, 2) if base_price > 0 else 0.0
+                else:
+                    discount_pct = best_reward.discount_pct
+                    discount_usd = min(base_price, round(base_price * (discount_pct / 100.0), 2))
+                applied_promo_code = best_coupon.code if best_coupon else f"REF-AUTO-{best_reward.reward_type.upper()}"
 
         final_amount = round(max(0.0, base_price - discount_usd), 2)
         safe_last4 = re.sub(r"\D", "", payment_method_last4 or "4242")[-4:] or "4242"
@@ -2621,6 +2944,76 @@ class SaasPlatformService:
         balance.alert_80_sent = False
         balance.period_reset_at = now_dt + timedelta(days=period_days)
 
+        # 1. If a referral reward/coupon was applied on this invoice, mark it as redeemed (max 1 per invoice)
+        redeemed_reward_summary: Optional[Dict[str, Any]] = None
+        if selected_referral_reward:
+            selected_referral_reward.status = "redeemed"
+            selected_referral_reward.used_at = now_dt
+            selected_referral_reward.redeemed_invoice_id = invoice.id
+            selected_referral_reward.redeemed_payment_id = payment.id
+            selected_referral_reward.discount_amount_saved_usd = discount_usd
+            if selected_referral_coupon:
+                selected_referral_coupon.status = "redeemed"
+                selected_referral_coupon.redeemed_at = now_dt
+                selected_referral_coupon.redeemed_invoice_id = invoice.id
+
+            redemption = ReferralRewardRedemption(
+                id=f"red_{uuid.uuid4().hex[:14]}",
+                reward_id=selected_referral_reward.id,
+                coupon_id=selected_referral_coupon.id if selected_referral_coupon else None,
+                user_id=user.id,
+                invoice_id=invoice.id,
+                payment_id=payment.id,
+                plan_code=target_plan.code,
+                reward_type=selected_referral_reward.reward_type,
+                discount_pct_applied=discount_pct,
+                discount_amount_usd=discount_usd,
+                invoice_subtotal_usd=base_price,
+                invoice_final_usd=final_amount,
+                created_at=now_dt,
+            )
+            db.add(redemption)
+            db.add(
+                ReferralAuditLog(
+                    actor_user_id=user.id,
+                    actor_role=user.role,
+                    target_user_id=user.id,
+                    reward_id=selected_referral_reward.id,
+                    action="referral_reward_redeemed_on_invoice",
+                    ip_address=ip_address,
+                    details={
+                        "invoice_id": invoice.id,
+                        "payment_id": payment.id,
+                        "reward_type": selected_referral_reward.reward_type,
+                        "milestone_number": selected_referral_reward.milestone_number,
+                        "discount_pct": discount_pct,
+                        "discount_usd": discount_usd,
+                        "final_amount_usd": final_amount,
+                    },
+                )
+            )
+            redeemed_reward_summary = {
+                "reward_id": selected_referral_reward.id,
+                "reward_type": selected_referral_reward.reward_type,
+                "milestone_number": selected_referral_reward.milestone_number,
+                "coupon_code": selected_referral_coupon.code if selected_referral_coupon else applied_promo_code,
+                "discount_pct": discount_pct,
+                "discount_usd": discount_usd,
+            }
+
+        # 2. If this user was invited by a referrer, evaluate whether this confirmed purchase qualifies
+        #    for a referral conversion and progressive reward grant
+        payment_fingerprint = f"{gw_clean}:{(payment_method_brand or 'card').lower()}:{safe_last4}"
+        referral_conversion_summary = await self._process_referral_conversion_on_payment(
+            db=db,
+            referred_user=user,
+            payment=payment,
+            invoice=invoice,
+            plan_code=target_plan.code,
+            ip_address=ip_address,
+            payment_fingerprint=payment_fingerprint,
+        )
+
         await self.log_audit(
             db=db,
             action="subscription_plan_changed",
@@ -2637,6 +3030,8 @@ class SaasPlatformService:
                 "amount_usd": final_amount,
                 "amount_cop": final_amount_cop,
                 "promo_code": applied_promo_code,
+                "referral_reward_applied": redeemed_reward_summary,
+                "referral_conversion": referral_conversion_summary,
             },
         )
         await db.commit()
@@ -2650,6 +3045,9 @@ class SaasPlatformService:
             "bre_b_key": bre_b_key,
             "whatsapp_sales_phone": wa_phone,
             "whatsapp_checkout_url": whatsapp_checkout_url,
+            "referral_reward_applied": redeemed_reward_summary,
+            "applied_referral_reward": redeemed_reward_summary,
+            "referral_conversion": referral_conversion_summary,
             "subscription": {
                 "id": sub.id,
                 "plan_code": sub.plan_code,
@@ -2890,6 +3288,37 @@ class SaasPlatformService:
                 "event_type": event_type,
                 "status": "past_due",
                 "grace_period_ends_at": _iso(grace_end),
+            }
+
+        elif event_type in {"charge.refunded", "payment_intent.refunded"}:
+            target_payment_id = str(data_obj.get("payment_id") or "").strip()
+            p_res = await db.execute(
+                select(SaasPayment).where(
+                    or_(
+                        SaasPayment.id == target_payment_id,
+                        SaasPayment.external_tx_id == str(data_obj.get("payment_intent") or target_payment_id),
+                    )
+                )
+            )
+            pay_obj = p_res.scalars().first()
+            if not pay_obj:
+                raise HTTPException(status_code=404, detail="Pago a reembolsar no encontrado en webhook.")
+            reason = str(data_obj.get("reason") or "Reembolso reportado por webhook de pasarela")
+            pay_obj.status = "refunded"
+            pay_obj.refunded_amount_usd = pay_obj.amount_usd
+            pay_obj.refund_reason = reason
+            inv_res = await db.execute(select(SaasInvoice).where(SaasInvoice.payment_id == pay_obj.id))
+            inv_obj = inv_res.scalars().first()
+            if inv_obj:
+                inv_obj.status = "refunded"
+            rev_info = await self._revoke_referral_on_refund(db, pay_obj, reason=reason)
+            await db.commit()
+            return {
+                "ok": True,
+                "event_type": event_type,
+                "payment_id": pay_obj.id,
+                "status": "refunded",
+                "referral_revocation": rev_info,
             }
 
         return {"ok": True, "event_type": event_type, "handled": True}
@@ -3219,6 +3648,13 @@ class SaasPlatformService:
         if inv:
             inv.status = "refunded"
 
+        referral_revocation = await self._revoke_referral_on_refund(
+            db=db,
+            payment=payment,
+            reason=reason,
+            actor_user=creator,
+        )
+
         await self.log_audit(
             db=db,
             action="creator_issued_refund",
@@ -3226,7 +3662,11 @@ class SaasPlatformService:
             target_user_id=payment.user_id,
             resource_type="payment",
             resource_id=payment.id,
-            details={"amount_usd": payment.amount_usd, "reason": reason},
+            details={
+                "amount_usd": payment.amount_usd,
+                "reason": reason,
+                "referral_revocation": referral_revocation,
+            },
         )
         await db.commit()
         return {
@@ -3234,6 +3674,7 @@ class SaasPlatformService:
             "payment_id": payment.id,
             "status": payment.status,
             "refunded_amount_usd": payment.refunded_amount_usd,
+            "referral_revocation": referral_revocation,
         }
 
     # ==========================================================================
@@ -3642,15 +4083,17 @@ class SaasPlatformService:
         billing_cycle: str = "monthly",
         promo_code: Optional[str] = None,
         payment_gateway: str = "stripe",
+        user: Optional[SaasUser] = None,
     ) -> Dict[str, Any]:
         """
         Calculates a real-time sales quote in USD and COP for any public SaaS plan,
         including annual billing savings (20% off / 2 months free), promo code discounts,
-        bonus AI credits, and gateway checkout links.
+        automatic referral reward discounts, bonus AI credits, and gateway checkout links.
         """
         await self.ensure_seeded(db)
-        code_up = (plan_code or "STARTER").strip().upper()
-        if code_up == "CREATOR":
+        raw_code_up = (plan_code or "STARTER").strip().upper()
+        code_up = normalize_plan_code(raw_code_up)
+        if code_up == "CREATOR" or raw_code_up == "CREATOR":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="El plan CREATOR es exclusivo del propietario original y no está a la venta.",
@@ -3658,7 +4101,7 @@ class SaasPlatformService:
 
         plan = await self.get_plan(db, code_up)
         if not plan or plan.code != code_up:
-            raise HTTPException(status_code=404, detail=f"El plan '{code_up}' no existe.")
+            raise HTTPException(status_code=404, detail=f"El plan '{raw_code_up}' no existe.")
 
         cycle = "annual" if (billing_cycle or "").strip().lower() == "annual" else "monthly"
         gw_clean = (payment_gateway or "stripe").strip().lower()
@@ -3678,20 +4121,64 @@ class SaasPlatformService:
         promo_discount_usd = 0.0
         bonus_credits = 0
         applied_promo = None
+        referral_reward_preview = None
 
         if promo_code and promo_code.strip():
-            try:
-                promo = await self.validate_promo_code(db, promo_code.strip(), code_up)
+            clean_pcode = promo_code.strip().upper()
+            rc_res = await db.execute(select(ReferralCoupon).where(ReferralCoupon.code == clean_pcode))
+            ref_coupon = rc_res.scalars().first()
+            if ref_coupon and ref_coupon.status == "available" and (not user or ref_coupon.user_id == user.id):
+                rw_res = await db.execute(select(ReferralReward).where(ReferralReward.id == ref_coupon.reward_id))
+                ref_rw = rw_res.scalars().first()
+                if ref_rw and ref_rw.status == "available":
+                    promo_valid = True
+                    applied_promo = ref_coupon.code
+                    if ref_rw.reward_type == "promo_credit_usd" and ref_rw.credit_amount_usd > 0:
+                        promo_discount_usd = min(base_price_usd, round(ref_rw.credit_amount_usd, 2))
+                        promo_discount_pct = round((promo_discount_usd / base_price_usd) * 100.0, 2) if base_price_usd > 0 else 0.0
+                    else:
+                        promo_discount_pct = ref_rw.discount_pct
+                        promo_discount_usd = min(base_price_usd, round(base_price_usd * (promo_discount_pct / 100.0), 2))
+                    promo_msg = f"Recompensa de referido {ref_coupon.code} aplicada (-{promo_discount_pct:.0f}%)"
+                    referral_reward_preview = {
+                        "reward_id": ref_rw.id,
+                        "reward_type": ref_rw.reward_type,
+                        "coupon_code": ref_coupon.code,
+                        "discount_pct": promo_discount_pct,
+                        "discount_usd": promo_discount_usd,
+                    }
+            if not promo_valid:
+                try:
+                    promo = await self.validate_promo_code(db, promo_code.strip(), code_up)
+                    promo_valid = True
+                    applied_promo = promo.code
+                    promo_discount_pct = promo.discount_pct
+                    promo_discount_usd = round((base_price_usd * (promo.discount_pct / 100.0)) + promo.discount_fixed_usd, 2)
+                    promo_discount_usd = min(base_price_usd, promo_discount_usd)
+                    bonus_credits = promo.bonus_credits
+                    promo_msg = f"Cupón {promo.code} aplicado (-{promo.discount_pct:.0f}%)"
+                except HTTPException as exc:
+                    promo_valid = False
+                    promo_msg = str(exc.detail)
+        elif user and base_price_usd > 0 and code_up in PUBLIC_PURCHASABLE_PLANS:
+            best_rw, best_cp = await self._select_next_available_referral_reward(db, user.id)
+            if best_rw:
                 promo_valid = True
-                applied_promo = promo.code
-                promo_discount_pct = promo.discount_pct
-                promo_discount_usd = round((base_price_usd * (promo.discount_pct / 100.0)) + promo.discount_fixed_usd, 2)
-                promo_discount_usd = min(base_price_usd, promo_discount_usd)
-                bonus_credits = promo.bonus_credits
-                promo_msg = f"Cupón {promo.code} aplicado (-{promo.discount_pct:.0f}%)"
-            except HTTPException as exc:
-                promo_valid = False
-                promo_msg = str(exc.detail)
+                applied_promo = best_cp.code if best_cp else f"REF-AUTO-{best_rw.reward_type.upper()}"
+                if best_rw.reward_type == "promo_credit_usd" and best_rw.credit_amount_usd > 0:
+                    promo_discount_usd = min(base_price_usd, round(best_rw.credit_amount_usd, 2))
+                    promo_discount_pct = round((promo_discount_usd / base_price_usd) * 100.0, 2) if base_price_usd > 0 else 0.0
+                else:
+                    promo_discount_pct = best_rw.discount_pct
+                    promo_discount_usd = min(base_price_usd, round(base_price_usd * (promo_discount_pct / 100.0), 2))
+                promo_msg = f"Descuento automático por referido aplicado (-{promo_discount_pct:.0f}%)"
+                referral_reward_preview = {
+                    "reward_id": best_rw.id,
+                    "reward_type": best_rw.reward_type,
+                    "coupon_code": applied_promo,
+                    "discount_pct": promo_discount_pct,
+                    "discount_usd": promo_discount_usd,
+                }
 
         total_usd = round(max(0.0, base_price_usd - promo_discount_usd), 2)
         subtotal_cop = int(round(base_price_usd * trm))
@@ -3749,6 +4236,7 @@ class SaasPlatformService:
                 "whatsapp_sales_phone": wa_phone,
                 "whatsapp_checkout_url": whatsapp_checkout_url,
                 "direct_transfer_details": dt_details,
+                "referral_reward_preview": referral_reward_preview,
             },
         }
 
@@ -3931,6 +4419,1675 @@ class SaasPlatformService:
                 "linked": True,
             }
         return login_res
+
+    # ==========================================================================
+    # 8. PROGRAMA DE REFERIDOS, RECOMPENSAS PROGRESIVAS, DESCUENTOS AUTOMÁTICOS,
+    #    ANTIFRAUDE, ADMINISTRACIÓN CREATOR Y MARCO LEGAL / COPYRIGHT
+    # ==========================================================================
+
+    def get_referral_program_config(self) -> Dict[str, Any]:
+        """
+        Returns the active configuration for the Referral & Progressive Rewards Program.
+        Persisted in `data/referral_program_config.json` with mtime caching.
+        """
+        cfg_file = settings.DATA_DIR / "referral_program_config.json"
+        saved: Dict[str, Any] = {}
+        if cfg_file.exists():
+            try:
+                mtime = cfg_file.stat().st_mtime_ns
+                if getattr(self, "_ref_cfg_mtime", None) == mtime and getattr(self, "_ref_cfg_raw", None) is not None:
+                    saved = self._ref_cfg_raw
+                else:
+                    saved = json.loads(cfg_file.read_text(encoding="utf-8"))
+                    self._ref_cfg_mtime = mtime
+                    self._ref_cfg_raw = saved
+            except Exception:
+                saved = {}
+
+        raw_qualifying = saved.get("qualifying_plans")
+        if isinstance(raw_qualifying, list) and len(raw_qualifying) > 0:
+            qualifying_plans = [normalize_plan_code(str(p)) for p in raw_qualifying if str(p).strip()]
+            qualifying_plans = list(dict.fromkeys(qualifying_plans))
+        else:
+            # By default, ONLY purchasing the Starter / Básico / Level 1 plan triggers a referral conversion
+            qualifying_plans = ["STARTER"]
+
+        return {
+            "ok": True,
+            "program_enabled": bool(saved.get("program_enabled", True)),
+            "attribution_window_days": max(1, int(saved.get("attribution_window_days") or 30)),
+            "qualifying_plans": qualifying_plans,
+            "milestone_1_discount_pct": float(saved.get("milestone_1_discount_pct") or 50.0),
+            "milestone_2_discount_pct": float(saved.get("milestone_2_discount_pct") or 25.0),
+            "milestone_3_target_plan": normalize_plan_code(str(saved.get("milestone_3_target_plan") or "BUSINESS")),
+            "milestone_3_duration_days": max(1, int(saved.get("milestone_3_duration_days") or 30)),
+            "milestone_3_credit_fallback_usd": float(saved.get("milestone_3_credit_fallback_usd") or 75.0),
+            "milestone_4_plus_discount_pct": float(saved.get("milestone_4_plus_discount_pct") or 10.0),
+            "coupon_expiration_days": int(saved.get("coupon_expiration_days") or 0),  # 0 = no expiration
+            "block_shared_payment_method": bool(saved.get("block_shared_payment_method", True)),
+            "base_invite_domain": str(saved.get("base_invite_domain") or "https://liseth.ai").rstrip("/"),
+            "updated_at": saved.get("updated_at"),
+            "updated_by": saved.get("updated_by"),
+        }
+
+    async def save_referral_program_config(
+        self,
+        db: AsyncSession,
+        creator: SaasUser,
+        config_data: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Allows Señor Santiago (CREATOR) to update Referral Program rules dynamically."""
+        current = self.get_referral_program_config()
+        raw_q = config_data.get("qualifying_plans")
+        if isinstance(raw_q, list) and len(raw_q) > 0:
+            q_plans = list(
+                dict.fromkeys(
+                    normalize_plan_code(str(p))
+                    for p in raw_q
+                    if normalize_plan_code(str(p)) in PUBLIC_PURCHASABLE_PLANS
+                )
+            )
+            if not q_plans:
+                q_plans = ["STARTER"]
+        else:
+            q_plans = current["qualifying_plans"]
+
+        updated = {
+            "program_enabled": bool(config_data.get("program_enabled", current["program_enabled"])),
+            "attribution_window_days": max(1, int(config_data.get("attribution_window_days") or current["attribution_window_days"])),
+            "qualifying_plans": q_plans,
+            "milestone_1_discount_pct": max(1.0, min(100.0, float(config_data.get("milestone_1_discount_pct") or current["milestone_1_discount_pct"]))),
+            "milestone_2_discount_pct": max(1.0, min(100.0, float(config_data.get("milestone_2_discount_pct") or current["milestone_2_discount_pct"]))),
+            "milestone_3_target_plan": normalize_plan_code(str(config_data.get("milestone_3_target_plan") or current["milestone_3_target_plan"])),
+            "milestone_3_duration_days": max(1, int(config_data.get("milestone_3_duration_days") or current["milestone_3_duration_days"])),
+            "milestone_3_credit_fallback_usd": max(0.0, float(config_data.get("milestone_3_credit_fallback_usd") or current["milestone_3_credit_fallback_usd"])),
+            "milestone_4_plus_discount_pct": max(1.0, min(100.0, float(config_data.get("milestone_4_plus_discount_pct") or current["milestone_4_plus_discount_pct"]))),
+            "coupon_expiration_days": max(0, int(config_data.get("coupon_expiration_days") if config_data.get("coupon_expiration_days") is not None else current["coupon_expiration_days"])),
+            "block_shared_payment_method": bool(config_data.get("block_shared_payment_method", current["block_shared_payment_method"])),
+            "base_invite_domain": str(config_data.get("base_invite_domain") or current["base_invite_domain"]).rstrip("/"),
+            "updated_at": _iso(utcnow()),
+            "updated_by": creator.email,
+        }
+        cfg_file = settings.DATA_DIR / "referral_program_config.json"
+        cfg_file.write_text(json.dumps(updated, indent=2, ensure_ascii=False), encoding="utf-8")
+        self._ref_cfg_mtime = None
+
+        db.add(
+            ReferralAuditLog(
+                actor_user_id=creator.id,
+                actor_role=creator.role,
+                action="creator_updated_referral_program_config",
+                details=updated,
+            )
+        )
+        await self.log_audit(
+            db=db,
+            action="creator_updated_referral_program_config",
+            actor_user=creator,
+            resource_type="referral_program",
+            resource_id="referral_program_config",
+            details=updated,
+        )
+        await db.commit()
+        return self.get_referral_program_config()
+
+    async def validate_and_track_referral_click(
+        self,
+        db: AsyncSession,
+        code: str,
+        ip_address: str = "127.0.0.1",
+        track_click: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Validates a referral code from an invite link (`?ref=CODIGO123`), records click attribution,
+        and returns attribution window details for persistent browser storage.
+        """
+        await self.ensure_seeded(db)
+        clean_code = (code or "").strip().upper()
+        cfg = self.get_referral_program_config()
+        if not clean_code:
+            return {"ok": False, "valid": False, "reason": "empty_code"}
+
+        if not cfg.get("program_enabled", True):
+            return {"ok": False, "valid": False, "reason": "program_disabled"}
+
+        u_res = await db.execute(select(SaasUser).where(SaasUser.referral_code == clean_code))
+        referrer = u_res.scalars().first()
+        if not referrer or not referrer.is_active or referrer.is_suspended:
+            return {"ok": False, "valid": False, "code": clean_code, "reason": "invalid_code"}
+
+        rc_res = await db.execute(select(ReferralCode).where(ReferralCode.code == clean_code))
+        rc_row = rc_res.scalars().first()
+        if not rc_row:
+            rc_row = ReferralCode(
+                id=f"refcode_{uuid.uuid4().hex[:14]}",
+                user_id=referrer.id,
+                code=clean_code,
+                is_active=True,
+                clicks_count=0,
+                attribution_window_days=cfg["attribution_window_days"],
+            )
+            db.add(rc_row)
+        elif not rc_row.is_active:
+            return {"ok": False, "valid": False, "code": clean_code, "reason": "disabled_code"}
+
+        now_dt = utcnow()
+        if track_click:
+            rc_row.clicks_count = (rc_row.clicks_count or 0) + 1
+            rc_row.last_clicked_at = now_dt
+            rc_row.updated_at = now_dt
+            db.add(
+                ReferralAuditLog(
+                    actor_user_id=None,
+                    actor_role="anonymous",
+                    target_user_id=referrer.id,
+                    action="referral_link_clicked",
+                    ip_address=ip_address,
+                    details={"code": clean_code, "clicks_count": rc_row.clicks_count},
+                )
+            )
+            await db.commit()
+
+        window_days = rc_row.attribution_window_days or cfg["attribution_window_days"]
+        return {
+            "ok": True,
+            "valid": True,
+            "code": clean_code,
+            "referrer_name": referrer.nickname or referrer.full_name,
+            "attribution_window_days": window_days,
+            "clicked_at": _iso(now_dt),
+            "expires_at": _iso(now_dt + timedelta(days=window_days)),
+            "qualifying_plans": cfg["qualifying_plans"],
+        }
+
+    async def attempt_post_registration_referral_change(
+        self,
+        db: AsyncSession,
+        user: SaasUser,
+        code: str,
+        ip_address: str = "127.0.0.1",
+    ) -> Dict[str, Any]:
+        """
+        Enforces immutability of referral attribution after registration and blocks self-referral attempts.
+        """
+        clean_code = (code or "").strip().upper()
+        if clean_code == (user.referral_code or "").upper():
+            db.add(
+                ReferralFraudFlag(
+                    id=f"ff_{uuid.uuid4().hex[:14]}",
+                    referrer_user_id=user.id,
+                    referred_user_id=user.id,
+                    flag_type="self_referral_attempt",
+                    severity="high",
+                    status="open",
+                    reason="El usuario intentó aplicar su propio código de referido en su cuenta.",
+                    details={"code": clean_code, "ip": ip_address},
+                )
+            )
+            db.add(
+                ReferralAuditLog(
+                    actor_user_id=user.id,
+                    actor_role=user.role,
+                    target_user_id=user.id,
+                    action="self_referral_attempt_blocked",
+                    ip_address=ip_address,
+                    details={"code": clean_code},
+                )
+            )
+            await db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Operación bloqueada por antifraude: No puedes usar tu propio código de referido (autorreferido prohibido).",
+            )
+
+        db.add(
+            ReferralAuditLog(
+                actor_user_id=user.id,
+                actor_role=user.role,
+                target_user_id=user.id,
+                action="post_registration_referral_change_blocked",
+                ip_address=ip_address,
+                details={"attempted_code": clean_code, "existing_referred_by_id": user.referred_by_id},
+            )
+        )
+        await db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El código de referido queda asociado permanentemente durante el registro inicial y no puede modificarse manualmente después.",
+        )
+
+    async def _select_next_available_referral_reward(
+        self,
+        db: AsyncSession,
+        user_id: str,
+    ) -> Tuple[Optional[ReferralReward], Optional[ReferralCoupon]]:
+        """
+        Selects at most ONE available referral discount reward for `user_id` following strict priority order:
+          1. 50% discount (Milestone 1, priority_order=1)
+          2. 25% discount (Milestone 2, priority_order=2)
+          3. Level 3 Promo Credit fallback (Milestone 3 if already >= Level 3, priority_order=3)
+          4. 10% discount coupons (Milestone 4+, priority_order=4) in FIFO chronological order (`created_at ASC`)
+        """
+        stmt = (
+            select(ReferralReward)
+            .where(
+                and_(
+                    ReferralReward.user_id == user_id,
+                    ReferralReward.status == "available",
+                    ReferralReward.reward_type.in_(
+                        ["discount_50_pct", "discount_25_pct", "promo_credit_usd", "discount_10_pct"]
+                    ),
+                )
+            )
+            .order_by(ReferralReward.priority_order.asc(), ReferralReward.created_at.asc())
+        )
+        rewards = (await db.execute(stmt)).scalars().all()
+        now_dt = utcnow()
+
+        for rw in rewards:
+            if rw.expires_at:
+                exp = rw.expires_at
+                if exp.tzinfo is None:
+                    exp = exp.replace(tzinfo=timezone.utc)
+                if now_dt > exp:
+                    rw.status = "expired"
+                    cp_exp_res = await db.execute(select(ReferralCoupon).where(ReferralCoupon.reward_id == rw.id))
+                    cp_exp = cp_exp_res.scalars().first()
+                    if cp_exp:
+                        cp_exp.status = "expired"
+                    continue
+
+            cp_res = await db.execute(select(ReferralCoupon).where(ReferralCoupon.reward_id == rw.id))
+            cp = cp_res.scalars().first()
+            return rw, cp
+
+        return None, None
+
+    async def check_and_revert_expired_referral_upgrades(
+        self,
+        db: AsyncSession,
+        user: SaasUser,
+        force_expire_for_test: bool = False,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Checks if `user` has an active 30-day free upgrade to Level 3 (Milestone 3) whose cycle has ended.
+        If expired (or `force_expire_for_test=True`), reverts the user's plan back to their previous
+        subscription plan without deleting their base subscription.
+        """
+        stmt = select(ReferralReward).where(
+            and_(
+                ReferralReward.user_id == user.id,
+                ReferralReward.reward_type == "free_upgrade_level_3",
+                ReferralReward.status == "active_upgrade",
+            )
+        )
+        active_upgrades = (await db.execute(stmt)).scalars().all()
+        if not active_upgrades:
+            return None
+
+        now_dt = utcnow()
+        reverted_info = None
+        for rw in active_upgrades:
+            ends_at = rw.upgrade_ends_at
+            if ends_at and ends_at.tzinfo is None:
+                ends_at = ends_at.replace(tzinfo=timezone.utc)
+            if force_expire_for_test or (ends_at and now_dt >= ends_at):
+                prev_plan_code = normalize_plan_code(rw.previous_plan_code or "FREE")
+                # Check if user contracted a paid plan >= target_plan_code during the upgrade window
+                sub_res = await db.execute(
+                    select(SaasSubscription)
+                    .where(SaasSubscription.user_id == user.id)
+                    .order_by(desc(SaasSubscription.created_at))
+                )
+                sub = sub_res.scalars().first()
+                sub_plan_code = normalize_plan_code(sub.plan_code if sub else prev_plan_code)
+                if PLAN_LEVELS.get(sub_plan_code, 0) >= PLAN_LEVELS.get(rw.target_plan_code or "BUSINESS", 3) and (sub and sub.price_usd > 0):
+                    # User purchased BUSINESS or higher; keep their paid plan
+                    restored_plan_code = sub_plan_code
+                else:
+                    restored_plan_code = prev_plan_code
+
+                user.plan_code = restored_plan_code
+                user.updated_at = now_dt
+                prefs = dict(user.preferences or {})
+                prefs.pop("active_referral_upgrade", None)
+                user.preferences = prefs
+
+                restored_plan = await self.get_plan(db, restored_plan_code)
+                bal_res = await db.execute(select(SaasCreditBalance).where(SaasCreditBalance.user_id == user.id))
+                bal = bal_res.scalars().first()
+                if bal and restored_plan:
+                    bal.monthly_credits_allocated = restored_plan.monthly_credits
+
+                rw.status = "redeemed"
+                rw.used_at = now_dt
+                rw.upgrade_reverted_at = now_dt
+
+                db.add(
+                    ReferralAuditLog(
+                        actor_user_id=user.id,
+                        actor_role="system",
+                        target_user_id=user.id,
+                        reward_id=rw.id,
+                        action="referral_temporary_upgrade_expired_and_reverted",
+                        details={
+                            "reward_id": rw.id,
+                            "target_plan_code": rw.target_plan_code,
+                            "restored_plan_code": restored_plan_code,
+                        },
+                    )
+                )
+                reverted_info = {
+                    "reward_id": rw.id,
+                    "expired_upgrade_plan": rw.target_plan_code,
+                    "restored_plan_code": restored_plan_code,
+                    "reverted_at": _iso(now_dt),
+                }
+
+        if reverted_info:
+            await db.commit()
+        return reverted_info
+
+    async def _process_referral_conversion_on_payment(
+        self,
+        db: AsyncSession,
+        referred_user: SaasUser,
+        payment: SaasPayment,
+        invoice: SaasInvoice,
+        plan_code: str,
+        ip_address: str = "127.0.0.1",
+        payment_fingerprint: str = "",
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Evaluates all strict referral conversion conditions when an invited user completes a payment:
+          1. User was invited by a valid referrer (`referred_user.referred_by_id`).
+          2. Payment is confirmed (`payment.status == 'succeeded'`).
+          3. Each invited user can generate at most ONE referral conversion in their entire lifetime
+             (`ReferralConversion.referred_user_id` unique check).
+          4. Purchased plan is in `qualifying_plans` (default: `['STARTER']` / Plan Básico / Nivel 1).
+          5. Anti-fraud checks pass (no self-referral, no shared non-default payment card with referrer).
+        Grants the exact progressive milestone reward:
+          - Milestone 1: 50% discount on next eligible subscription invoice
+          - Milestone 2: 25% discount on future subscription invoice
+          - Milestone 3: Free 30-day upgrade to Level 3 (`BUSINESS`), or `$75 USD` promo credit if already >= Level 3
+          - Milestone 4+: Unlimited 10% single-use discount coupons (1 per invoice)
+        """
+        cfg = self.get_referral_program_config()
+        if not cfg.get("program_enabled", True):
+            return None
+
+        if not referred_user.referred_by_id:
+            return None
+
+        if payment.status != "succeeded":
+            return None
+
+        norm_plan = normalize_plan_code(plan_code)
+        if norm_plan == "FREE":
+            return None
+
+        # Ensure this invited user has NEVER generated a referral conversion before (strict 1-reward-per-invitee rule)
+        existing_conv_res = await db.execute(
+            select(ReferralConversion).where(ReferralConversion.referred_user_id == referred_user.id)
+        )
+        if existing_conv_res.scalars().first():
+            return {
+                "converted": False,
+                "reason": "referred_user_already_generated_conversion",
+            }
+
+        # Find or create ReferralRelationship
+        rel_res = await db.execute(
+            select(ReferralRelationship).where(ReferralRelationship.referred_user_id == referred_user.id)
+        )
+        rel = rel_res.scalars().first()
+        if not rel:
+            rel = ReferralRelationship(
+                id=f"rel_{uuid.uuid4().hex[:14]}",
+                referrer_user_id=referred_user.referred_by_id,
+                referred_user_id=referred_user.id,
+                referral_code_used=str((referred_user.preferences or {}).get("referral_code_used") or "INVITE"),
+                attribution_source="invite_link",
+                status="pending_purchase",
+                client_ip=ip_address,
+            )
+            db.add(rel)
+            await db.flush()
+
+        if rel.status in {"rejected", "fraud_flagged", "refunded"}:
+            return {
+                "converted": False,
+                "reason": f"relationship_status_{rel.status}",
+            }
+
+        # Check if purchased plan is eligible (by default only STARTER / Básico / Nivel 1 qualifies)
+        qualifying_plans = [normalize_plan_code(p) for p in (cfg.get("qualifying_plans") or ["STARTER"])]
+        if norm_plan not in qualifying_plans:
+            db.add(
+                ReferralAuditLog(
+                    actor_user_id=referred_user.id,
+                    actor_role=referred_user.role,
+                    target_user_id=rel.referrer_user_id,
+                    relationship_id=rel.id,
+                    action="referral_purchase_plan_not_eligible",
+                    ip_address=ip_address,
+                    details={
+                        "purchased_plan": norm_plan,
+                        "qualifying_plans": qualifying_plans,
+                        "payment_id": payment.id,
+                    },
+                )
+            )
+            return {
+                "converted": False,
+                "reason": "plan_not_in_qualifying_plans",
+                "purchased_plan": norm_plan,
+                "qualifying_plans": qualifying_plans,
+            }
+
+        # Load Referrer User
+        ref_u_res = await db.execute(select(SaasUser).where(SaasUser.id == rel.referrer_user_id))
+        referrer = ref_u_res.scalars().first()
+        if not referrer or not referrer.is_active or referrer.is_suspended:
+            return {"converted": False, "reason": "referrer_inactive_or_suspended"}
+
+        # Anti-Fraud Check 1: Self-referral check
+        if referrer.id == referred_user.id or normalize_email_for_antifraud(referrer.email) == normalize_email_for_antifraud(referred_user.email):
+            rel.status = "fraud_flagged"
+            rel.invalidation_reason = "Autorreferido detectado en pago."
+            db.add(
+                ReferralFraudFlag(
+                    id=f"ff_{uuid.uuid4().hex[:14]}",
+                    referrer_user_id=referrer.id,
+                    referred_user_id=referred_user.id,
+                    relationship_id=rel.id,
+                    payment_id=payment.id,
+                    flag_type="self_referral_attempt",
+                    severity="critical",
+                    status="open",
+                    reason="Autorreferido detectado al procesar pago.",
+                    details={"payment_id": payment.id},
+                )
+            )
+            return {"converted": False, "reason": "self_referral_blocked"}
+
+        # Anti-Fraud Check 2: Shared payment card fingerprint between referrer and referred user
+        # (Triggered when a custom non-default card last4 != '4242' matches a card used by the referrer)
+        if cfg.get("block_shared_payment_method", True) and payment.payment_method_last4 and payment.payment_method_last4 != "4242":
+            shared_pay_res = await db.execute(
+                select(SaasPayment).where(
+                    and_(
+                        SaasPayment.user_id == referrer.id,
+                        SaasPayment.payment_method_last4 == payment.payment_method_last4,
+                        SaasPayment.payment_method_brand == payment.payment_method_brand,
+                    )
+                )
+            )
+            if shared_pay_res.scalars().first():
+                rel.status = "fraud_flagged"
+                rel.invalidated_at = utcnow()
+                rel.invalidation_reason = "Medio de pago compartido entre invitador e invitado."
+                db.add(
+                    ReferralFraudFlag(
+                        id=f"ff_{uuid.uuid4().hex[:14]}",
+                        referrer_user_id=referrer.id,
+                        referred_user_id=referred_user.id,
+                        relationship_id=rel.id,
+                        payment_id=payment.id,
+                        flag_type="duplicate_payment_fingerprint",
+                        severity="high",
+                        status="open",
+                        reason="La tarjeta o medio de pago del invitado coincide con el medio de pago del invitador.",
+                        details={
+                            "payment_fingerprint": payment_fingerprint,
+                            "payment_id": payment.id,
+                        },
+                    )
+                )
+                db.add(
+                    ReferralAuditLog(
+                        actor_user_id=referred_user.id,
+                        actor_role="system",
+                        target_user_id=referrer.id,
+                        relationship_id=rel.id,
+                        action="referral_blocked_shared_payment_fingerprint",
+                        ip_address=ip_address,
+                        details={"payment_fingerprint": payment_fingerprint},
+                    )
+                )
+                return {"converted": False, "reason": "fraud_shared_payment_method"}
+
+        # Calculate progressive milestone number for this referrer
+        # Count confirmed conversions for this referrer
+        cnt_res = await db.execute(
+            select(func.count(ReferralConversion.id)).where(
+                and_(
+                    ReferralConversion.referrer_user_id == referrer.id,
+                    ReferralConversion.status == "confirmed",
+                )
+            )
+        )
+        confirmed_count = int(cnt_res.scalar() or 0)
+        milestone_number = confirmed_count + 1
+        now_dt = utcnow()
+
+        conv_id = f"rconv_{uuid.uuid4().hex[:14]}"
+        reward_id = f"rrw_{uuid.uuid4().hex[:14]}"
+
+        # Update relationship
+        rel.status = "converted"
+        rel.eligible_plan_purchased = norm_plan
+        rel.qualifying_payment_id = payment.id
+        rel.qualifying_invoice_id = invoice.id
+        rel.payment_fingerprint = payment_fingerprint
+        rel.converted_at = now_dt
+
+        # Also mark legacy SaasReferral as rewarded if not yet rewarded
+        leg_res = await db.execute(
+            select(SaasReferral).where(SaasReferral.referred_user_id == referred_user.id)
+        )
+        leg_ref = leg_res.scalars().first()
+        if leg_ref and leg_ref.status == "pending":
+            leg_ref.status = "rewarded"
+            leg_ref.verified_at = now_dt
+            leg_ref.rewarded_at = now_dt
+
+        # Increment verified_purchases_count on ReferralCode
+        rc_res = await db.execute(select(ReferralCode).where(ReferralCode.user_id == referrer.id))
+        rc_row = rc_res.scalars().first()
+        if rc_row:
+            rc_row.verified_purchases_count = (rc_row.verified_purchases_count or 0) + 1
+            rc_row.updated_at = now_dt
+
+        exp_days = int(cfg.get("coupon_expiration_days") or 0)
+        expires_at = (now_dt + timedelta(days=exp_days)) if exp_days > 0 else None
+
+        coupon_obj: Optional[ReferralCoupon] = None
+        if milestone_number == 1:
+            # 1ST SUCCESSFUL REFERRAL: 50% DISCOUNT
+            pct = float(cfg.get("milestone_1_discount_pct") or 50.0)
+            reward = ReferralReward(
+                id=reward_id,
+                user_id=referrer.id,
+                referred_user_id=referred_user.id,
+                conversion_id=conv_id,
+                milestone_number=1,
+                reward_type="discount_50_pct",
+                title="50% de Descuento (1.er Referido Exitoso)",
+                description="Descuento automático del 50% sobre tu siguiente factura de suscripción elegible.",
+                discount_pct=pct,
+                priority_order=1,
+                status="available",
+                associated_payment_id=payment.id,
+                created_at=now_dt,
+                expires_at=expires_at,
+            )
+            coupon_obj = ReferralCoupon(
+                id=f"rcp_{uuid.uuid4().hex[:14]}",
+                reward_id=reward_id,
+                user_id=referrer.id,
+                referred_user_id=referred_user.id,
+                code=f"REF50-{secrets.token_hex(3).upper()}",
+                milestone_number=1,
+                discount_pct=pct,
+                priority_order=1,
+                status="available",
+                created_at=now_dt,
+                expires_at=expires_at,
+                associated_payment_id=payment.id,
+            )
+            notif_title = "¡1.er Referido Exitoso! 50% de Descuento Desbloqueado"
+            notif_msg = "¡Felicidades! Tu primera invitación se convirtió en cliente. Has desbloqueado un descuento del 50%."
+
+        elif milestone_number == 2:
+            # 2ND SUCCESSFUL REFERRAL: 25% DISCOUNT
+            pct = float(cfg.get("milestone_2_discount_pct") or 25.0)
+            reward = ReferralReward(
+                id=reward_id,
+                user_id=referrer.id,
+                referred_user_id=referred_user.id,
+                conversion_id=conv_id,
+                milestone_number=2,
+                reward_type="discount_25_pct",
+                title="25% de Descuento (2.º Referido Exitoso)",
+                description="Descuento del 25% aplicable en una futura factura de suscripción elegible.",
+                discount_pct=pct,
+                priority_order=2,
+                status="available",
+                associated_payment_id=payment.id,
+                created_at=now_dt,
+                expires_at=expires_at,
+            )
+            coupon_obj = ReferralCoupon(
+                id=f"rcp_{uuid.uuid4().hex[:14]}",
+                reward_id=reward_id,
+                user_id=referrer.id,
+                referred_user_id=referred_user.id,
+                code=f"REF25-{secrets.token_hex(3).upper()}",
+                milestone_number=2,
+                discount_pct=pct,
+                priority_order=2,
+                status="available",
+                created_at=now_dt,
+                expires_at=expires_at,
+                associated_payment_id=payment.id,
+            )
+            notif_title = "¡2.º Referido Exitoso! 25% de Descuento Desbloqueado"
+            notif_msg = "¡Excelente! Has conseguido tu segundo referido y desbloqueado un descuento del 25%."
+
+        elif milestone_number == 3:
+            # 3RD SUCCESSFUL REFERRAL: FREE UPGRADE TO LEVEL 3 (BUSINESS) FOR 30 DAYS
+            # (or promotional subscription credit if already >= Level 3)
+            target_upgrade_plan = normalize_plan_code(cfg.get("milestone_3_target_plan") or "BUSINESS")
+            duration_days = int(cfg.get("milestone_3_duration_days") or 30)
+            credit_fallback_usd = float(cfg.get("milestone_3_credit_fallback_usd") or 75.0)
+
+            current_ref_level = PLAN_LEVELS.get(normalize_plan_code(referrer.plan_code), 0)
+            target_level = PLAN_LEVELS.get(target_upgrade_plan, 3)
+
+            if current_ref_level < target_level:
+                prev_plan = referrer.plan_code
+                ends_at = now_dt + timedelta(days=duration_days)
+                reward = ReferralReward(
+                    id=reward_id,
+                    user_id=referrer.id,
+                    referred_user_id=referred_user.id,
+                    conversion_id=conv_id,
+                    milestone_number=3,
+                    reward_type="free_upgrade_level_3",
+                    title=f"Mejora Gratuita al Nivel 3 ({target_upgrade_plan}) por {duration_days} Días",
+                    description=f"Acceso completo gratuito al Nivel 3 ({target_upgrade_plan}) durante {duration_days} días sin cancelar tu suscripción original.",
+                    discount_pct=100.0,
+                    target_plan_code=target_upgrade_plan,
+                    previous_plan_code=prev_plan,
+                    upgrade_duration_days=duration_days,
+                    upgrade_started_at=now_dt,
+                    upgrade_ends_at=ends_at,
+                    priority_order=0,
+                    status="active_upgrade",
+                    associated_payment_id=payment.id,
+                    created_at=now_dt,
+                    expires_at=ends_at,
+                )
+                # Activate temporary Level 3 upgrade on referrer without deleting/canceling their original subscription
+                referrer.plan_code = target_upgrade_plan
+                referrer.updated_at = now_dt
+                r_prefs = dict(referrer.preferences or {})
+                r_prefs["active_referral_upgrade"] = {
+                    "reward_id": reward_id,
+                    "target_plan_code": target_upgrade_plan,
+                    "previous_plan_code": prev_plan,
+                    "started_at": _iso(now_dt),
+                    "ends_at": _iso(ends_at),
+                    "duration_days": duration_days,
+                }
+                referrer.preferences = r_prefs
+
+                upg_plan_obj = await self.get_plan(db, target_upgrade_plan)
+                ref_bal = await self.get_or_create_credit_balance(db, referrer)
+                if upg_plan_obj and ref_bal.monthly_credits_allocated < upg_plan_obj.monthly_credits:
+                    ref_bal.monthly_credits_allocated = upg_plan_obj.monthly_credits
+                    ref_bal.is_quota_blocked = False
+            else:
+                # Special Rule: Referrer is already in Level 3 (BUSINESS) or higher (ENTERPRISE / CREATOR)
+                # Convert automatically into a promotional subscription credit equivalent to 1 cycle of Level 3 ($75 USD)
+                reward = ReferralReward(
+                    id=reward_id,
+                    user_id=referrer.id,
+                    referred_user_id=referred_user.id,
+                    conversion_id=conv_id,
+                    milestone_number=3,
+                    reward_type="promo_credit_usd",
+                    title=f"Crédito Promocional Nivel 3 (${credit_fallback_usd:.2f} USD)",
+                    description="Recompensa de 3.er referido convertida automáticamente en crédito promocional para tu próxima renovación (ya posees Nivel 3 o superior).",
+                    discount_pct=0.0,
+                    credit_amount_usd=credit_fallback_usd,
+                    target_plan_code=target_upgrade_plan,
+                    previous_plan_code=referrer.plan_code,
+                    priority_order=3,
+                    status="available",
+                    associated_payment_id=payment.id,
+                    created_at=now_dt,
+                    expires_at=expires_at,
+                )
+                coupon_obj = ReferralCoupon(
+                    id=f"rcp_{uuid.uuid4().hex[:14]}",
+                    reward_id=reward_id,
+                    user_id=referrer.id,
+                    referred_user_id=referred_user.id,
+                    code=f"REFCRED75-{secrets.token_hex(3).upper()}",
+                    milestone_number=3,
+                    discount_pct=100.0,
+                    priority_order=3,
+                    status="available",
+                    created_at=now_dt,
+                    expires_at=expires_at,
+                    associated_payment_id=payment.id,
+                )
+            notif_title = "¡3.er Referido Exitoso! Mejora Gratuita al Nivel 3 Desbloqueada"
+            notif_msg = "¡Increíble! Has alcanzado tu tercer referido. Has desbloqueado una mejora gratuita al Nivel 3."
+
+        else:
+            # 4TH REFERRAL AND ALL SUBSEQUENT (4, 5, 6, ... 20, ... 100+, UNLIMITED): 10% DISCOUNT COUPON EACH
+            pct = float(cfg.get("milestone_4_plus_discount_pct") or 10.0)
+            reward = ReferralReward(
+                id=reward_id,
+                user_id=referrer.id,
+                referred_user_id=referred_user.id,
+                conversion_id=conv_id,
+                milestone_number=milestone_number,
+                reward_type="discount_10_pct",
+                title=f"Cupón 10% de Descuento (Referido Exitoso #{milestone_number})",
+                description="Cupón individual del 10% de descuento acumulable para futuras facturas de suscripción (1 cupón por factura).",
+                discount_pct=pct,
+                priority_order=4,
+                status="available",
+                associated_payment_id=payment.id,
+                created_at=now_dt,
+                expires_at=expires_at,
+            )
+            coupon_obj = ReferralCoupon(
+                id=f"rcp_{uuid.uuid4().hex[:14]}",
+                reward_id=reward_id,
+                user_id=referrer.id,
+                referred_user_id=referred_user.id,
+                code=f"REF10-M{milestone_number}-{secrets.token_hex(3).upper()}",
+                milestone_number=milestone_number,
+                discount_pct=pct,
+                priority_order=4,
+                status="available",
+                created_at=now_dt,
+                expires_at=expires_at,
+                associated_payment_id=payment.id,
+            )
+            notif_title = f"¡Referido Exitoso #{milestone_number}! Cupón Adicional del 10%"
+            notif_msg = "¡Nuevo referido exitoso! Has recibido un cupón adicional del 10%."
+
+        conversion = ReferralConversion(
+            id=conv_id,
+            relationship_id=rel.id,
+            referrer_user_id=referrer.id,
+            referred_user_id=referred_user.id,
+            payment_id=payment.id,
+            invoice_id=invoice.id,
+            plan_code=norm_plan,
+            amount_paid_usd=payment.amount_usd,
+            milestone_number=milestone_number,
+            reward_id=reward_id,
+            status="confirmed",
+            created_at=now_dt,
+        )
+        db.add(conversion)
+        db.add(reward)
+        if coupon_obj:
+            db.add(coupon_obj)
+
+        notif = ReferralNotification(
+            id=f"rnot_{uuid.uuid4().hex[:14]}",
+            user_id=referrer.id,
+            reward_id=reward_id,
+            milestone_number=milestone_number,
+            title=notif_title,
+            message=notif_msg,
+            channel="in_app_and_email",
+            is_read=False,
+            created_at=now_dt,
+        )
+        db.add(notif)
+
+        db.add(
+            ReferralAuditLog(
+                actor_user_id=referred_user.id,
+                actor_role="system",
+                target_user_id=referrer.id,
+                relationship_id=rel.id,
+                reward_id=reward_id,
+                action="referral_conversion_confirmed_and_reward_granted",
+                ip_address=ip_address,
+                details={
+                    "conversion_id": conv_id,
+                    "referrer_user_id": referrer.id,
+                    "referred_user_id": referred_user.id,
+                    "milestone_number": milestone_number,
+                    "reward_type": reward.reward_type,
+                    "coupon_code": coupon_obj.code if coupon_obj else None,
+                    "plan_purchased": norm_plan,
+                    "payment_id": payment.id,
+                },
+            )
+        )
+
+        return {
+            "converted": True,
+            "conversion_id": conv_id,
+            "referrer_user_id": referrer.id,
+            "referred_user_id": referred_user.id,
+            "milestone_number": milestone_number,
+            "reward_id": reward_id,
+            "reward_type": reward.reward_type,
+            "discount_pct": reward.discount_pct,
+            "credit_amount_usd": reward.credit_amount_usd,
+            "coupon_code": coupon_obj.code if coupon_obj else None,
+            "notification_message": notif_msg,
+        }
+
+    async def _revoke_referral_on_refund(
+        self,
+        db: AsyncSession,
+        payment: SaasPayment,
+        reason: str = "Reembolso de pago",
+        actor_user: Optional[SaasUser] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        If a referred user's qualifying purchase is refunded or reversed:
+          - Marks ReferralConversion and ReferralRelationship as 'refunded'.
+          - If the generated ReferralReward has NOT been used ('available' or 'active_upgrade'):
+            revokes it immediately (and reverts any active temporary Level 3 upgrade).
+          - If the reward was ALREADY used ('redeemed'):
+            flags it as 'redeemed_refund_flagged' and logs a ReferralFraudFlag for accounting review.
+        """
+        conv_res = await db.execute(
+            select(ReferralConversion).where(ReferralConversion.payment_id == payment.id)
+        )
+        conv = conv_res.scalars().first()
+        if not conv or conv.status == "refunded":
+            return None
+
+        now_dt = utcnow()
+        conv.status = "refunded"
+        conv.revoked_at = now_dt
+        conv.revocation_reason = reason
+
+        rel_res = await db.execute(
+            select(ReferralRelationship).where(ReferralRelationship.id == conv.relationship_id)
+        )
+        rel = rel_res.scalars().first()
+        if rel:
+            rel.status = "refunded"
+            rel.invalidated_at = now_dt
+            rel.invalidation_reason = reason
+
+        rc_res = await db.execute(
+            select(ReferralCode).where(ReferralCode.user_id == conv.referrer_user_id)
+        )
+        rc_row = rc_res.scalars().first()
+        if rc_row and (rc_row.verified_purchases_count or 0) > 0:
+            rc_row.verified_purchases_count -= 1
+            rc_row.updated_at = now_dt
+
+        rw_res = await db.execute(
+            select(ReferralReward).where(ReferralReward.id == conv.reward_id)
+        )
+        rw = rw_res.scalars().first()
+        reward_outcome = "no_reward_found"
+
+        if rw:
+            cp_res = await db.execute(select(ReferralCoupon).where(ReferralCoupon.reward_id == rw.id))
+            cp = cp_res.scalars().first()
+
+            if rw.status in {"available", "active_upgrade"}:
+                if rw.status == "active_upgrade":
+                    ref_u_res = await db.execute(select(SaasUser).where(SaasUser.id == rw.user_id))
+                    ref_user = ref_u_res.scalars().first()
+                    if ref_user:
+                        restored_plan = normalize_plan_code(rw.previous_plan_code or "FREE")
+                        ref_user.plan_code = restored_plan
+                        prefs = dict(ref_user.preferences or {})
+                        prefs.pop("active_referral_upgrade", None)
+                        ref_user.preferences = prefs
+                        plan_obj = await self.get_plan(db, restored_plan)
+                        bal = await self.get_or_create_credit_balance(db, ref_user)
+                        bal.monthly_credits_allocated = plan_obj.monthly_credits
+
+                rw.status = "revoked"
+                rw.revoked_at = now_dt
+                rw.revocation_reason = reason
+                if cp:
+                    cp.status = "revoked"
+                reward_outcome = "unused_reward_revoked"
+            elif rw.status == "redeemed":
+                rw.status = "redeemed_refund_flagged"
+                rw.revoked_at = now_dt
+                rw.revocation_reason = f"Pago de referido reembolsado después de redimir recompensa: {reason}"
+                db.add(
+                    ReferralFraudFlag(
+                        id=f"ff_{uuid.uuid4().hex[:14]}",
+                        referrer_user_id=conv.referrer_user_id,
+                        referred_user_id=conv.referred_user_id,
+                        relationship_id=conv.relationship_id,
+                        payment_id=payment.id,
+                        flag_type="refund_after_reward",
+                        severity="high",
+                        status="open",
+                        reason="El usuario referido reembolsó su compra después de que el invitador utilizó la recompensa.",
+                        details={
+                            "reward_id": rw.id,
+                            "redeemed_invoice_id": rw.redeemed_invoice_id,
+                            "refund_reason": reason,
+                        },
+                    )
+                )
+                reward_outcome = "redeemed_reward_flagged_for_adjustment"
+
+        db.add(
+            ReferralAuditLog(
+                actor_user_id=actor_user.id if actor_user else None,
+                actor_role=actor_user.role if actor_user else "system",
+                target_user_id=conv.referrer_user_id,
+                relationship_id=conv.relationship_id,
+                reward_id=rw.id if rw else None,
+                action="referral_conversion_revoked_on_refund",
+                details={
+                    "payment_id": payment.id,
+                    "conversion_id": conv.id,
+                    "reward_outcome": reward_outcome,
+                    "reason": reason,
+                },
+            )
+        )
+
+        return {
+            "revoked": True,
+            "conversion_id": conv.id,
+            "reward_id": rw.id if rw else None,
+            "reward_outcome": reward_outcome,
+        }
+
+    async def get_user_referrals_dashboard(
+        self,
+        db: AsyncSession,
+        user: SaasUser,
+        base_url: str = "https://liseth.ai",
+    ) -> Dict[str, Any]:
+        """
+        Builds the complete 'PROGRAMA DE REFERIDOS' dashboard for an authenticated user,
+        while preserving backward-compatible fields (`total_referrals`, `rewarded_referrals`,
+        `total_credits_earned`, `referrals`).
+        """
+        await self.ensure_seeded(db)
+        await self.check_and_revert_expired_referral_upgrades(db, user)
+        cfg = self.get_referral_program_config()
+
+        # Ensure ReferralCode row exists
+        rc_res = await db.execute(select(ReferralCode).where(ReferralCode.user_id == user.id))
+        rc_row = rc_res.scalars().first()
+        if not rc_row:
+            rc_row = ReferralCode(
+                id=f"refcode_{uuid.uuid4().hex[:14]}",
+                user_id=user.id,
+                code=user.referral_code,
+                is_active=True,
+                attribution_window_days=cfg["attribution_window_days"],
+            )
+            db.add(rc_row)
+            await db.commit()
+
+        # Legacy SaasReferral records (for backward compatibility with email verification credit bonus tests)
+        leg_res = await db.execute(
+            select(SaasReferral)
+            .where(SaasReferral.referrer_user_id == user.id)
+            .order_by(desc(SaasReferral.created_at))
+        )
+        legacy_referrals = leg_res.scalars().all()
+
+        # Progressive ReferralRelationships
+        rel_res = await db.execute(
+            select(ReferralRelationship)
+            .where(ReferralRelationship.referrer_user_id == user.id)
+            .order_by(desc(ReferralRelationship.created_at))
+        )
+        relationships = rel_res.scalars().all()
+
+        # Map referred user emails (masked for privacy)
+        referred_uids = [r.referred_user_id for r in relationships]
+        masked_user_map: Dict[str, str] = {}
+        if referred_uids:
+            u_rows = (
+                await db.execute(select(SaasUser).where(SaasUser.id.in_(referred_uids)))
+            ).scalars().all()
+            for u_obj in u_rows:
+                masked_user_map[u_obj.id] = mask_email_for_privacy(u_obj.email)
+
+        # Confirmed conversions
+        conv_res = await db.execute(
+            select(ReferralConversion)
+            .where(ReferralConversion.referrer_user_id == user.id)
+            .order_by(ReferralConversion.milestone_number.asc())
+        )
+        conversions = conv_res.scalars().all()
+        verified_purchases_count = sum(1 for c in conversions if c.status == "confirmed")
+
+        # Rewards
+        rw_res = await db.execute(
+            select(ReferralReward)
+            .where(ReferralReward.user_id == user.id)
+            .order_by(ReferralReward.milestone_number.asc(), desc(ReferralReward.created_at))
+        )
+        rewards = rw_res.scalars().all()
+
+        # Coupons
+        cp_res = await db.execute(
+            select(ReferralCoupon)
+            .where(ReferralCoupon.user_id == user.id)
+            .order_by(ReferralCoupon.priority_order.asc(), ReferralCoupon.created_at.asc())
+        )
+        coupons = cp_res.scalars().all()
+
+        # Redemptions
+        red_res = await db.execute(
+            select(ReferralRewardRedemption)
+            .where(ReferralRewardRedemption.user_id == user.id)
+            .order_by(desc(ReferralRewardRedemption.created_at))
+        )
+        redemptions = red_res.scalars().all()
+
+        # Notifications
+        not_res = await db.execute(
+            select(ReferralNotification)
+            .where(ReferralNotification.user_id == user.id)
+            .order_by(desc(ReferralNotification.created_at))
+            .limit(30)
+        )
+        notifications = not_res.scalars().all()
+
+        # Calculate progress toward next milestone
+        next_milestone_num = verified_purchases_count + 1
+        if next_milestone_num == 1:
+            next_reward_label = "50% de descuento en tu próxima factura"
+            next_reward_type = "discount_50_pct"
+        elif next_milestone_num == 2:
+            next_reward_label = "25% de descuento en una futura factura"
+            next_reward_type = "discount_25_pct"
+        elif next_milestone_num == 3:
+            next_reward_label = f"Mejora gratuita al Nivel 3 ({cfg['milestone_3_target_plan']}) por {cfg['milestone_3_duration_days']} días"
+            next_reward_type = "free_upgrade_level_3"
+        else:
+            next_reward_label = f"Cupón adicional del {cfg['milestone_4_plus_discount_pct']:.0f}% de descuento (acumulable sin límite)"
+            next_reward_type = "discount_10_pct"
+
+        available_rewards = [r for r in rewards if r.status == "available"]
+        active_upgrades = [r for r in rewards if r.status == "active_upgrade"]
+        available_10_pct_coupons = [
+            c for c in coupons if c.status == "available" and abs(c.discount_pct - 10.0) < 0.01
+        ]
+        next_auto_reward, next_auto_coupon = await self._select_next_available_referral_reward(db, user.id)
+
+        clean_domain = (base_url or cfg.get("base_invite_domain") or "https://liseth.ai").rstrip("/")
+        invite_link = f"{clean_domain}/register?ref={user.referral_code}"
+
+        return {
+            "ok": True,
+            "program_enabled": cfg["program_enabled"],
+            "referral_code": user.referral_code,
+            "invite_link": invite_link,
+            "referral_link": invite_link,
+            "clicks_count": rc_row.clicks_count or 0,
+            "attribution_window_days": rc_row.attribution_window_days or cfg["attribution_window_days"],
+            "qualifying_plans": cfg["qualifying_plans"],
+            # Backward-compatible top-level counters
+            "total_referrals": len(legacy_referrals),
+            "rewarded_referrals": sum(1 for r in legacy_referrals if r.status == "rewarded"),
+            "total_credits_earned": sum(r.referrer_reward_credits for r in legacy_referrals if r.status == "rewarded"),
+            "referrals": [
+                {
+                    "id": r.id,
+                    "referred_user_id": r.referred_user_id,
+                    "status": r.status,
+                    "reward_credits": r.referrer_reward_credits,
+                    "created_at": _iso(r.created_at),
+                }
+                for r in legacy_referrals
+            ],
+            # New Purchase-Verified Progressive Referral Metrics
+            "invited_count": len(relationships),
+            "pending_purchases_count": sum(1 for r in relationships if r.status in {"registered", "pending_purchase"}),
+            "verified_purchases_count": verified_purchases_count,
+            "available_rewards_count": len(available_rewards),
+            "accumulated_10_pct_coupons_count": len(available_10_pct_coupons),
+            "total_saved_usd": round(sum(r.discount_amount_usd for r in redemptions), 2),
+            "active_temporary_upgrade": (
+                {
+                    "reward_id": active_upgrades[0].id,
+                    "target_plan_code": active_upgrades[0].target_plan_code,
+                    "previous_plan_code": active_upgrades[0].previous_plan_code,
+                    "started_at": _iso(active_upgrades[0].upgrade_started_at),
+                    "ends_at": _iso(active_upgrades[0].upgrade_ends_at),
+                }
+                if active_upgrades
+                else None
+            ),
+            "next_reward_to_auto_apply": (
+                {
+                    "reward_id": next_auto_reward.id,
+                    "reward_type": next_auto_reward.reward_type,
+                    "title": next_auto_reward.title,
+                    "discount_pct": next_auto_reward.discount_pct,
+                    "credit_amount_usd": next_auto_reward.credit_amount_usd,
+                    "coupon_code": next_auto_coupon.code if next_auto_coupon else None,
+                }
+                if next_auto_reward
+                else None
+            ),
+            "progress": {
+                "verified_referrals": verified_purchases_count,
+                "next_milestone_number": next_milestone_num,
+                "next_reward_type": next_reward_type,
+                "next_reward_label": next_reward_label,
+                "milestone_1_completed": verified_purchases_count >= 1,
+                "milestone_2_completed": verified_purchases_count >= 2,
+                "milestone_3_completed": verified_purchases_count >= 3,
+                "milestone_4_plus_count": max(0, verified_purchases_count - 3),
+                "progress_bar_pct": min(100, int(round((min(verified_purchases_count, 3) / 3.0) * 100))) if verified_purchases_count < 3 else 100,
+            },
+            "referral_history": [
+                {
+                    "id": rel.id,
+                    "referred_user_masked": masked_user_map.get(rel.referred_user_id, "u***@liseth.ai"),
+                    "status": rel.status,
+                    "status_label": {
+                        "registered": "Registrado (Sin compra aún)",
+                        "pending_purchase": "Pendiente de compra elegible",
+                        "converted": "Referido Exitoso (Compra verificada)",
+                        "refunded": "Reembolsado / Revocado",
+                        "fraud_flagged": "En revisión antifraude",
+                        "rejected": "Invalidado",
+                    }.get(rel.status, rel.status),
+                    "eligible_plan_purchased": rel.eligible_plan_purchased,
+                    "registered_at": _iso(rel.registered_at),
+                    "converted_at": _iso(rel.converted_at),
+                }
+                for rel in relationships
+            ],
+            "rewards": [
+                {
+                    "id": rw.id,
+                    "milestone_number": rw.milestone_number,
+                    "reward_type": rw.reward_type,
+                    "title": rw.title,
+                    "description": rw.description,
+                    "discount_pct": rw.discount_pct,
+                    "credit_amount_usd": rw.credit_amount_usd,
+                    "target_plan_code": rw.target_plan_code,
+                    "previous_plan_code": rw.previous_plan_code,
+                    "status": rw.status,
+                    "priority_order": rw.priority_order,
+                    "discount_amount_saved_usd": rw.discount_amount_saved_usd,
+                    "created_at": _iso(rw.created_at),
+                    "used_at": _iso(rw.used_at),
+                    "redeemed_at": _iso(rw.used_at),
+                    "upgrade_ends_at": _iso(rw.upgrade_ends_at),
+                    "expires_at": _iso(rw.expires_at),
+                    "revocation_reason": rw.revocation_reason,
+                }
+                for rw in rewards
+            ],
+            "coupons": [
+                {
+                    "id": cp.id,
+                    "reward_id": cp.reward_id,
+                    "code": cp.code,
+                    "milestone_number": cp.milestone_number,
+                    "discount_pct": cp.discount_pct,
+                    "priority_order": cp.priority_order,
+                    "status": cp.status,
+                    "created_at": _iso(cp.created_at),
+                    "redeemed_at": _iso(cp.redeemed_at),
+                    "expires_at": _iso(cp.expires_at),
+                    "redeemed_invoice_id": cp.redeemed_invoice_id,
+                }
+                for cp in coupons
+            ],
+            "notifications": [
+                {
+                    "id": n.id,
+                    "milestone_number": n.milestone_number,
+                    "title": n.title,
+                    "message": n.message,
+                    "is_read": n.is_read,
+                    "created_at": _iso(n.created_at),
+                }
+                for n in notifications
+            ],
+        }
+
+    # ==========================================================================
+    # CREATOR SUPERADMIN REFERRALS & AFFILIATES CONTROL CENTER
+    # ==========================================================================
+
+    async def admin_get_referrals_dashboard(
+        self,
+        db: AsyncSession,
+        creator: SaasUser,
+        search: Optional[str] = None,
+        status_filter: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Executive CREATOR panel for 'REFERIDOS Y AFILIADOS':
+        - Global referral KPIs, top referrers, all relationships, rewards, coupons,
+          open fraud flags, and audit logs.
+        """
+        cfg = self.get_referral_program_config()
+        all_users = (await db.execute(select(SaasUser))).scalars().all()
+        user_map = {u.id: {"email": u.email, "name": u.full_name, "plan": u.plan_code, "code": u.referral_code} for u in all_users}
+
+        rel_stmt = select(ReferralRelationship).order_by(desc(ReferralRelationship.created_at))
+        if status_filter and status_filter.strip():
+            rel_stmt = rel_stmt.where(ReferralRelationship.status == status_filter.strip())
+        all_rels = (await db.execute(rel_stmt)).scalars().all()
+
+        if search and search.strip():
+            q = search.strip().lower()
+            filtered_rels = []
+            for r in all_rels:
+                ref_info = user_map.get(r.referrer_user_id, {})
+                inv_info = user_map.get(r.referred_user_id, {})
+                if (
+                    q in (r.referral_code_used or "").lower()
+                    or q in (ref_info.get("email") or "").lower()
+                    or q in (inv_info.get("email") or "").lower()
+                ):
+                    filtered_rels.append(r)
+            all_rels = filtered_rels
+
+        all_convs = (await db.execute(select(ReferralConversion).order_by(desc(ReferralConversion.created_at)))).scalars().all()
+        all_rewards = (await db.execute(select(ReferralReward).order_by(desc(ReferralReward.created_at)))).scalars().all()
+        all_redemptions = (await db.execute(select(ReferralRewardRedemption).order_by(desc(ReferralRewardRedemption.created_at)))).scalars().all()
+        all_flags = (await db.execute(select(ReferralFraudFlag).order_by(desc(ReferralFraudFlag.created_at)))).scalars().all()
+        audit_logs = (await db.execute(select(ReferralAuditLog).order_by(desc(ReferralAuditLog.created_at)).limit(40))).scalars().all()
+
+        # Compute top referrers ranking
+        referrer_stats: Dict[str, Dict[str, Any]] = {}
+        for r in all_rels:
+            uid = r.referrer_user_id
+            if uid not in referrer_stats:
+                u_meta = user_map.get(uid, {})
+                referrer_stats[uid] = {
+                    "user_id": uid,
+                    "email": u_meta.get("email", uid),
+                    "full_name": u_meta.get("name", ""),
+                    "referral_code": u_meta.get("code", ""),
+                    "invited_count": 0,
+                    "converted_count": 0,
+                }
+            referrer_stats[uid]["invited_count"] += 1
+            if r.status == "converted":
+                referrer_stats[uid]["converted_count"] += 1
+
+        top_referrers = sorted(
+            referrer_stats.values(),
+            key=lambda x: (x["converted_count"], x["invited_count"]),
+            reverse=True,
+        )[:15]
+
+        return {
+            "ok": True,
+            "config": cfg,
+            "metrics": {
+                "total_invited_registrations": len(all_rels),
+                "pending_purchases": sum(1 for r in all_rels if r.status in {"registered", "pending_purchase"}),
+                "verified_conversions": sum(1 for c in all_convs if c.status == "confirmed"),
+                "refunded_conversions": sum(1 for c in all_convs if c.status == "refunded"),
+                "active_50_pct_rewards": sum(1 for rw in all_rewards if rw.reward_type == "discount_50_pct" and rw.status == "available"),
+                "active_25_pct_rewards": sum(1 for rw in all_rewards if rw.reward_type == "discount_25_pct" and rw.status == "available"),
+                "active_level_3_upgrades": sum(1 for rw in all_rewards if rw.reward_type == "free_upgrade_level_3" and rw.status == "active_upgrade"),
+                "active_10_pct_coupons": sum(1 for rw in all_rewards if rw.reward_type == "discount_10_pct" and rw.status == "available"),
+                "redeemed_rewards_total": len(all_redemptions),
+                "total_discount_granted_usd": round(sum(red.discount_amount_usd for red in all_redemptions), 2),
+                "referral_revenue_generated_usd": round(sum(c.amount_paid_usd for c in all_convs if c.status == "confirmed"), 2),
+                "open_fraud_flags": sum(1 for f in all_flags if f.status == "open"),
+            },
+            "top_referrers": top_referrers,
+            "relationships": [
+                {
+                    "id": r.id,
+                    "referrer_user_id": r.referrer_user_id,
+                    "referrer_email": user_map.get(r.referrer_user_id, {}).get("email", r.referrer_user_id),
+                    "referred_user_id": r.referred_user_id,
+                    "referred_email": user_map.get(r.referred_user_id, {}).get("email", r.referred_user_id),
+                    "referral_code_used": r.referral_code_used,
+                    "status": r.status,
+                    "eligible_plan_purchased": r.eligible_plan_purchased,
+                    "qualifying_payment_id": r.qualifying_payment_id,
+                    "registered_at": _iso(r.registered_at),
+                    "converted_at": _iso(r.converted_at),
+                    "invalidation_reason": r.invalidation_reason,
+                }
+                for r in all_rels[:100]
+            ],
+            "rewards": [
+                {
+                    "id": rw.id,
+                    "user_id": rw.user_id,
+                    "user_email": user_map.get(rw.user_id, {}).get("email", rw.user_id),
+                    "referred_user_id": rw.referred_user_id,
+                    "milestone_number": rw.milestone_number,
+                    "reward_type": rw.reward_type,
+                    "title": rw.title,
+                    "discount_pct": rw.discount_pct,
+                    "credit_amount_usd": rw.credit_amount_usd,
+                    "status": rw.status,
+                    "created_at": _iso(rw.created_at),
+                    "used_at": _iso(rw.used_at),
+                    "revocation_reason": rw.revocation_reason,
+                }
+                for rw in all_rewards[:100]
+            ],
+            "fraud_flags": [
+                {
+                    "id": f.id,
+                    "referrer_user_id": f.referrer_user_id,
+                    "referrer_email": user_map.get(f.referrer_user_id or "", {}).get("email", f.referrer_user_id),
+                    "referred_user_id": f.referred_user_id,
+                    "referred_email": user_map.get(f.referred_user_id or "", {}).get("email", f.referred_user_id),
+                    "flag_type": f.flag_type,
+                    "severity": f.severity,
+                    "status": f.status,
+                    "reason": f.reason,
+                    "details": f.details or {},
+                    "created_at": _iso(f.created_at),
+                }
+                for f in all_flags[:50]
+            ],
+            "audit_logs": [
+                {
+                    "id": l.id,
+                    "actor_user_id": l.actor_user_id,
+                    "actor_role": l.actor_role,
+                    "target_user_id": l.target_user_id,
+                    "action": l.action,
+                    "details": l.details or {},
+                    "created_at": _iso(l.created_at),
+                }
+                for l in audit_logs
+            ],
+        }
+
+    async def admin_invalidate_referral(
+        self,
+        db: AsyncSession,
+        creator: SaasUser,
+        relationship_id: str,
+        reason: str = "Invalidado manualmente por Superadmin CREATOR por fraude o incumplimiento.",
+    ) -> Dict[str, Any]:
+        """Allows CREATOR to invalidate a fraudulent referral relationship and revoke its reward."""
+        rel_res = await db.execute(
+            select(ReferralRelationship).where(
+                or_(
+                    ReferralRelationship.id == relationship_id,
+                    ReferralRelationship.referred_user_id == relationship_id,
+                )
+            )
+        )
+        rel = rel_res.scalars().first()
+        if not rel:
+            raise HTTPException(status_code=404, detail="Relación de referido no encontrada.")
+
+        now_dt = utcnow()
+        rel.status = "rejected"
+        rel.invalidated_at = now_dt
+        rel.invalidation_reason = reason
+
+        conv_res = await db.execute(
+            select(ReferralConversion).where(ReferralConversion.relationship_id == rel.id)
+        )
+        conv = conv_res.scalars().first()
+        revoked_reward_id = None
+        if conv:
+            conv.status = "invalidated"
+            conv.revoked_at = now_dt
+            conv.revocation_reason = reason
+            if conv.reward_id:
+                rw_res = await db.execute(select(ReferralReward).where(ReferralReward.id == conv.reward_id))
+                rw = rw_res.scalars().first()
+                if rw:
+                    revoked_reward_id = rw.id
+                    if rw.status == "active_upgrade":
+                        u_res = await db.execute(select(SaasUser).where(SaasUser.id == rw.user_id))
+                        ref_u = u_res.scalars().first()
+                        if ref_u:
+                            ref_u.plan_code = normalize_plan_code(rw.previous_plan_code or "FREE")
+                    rw.status = "revoked"
+                    rw.revoked_at = now_dt
+                    rw.revocation_reason = reason
+                    cp_res = await db.execute(select(ReferralCoupon).where(ReferralCoupon.reward_id == rw.id))
+                    cp = cp_res.scalars().first()
+                    if cp:
+                        cp.status = "revoked"
+
+        db.add(
+            ReferralAuditLog(
+                actor_user_id=creator.id,
+                actor_role=creator.role,
+                target_user_id=rel.referrer_user_id,
+                relationship_id=rel.id,
+                reward_id=revoked_reward_id,
+                action="creator_invalidated_referral",
+                details={"relationship_id": rel.id, "reason": reason, "revoked_reward_id": revoked_reward_id},
+            )
+        )
+        await db.commit()
+        return {
+            "ok": True,
+            "relationship_id": rel.id,
+            "status": rel.status,
+            "revoked_reward_id": revoked_reward_id,
+            "reason": reason,
+        }
+
+    async def admin_revoke_reward(
+        self,
+        db: AsyncSession,
+        creator: SaasUser,
+        reward_id: str,
+        reason: str = "Recompensa revocada manualmente por Superadmin CREATOR.",
+    ) -> Dict[str, Any]:
+        """Allows CREATOR to revoke a specific ReferralReward or coupon."""
+        rw_res = await db.execute(select(ReferralReward).where(ReferralReward.id == reward_id))
+        rw = rw_res.scalars().first()
+        if not rw:
+            raise HTTPException(status_code=404, detail="Recompensa de referido no encontrada.")
+
+        now_dt = utcnow()
+        if rw.status == "active_upgrade":
+            u_res = await db.execute(select(SaasUser).where(SaasUser.id == rw.user_id))
+            ref_u = u_res.scalars().first()
+            if ref_u:
+                ref_u.plan_code = normalize_plan_code(rw.previous_plan_code or "FREE")
+                prefs = dict(ref_u.preferences or {})
+                prefs.pop("active_referral_upgrade", None)
+                ref_u.preferences = prefs
+
+        rw.status = "revoked"
+        rw.revoked_at = now_dt
+        rw.revocation_reason = reason
+
+        cp_res = await db.execute(select(ReferralCoupon).where(ReferralCoupon.reward_id == rw.id))
+        cp = cp_res.scalars().first()
+        if cp:
+            cp.status = "revoked"
+
+        db.add(
+            ReferralAuditLog(
+                actor_user_id=creator.id,
+                actor_role=creator.role,
+                target_user_id=rw.user_id,
+                reward_id=rw.id,
+                action="creator_revoked_referral_reward",
+                details={"reward_id": rw.id, "reason": reason},
+            )
+        )
+        await db.commit()
+        return {"ok": True, "reward_id": rw.id, "status": rw.status, "reason": reason}
+
+    async def admin_grant_manual_reward(
+        self,
+        db: AsyncSession,
+        creator: SaasUser,
+        target_user_id: str,
+        reward_type: str = "discount_10_pct",
+        discount_pct: float = 10.0,
+        duration_days: int = 30,
+        notes: str = "Otorgado manualmente por Superadmin CREATOR",
+    ) -> Dict[str, Any]:
+        """Allows CREATOR to manually grant a referral reward or upgrade to any user."""
+        u_res = await db.execute(
+            select(SaasUser).where(or_(SaasUser.id == target_user_id, SaasUser.email == target_user_id))
+        )
+        target_user = u_res.scalars().first()
+        if not target_user:
+            raise HTTPException(status_code=404, detail="Usuario objetivo no encontrado.")
+
+        now_dt = utcnow()
+        reward_id = f"rrw_{uuid.uuid4().hex[:14]}"
+        coupon_code = None
+
+        if reward_type == "free_upgrade_level_3":
+            prev_plan = target_user.plan_code
+            ends_at = now_dt + timedelta(days=max(1, duration_days))
+            rw = ReferralReward(
+                id=reward_id,
+                user_id=target_user.id,
+                milestone_number=3,
+                reward_type="free_upgrade_level_3",
+                title=f"Mejora Gratuita Nivel 3 (BUSINESS) por {duration_days} Días (CREATOR)",
+                description=notes,
+                discount_pct=100.0,
+                target_plan_code="BUSINESS",
+                previous_plan_code=prev_plan,
+                upgrade_duration_days=duration_days,
+                upgrade_started_at=now_dt,
+                upgrade_ends_at=ends_at,
+                priority_order=0,
+                status="active_upgrade",
+                created_at=now_dt,
+                expires_at=ends_at,
+            )
+            target_user.plan_code = "BUSINESS"
+            db.add(rw)
+        else:
+            prio = 1 if discount_pct >= 50 else (2 if discount_pct >= 25 else 4)
+            rw = ReferralReward(
+                id=reward_id,
+                user_id=target_user.id,
+                milestone_number=prio,
+                reward_type=reward_type,
+                title=f"Descuento Especial de Referido ({discount_pct:.0f}%)",
+                description=notes,
+                discount_pct=discount_pct,
+                priority_order=prio,
+                status="available",
+                created_at=now_dt,
+            )
+            coupon_code = f"REFADM-{int(discount_pct)}-{secrets.token_hex(3).upper()}"
+            cp = ReferralCoupon(
+                id=f"rcp_{uuid.uuid4().hex[:14]}",
+                reward_id=reward_id,
+                user_id=target_user.id,
+                code=coupon_code,
+                milestone_number=prio,
+                discount_pct=discount_pct,
+                priority_order=prio,
+                status="available",
+                created_at=now_dt,
+            )
+            db.add(rw)
+            db.add(cp)
+
+        db.add(
+            ReferralAuditLog(
+                actor_user_id=creator.id,
+                actor_role=creator.role,
+                target_user_id=target_user.id,
+                reward_id=reward_id,
+                action="creator_granted_manual_referral_reward",
+                details={
+                    "reward_id": reward_id,
+                    "reward_type": reward_type,
+                    "discount_pct": discount_pct,
+                    "coupon_code": coupon_code,
+                    "notes": notes,
+                },
+            )
+        )
+        await db.commit()
+        return {
+            "ok": True,
+            "reward_id": reward_id,
+            "user_id": target_user.id,
+            "reward_type": reward_type,
+            "discount_pct": discount_pct,
+            "coupon_code": coupon_code,
+        }
+
+    # ==========================================================================
+    # LEGAL TERMS, CONDITIONS, PRIVACY & COPYRIGHT ENGINE
+    # ==========================================================================
+
+    def get_legal_terms_and_copyright(self) -> Dict[str, Any]:
+        """
+        Returns the full legal framework, Terms of Service, Referral Program Official Rules,
+        Privacy Policy (Habeas Data Ley 1581 de 2012), and Copyright & Intellectual Property
+        Notice for Señor Santiago Huérfano López.
+        """
+        legal_path = settings.BASE_DIR / "LEGAL_TERMS_AND_COPYRIGHT.md"
+        markdown_text = ""
+        if legal_path.exists():
+            try:
+                markdown_text = legal_path.read_text(encoding="utf-8")
+            except Exception:
+                markdown_text = ""
+
+        return {
+            "ok": True,
+            "version": "v7.4-LEGAL-ENTERPRISE",
+            "effective_date": "2026-11-11",
+            "copyright_notice": "© 2026 Santiago Huérfano López. Todos los derechos reservados (All Rights Reserved).",
+            "owner": {
+                "full_name": "Santiago Huérfano López",
+                "role": "Fundador, Creador, Arquitecto Principal y Titular Exclusivo de Derechos",
+                "email": "santigamerxdyt@gmail.com",
+                "whatsapp": "+57 312 237 6474",
+                "whatsapp_and_nequi": "+57 312 237 6474",
+                "nequi_official": "3122376474",
+                "bre_b_key": "@NEQUISAN243100",
+                "bre_b_personal_key": "@NEQUISAN243100",
+                "jurisdiction": "República de Colombia (Ley 23 de 1982, Ley 1581 de 2012, Ley 1480 de 2011, Convenio de Berna & OMPI/WIPO)",
+            },
+            "sections": [
+                {
+                    "id": "copyright",
+                    "title": "1. Derechos de Autor y Propiedad Intelectual (Copyright)",
+                    "summary": "La plataforma Liseth AI / JARVIS Mark VII, su código fuente, arquitectura Multi-Cerebro, algoritmos, agentes, diseño UI/UX y marca son propiedad intelectual exclusiva de Santiago Huérfano López (Ley 23 de 1982, Decisión Andina 351 de 1993 y Tratados de la OMPI/WIPO). Prohibida su copia, redistribución o ingeniería inversa.",
+                    "content": "La plataforma Liseth AI / JARVIS Mark VII, su código fuente, arquitectura Multi-Cerebro, algoritmos, agentes, diseño UI/UX y marca son propiedad intelectual exclusiva de Santiago Huérfano López (Ley 23 de 1982, Decisión Andina 351 de 1993 y Tratados de la OMPI/WIPO). Prohibida su copia, redistribución o ingeniería inversa.",
+                },
+                {
+                    "id": "terms_of_service",
+                    "title": "2. Términos y Condiciones de Uso (SaaS)",
+                    "summary": "El uso de la plataforma requiere mayoría de edad, credenciales personales intransferibles y cumplimiento de las políticas de uso ético de IA. El plan CREATOR es soberano y exclusivo del propietario.",
+                    "content": "El uso de la plataforma requiere mayoría de edad, credenciales personales intransferibles y cumplimiento de las políticas de uso ético de IA. El plan CREATOR es soberano y exclusivo del propietario.",
+                },
+                {
+                    "id": "billing_and_refunds",
+                    "title": "3. Suscripciones, Facturación y Pagos (Nequi / Bre-B / Tarjetas)",
+                    "summary": "Pagos procesados en USD/COP mediante Nequi (+57 312 237 6474), Llave Bre-B (@NEQUISAN243100), PSE y Tarjetas. Derecho de retracto conforme al Art. 47 de la Ley 1480 de 2011 siempre que no se hayan consumido créditos ni beneficios del plan.",
+                    "content": "Pagos procesados en USD/COP mediante Nequi (+57 312 237 6474), Llave Bre-B (@NEQUISAN243100), PSE y Tarjetas. Derecho de retracto conforme al Art. 47 de la Ley 1480 de 2011 siempre que no se hayan consumido créditos ni beneficios del plan.",
+                },
+                {
+                    "id": "referral_program_rules",
+                    "title": "4. Reglamento Oficial del Programa de Referidos y Recompensas",
+                    "summary": "Solo califican como referidos exitosos los usuarios nuevos que adquieran y paguen el Plan Básico / Starter (Nivel 1). Progresión: 1.º (50% dto.), 2.º (25% dto.), 3.º (Nivel 3 Business gratis por 30 días o crédito equivalente), 4.º en adelante (cupones ilimitados del 10%, 1 por factura). Prohibido el autorreferido; los reembolsos revocan recompensas no usadas.",
+                    "content": "Solo califican como referidos exitosos los usuarios nuevos que adquieran y paguen el Plan Básico / Starter (Nivel 1). Progresión: 1.º (50% dto.), 2.º (25% dto.), 3.º (Nivel 3 Business gratis por 30 días o crédito equivalente), 4.º en adelante (cupones ilimitados del 10%, 1 por factura). Prohibido el autorreferido; los reembolsos revocan recompensas no usadas.",
+                },
+                {
+                    "id": "privacy_habeas_data",
+                    "title": "5. Política de Privacidad y Habeas Data (Ley 1581 de 2012)",
+                    "summary": "Protección criptográfica PBKDF2-SHA256, aislamiento estricto multi-tenant por usuario, enmascaramiento de correos en paneles de referidos y garantía plena de derechos ARCO.",
+                    "content": "Protección criptográfica PBKDF2-SHA256, aislamiento estricto multi-tenant por usuario, enmascaramiento de correos en paneles de referidos y garantía plena de derechos ARCO.",
+                },
+            ],
+            "full_markdown": markdown_text,
+            "markdown_document": markdown_text,
+        }
 
 
 saas_service = SaasPlatformService()

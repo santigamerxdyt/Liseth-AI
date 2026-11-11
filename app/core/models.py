@@ -565,6 +565,228 @@ class SaasReferral(Base):
     created_at = Column(DateTime, default=utcnow)
 
 
+class ReferralCode(Base):
+    """
+    Unique referral code and attribution configuration per user.
+    """
+    __tablename__ = "referral_codes"
+
+    id = Column(String(64), primary_key=True)
+    user_id = Column(String(64), unique=True, index=True, nullable=False)
+    code = Column(String(40), unique=True, index=True, nullable=False)
+    is_active = Column(Boolean, default=True)
+    clicks_count = Column(Integer, default=0)
+    registrations_count = Column(Integer, default=0)
+    verified_purchases_count = Column(Integer, default=0)
+    attribution_window_days = Column(Integer, default=30)
+    last_clicked_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow)
+
+
+class ReferralRelationship(Base):
+    """
+    Permanent attribution link between inviter (referrer) and invitee (referred).
+    Immutable once registered. Free registrations remain 'pending_purchase' until
+    an eligible plan purchase is confirmed.
+    """
+    __tablename__ = "referral_relationships"
+
+    id = Column(String(64), primary_key=True)
+    referrer_user_id = Column(String(64), index=True, nullable=False)
+    referred_user_id = Column(String(64), unique=True, index=True, nullable=False)
+    referral_code_used = Column(String(40), index=True, nullable=False)
+    attribution_source = Column(String(40), default="invite_link")  # invite_link, manual_code, startup_gate
+    status = Column(String(40), default="pending_purchase", index=True)  # registered, pending_purchase, converted, rejected, fraud_flagged, refunded
+    eligible_plan_purchased = Column(String(40), nullable=True)
+    qualifying_payment_id = Column(String(64), nullable=True)
+    qualifying_invoice_id = Column(String(64), nullable=True)
+    client_ip = Column(String(64), default="127.0.0.1")
+    user_agent_hash = Column(String(64), nullable=True)
+    payment_fingerprint = Column(String(128), nullable=True)
+    clicked_at = Column(DateTime, nullable=True)
+    registered_at = Column(DateTime, default=utcnow)
+    converted_at = Column(DateTime, nullable=True)
+    invalidated_at = Column(DateTime, nullable=True)
+    invalidation_reason = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+
+
+class ReferralConversion(Base):
+    """
+    Verified referral conversion generated strictly upon the referred user's FIRST
+    confirmed purchase of an eligible plan (e.g., STARTER / Básico / Nivel 1).
+    Unique constraint on referred_user_id guarantees a single referred user can
+    NEVER generate multiple rewards across plan changes, cancellations, or re-purchases.
+    """
+    __tablename__ = "referral_conversions"
+
+    id = Column(String(64), primary_key=True)
+    relationship_id = Column(String(64), unique=True, index=True, nullable=False)
+    referrer_user_id = Column(String(64), index=True, nullable=False)
+    referred_user_id = Column(String(64), unique=True, index=True, nullable=False)
+    payment_id = Column(String(64), unique=True, index=True, nullable=False)
+    invoice_id = Column(String(64), index=True, nullable=True)
+    plan_code = Column(String(40), nullable=False)
+    amount_paid_usd = Column(Float, default=0.0)
+    milestone_number = Column(Integer, nullable=False)  # 1, 2, 3, 4, 5, ...
+    reward_id = Column(String(64), index=True, nullable=True)
+    status = Column(String(30), default="confirmed", index=True)  # confirmed, refunded, invalidated
+    created_at = Column(DateTime, default=utcnow)
+    revoked_at = Column(DateTime, nullable=True)
+    revocation_reason = Column(String(255), nullable=True)
+
+
+class ReferralReward(Base):
+    """
+    Progressive reward granted to the referrer upon a verified ReferralConversion:
+      - Milestone 1: 'discount_50_pct' (50% discount on next eligible subscription invoice)
+      - Milestone 2: 'discount_25_pct' (25% discount on future subscription invoice)
+      - Milestone 3: 'free_upgrade_level_3' (30-day free upgrade to Level 3 BUSINESS,
+                     or 'promo_credit_usd' if already >= Level 3)
+      - Milestone 4+: 'discount_10_pct' (Unlimited 10% single-use discount coupons, 1 per invoice)
+    """
+    __tablename__ = "referral_rewards"
+
+    id = Column(String(64), primary_key=True)
+    user_id = Column(String(64), index=True, nullable=False)  # Referrer receiving the reward
+    referred_user_id = Column(String(64), index=True, nullable=True)  # Invite that triggered it (nullable for manual admin grant)
+    conversion_id = Column(String(64), index=True, nullable=True)
+    milestone_number = Column(Integer, nullable=False, default=1)
+    reward_type = Column(String(40), nullable=False, index=True)
+    # reward_type values: discount_50_pct, discount_25_pct, free_upgrade_level_3, discount_10_pct, promo_credit_usd
+    title = Column(String(140), nullable=False, default="")
+    description = Column(String(255), default="")
+    discount_pct = Column(Float, default=0.0)
+    credit_amount_usd = Column(Float, default=0.0)
+    target_plan_code = Column(String(40), nullable=True)  # BUSINESS (Level 3) for milestone 3
+    previous_plan_code = Column(String(40), nullable=True)  # Stored to restore after 30 days
+    previous_subscription_id = Column(String(64), nullable=True)
+    upgrade_duration_days = Column(Integer, default=30)
+    upgrade_started_at = Column(DateTime, nullable=True)
+    upgrade_ends_at = Column(DateTime, nullable=True)
+    upgrade_reverted_at = Column(DateTime, nullable=True)
+    priority_order = Column(Integer, default=10, index=True)  # 1=50%, 2=25%, 3=promo_credit, 4=10%
+    status = Column(String(40), default="available", index=True)
+    # status values: available, active_upgrade, redeemed, expired, revoked, redeemed_refund_flagged
+    associated_payment_id = Column(String(64), index=True, nullable=True)  # Referred user's payment ID
+    redeemed_invoice_id = Column(String(64), index=True, nullable=True)  # Referrer's invoice where applied
+    redeemed_payment_id = Column(String(64), nullable=True)
+    discount_amount_saved_usd = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=utcnow)
+    used_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+    revoked_at = Column(DateTime, nullable=True)
+    revocation_reason = Column(String(255), nullable=True)
+    extra_metadata = Column(JSON, default=dict)
+
+
+class ReferralCoupon(Base):
+    """
+    Individual single-use discount coupon associated with a ReferralReward
+    (50%, 25%, or unlimited 10% coupons from Milestone 4+).
+    Personal and non-transferable (bound to user_id).
+    """
+    __tablename__ = "referral_coupons"
+
+    id = Column(String(64), primary_key=True)
+    reward_id = Column(String(64), unique=True, index=True, nullable=False)
+    user_id = Column(String(64), index=True, nullable=False)
+    referred_user_id = Column(String(64), index=True, nullable=True)
+    code = Column(String(50), unique=True, index=True, nullable=False)
+    milestone_number = Column(Integer, default=4)
+    discount_pct = Column(Float, nullable=False)  # 50.0, 25.0, or 10.0
+    priority_order = Column(Integer, default=4)  # 1=50%, 2=25%, 4=10%
+    status = Column(String(30), default="available", index=True)  # available, redeemed, revoked, expired
+    created_at = Column(DateTime, default=utcnow)
+    redeemed_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+    redeemed_invoice_id = Column(String(64), nullable=True)
+    associated_payment_id = Column(String(64), nullable=True)
+
+
+class ReferralRewardRedemption(Base):
+    """
+    Immutable financial record of a referral reward/coupon applied to a subscription invoice.
+    Enforces 1 reward per invoice.
+    """
+    __tablename__ = "referral_reward_redemptions"
+
+    id = Column(String(64), primary_key=True)
+    reward_id = Column(String(64), index=True, nullable=False)
+    coupon_id = Column(String(64), index=True, nullable=True)
+    user_id = Column(String(64), index=True, nullable=False)
+    invoice_id = Column(String(64), unique=True, index=True, nullable=False)  # Unique per invoice: max 1 reward per invoice!
+    payment_id = Column(String(64), index=True, nullable=True)
+    plan_code = Column(String(40), nullable=False)
+    reward_type = Column(String(40), nullable=False)
+    discount_pct_applied = Column(Float, default=0.0)
+    discount_amount_usd = Column(Float, default=0.0)
+    invoice_subtotal_usd = Column(Float, default=0.0)
+    invoice_final_usd = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=utcnow)
+
+
+class ReferralFraudFlag(Base):
+    """
+    Anti-fraud detection log for suspicious referral patterns (self-referral,
+    shared payment method, IP velocity, refunded conversion, code tampering).
+    """
+    __tablename__ = "referral_fraud_flags"
+
+    id = Column(String(64), primary_key=True)
+    referrer_user_id = Column(String(64), index=True, nullable=True)
+    referred_user_id = Column(String(64), index=True, nullable=True)
+    relationship_id = Column(String(64), index=True, nullable=True)
+    payment_id = Column(String(64), index=True, nullable=True)
+    flag_type = Column(String(60), index=True, nullable=False)
+    severity = Column(String(20), default="medium")  # low, medium, high, critical
+    status = Column(String(30), default="open", index=True)  # open, reviewed_legitimate, confirmed_fraud
+    reason = Column(String(255), nullable=False)
+    details = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=utcnow)
+    resolved_at = Column(DateTime, nullable=True)
+    resolved_by_user_id = Column(String(64), nullable=True)
+
+
+class ReferralAuditLog(Base):
+    """
+    Dedicated audit trail for referral attributions, conversions, reward grants,
+    redemptions, revocations, refunds, and CREATOR admin actions.
+    """
+    __tablename__ = "referral_audit_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    actor_user_id = Column(String(64), index=True, nullable=True)
+    actor_role = Column(String(30), default="system")
+    target_user_id = Column(String(64), index=True, nullable=True)
+    relationship_id = Column(String(64), index=True, nullable=True)
+    reward_id = Column(String(64), index=True, nullable=True)
+    action = Column(String(80), index=True, nullable=False)
+    ip_address = Column(String(64), default="127.0.0.1")
+    details = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=utcnow)
+
+
+class ReferralNotification(Base):
+    """
+    In-app & email notification records for milestone achievements.
+    Unique on reward_id so a milestone notification is never duplicated.
+    """
+    __tablename__ = "referral_notifications"
+
+    id = Column(String(64), primary_key=True)
+    user_id = Column(String(64), index=True, nullable=False)
+    reward_id = Column(String(64), unique=True, index=True, nullable=False)
+    milestone_number = Column(Integer, nullable=False)
+    title = Column(String(160), nullable=False)
+    message = Column(Text, nullable=False)
+    channel = Column(String(30), default="in_app_and_email")
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=utcnow)
+    read_at = Column(DateTime, nullable=True)
+
+
 class SaasAuditLog(Base):
     __tablename__ = "saas_audit_logs"
 

@@ -9457,6 +9457,7 @@
               </div>
             </div>
 
+            <div id="gate-referral-attribution-banner" style="display: none; margin-bottom: 8px; padding: 7px 10px; background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.45); border-radius: 7px; font-size: 0.72rem; color: #38ef7d;"></div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
               <span style="font-size: 0.66rem; color: #94a3b8;">¿Tienes un cupón o código de referido?</span>
               <button type="button" onclick="applyQuickGatePromo('WELCOME20')" style="background: rgba(56, 239, 125, 0.14); border: 1px solid rgba(56, 239, 125, 0.4); color: #38ef7d; font-size: 0.64rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; cursor: pointer;">🎁 Aplicar WELCOME20 (-20%)</button>
@@ -9655,6 +9656,11 @@
           <div style="margin-top: 8px; padding: 7px 10px; background: rgba(245, 158, 11, 0.08); border: 1px dashed rgba(245, 158, 11, 0.4); border-radius: 7px; font-size: 0.68rem; color: #fcd34d; display: flex; justify-content: space-between; align-items: center;">
             <span>👑 <b>LEVEL 5 — CREATOR:</b> Exclusivo para el propietario (Señor Santiago). No comercializable.</span>
             <button type="button" onclick="switchAuthGateMode('pin')" style="background: transparent; border: 1px solid #fbbf24; color: #fbbf24; border-radius: 4px; padding: 2px 7px; font-size: 0.65rem; cursor: pointer;">Entrar con PIN</button>
+          </div>
+          <!-- Pie Legal y Derechos de Autor -->
+          <div style="margin-top: 8px; padding: 6px 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 7px; font-size: 0.65rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+            <span>⚖️ <b>© 2026 Santiago Huérfano López.</b> Todos los derechos reservados (Ley 23/1982, Ley 1581/2012, OMPI).</span>
+            <button type="button" onclick="openSaasLegalModalDirect()" style="background: rgba(56, 189, 248, 0.14); border: 1px solid #38bdf8; color: #7dd3fc; border-radius: 4px; padding: 2px 8px; font-size: 0.64rem; font-weight: 700; cursor: pointer;">📜 Términos, Copyright &amp; Reglas de Referidos</button>
           </div>
         </div>
 
@@ -13069,6 +13075,8 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
         <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-plans" onclick="switchSaasTab('plans')" style="padding: 6px 12px; font-size: 0.76rem;">💎 Planes & Suscripción</button>
         <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-usage" onclick="switchSaasTab('usage')" style="padding: 6px 12px; font-size: 0.76rem;">⚡ Créditos & Consumo</button>
         <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-catalog" onclick="switchSaasTab('catalog')" style="padding: 6px 12px; font-size: 0.76rem;">🤖 Cerebros, Skills & Agentes</button>
+        <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-referrals" onclick="switchSaasTab('referrals')" style="padding: 6px 12px; font-size: 0.76rem; border-color: #10b981; color: #38ef7d;">🎁 Referidos & Recompensas</button>
+        <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-legal" onclick="switchSaasTab('legal')" style="padding: 6px 12px; font-size: 0.76rem; border-color: #38bdf8; color: #7dd3fc;">⚖️ Legal & Copyright</button>
         <button type="button" class="btn-secondary saas-tab-btn" id="saas-tab-btn-creator" onclick="switchSaasTab('creator')" style="padding: 6px 12px; font-size: 0.76rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(168, 85, 247, 0.2)); border-color: #f59e0b; color: #ffd166;">👑 Superadmin CREATOR</button>
       </div>
 
@@ -13085,7 +13093,7 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
               <div>ID Único (Tenant): <code id="saas-ui-user-id" style="color: #00f0ff;">user_creator_santiago</code></div>
               <div>Correo: <b id="saas-ui-user-email" style="color: #fff;">santiago@liseth.ai</b> <span id="saas-ui-verified-badge" style="color: #10b981; font-size: 0.7rem;">✔ Verificado</span></div>
               <div>Rol del Sistema: <b id="saas-ui-user-role" style="color: #ffd166;">CREATOR</b></div>
-              <div>Código de Referido: <code id="saas-ui-ref-code" style="color: #38ef7d; font-weight: 700;">SANTIAGO-CREATOR</code></div>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">Código de Referido: <code id="saas-ui-ref-code" style="color: #38ef7d; font-weight: 700;">SANTIAGO-CREATOR</code> <button type="button" onclick="copyReferralLinkUI()" style="padding:1px 7px;font-size:0.65rem;background:#10b981;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">🔗 Copiar Link Invitación</button> <button type="button" onclick="switchSaasTab('referrals')" style="padding:1px 7px;font-size:0.65rem;background:rgba(56,239,125,0.15);color:#38ef7d;border:1px solid #10b981;border-radius:4px;font-weight:700;cursor:pointer;">🎁 Ver Mis Recompensas</button></div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
               <div>
@@ -13206,9 +13214,19 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
         <div id="saas-catalog-box" style="max-height: 360px; overflow-y: auto; font-size: 0.76rem;"></div>
       </div>
 
-      <!-- PESTAÑA 6: PANEL SUPERADMINISTRADOR CREATOR (EXCLUSIVO SEÑOR SANTIAGO) -->
+      <!-- PESTAÑA 6: PROGRAMA DE REFERIDOS, RECOMPENSAS PROGRESIVAS Y CUPONES -->
+      <div id="saas-pane-referrals" class="saas-pane" style="display: none;">
+        <div id="saas-referrals-dashboard-box" style="font-size: 0.76rem; color: #e2e8f0; max-height: 460px; overflow-y: auto;"></div>
+      </div>
+
+      <!-- PESTAÑA 7: TÉRMINOS Y CONDICIONES, COPYRIGHT Y PROPIEDAD INTELECTUAL -->
+      <div id="saas-pane-legal" class="saas-pane" style="display: none;">
+        <div id="saas-legal-copyright-box" style="font-size: 0.76rem; color: #e2e8f0; max-height: 460px; overflow-y: auto;"></div>
+      </div>
+
+      <!-- PESTAÑA 8: PANEL SUPERADMINISTRADOR CREATOR (EXCLUSIVO SEÑOR SANTIAGO) -->
       <div id="saas-pane-creator" class="saas-pane" style="display: none;">
-        <div id="saas-creator-dashboard-box" style="font-size: 0.76rem; color: #e2e8f0;"></div>
+        <div id="saas-creator-dashboard-box" style="font-size: 0.76rem; color: #e2e8f0; max-height: 460px; overflow-y: auto;"></div>
       </div>
 
       <div class="modal-actions" style="margin-top: 12px;">
@@ -23104,7 +23122,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.switchSaasTab = async function(tabName) {
-        const panes = ["account", "workspace", "plans", "usage", "catalog", "creator"];
+        const panes = ["account", "workspace", "plans", "usage", "catalog", "referrals", "legal", "creator"];
         panes.forEach(p => {
           const el = document.getElementById("saas-pane-" + p);
           const btn = document.getElementById("saas-tab-btn-" + p);
@@ -23122,6 +23140,10 @@ const cardEsg = document.getElementById("hud-card-esg");
           await loadSaasUsageUI();
         } else if (tabName === "catalog") {
           await loadSaasCatalogUI();
+        } else if (tabName === "referrals") {
+          await loadSaasReferralsUI();
+        } else if (tabName === "legal") {
+          await loadSaasLegalUI();
         } else if (tabName === "creator") {
           await loadSaasCreatorDashboardUI();
         }
@@ -23461,7 +23483,7 @@ const cardEsg = document.getElementById("hud-card-esg");
         try {
           const res = await fetch("/api/saas/billing/quote", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: getSaasHeaders(),
             body: JSON.stringify({
               plan_code: selectedCheckoutPlanCode || "PRO",
               billing_cycle: cycle,
@@ -23501,7 +23523,7 @@ const cardEsg = document.getElementById("hud-card-esg");
               </div>
               <div style="text-align:right;">
                 <div style="font-size:1.05rem;font-weight:900;color:#38ef7d;">Total: $${q.total_usd} USD <span style="font-size:0.8rem;color:#ffd166;">(~$${q.total_cop.toLocaleString("es-CO")} COP)</span></div>
-                <div style="font-size:0.68rem;color:#cbd5e1;">Créditos IA incluidos: <b>${q.total_credits_granted.toLocaleString()}</b> ${q.annual_savings_usd > 0 ? ' • Ahorro anual: $' + q.annual_savings_usd + ' USD' : ''} ${q.promo_discount_usd > 0 ? ' • Descuento cupón: -$' + q.promo_discount_usd + ' USD' : ''}</div>
+                <div style="font-size:0.68rem;color:#cbd5e1;">Créditos IA incluidos: <b>${q.total_credits_granted.toLocaleString()}</b> ${q.annual_savings_usd > 0 ? ' • Ahorro anual: $' + q.annual_savings_usd + ' USD' : ''} ${q.promo_discount_usd > 0 ? ' • Descuento cupón: -$' + q.promo_discount_usd + ' USD' : ''} ${q.referral_discount_usd > 0 ? ' • <b style="color:#38ef7d;">🎁 Dto. Referido Automático: -$' + q.referral_discount_usd + ' USD (' + (q.auto_referral_reward?.title || 'Recompensa') + ')</b>' : ''}</div>
               </div>
             </div>
             ${dtInfo}
@@ -23709,7 +23731,9 @@ const cardEsg = document.getElementById("hud-card-esg");
                   : `<div style="color:#94a3b8;font-size:0.72rem;">Aún no hay transacciones registradas.</div>`
                 }
               </div>
-            </div>`;
+            </div>
+            <div id="saas-creator-referrals-admin-box" style="margin-top:12px;"></div>`;
+            await loadCreatorReferralsAdminSectionUI();
           }
         } catch (e) {}
       }
@@ -23784,6 +23808,432 @@ const cardEsg = document.getElementById("hud-card-esg");
         }
       };
 
+
+      // =========================================================================
+      // SISTEMA DE REFERIDOS, RECOMPENSAS PROGRESIVAS, ANTIFRAUDE Y LEGAL SAAS
+      // =========================================================================
+      let cachedReferralDashboard = null;
+
+      window.copyReferralCodeUI = async function() {
+        const code = cachedReferralDashboard?.referral_code || currentSaasUser?.referral_code || document.getElementById("saas-ui-ref-code")?.textContent || "SANTIAGO-CREATOR";
+        await window.copyPaymentValueUI(code, "Código de Referido");
+      };
+
+      window.copyReferralLinkUI = async function() {
+        const code = cachedReferralDashboard?.referral_code || currentSaasUser?.referral_code || document.getElementById("saas-ui-ref-code")?.textContent || "SANTIAGO-CREATOR";
+        const origin = (window.location.origin && window.location.origin !== "null") ? window.location.origin : "https://liseth.ai";
+        const link = cachedReferralDashboard?.referral_link || `${origin}/register?ref=${encodeURIComponent(code)}`;
+        await window.copyPaymentValueUI(link, "Enlace de Invitación");
+      };
+
+      async function loadSaasReferralsUI() {
+        const box = document.getElementById("saas-referrals-dashboard-box");
+        if (!box) return;
+        try {
+          const origin = (window.location.origin && window.location.origin !== "null") ? window.location.origin : "https://liseth.ai";
+          const res = await fetch(`/api/saas/referrals?base_url=${encodeURIComponent(origin)}`, { headers: getSaasHeaders() });
+          const data = await res.json();
+          if (!res.ok || !data.ok) {
+            box.innerHTML = `<div style="padding:12px;color:#ef4444;">Inicia sesión para consultar tu código de referido y recompensas.</div>`;
+            return;
+          }
+          cachedReferralDashboard = data;
+          const prog = data.progress || {};
+          const rewards = data.rewards || [];
+          const coupons = data.coupons || [];
+          const notifs = data.notifications || [];
+          const history = data.referral_history || [];
+          const cfg = data.program_rules || {};
+          const activeRewardsCount = rewards.filter(r => r.status === "available" || r.status === "active_upgrade").length;
+
+          const notifsHtml = notifs.length
+            ? `<div style="margin-bottom:10px;padding:10px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.4);border-radius:8px;">
+                <div style="font-weight:800;color:#38ef7d;font-size:0.76rem;margin-bottom:4px;">🔔 NOTIFICACIONES DE RECOMPENSAS OBTENIDAS</div>
+                ${notifs.slice(0, 4).map(n => `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.72rem;color:#e2e8f0;"><b>${n.title}:</b> ${n.message}</div>`).join("")}
+              </div>`
+            : "";
+
+          const rewardsHtml = rewards.length
+            ? rewards.map(r => {
+                const badgeColor = (r.status === "available" || r.status === "active_upgrade") ? "#38ef7d" : (r.status === "redeemed" ? "#38bdf8" : "#ef4444");
+                const statusLabel = r.status === "available" ? "DISPONIBLE (AUTO-APLICABLE)" : (r.status === "active_upgrade" ? "UPGRADE NIVEL 3 ACTIVO" : (r.status === "redeemed" ? "UTILIZADA EN FACTURA" : "REVOCADA / REEMBOLSO"));
+                return `<div style="padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                  <div>
+                    <div style="font-weight:700;color:#fff;font-size:0.75rem;">Hito #${r.milestone_number}: ${r.title}</div>
+                    <div style="font-size:0.68rem;color:#94a3b8;">${r.description || ''}</div>
+                    <div style="font-size:0.65rem;color:#64748b;">Obtenida: ${r.granted_at ? r.granted_at.slice(0, 10) : '-'} ${r.redeemed_at ? ' • Utilizada: ' + r.redeemed_at.slice(0, 10) : ''} ${r.expires_at ? ' • Vence: ' + r.expires_at.slice(0, 10) : ''}</div>
+                  </div>
+                  <span style="font-size:0.66rem;font-weight:800;padding:2px 8px;border-radius:10px;border:1px solid ${badgeColor};color:${badgeColor};">${statusLabel}</span>
+                </div>`;
+              }).join("")
+            : `<div style="color:#94a3b8;font-size:0.72rem;padding:6px;">Aún no tienes recompensas desbloqueadas. Invita amigos que adquieran el Plan Básico / Starter (Nivel 1) para recibir 50% Dto., 25% Dto., Nivel 3 gratis por 30 días y cupones de 10% ilimitados.</div>`;
+
+          const couponsHtml = coupons.length
+            ? coupons.map(c => `<div style="padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                <div><code style="color:#ffd166;font-weight:800;">${c.code}</code> — <b>-${c.discount_pct}% Dto.</b> (Hito #${c.milestone_number} • Un solo uso, 1 por factura)</div>
+                ${c.status === "available"
+                  ? `<button type="button" onclick="applyQuickSaasPromo('${c.code}'); switchSaasTab('plans');" style="padding:2px 8px;font-size:0.66rem;background:#10b981;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">Usar en Checkout</button>`
+                  : `<span style="font-size:0.66rem;color:#94a3b8;">${c.status.toUpperCase()}</span>`}
+              </div>`).join("")
+            : `<div style="color:#94a3b8;font-size:0.72rem;padding:6px;">A partir de tu 4° referido exitoso recibirás cupones de 10% de descuento acumulables sin límite (4°, 5°, 6°... 100+).</div>`;
+
+          const historyHtml = history.length
+            ? history.map(h => {
+                const isConv = h.status === "converted";
+                const stColor = isConv ? "#38ef7d" : (h.status === "pending_purchase" ? "#ffd166" : "#ef4444");
+                const stText = isConv ? `✔ EXITOSO (Hito #${h.milestone_number || '-'} • Plan ${h.qualifying_plan_code})` : (h.status === "pending_purchase" ? "⏳ REGISTRADO (PENDIENTE COMPRA STARTER)" : `🚫 ${h.status.toUpperCase()}`);
+                return `<div style="padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;font-size:0.71rem;">
+                  <div><b>${h.referred_email_masked}</b> • Plan actual: <code>${h.current_plan}</code> • Registro: ${h.registered_at ? h.registered_at.slice(0, 10) : '-'}</div>
+                  <span style="color:${stColor};font-weight:700;">${stText}</span>
+                </div>`;
+              }).join("")
+            : `<div style="color:#94a3b8;font-size:0.72rem;padding:6px;">Aún no hay usuarios registrados con tu enlace personal.</div>`;
+
+          box.innerHTML = `
+            ${notifsHtml}
+            <!-- Tarjeta de Enlace y Código Único -->
+            <div style="background:linear-gradient(135deg,rgba(16,185,129,0.14),rgba(6,182,212,0.12));border:1px solid rgba(16,185,129,0.45);border-radius:10px;padding:12px;margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+                <div>
+                  <div style="font-weight:800;color:#38ef7d;font-size:0.84rem;">🎁 PROGRAMA OFICIAL DE REFERIDOS & RECOMPENSAS PROGRESIVAS</div>
+                  <div style="font-size:0.7rem;color:#cbd5e1;">Gana descuentos automáticos y Nivel 3 Gratis por cada invitado nuevo que compre el Plan elegible (${(cfg.eligible_plan_codes || ['STARTER']).join(', ')}).</div>
+                </div>
+                <span style="font-size:0.68rem;background:rgba(0,0,0,0.45);color:#ffd166;padding:3px 9px;border-radius:12px;border:1px solid rgba(255,209,102,0.4);">Ventana atribución: ${cfg.attribution_window_days || 30} días</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;align-items:center;">
+                <div style="background:rgba(6,11,22,0.9);padding:8px 10px;border-radius:8px;border:1px solid #334155;display:flex;justify-content:space-between;align-items:center;">
+                  <div><span style="font-size:0.65rem;color:#94a3b8;display:block;">TU CÓDIGO ÚNICO:</span><code style="color:#38ef7d;font-weight:900;font-size:0.84rem;">${data.referral_code}</code></div>
+                  <button type="button" onclick="copyReferralCodeUI()" style="padding:4px 8px;font-size:0.68rem;background:#38ef7d;color:#04070d;border:none;border-radius:5px;font-weight:800;cursor:pointer;">📋 Copiar</button>
+                </div>
+                <div style="background:rgba(6,11,22,0.9);padding:8px 10px;border-radius:8px;border:1px solid #334155;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                  <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><span style="font-size:0.65rem;color:#94a3b8;display:block;">TU ENLACE PERSONAL DE INVITACIÓN:</span><code style="color:#00f0ff;font-size:0.74rem;">${data.referral_link}</code></div>
+                  <button type="button" onclick="copyReferralLinkUI()" style="padding:5px 10px;font-size:0.7rem;background:#00f0ff;color:#04070d;border:none;border-radius:5px;font-weight:800;cursor:pointer;flex-shrink:0;">🔗 Copiar Enlace</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contadores Clave -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;text-align:center;">
+              <div style="background:rgba(15,23,42,0.85);border:1px solid #334155;padding:8px;border-radius:8px;">
+                <div style="font-size:0.66rem;color:#94a3b8;">Personas Invitadas</div>
+                <div style="font-size:1.1rem;font-weight:900;color:#fff;">${data.invited_count || 0}</div>
+              </div>
+              <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(56,239,125,0.4);padding:8px;border-radius:8px;">
+                <div style="font-size:0.66rem;color:#94a3b8;">Compras Verificadas (Exitosos)</div>
+                <div style="font-size:1.1rem;font-weight:900;color:#38ef7d;">${data.verified_purchases_count || 0}</div>
+              </div>
+              <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(255,209,102,0.35);padding:8px;border-radius:8px;">
+                <div style="font-size:0.66rem;color:#94a3b8;">Pendientes de Compra</div>
+                <div style="font-size:1.1rem;font-weight:900;color:#ffd166;">${data.pending_purchases_count || 0}</div>
+              </div>
+              <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(0,240,255,0.35);padding:8px;border-radius:8px;">
+                <div style="font-size:0.66rem;color:#94a3b8;">Recompensas Disponibles</div>
+                <div style="font-size:1.1rem;font-weight:900;color:#00f0ff;">${activeRewardsCount}</div>
+              </div>
+            </div>
+
+            <!-- Barra de Progreso y Escalera de Recompensas -->
+            <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(168,85,247,0.35);border-radius:8px;padding:10px;margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+                <span style="font-weight:800;color:#e9d5ff;font-size:0.76rem;">📈 PROGRESO HACIA TU SIGUIENTE RECOMPENSA (Hito #${prog.next_milestone || 1}: ${prog.next_reward_title || '50% Dto.'})</span>
+                <span style="font-size:0.7rem;color:#38ef7d;font-weight:700;">${prog.next_reward_description || ''}</span>
+              </div>
+              <div style="height:8px;width:100%;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;margin-bottom:8px;">
+                <div style="height:100%;width:${prog.progress_pct || 15}%;background:linear-gradient(90deg,#00f0ff,#38ef7d);transition:width 0.3s;"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:0.67rem;">
+                <div style="padding:6px;border-radius:6px;background:rgba(0,0,0,0.35);border:1px solid ${(data.verified_purchases_count >= 1) ? '#38ef7d' : '#334155'};"><b style="color:#38ef7d;">1° Referido:</b><br>50% Dto. Automático</div>
+                <div style="padding:6px;border-radius:6px;background:rgba(0,0,0,0.35);border:1px solid ${(data.verified_purchases_count >= 2) ? '#38ef7d' : '#334155'};"><b style="color:#00f0ff;">2° Referido:</b><br>25% Dto. Próximo Cobro</div>
+                <div style="padding:6px;border-radius:6px;background:rgba(0,0,0,0.35);border:1px solid ${(data.verified_purchases_count >= 3) ? '#38ef7d' : '#334155'};"><b style="color:#c084fc;">3° Referido:</b><br>Nivel 3 BUSINESS Gratis (30 días)</div>
+                <div style="padding:6px;border-radius:6px;background:rgba(0,0,0,0.35);border:1px solid ${(data.verified_purchases_count >= 4) ? '#38ef7d' : '#334155'};"><b style="color:#ffd166;">4° en adelante (∞):</b><br>Cupón 10% por cada referido</div>
+              </div>
+            </div>
+
+            <!-- Historial de Recompensas y Cupones Acumulados -->
+            <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-bottom:12px;">
+              <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(56,239,125,0.3);border-radius:8px;padding:10px;">
+                <div style="font-weight:800;color:#38ef7d;font-size:0.76rem;margin-bottom:6px;">🏆 HISTORIAL DE RECOMPENSAS (PRIORIDAD: 50% ➔ 25% ➔ 10% FIFO)</div>
+                ${rewardsHtml}
+              </div>
+              <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(255,209,102,0.3);border-radius:8px;padding:10px;">
+                <div style="font-weight:800;color:#ffd166;font-size:0.76rem;margin-bottom:6px;">🎟️ CUPONES ACUMULADOS DEL 10% (HITO 4+ ILIMITADOS)</div>
+                ${couponsHtml}
+              </div>
+            </div>
+
+            <!-- Lista de Usuarios Referidos -->
+            <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(0,210,255,0.25);border-radius:8px;padding:10px;">
+              <div style="font-weight:800;color:#00d2ff;font-size:0.76rem;margin-bottom:6px;">👥 PERSONAS INVITADAS Y ESTADO DE VERIFICACIÓN DE COMPRA</div>
+              ${historyHtml}
+            </div>
+          `;
+        } catch (e) {}
+      }
+      window.loadSaasReferralsUI = loadSaasReferralsUI;
+
+      async function loadCreatorReferralsAdminSectionUI() {
+        const container = document.getElementById("saas-creator-referrals-admin-box");
+        if (!container) return;
+        try {
+          const res = await fetch("/api/saas/admin/referrals/dashboard", { headers: getSaasHeaders() });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (!data.ok) return;
+          const m = data.metrics || {};
+          const cfg = data.config || {};
+          const rewards = data.recent_rewards || [];
+          const flags = data.fraud_flags || [];
+          const rels = data.relationships || [];
+
+          container.innerHTML = `
+            <div style="background:rgba(15,23,42,0.92);border:1px solid rgba(16,185,129,0.45);border-radius:10px;padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+                <div>
+                  <div style="font-weight:800;color:#38ef7d;font-size:0.84rem;">👑 GESTIÓN DE REFERIDOS, RECOMPENSAS Y ANTIFRAUDE (CREATOR)</div>
+                  <div style="font-size:0.7rem;color:#94a3b8;">Control total del programa de afiliación, planes elegibles, auditoría antifraude y otorgamiento manual.</div>
+                </div>
+                <span style="font-size:0.68rem;color:#ffd166;font-weight:700;">Alertas Fraude Abiertas: ${m.open_fraud_flags || 0}</span>
+              </div>
+
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;text-align:center;">
+                <div style="background:rgba(0,0,0,0.35);padding:7px;border-radius:6px;"><div style="font-size:0.65rem;color:#94a3b8;">Total Invitados</div><div style="font-size:0.98rem;font-weight:800;color:#fff;">${m.total_relationships || 0}</div></div>
+                <div style="background:rgba(0,0,0,0.35);padding:7px;border-radius:6px;"><div style="font-size:0.65rem;color:#94a3b8;">Convertidos (Compra)</div><div style="font-size:0.98rem;font-weight:800;color:#38ef7d;">${m.converted_referrals || 0}</div></div>
+                <div style="background:rgba(0,0,0,0.35);padding:7px;border-radius:6px;"><div style="font-size:0.65rem;color:#94a3b8;">Pendientes Compra</div><div style="font-size:0.98rem;font-weight:800;color:#ffd166;">${m.pending_referrals || 0}</div></div>
+                <div style="background:rgba(0,0,0,0.35);padding:7px;border-radius:6px;"><div style="font-size:0.65rem;color:#94a3b8;">Recompensas Activas/Usadas</div><div style="font-size:0.98rem;font-weight:800;color:#00f0ff;">${m.available_rewards || 0} / ${m.redeemed_rewards || 0}</div></div>
+              </div>
+
+              <!-- Reglas Configurables del Programa -->
+              <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:10px;">
+                <div style="font-weight:700;color:#00f0ff;font-size:0.75rem;margin-bottom:6px;">⚙️ REGLAS DEL PROGRAMA DE REFERIDOS</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;">
+                  <div>
+                    <label style="font-size:0.65rem;color:#94a3b8;display:block;">Planes Elegibles (coma):</label>
+                    <input type="text" id="refcfg-eligible-plans" value="${(cfg.eligible_plan_codes || ['STARTER']).join(',')}" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:4px 6px;border-radius:4px;font-size:0.72rem;" />
+                  </div>
+                  <div>
+                    <label style="font-size:0.65rem;color:#94a3b8;display:block;">Ventana Atribución (días):</label>
+                    <input type="number" id="refcfg-window-days" value="${cfg.attribution_window_days || 30}" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:4px 6px;border-radius:4px;font-size:0.72rem;" />
+                  </div>
+                  <div>
+                    <label style="font-size:0.65rem;color:#94a3b8;display:block;">Días Gratis Nivel 3 (3° Ref):</label>
+                    <input type="number" id="refcfg-upgrade-days" value="${cfg.upgrade_reward_days || 30}" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:4px 6px;border-radius:4px;font-size:0.72rem;" />
+                  </div>
+                  <div>
+                    <label style="font-size:0.65rem;color:#94a3b8;display:block;">Crédito Alt. Nivel 3 ($ USD):</label>
+                    <input type="number" id="refcfg-fallback-credit" value="${cfg.fallback_credit_usd || 75}" style="width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:4px 6px;border-radius:4px;font-size:0.72rem;" />
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                  <label style="font-size:0.7rem;color:#cbd5e1;display:flex;align-items:center;gap:5px;">
+                    <input type="checkbox" id="refcfg-allow-all" ${cfg.allow_all_paid_plans ? 'checked' : ''} /> Permitir que cualquier plan de pago dispare recompensa (además de STARTER)
+                  </label>
+                  <button type="button" class="btn-primary" style="padding:5px 12px;font-size:0.72rem;background:#10b981;border:none;color:#04070d;font-weight:800;" onclick="saveCreatorReferralConfigUI()">💾 Guardar Reglas de Referidos</button>
+                </div>
+              </div>
+
+              <!-- Otorgar Recompensa Manual -->
+              <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:10px;">
+                <div style="font-weight:700;color:#ffd166;font-size:0.75rem;margin-bottom:6px;">🎁 OTORGAR RECOMPENSA MANUAL A UN USUARIO</div>
+                <div style="display:grid;grid-template-columns:1.4fr 1.2fr 0.7fr 1.2fr auto;gap:6px;align-items:center;">
+                  <input type="text" id="refman-user-id" placeholder="ID o Email del usuario" style="background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.71rem;" />
+                  <select id="refman-type" style="background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.71rem;">
+                    <option value="discount_50_pct">50% Descuento</option>
+                    <option value="discount_25_pct">25% Descuento</option>
+                    <option value="free_upgrade_level_3">Nivel 3 BUSINESS Gratis (30d)</option>
+                    <option value="discount_10_pct">Cupón 10% Descuento</option>
+                    <option value="promo_credit_usd">Crédito Suscripción USD</option>
+                  </select>
+                  <input type="number" id="refman-val" value="50" placeholder="% o USD" style="background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.71rem;" />
+                  <input type="text" id="refman-reason" value="Cortesía CREATOR" placeholder="Motivo" style="background:#0f172a;border:1px solid #334155;color:#fff;padding:5px;border-radius:4px;font-size:0.71rem;" />
+                  <button type="button" class="btn-secondary" style="padding:5px 10px;font-size:0.71rem;border-color:#ffd166;color:#ffd166;" onclick="grantCreatorManualRewardUI()">+ Otorgar</button>
+                </div>
+              </div>
+
+              <!-- Lista de Relaciones Recientes & Controles de Revocación -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:8px;max-height:170px;overflow-y:auto;">
+                  <div style="font-weight:700;color:#00d2ff;font-size:0.72rem;margin-bottom:4px;">🔗 ATRIBUCIONES DE REFERIDOS (${rels.length})</div>
+                  ${rels.length ? rels.map(r => `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;">
+                    <span><code>${r.referral_code_used}</code> ➔ <b>${r.referred_user_id.slice(0, 10)}</b> [${r.status}]</span>
+                    ${r.status !== 'fraud_rejected' ? `<button type="button" onclick="invalidateCreatorReferralUI('${r.referred_user_id}')" style="padding:1px 6px;font-size:0.62rem;background:transparent;border:1px solid #ef4444;color:#ef4444;border-radius:4px;cursor:pointer;">Invalidar</button>` : ''}
+                  </div>`).join("") : `<div style="color:#64748b;font-size:0.68rem;">Sin relaciones registradas.</div>`}
+                </div>
+                <div style="background:rgba(6,11,22,0.85);border:1px solid #334155;border-radius:8px;padding:8px;max-height:170px;overflow-y:auto;">
+                  <div style="font-weight:700;color:#c084fc;font-size:0.72rem;margin-bottom:4px;">🏆 RECOMPENSAS EMITIDAS (${rewards.length}) & ALERTAS (${flags.length})</div>
+                  ${rewards.length ? rewards.map(rw => `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;">
+                    <span>Hito #${rw.milestone_number}: <b>${rw.reward_type}</b> [${rw.status}]</span>
+                    ${(rw.status === 'available' || rw.status === 'active_upgrade') ? `<button type="button" onclick="revokeCreatorRewardUI('${rw.id}')" style="padding:1px 6px;font-size:0.62rem;background:transparent;border:1px solid #ef4444;color:#ef4444;border-radius:4px;cursor:pointer;">Revocar</button>` : ''}
+                  </div>`).join("") : `<div style="color:#64748b;font-size:0.68rem;">Sin recompensas emitidas aún.</div>`}
+                </div>
+              </div>
+            </div>
+          `;
+        } catch (e) {}
+      }
+
+      window.saveCreatorReferralConfigUI = async function() {
+        const plansRaw = (document.getElementById("refcfg-eligible-plans")?.value || "STARTER").split(",").map(s => s.trim().toUpperCase()).filter(Boolean);
+        const attribution_window_days = parseInt(document.getElementById("refcfg-window-days")?.value || "30", 10);
+        const upgrade_reward_days = parseInt(document.getElementById("refcfg-upgrade-days")?.value || "30", 10);
+        const fallback_credit_usd = parseFloat(document.getElementById("refcfg-fallback-credit")?.value || "75");
+        const allow_all_paid_plans = Boolean(document.getElementById("refcfg-allow-all")?.checked);
+        const res = await fetch("/api/saas/admin/referrals/config", {
+          method: "POST",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ eligible_plan_codes: plansRaw, attribution_window_days, upgrade_reward_days, fallback_credit_usd, allow_all_paid_plans })
+        });
+        if (res.ok) {
+          showToast("✅ Reglas del programa de referidos actualizadas.");
+          await loadCreatorReferralsAdminSectionUI();
+        }
+      };
+
+      window.grantCreatorManualRewardUI = async function() {
+        const user_id = (document.getElementById("refman-user-id")?.value || "").trim();
+        const reward_type = document.getElementById("refman-type")?.value || "discount_50_pct";
+        const val = parseFloat(document.getElementById("refman-val")?.value || "50");
+        const reason = (document.getElementById("refman-reason")?.value || "Cortesía CREATOR").trim();
+        if (!user_id) return;
+        const res = await fetch("/api/saas/admin/referrals/rewards/manual", {
+          method: "POST",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({
+            user_id,
+            reward_type,
+            discount_pct: reward_type === "promo_credit_usd" ? 0 : val,
+            credit_amount_usd: reward_type === "promo_credit_usd" ? val : 0,
+            reason
+          })
+        });
+        if (res.ok) {
+          showToast("🎁 Recompensa manual otorgada correctamente.");
+          await loadCreatorReferralsAdminSectionUI();
+        }
+      };
+
+      window.invalidateCreatorReferralUI = async function(referredUserId) {
+        const res = await fetch("/api/saas/admin/referrals/invalidate", {
+          method: "POST",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ referred_user_id: referredUserId, reason: "Invalidado manualmente por CREATOR" })
+        });
+        if (res.ok) {
+          showToast("🚫 Referido invalidado y recompensas asociadas revocadas.");
+          await loadCreatorReferralsAdminSectionUI();
+        }
+      };
+
+      window.revokeCreatorRewardUI = async function(rewardId) {
+        const res = await fetch(`/api/saas/admin/referrals/rewards/${encodeURIComponent(rewardId)}/revoke`, {
+          method: "POST",
+          headers: getSaasHeaders(),
+          body: JSON.stringify({ reason: "Revocada por CREATOR" })
+        });
+        if (res.ok) {
+          showToast("↩ Recompensa revocada.");
+          await loadCreatorReferralsAdminSectionUI();
+        }
+      };
+
+      async function loadSaasLegalUI() {
+        const box = document.getElementById("saas-legal-copyright-box");
+        if (!box) return;
+        try {
+          const res = await fetch("/api/saas/legal");
+          const data = await res.json();
+          if (!res.ok || !data.ok) return;
+          const sectionsHtml = (data.sections || []).map(s => `
+            <div style="background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.28);border-radius:8px;padding:10px;margin-bottom:8px;">
+              <div style="font-weight:800;color:#00f0ff;font-size:0.78rem;margin-bottom:4px;">${s.title}</div>
+              <div style="font-size:0.72rem;color:#cbd5e1;line-height:1.5;">${s.content}</div>
+            </div>
+          `).join("");
+
+          box.innerHTML = `
+            <div style="background:linear-gradient(135deg,rgba(15,23,42,0.95),rgba(30,41,59,0.9));border:1px solid #38bdf8;border-radius:10px;padding:14px;margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <div style="font-weight:900;color:#38bdf8;font-size:0.88rem;">⚖️ ${data.copyright_notice}</div>
+                  <div style="font-size:0.71rem;color:#94a3b8;">Titular Exclusivo y Autor: <b style="color:#fff;">${data.owner.full_name}</b> (${data.owner.role}) • Contacto Legal: <code>${data.owner.email}</code> • WhatsApp: <code>${data.owner.whatsapp}</code></div>
+                </div>
+                <span style="font-size:0.66rem;background:rgba(56,189,248,0.15);color:#7dd3fc;padding:3px 9px;border-radius:10px;border:1px solid #38bdf8;">Versión ${data.version}</span>
+              </div>
+            </div>
+            ${sectionsHtml}
+            <details style="background:rgba(6,11,22,0.9);border:1px solid #334155;border-radius:8px;padding:10px;font-size:0.71rem;color:#94a3b8;">
+              <summary style="cursor:pointer;color:#ffd166;font-weight:700;">📜 Ver Contrato Legal Íntegro y Marco Normativo Completo (LEGAL_TERMS_AND_COPYRIGHT.md)</summary>
+              <pre style="white-space:pre-wrap;word-break:break-word;color:#e2e8f0;font-size:0.69rem;margin-top:8px;max-height:260px;overflow-y:auto;">${(data.markdown_document || '').replace(/</g, '&lt;')}</pre>
+            </details>
+          `;
+        } catch (e) {}
+      }
+      window.loadSaasLegalUI = loadSaasLegalUI;
+
+      window.openSaasLegalModalDirect = async function() {
+        const modal = document.getElementById("saas-platform-modal");
+        if (modal) modal.classList.add("active");
+        await window.switchSaasTab("legal");
+      };
+
+      window.initReferralAttributionFromUrl = async function() {
+        try {
+          const params = new URLSearchParams(window.location.search || "");
+          const urlRef = (params.get("ref") || params.get("referral") || "").trim().toUpperCase();
+          let activeCode = urlRef;
+
+          if (urlRef) {
+            const res = await fetch("/api/saas/referrals/track-click", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ referral_code: urlRef, landing_url: window.location.href })
+            });
+            const data = await res.json();
+            if (res.ok && data.valid) {
+              localStorage.setItem("liseth_referral_attribution", JSON.stringify({
+                referral_code: data.referral_code,
+                referrer_name: data.referrer_name || "Miembro de Liseth AI",
+                clicked_at: new Date().toISOString(),
+                attribution_window_days: data.attribution_window_days || 30
+              }));
+              activeCode = data.referral_code;
+            }
+          } else {
+            const savedRaw = localStorage.getItem("liseth_referral_attribution");
+            if (savedRaw) {
+              const saved = JSON.parse(savedRaw);
+              if (saved && saved.referral_code) {
+                activeCode = saved.referral_code;
+              }
+            }
+          }
+
+          if (activeCode) {
+            const gateInput = document.getElementById("gate-reg-referral");
+            const saasInput = document.getElementById("saas-auth-referral");
+            const banner = document.getElementById("gate-referral-attribution-banner");
+            if (gateInput) {
+              gateInput.value = activeCode;
+              gateInput.readOnly = true;
+              gateInput.title = "Código de referido detectado y atribuido automáticamente";
+              gateInput.style.borderColor = "#10b981";
+              gateInput.style.color = "#38ef7d";
+            }
+            if (saasInput) {
+              saasInput.value = activeCode;
+              saasInput.readOnly = true;
+            }
+            if (banner) {
+              banner.style.display = "block";
+              banner.innerHTML = `🎁 <b>Invitación verificada aplicada:</b> Código <code>${activeCode}</code> asociado permanentemente a tu registro.`;
+            }
+          }
+
+          if (window.location.pathname === "/legal") {
+            setTimeout(() => { window.openSaasLegalModalDirect(); }, 400);
+          }
+        } catch (e) {}
+      };
+      setTimeout(() => { window.initReferralAttributionFromUrl(); }, 150);
 
       // =========================================================================
       // PORTAL OBLIGATORIO DE INICIO: FIREBASE AUTH + SELECCIÓN DE PLANES SAAS
@@ -24207,7 +24657,13 @@ const cardEsg = document.getElementById("hud-card-esg");
         const full_name = isReg ? (document.getElementById("gate-reg-name")?.value || "").trim() : "";
         const selected_plan = isReg ? (document.getElementById("gate-selected-plan-code")?.value || "FREE") : "FREE";
         const promo_code = isReg ? ((document.getElementById("gate-reg-promo")?.value || "").trim() || null) : null;
-        const referral_code = isReg ? ((document.getElementById("gate-reg-referral")?.value || "").trim() || null) : null;
+        let referral_code = isReg ? ((document.getElementById("gate-reg-referral")?.value || "").trim() || null) : null;
+        if (isReg && !referral_code) {
+          try {
+            const savedAttr = JSON.parse(localStorage.getItem("liseth_referral_attribution") || "null");
+            if (savedAttr && savedAttr.referral_code) referral_code = savedAttr.referral_code;
+          } catch (_) {}
+        }
         const billing_cycle = isReg ? (document.getElementById("gate-selected-billing-cycle")?.value || "monthly") : "monthly";
         const payment_gateway = isReg ? (document.getElementById("gate-selected-payment-gateway")?.value || "stripe") : "stripe";
         const payment_method_brand = isReg ? (document.getElementById("gate-pay-brand")?.value || payment_gateway) : "visa";
