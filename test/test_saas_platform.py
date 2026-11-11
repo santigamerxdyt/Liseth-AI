@@ -609,6 +609,39 @@ class TestFirebaseStartupGateAndProjectLinking:
         assert fb_login.json()["firebase"]["linked"] is True
         assert fb_login.json()["user"]["plan_code"] == "PRO"
 
+        # 6. Auto-provision a user who authenticated in Firebase Cloud (mode='login' + firebase_uid)
+        cloud_only_email = _unique_email("firebase_cloud_existing")
+        cloud_login = client.post(
+            "/api/saas/auth/firebase",
+            json={
+                "mode": "login",
+                "email": cloud_only_email,
+                "password": "CloudPassword999!",
+                "firebase_uid": "fb_cloud_uid_999888",
+                "firebase_id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ.cloud.token",
+                "provider": "password",
+                "selected_plan": "STARTER",
+            },
+        )
+        assert cloud_login.status_code == 200, cloud_login.text
+        assert cloud_login.json()["user"]["email"] == cloud_only_email
+        assert cloud_login.json()["user"]["plan_code"] == "STARTER"
+
+        # 7. Sync password when user resets password in Firebase Cloud and logs in with matching firebase_uid
+        sync_login = client.post(
+            "/api/saas/auth/firebase",
+            json={
+                "mode": "login",
+                "email": cloud_only_email,
+                "password": "NewResetPassword2026!",
+                "firebase_uid": "fb_cloud_uid_999888",
+                "firebase_id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ.reset.token",
+                "provider": "password",
+            },
+        )
+        assert sync_login.status_code == 200, sync_login.text
+        assert sync_login.json()["ok"] is True
+
     def test_startup_gate_html_locked_by_default_and_shows_plans(self):
         from pathlib import Path
         import hashlib
@@ -626,11 +659,17 @@ class TestFirebaseStartupGateAndProjectLinking:
         # Startup modal is active immediately on boot
         assert '<div class="modal-overlay active" id="auth-modal"' in html
         assert 'id="auth-firebase-register-form"' in html
+        assert 'id="auth-firebase-recover-form"' in html
         assert 'id="gate-plans-cards-container"' in html
         assert 'id="gate-selected-payment-gateway"' in html
         assert 'id="saas-payment-gateway-select"' in html
         assert 'id="saas-checkout-quote-box"' in html
         assert "saveCreatorPaymentConfigUI" in html
+        assert "toggleGatePasswordVisibility" in html
+        assert "updateGatePasswordStrength" in html
+        assert "copyPaymentValueUI" in html
+        assert "viewSaasInvoiceReceipt" in html
+        assert "issueCreatorRefundUI" in html
         assert "firebase-app-compat.js" in html
         assert "firebase-auth-compat.js" in html
         assert "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js" in html
@@ -675,6 +714,9 @@ class TestFirebaseStartupGateAndProjectLinking:
         assert q["total_usd"] == 230.4
         assert q["total_cop"] > 0
         assert q["bonus_credits"] > 0
+        assert q["nequi_number"] == "3122376474"
+        assert q["whatsapp_sales_phone"] == "+573122376474"
+        assert "https://wa.me/573122376474?text=" in q["whatsapp_checkout_url"]
 
         # 3. CREATOR plan cannot be quoted for sale
         creator_quote = client.post(

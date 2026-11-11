@@ -19,6 +19,7 @@ import logging
 import re
 import secrets
 import time
+import urllib.parse
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
@@ -2491,12 +2492,22 @@ class SaasPlatformService:
         final_amount_cop = int(round(final_amount * trm_usd_cop))
         gw_info = (gw_cfg.get("gateways") or {}).get(gw_clean, {})
         external_payment_link = ((gw_info.get("payment_links") or {}).get(target_plan.code) or "").strip()
+        dt_cfg = (gw_cfg.get("gateways") or {}).get("direct_transfer") or {}
+        nequi_number = str(dt_cfg.get("nequi_number") or "3122376474")
+        wa_phone = str(dt_cfg.get("whatsapp_sales_phone") or "+573122376474")
+        wa_phone_digits = re.sub(r"\D", "", wa_phone) or "573122376474"
+        wa_msg = (
+            f"Hola Santiago, acabo de realizar el pago de ${final_amount_cop:,} COP (${final_amount:.2f} USD) "
+            f"vía {gw_clean.upper()} (Ref: {safe_last4}) para activar el plan {target_plan.name} ({cycle}) "
+            f"en la cuenta {user.email}."
+        ).replace(",", ".")
+        whatsapp_checkout_url = f"https://wa.me/{wa_phone_digits}?text={urllib.parse.quote(wa_msg)}"
 
         gw_labels = {
             "stripe": f"{(payment_method_brand or 'VISA').upper()} •••• {safe_last4} (Stripe)",
             "wompi_pse_nequi": f"PSE / NEQUI •••• {safe_last4} (Wompi Colombia)",
             "paypal": f"PAYPAL •••• {safe_last4} (Express)",
-            "direct_transfer": f"TRANSFERENCIA NEQUI/BANCOLOMBIA •••• {safe_last4}",
+            "direct_transfer": f"TRANSFERENCIA NEQUI ({nequi_number}) •••• {safe_last4}",
         }
         method_summary = "Sin tarjeta requerida" if target_plan.code == "FREE" else gw_labels.get(gw_clean, f"{payment_method_brand.upper()} •••• {safe_last4}")
 
@@ -2634,6 +2645,9 @@ class SaasPlatformService:
             "idempotent_duplicate": False,
             "payment_gateway": gw_clean,
             "external_payment_link": external_payment_link,
+            "nequi_number": nequi_number,
+            "whatsapp_sales_phone": wa_phone,
+            "whatsapp_checkout_url": whatsapp_checkout_url,
             "subscription": {
                 "id": sub.id,
                 "plan_code": sub.plan_code,
@@ -2654,6 +2668,10 @@ class SaasPlatformService:
                 "total_cop": final_amount_cop,
                 "trm_usd_cop": trm_usd_cop,
                 "payment_gateway": gw_clean,
+                "payment_method_summary": method_summary,
+                "nequi_number": nequi_number,
+                "whatsapp_sales_phone": wa_phone,
+                "whatsapp_checkout_url": whatsapp_checkout_url,
                 "status": invoice.status,
                 "issued_at": _iso(invoice.issued_at),
             },
@@ -2748,6 +2766,7 @@ class SaasPlatformService:
                     "id": p.id,
                     "plan_code": p.plan_code,
                     "amount_usd": p.amount_usd,
+                    "amount_cop": int((p.metadata_json or {}).get("amount_cop") or round(p.amount_usd * 4200.0)),
                     "currency": p.currency,
                     "status": p.status,
                     "provider": p.provider,
@@ -2767,6 +2786,14 @@ class SaasPlatformService:
                     "subtotal_usd": inv.subtotal_usd,
                     "discount_usd": inv.discount_usd,
                     "total_usd": inv.total_usd,
+                    "total_cop": int(
+                        ((inv.line_items or [{}])[0].get("total_cop") if inv.line_items else None)
+                        or round(inv.total_usd * 4200.0)
+                    ),
+                    "payment_gateway": (
+                        ((inv.line_items or [{}])[0].get("payment_gateway") if inv.line_items else None)
+                        or "stripe"
+                    ),
                     "status": inv.status,
                     "line_items": inv.line_items or [],
                     "issued_at": _iso(inv.issued_at),
@@ -2936,6 +2963,25 @@ class SaasPlatformService:
             for l in logs_res.scalars().all()
         ]
 
+        # Recent payments across all tenants for Superadmin CREATOR verification
+        user_email_map = {u.id: u.email for u in all_users}
+        pay_res = await db.execute(select(SaasPayment).order_by(desc(SaasPayment.created_at)).limit(20))
+        recent_payments = [
+            {
+                "id": p.id,
+                "user_id": p.user_id,
+                "user_email": user_email_map.get(p.user_id, p.user_id),
+                "plan_code": p.plan_code,
+                "amount_usd": p.amount_usd,
+                "amount_cop": int((p.metadata_json or {}).get("amount_cop") or round(p.amount_usd * 4200.0)),
+                "provider": p.provider,
+                "payment_method": f"{p.payment_method_brand.upper()} •••• {p.payment_method_last4}",
+                "status": p.status,
+                "created_at": _iso(p.created_at),
+            }
+            for p in pay_res.scalars().all()
+        ]
+
         return {
             "ok": True,
             "creator_owner": creator.full_name,
@@ -2956,6 +3002,7 @@ class SaasPlatformService:
                 "total_tokens_consumed": total_tokens_consumed,
                 "plan_distribution": plan_distribution,
             },
+            "recent_payments": recent_payments,
             "recent_audit_logs": recent_logs,
         }
 
@@ -3641,6 +3688,7 @@ class SaasPlatformService:
 
         total_usd = round(max(0.0, base_price_usd - promo_discount_usd), 2)
         subtotal_cop = int(round(base_price_usd * trm))
+        annual_savings_cop = int(round(annual_savings_usd * trm))
         discount_cop = int(round(promo_discount_usd * trm))
         total_cop = int(round(total_usd * trm))
         monthly_eq_usd = round(total_usd / 12.0, 2) if cycle == "annual" else total_usd
@@ -3648,6 +3696,16 @@ class SaasPlatformService:
 
         gw_info = (gw_cfg.get("gateways") or {}).get(gw_clean, {})
         external_link = ((gw_info.get("payment_links") or {}).get(code_up) or "").strip()
+        dt_details = gw_cfg["gateways"]["direct_transfer"]
+        nequi_number = str(dt_details.get("nequi_number") or "3122376474")
+        wa_phone = str(dt_details.get("whatsapp_sales_phone") or "+573122376474")
+        wa_phone_digits = re.sub(r"\D", "", wa_phone) or "573122376474"
+        wa_msg = (
+            f"Hola Santiago, acabo de transferir por Nequi ({nequi_number}) el valor de "
+            f"${total_cop:,} COP (${total_usd:.2f} USD) para activar mi {plan.name} "
+            f"({'Anual -20%' if cycle == 'annual' else 'Mensual'}) en Liseth AI."
+        ).replace(",", ".")
+        whatsapp_checkout_url = f"https://wa.me/{wa_phone_digits}?text={urllib.parse.quote(wa_msg)}"
 
         return {
             "ok": True,
@@ -3662,6 +3720,7 @@ class SaasPlatformService:
                 "monthly_reference_usd": monthly_ref_usd,
                 "subtotal_usd": base_price_usd,
                 "annual_savings_usd": annual_savings_usd,
+                "annual_savings_cop": annual_savings_cop,
                 "promo_code": applied_promo,
                 "promo_valid": promo_valid,
                 "promo_message": promo_msg,
@@ -3677,7 +3736,10 @@ class SaasPlatformService:
                 "bonus_credits": bonus_credits,
                 "total_credits_granted": plan.monthly_credits + bonus_credits,
                 "external_payment_link": external_link,
-                "direct_transfer_details": gw_cfg["gateways"]["direct_transfer"],
+                "nequi_number": nequi_number,
+                "whatsapp_sales_phone": wa_phone,
+                "whatsapp_checkout_url": whatsapp_checkout_url,
+                "direct_transfer_details": dt_details,
             },
         }
 
@@ -3790,17 +3852,18 @@ class SaasPlatformService:
         res_u = await db.execute(select(SaasUser).where(SaasUser.email == clean_email))
         existing_user = res_u.scalars().first()
 
-        if not existing_user and provider == "google.com":
-            # Auto-provision Google OAuth user on first sign-in
+        # Auto-provision if user authenticated in Firebase Cloud (Google OAuth or Firebase Email/Password)
+        # and does not yet exist in the local SQLite database
+        if not existing_user and (provider == "google.com" or bool(firebase_uid) or bool(firebase_id_token)):
             return await self.authenticate_with_firebase(
                 db=db,
                 mode="register",
                 email=clean_email,
-                password=secrets.token_urlsafe(16),
+                password=password if (password and len(password) >= 8) else secrets.token_urlsafe(16),
                 full_name=full_name or clean_email.split("@")[0],
                 firebase_uid=resolved_fb_uid,
                 firebase_id_token=firebase_id_token,
-                provider="google.com",
+                provider=provider or "password",
                 selected_plan=target_plan,
                 promo_code=promo_code,
                 referral_code=referral_code,
@@ -3810,6 +3873,29 @@ class SaasPlatformService:
                 payment_method_brand=payment_method_brand,
                 payment_method_last4=payment_method_last4,
             )
+
+        # If existing non-CREATOR user authenticated via Google OAuth or reset their password in Firebase Cloud,
+        # synchronize their local password hash when a valid firebase_id_token + matching firebase_uid is provided
+        if existing_user and existing_user.id != CREATOR_USER_ID and existing_user.role != "CREATOR":
+            existing_fb_uid = (existing_user.preferences or {}).get("firebase_uid")
+            if provider == "google.com" and (not existing_fb_uid or existing_fb_uid == resolved_fb_uid):
+                temp_pw = password if (password and len(password) >= 8) else secrets.token_urlsafe(16)
+                pw_h, pw_s = hash_user_password(temp_pw)
+                existing_user.password_hash = pw_h
+                existing_user.password_salt = pw_s
+                password = temp_pw
+                await db.commit()
+            elif (
+                firebase_id_token
+                and password
+                and len(password) >= 8
+                and (not existing_fb_uid or existing_fb_uid == resolved_fb_uid)
+                and not verify_user_password(password, existing_user.password_hash, existing_user.password_salt)
+            ):
+                pw_h, pw_s = hash_user_password(password)
+                existing_user.password_hash = pw_h
+                existing_user.password_salt = pw_s
+                await db.commit()
 
         login_res = await self.login_user(
             db=db,

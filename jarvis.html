@@ -9389,21 +9389,30 @@
           <!-- MODO 1 (POR DEFECTO AL INICIAR): CREAR CUENTA VINCULADA A FIREBASE -->
           <form id="auth-firebase-register-form" onsubmit="handleFirebaseGateSubmit(event, 'register')">
             <div style="font-size: 0.82rem; font-weight: 700; color: #00f0ff; margin-bottom: 4px;">Crea tu cuenta para empezar a usar Liseth</div>
-            <p style="font-size: 0.74rem; color: #94a3b8; margin-top: 0; margin-bottom: 12px;">Tu perfil, conversaciones privadas y memoria individual quedarán protegidos y vinculados a Firebase Auth.</p>
+            <p style="font-size: 0.74rem; color: #94a3b8; margin-top: 0; margin-bottom: 12px;">Tu perfil, conversaciones privadas y memoria individual quedarán protegidos y vinculados a Firebase Auth (<code>liseth-saas-ai</code>).</p>
 
             <div style="margin-bottom: 10px;">
               <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Nombre Completo:</label>
-              <input type="text" id="gate-reg-name" placeholder="Ej. Carlos Mendoza" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+              <input type="text" id="gate-reg-name" placeholder="Ej. Carlos Mendoza" autocomplete="name" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
             </div>
 
             <div style="margin-bottom: 10px;">
               <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Correo Electrónico (Firebase Auth):</label>
-              <input type="email" id="gate-reg-email" placeholder="tu@correo.com" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+              <input type="email" id="gate-reg-email" placeholder="tu@correo.com" autocomplete="email" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
             </div>
 
             <div style="margin-bottom: 10px;">
-              <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Contraseña (mínimo 8 caracteres):</label>
-              <input type="password" id="gate-reg-password" placeholder="••••••••" minlength="8" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                <label style="font-size: 0.72rem; color: #cbd5e1;">Contraseña (mínimo 8 caracteres):</label>
+                <span id="gate-pwd-strength-label" style="font-size: 0.66rem; color: #64748b; font-weight: 700;">Seguridad: Pendiente</span>
+              </div>
+              <div style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="gate-reg-password" placeholder="••••••••" minlength="8" autocomplete="new-password" oninput="updateGatePasswordStrength(this.value)" required style="width: 100%; padding: 9px 38px 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+                <button type="button" onclick="toggleGatePasswordVisibility('gate-reg-password', this)" aria-label="Mostrar u ocultar contraseña" style="position: absolute; right: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 0.9rem; padding: 4px;">👁️</button>
+              </div>
+              <div style="height: 4px; width: 100%; background: rgba(255,255,255,0.08); border-radius: 4px; margin-top: 5px; overflow: hidden;">
+                <div id="gate-pwd-strength-bar" style="height: 100%; width: 0%; background: #ef4444; transition: width 0.25s ease, background 0.25s ease;"></div>
+              </div>
             </div>
 
             <!-- Plan Seleccionado para la Cuenta -->
@@ -9419,32 +9428,38 @@
             </div>
 
             <!-- Pasarela de Pago Interactiva (Se despliega automáticamente al elegir un plan comercial STARTER/PRO/BUSINESS/ENTERPRISE) -->
-            <div id="gate-payment-selector-box" style="display: none; margin-bottom: 10px; padding: 10px 11px; background: rgba(6, 14, 28, 0.92); border: 1px solid rgba(56, 239, 125, 0.45); border-radius: 8px;">
+            <div id="gate-payment-selector-box" style="display: none; margin-bottom: 10px; padding: 10px 11px; background: rgba(6, 14, 28, 0.95); border: 1px solid rgba(56, 239, 125, 0.5); border-radius: 9px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <span style="font-size: 0.72rem; font-weight: 800; color: #38ef7d;">💳 MÉTODO DE PAGO & RESUMEN DE COMPRA</span>
-                <span id="gate-live-quote-cop" style="font-size: 0.72rem; font-weight: 800; color: #ffd166;">~$42,000 COP</span>
+                <span style="font-size: 0.72rem; font-weight: 800; color: #38ef7d;">💳 MÉTODO DE PAGO & CHECKOUT INSTANTÁNEO</span>
+                <span id="gate-live-quote-cop" style="font-size: 0.74rem; font-weight: 800; color: #ffd166;">~$42,000 COP</span>
               </div>
               <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-bottom: 8px;">
                 <button type="button" id="gate-gw-btn-stripe" onclick="selectGatePaymentGateway('stripe')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #00f0ff; background: rgba(0, 240, 255, 0.18); color: #fff; cursor: pointer;">💳 Tarjeta (Stripe)</button>
                 <button type="button" id="gate-gw-btn-wompi_pse_nequi" onclick="selectGatePaymentGateway('wompi_pse_nequi')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">🏦 PSE / Nequi (Wompi)</button>
                 <button type="button" id="gate-gw-btn-paypal" onclick="selectGatePaymentGateway('paypal')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">🅿️ PayPal Express</button>
-                <button type="button" id="gate-gw-btn-direct_transfer" onclick="selectGatePaymentGateway('direct_transfer')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">📲 Nequi / Bancolombia</button>
+                <button type="button" id="gate-gw-btn-direct_transfer" onclick="selectGatePaymentGateway('direct_transfer')" style="padding: 6px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; border: 1px solid #334155; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; cursor: pointer;">📲 Nequi 3122376474</button>
               </div>
-              <div id="gate-gw-instructions-box" style="font-size: 0.68rem; color: #94a3b8; margin-bottom: 6px; line-height: 1.35;">
-                Pago seguro tokenizado con Visa, Mastercard, Amex o billetera digital.
+              <div id="gate-gw-instructions-box" style="font-size: 0.69rem; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4; padding: 7px 8px; background: rgba(15, 23, 42, 0.85); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+                💳 Pago internacional con Tarjeta Visa, Mastercard, Amex, Apple Pay o Google Pay (Stripe).
               </div>
+              <!-- Desglose en vivo de subtotal, descuentos, COP y créditos IA -->
+              <div id="gate-quote-breakdown-box" style="font-size: 0.68rem; color: #94a3b8; margin-bottom: 8px; padding: 6px 8px; background: rgba(0, 0, 0, 0.35); border-radius: 6px;"></div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                <select id="gate-pay-brand" style="padding: 5px 7px; background: #090d16; border: 1px solid #334155; border-radius: 5px; color: #fff; font-size: 0.72rem;">
-                  <option value="visa">Visa / Mastercard</option>
-                  <option value="nequi">Nequi Colombia</option>
-                  <option value="pse">PSE Débito Bancario</option>
-                  <option value="bancolombia">Bancolombia / Bre-B</option>
-                  <option value="paypal">PayPal Balance</option>
+                <select id="gate-pay-brand" style="padding: 6px 7px; background: #090d16; border: 1px solid #334155; border-radius: 5px; color: #fff; font-size: 0.72rem;">
+                  <option value="nequi">📲 Nequi Colombia (3122376474)</option>
+                  <option value="visa">💳 Visa / Mastercard</option>
+                  <option value="pse">🏦 PSE Débito Bancario</option>
+                  <option value="bancolombia">🏦 Bancolombia / Llave Bre-B</option>
+                  <option value="paypal">🅿️ PayPal Balance</option>
                 </select>
-                <input type="text" id="gate-pay-last4" maxlength="6" placeholder="Últ. 4 dígitos / Ref (4242)" value="4242" style="padding: 5px 7px; background: #090d16; border: 1px solid #334155; border-radius: 5px; color: #fff; font-size: 0.72rem;" />
+                <input type="text" id="gate-pay-last4" maxlength="8" placeholder="Últ. 4 dígitos o Ref Comprobante" value="4242" style="padding: 6px 7px; background: #090d16; border: 1px solid #334155; border-radius: 5px; color: #fff; font-size: 0.72rem;" />
               </div>
             </div>
 
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+              <span style="font-size: 0.66rem; color: #94a3b8;">¿Tienes un cupón o código de referido?</span>
+              <button type="button" onclick="applyQuickGatePromo('WELCOME20')" style="background: rgba(56, 239, 125, 0.14); border: 1px solid rgba(56, 239, 125, 0.4); color: #38ef7d; font-size: 0.64rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; cursor: pointer;">🎁 Aplicar WELCOME20 (-20%)</button>
+            </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
               <input type="text" id="gate-reg-promo" oninput="updateGateLiveQuote()" placeholder="Cupón (ej. WELCOME20)" style="padding: 7px 9px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.74rem;" />
               <input type="text" id="gate-reg-referral" placeholder="Cód. Referido (opcional)" style="padding: 7px 9px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.74rem;" />
@@ -9466,12 +9481,25 @@
 
             <div style="margin-bottom: 10px;">
               <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Correo Electrónico:</label>
-              <input type="email" id="gate-login-email" placeholder="tu@correo.com" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+              <input type="email" id="gate-login-email" placeholder="tu@correo.com" autocomplete="email" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
             </div>
 
-            <div style="margin-bottom: 14px;">
-              <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Contraseña:</label>
-              <input type="password" id="gate-login-password" placeholder="••••••••" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+            <div style="margin-bottom: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                <label style="font-size: 0.72rem; color: #cbd5e1;">Contraseña:</label>
+                <button type="button" onclick="switchAuthGateMode('recover')" style="background: transparent; border: none; color: #38bdf8; font-size: 0.7rem; cursor: pointer; padding: 0; text-decoration: underline;">🔑 ¿Olvidaste tu contraseña?</button>
+              </div>
+              <div style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="gate-login-password" placeholder="••••••••" autocomplete="current-password" required style="width: 100%; padding: 9px 38px 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+                <button type="button" onclick="toggleGatePasswordVisibility('gate-login-password', this)" aria-label="Mostrar u ocultar contraseña" style="position: absolute; right: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 0.9rem; padding: 4px;">👁️</button>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.72rem; color: #cbd5e1;">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="gate-login-remember" checked /> Mantener sesión iniciada
+              </label>
+              <span style="color: #38ef7d; font-size: 0.68rem;">🔒 Cifrado Firebase SSL</span>
             </div>
 
             <button type="submit" id="btn-gate-login-submit" class="btn-primary" style="width: 100%; padding: 11px; font-size: 0.88rem; font-weight: 700; justify-content: center;">
@@ -9480,6 +9508,34 @@
 
             <button type="button" onclick="handleFirebaseGoogleSignIn()" style="width: 100%; margin-top: 8px; padding: 9px; font-size: 0.8rem; font-weight: 600; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.07); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
               🌐 Iniciar Sesión con Google (Firebase OAuth)
+            </button>
+          </form>
+
+          <!-- MODO 4: RECUPERACIÓN DE CONTRASEÑA (FIREBASE AUTH + BACKEND TOKEN) -->
+          <form id="auth-firebase-recover-form" style="display: none;" onsubmit="handleFirebasePasswordReset(event)">
+            <div style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; margin-bottom: 4px;">🔑 Recuperación de Contraseña</div>
+            <p style="font-size: 0.73rem; color: #94a3b8; margin-top: 0; margin-bottom: 10px;">Te enviaremos un enlace oficial de Firebase Auth (<code>liseth-saas-ai</code>) a tu correo o puedes restablecerla al instante aquí.</p>
+
+            <div style="margin-bottom: 10px;">
+              <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 3px;">Correo Electrónico de tu cuenta:</label>
+              <input type="email" id="gate-recover-email" placeholder="tu@correo.com" required style="width: 100%; padding: 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 10px; font-size: 0.82rem; font-weight: 700; justify-content: center;">
+              📩 Enviar Correo de Recuperación & Generar Token
+            </button>
+
+            <div id="gate-recover-reset-box" style="display: none; margin-top: 10px; padding: 10px; background: rgba(6, 14, 28, 0.92); border: 1px solid rgba(0, 210, 255, 0.35); border-radius: 8px;">
+              <div style="font-size: 0.7rem; color: #38ef7d; margin-bottom: 6px;">✔ Token de recuperación verificado. Ingresa tu nueva contraseña:</div>
+              <input type="hidden" id="gate-recover-token" value="" />
+              <input type="password" id="gate-recover-new-password" placeholder="Nueva contraseña (mín. 8 caracteres)" minlength="8" style="width: 100%; margin-bottom: 8px; padding: 8px 10px; background: #090d16; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 0.78rem;" />
+              <button type="button" onclick="handleLocalPasswordResetConfirm()" class="btn-primary" style="width: 100%; padding: 8px; font-size: 0.78rem; background: #10b981; border: none;">
+                ✅ Guardar Nueva Contraseña Ahora
+              </button>
+            </div>
+
+            <button type="button" onclick="switchAuthGateMode('login')" style="width: 100%; margin-top: 8px; padding: 8px; font-size: 0.75rem; border-radius: 6px; border: 1px solid #334155; background: transparent; color: #cbd5e1; cursor: pointer;">
+              ← Volver a Iniciar Sesión
             </button>
           </form>
 
@@ -13123,8 +13179,9 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
               </select>
             </div>
           </div>
-          <div style="display: flex; gap: 6px; align-items: center;">
-            <input type="text" id="saas-promo-input" oninput="updateSaasCheckoutQuoteUI()" placeholder="Cupón (ej. WELCOME20)" style="background: #0f172a; border: 1px solid #475569; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem; width: 145px;" />
+          <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="applyQuickSaasPromo('WELCOME20')" style="background: rgba(56, 239, 125, 0.14); border: 1px solid rgba(56, 239, 125, 0.45); color: #38ef7d; padding: 5px 9px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; cursor: pointer;">🎁 Cupón WELCOME20 (-20%)</button>
+            <input type="text" id="saas-promo-input" oninput="updateSaasCheckoutQuoteUI()" placeholder="Cupón (ej. WELCOME20)" style="background: #0f172a; border: 1px solid #475569; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem; width: 135px;" />
             <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 0.74rem;" onclick="validateSaasPromoUI()">Aplicar Cupón</button>
             <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 0.74rem; border-color: #f59e0b; color: #ffd166;" onclick="switchSaasTab('creator')">⚙️ Configurar Pagos</button>
           </div>
@@ -23104,15 +23161,50 @@ const cardEsg = document.getElementById("hud-card-esg");
         }
       }
 
+      window.copyPaymentValueUI = async function(val, label) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(val);
+          }
+          showToast(`📋 ${label || 'Dato'} copiado: ${val}`);
+        } catch (e) {
+          showToast(`📋 ${label || 'Dato'}: ${val}`);
+        }
+      };
+
+      window.applyQuickGatePromo = function(code) {
+        const inp = document.getElementById("gate-reg-promo");
+        if (inp) inp.value = code;
+        window.updateGateLiveQuote();
+        showToast(`🎁 Cupón ${code} aplicado (-20% + 500 créditos IA)`);
+      };
+
+      window.applyQuickSaasPromo = async function(code) {
+        const inp = document.getElementById("saas-promo-input");
+        if (inp) inp.value = code;
+        await window.validateSaasPromoUI();
+      };
+
       window.loginSaasUser = async function() {
         const email = (document.getElementById("saas-auth-email")?.value || "").trim();
         const password = document.getElementById("saas-auth-pass")?.value || "";
         const fb = document.getElementById("saas-auth-feedback");
+        let firebase_uid = null;
+        let firebase_id_token = null;
         try {
-          const res = await fetch("/api/saas/auth/login", {
+          if (window.firebase && window.firebase.apps && window.firebase.apps.length) {
+            try {
+              const cred = await window.firebase.auth().signInWithEmailAndPassword(email, password);
+              if (cred && cred.user) {
+                firebase_uid = cred.user.uid;
+                firebase_id_token = await cred.user.getIdToken();
+              }
+            } catch (_) {}
+          }
+          const res = await fetch("/api/saas/auth/firebase", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ mode: "login", email, password, firebase_uid, firebase_id_token, provider: "password" })
           });
           const data = await res.json();
           if (!res.ok) {
@@ -23120,7 +23212,8 @@ const cardEsg = document.getElementById("hud-card-esg");
             return;
           }
           localStorage.setItem("liseth_saas_token", data.token);
-          if (fb) { fb.style.color = "#38ef7d"; fb.textContent = "Sesión iniciada como " + data.user.email; }
+          localStorage.setItem("liseth_session_token", data.token);
+          if (fb) { fb.style.color = "#38ef7d"; fb.textContent = "✔ Sesión iniciada en Firebase como " + data.user.email; }
           await refreshSaasProfileState();
         } catch (e) {
           if (fb) { fb.style.color = "#ef4444"; fb.textContent = "Error de red al iniciar sesión."; }
@@ -23133,11 +23226,22 @@ const cardEsg = document.getElementById("hud-card-esg");
         const full_name = (document.getElementById("saas-auth-name")?.value || "").trim();
         const referral_code = (document.getElementById("saas-auth-referral")?.value || "").trim() || null;
         const fb = document.getElementById("saas-auth-feedback");
+        let firebase_uid = null;
+        let firebase_id_token = null;
         try {
-          const res = await fetch("/api/saas/auth/register", {
+          if (window.firebase && window.firebase.apps && window.firebase.apps.length) {
+            try {
+              const cred = await window.firebase.auth().createUserWithEmailAndPassword(email, password);
+              if (cred && cred.user) {
+                firebase_uid = cred.user.uid;
+                firebase_id_token = await cred.user.getIdToken();
+              }
+            } catch (_) {}
+          }
+          const res = await fetch("/api/saas/auth/firebase", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, full_name, referral_code })
+            body: JSON.stringify({ mode: "register", email, password, full_name, referral_code, firebase_uid, firebase_id_token, provider: "password" })
           });
           const data = await res.json();
           if (!res.ok) {
@@ -23145,7 +23249,8 @@ const cardEsg = document.getElementById("hud-card-esg");
             return;
           }
           localStorage.setItem("liseth_saas_token", data.token);
-          if (fb) { fb.style.color = "#38ef7d"; fb.textContent = "Cuenta creada en Plan FREE: " + data.user.email; }
+          localStorage.setItem("liseth_session_token", data.token);
+          if (fb) { fb.style.color = "#38ef7d"; fb.textContent = "✔ Cuenta creada en Firebase (Plan FREE): " + data.user.email; }
           await refreshSaasProfileState();
         } catch (e) {
           if (fb) { fb.style.color = "#ef4444"; fb.textContent = "Error de conexión al registrar."; }
@@ -23291,14 +23396,55 @@ const cardEsg = document.getElementById("hud-card-esg");
 
           await updateSaasCheckoutQuoteUI();
 
+          window._cachedSaasInvoices = bData.invoices || [];
           if (invBox && bData.invoices) {
-            invBox.innerHTML = `<div style="font-weight:700;color:#00d2ff;margin-bottom:6px;">🧾 HISTORIAL DE FACTURAS Y SUSCRIPCIÓN ACTIVA</div>` +
+            invBox.innerHTML = `<div style="font-weight:700;color:#00d2ff;margin-bottom:6px;">🧾 HISTORIAL DE FACTURAS Y COMPROBANTES DIGITALES</div>` +
               (bData.invoices.length
-                ? bData.invoices.map(i => `<div style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.06);">Factura <b>${i.invoice_number}</b> — Plan <b>${i.plan_code}</b> (${i.billing_cycle}) — <b style="color:#38ef7d;">$${i.total_usd} USD</b> [${i.status}]</div>`).join("")
+                ? bData.invoices.map(i => `<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                    <div>Factura <b>${i.invoice_number}</b> — Plan <b>${i.plan_code}</b> (${i.billing_cycle}) — <b style="color:#38ef7d;">$${i.total_usd} USD</b> <span style="color:#ffd166;">(~$${(i.total_cop || Math.round(i.total_usd * 4200)).toLocaleString('es-CO')} COP)</span> [${i.status.toUpperCase()}]</div>
+                    <button type="button" class="btn-secondary" style="padding:3px 8px;font-size:0.68rem;border-color:#00d2ff;color:#00d2ff;" onclick="viewSaasInvoiceReceipt('${i.invoice_number}')">🖨️ Ver / Imprimir Recibo</button>
+                  </div>`).join("")
                 : "<div>No hay facturas registradas aún en esta cuenta.</div>");
           }
         } catch (e) {}
       }
+
+      window.viewSaasInvoiceReceipt = function(invoiceNumber) {
+        const list = window._cachedSaasInvoices || [];
+        const inv = list.find(x => x.invoice_number === invoiceNumber);
+        if (!inv) {
+          showToast("Recibo " + invoiceNumber + " verificado.");
+          return;
+        }
+        const copFormatted = (inv.total_cop || Math.round(inv.total_usd * 4200)).toLocaleString("es-CO");
+        const w = window.open("", "_blank", "width=620,height=680");
+        if (!w) {
+          showToast(`🧾 Factura ${inv.invoice_number}: Plan ${inv.plan_code} • $${inv.total_usd} USD (~$${copFormatted} COP)`);
+          return;
+        }
+        w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Comprobante ${inv.invoice_number} - Liseth AI</title>
+          <style>body{font-family:system-ui,-apple-system,sans-serif;background:#090d16;color:#f8fafc;padding:28px;}
+          .card{border:1px solid #38bdf8;border-radius:12px;padding:24px;background:#0f172a;max-width:520px;margin:0 auto;}
+          .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b;font-size:14px;}
+          .total{font-size:18px;font-weight:800;color:#38ef7d;padding-top:12px;display:flex;justify-content:space-between;}
+          .btn{margin-top:18px;padding:10px 18px;background:#00d2ff;color:#04070d;border:none;border-radius:8px;font-weight:800;cursor:pointer;width:100%;}</style></head>
+          <body><div class="card">
+            <h2 style="margin:0 0 4px;color:#00f0ff;">💎 LISETH AI SAAS CLOUD</h2>
+            <p style="margin:0 0 16px;color:#94a3b8;font-size:13px;">Comprobante Oficial de Suscripción • Proyecto Firebase: liseth-saas-ai</p>
+            <div class="row"><span>Número de Factura:</span><b>${inv.invoice_number}</b></div>
+            <div class="row"><span>Cliente:</span><b>${currentSaasUser?.email || 'Usuario Registrado'}</b></div>
+            <div class="row"><span>Plan Activado:</span><b>${inv.plan_code} (${inv.billing_cycle})</b></div>
+            <div class="row"><span>Método / Pasarela:</span><b>${(inv.payment_gateway || 'stripe').toUpperCase()}</b></div>
+            <div class="row"><span>Subtotal:</span><b>$${inv.subtotal_usd} USD</b></div>
+            <div class="row"><span>Descuento Aplicado:</span><b>-$${inv.discount_usd} USD</b></div>
+            <div class="row"><span>Estado:</span><b style="color:#38ef7d;">PAGADO (${inv.status.toUpperCase()})</b></div>
+            <div class="row"><span>Fecha de Emisión:</span><b>${inv.issued_at || new Date().toISOString()}</b></div>
+            <div class="total"><span>TOTAL PAGADO:</span><span>$${inv.total_usd} USD (~$${copFormatted} COP)</span></div>
+            <p style="font-size:12px;color:#94a3b8;margin-top:14px;">Soporte & Ventas WhatsApp: +573122376474 • Nequi Oficial: 3122376474</p>
+            <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar en PDF</button>
+          </div></body></html>`);
+        w.document.close();
+      };
 
       window.selectSaasPlanForQuote = async function(planCode) {
         selectedCheckoutPlanCode = planCode;
@@ -23326,18 +23472,23 @@ const cardEsg = document.getElementById("hud-card-esg");
           if (!res.ok || !data.ok) return;
           const q = data.quote;
           const dt = q.direct_transfer_details || {};
+          const nequiNum = q.nequi_number || dt.nequi_number || "3122376474";
+          const waPhone = q.whatsapp_sales_phone || dt.whatsapp_sales_phone || "+573122376474";
+          const breB = dt.bre_b_key || "@santiagoliseth";
+          const waUrl = q.whatsapp_checkout_url || `https://wa.me/${waPhone.replace(/[^0-9]/g, '')}`;
           const extBtn = q.external_payment_link
             ? `<a href="${q.external_payment_link}" target="_blank" rel="noopener" class="btn-secondary" style="padding:6px 12px;font-size:0.74rem;border-color:#38ef7d;color:#38ef7d;text-decoration:none;">🔗 Abrir Link de Pago Externo (${q.payment_gateway.toUpperCase()})</a>`
             : "";
-          const waRaw = (dt.whatsapp_sales_phone || '+573122376474').replace(/[^0-9]/g, '');
-          const waMsg = encodeURIComponent(`Hola Santiago, acabo de transferir por Nequi (${dt.nequi_number || '3122376474'}) el valor de $${q.total_cop.toLocaleString('es-CO')} COP ($${q.total_usd} USD) para activar mi ${q.plan_name} en Liseth AI.`);
-          const dtInfo = (gw === "direct_transfer")
-            ? `<div style="margin-top:6px;padding:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:6px;font-size:0.72rem;color:#fde68a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          const dtInfo = (gw === "direct_transfer" || gw === "wompi_pse_nequi")
+            ? `<div style="margin-top:8px;padding:9px 11px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:7px;font-size:0.72rem;color:#fde68a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
                  <div>
-                   <b>📲 Datos para Transferencia Directa (${dt.account_holder || 'Santiago'}):</b><br>
-                   • <b>Nequi:</b> <code>${dt.nequi_number || '3122376474'}</code> | <b>WhatsApp:</b> <code>${dt.whatsapp_sales_phone || '+573122376474'}</code> | <b>Llave Bre-B:</b> <code>${dt.bre_b_key || '@santiagoliseth'}</code>
+                   <b>📲 Pago Inmediato por Nequi / Bancolombia / Bre-B (${dt.account_holder || 'Santiago'}):</b><br>
+                   • <b>Nequi:</b> <code>${nequiNum}</code>
+                   <button type="button" onclick="copyPaymentValueUI('${nequiNum}', 'Número Nequi')" style="margin-left:4px;padding:1px 6px;font-size:0.65rem;background:#f59e0b;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">📋 Copiar Nequi</button>
+                   | <b>Llave Bre-B:</b> <code>${breB}</code>
+                   <button type="button" onclick="copyPaymentValueUI('${breB}', 'Llave Bre-B')" style="margin-left:4px;padding:1px 6px;font-size:0.65rem;background:#38bdf8;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">📋 Copiar Bre-B</button>
                  </div>
-                 <a href="https://wa.me/${waRaw}?text=${waMsg}" target="_blank" rel="noopener" style="padding:5px 10px;background:#25D366;color:#04070d;font-weight:800;border-radius:6px;text-decoration:none;font-size:0.7rem;">💬 Enviar Comprobante a WhatsApp (${dt.whatsapp_sales_phone || '+573122376474'})</a>
+                 <a href="${waUrl}" target="_blank" rel="noopener" style="padding:6px 11px;background:#25D366;color:#04070d;font-weight:800;border-radius:6px;text-decoration:none;font-size:0.71rem;">💬 Enviar Comprobante a WhatsApp (${waPhone})</a>
                </div>`
             : "";
 
@@ -23355,6 +23506,7 @@ const cardEsg = document.getElementById("hud-card-esg");
             ${dtInfo}
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;flex-wrap:wrap;">
               ${extBtn}
+              <a href="${waUrl}" target="_blank" rel="noopener" class="btn-secondary" style="padding:6px 12px;font-size:0.73rem;border-color:#25D366;color:#38ef7d;text-decoration:none;">📲 Soporte / Comprobante WhatsApp (${waPhone})</a>
               <button type="button" class="btn-primary" style="padding:6px 14px;font-size:0.75rem;background:linear-gradient(135deg,#10b981,#059669);border:none;" onclick="checkoutSaasPlanUI('${q.plan_code}')">⚡ Confirmar Compra y Activar ${q.plan_code} Ahora</button>
             </div>
           `;
@@ -23540,14 +23692,40 @@ const cardEsg = document.getElementById("hud-card-esg");
                 </div>
               </div>
 
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;">
                 <span id="paycfg-save-feedback" style="font-size:0.74rem;color:#38ef7d;"></span>
                 <button type="button" class="btn-primary" style="padding:7px 16px;font-size:0.76rem;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#04070d;font-weight:800;" onclick="saveCreatorPaymentConfigUI()">💾 Guardar Configuración de Métodos de Pago</button>
+              </div>
+
+              <!-- TABLA EN VIVO DE ÚLTIMOS PAGOS Y COMPROBANTES NEQUI / STRIPE / WOMPI -->
+              <div style="border-top:1px solid rgba(255,255,255,0.12);padding-top:10px;">
+                <div style="font-weight:800;color:#38ef7d;font-size:0.78rem;margin-bottom:6px;">🧾 ÚLTIMOS PAGOS RECIBIDOS & VERIFICACIÓN DE COMPROBANTES</div>
+                ${(data.recent_payments && data.recent_payments.length)
+                  ? data.recent_payments.map(p => `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 6px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.7rem;flex-wrap:wrap;gap:6px;">
+                      <div><b>${p.user_email}</b> • Plan <b style="color:#00f0ff;">${p.plan_code}</b> • <b style="color:#38ef7d;">$${p.amount_usd} USD</b> <span style="color:#ffd166;">(~$${(p.amount_cop || 0).toLocaleString('es-CO')} COP)</span> • <code>${p.payment_method}</code> [${p.status.toUpperCase()}]</div>
+                      ${p.status === 'succeeded' ? `<button type="button" class="btn-secondary" style="padding:2px 8px;font-size:0.65rem;border-color:#ef4444;color:#ef4444;" onclick="issueCreatorRefundUI('${p.id}')">↩ Reembolsar</button>` : `<span style="color:#94a3b8;font-size:0.65rem;">Reembolsado</span>`}
+                    </div>`).join("")
+                  : `<div style="color:#94a3b8;font-size:0.72rem;">Aún no hay transacciones registradas.</div>`
+                }
               </div>
             </div>`;
           }
         } catch (e) {}
       }
+
+      window.issueCreatorRefundUI = async function(paymentId) {
+        try {
+          const res = await fetch("/api/saas/admin/refunds", {
+            method: "POST",
+            headers: getSaasHeaders(),
+            body: JSON.stringify({ payment_id: paymentId, reason: "Reembolso autorizado desde Centro de Comando CREATOR" })
+          });
+          if (res.ok) {
+            showToast("↩ Reembolso procesado correctamente.");
+            await loadSaasCreatorDashboardUI();
+          }
+        } catch (e) {}
+      };
 
       window.loadSaasUsageUI = loadSaasUsageUI;
       window.loadSaasCatalogUI = loadSaasCatalogUI;
@@ -23701,9 +23879,62 @@ const cardEsg = document.getElementById("hud-card-esg");
         }
       };
 
+      window.toggleGatePasswordVisibility = function(inputId, btnEl) {
+        const inp = document.getElementById(inputId);
+        if (!inp) return;
+        if (inp.type === "password") {
+          inp.type = "text";
+          if (btnEl) btnEl.textContent = "🙈";
+        } else {
+          inp.type = "password";
+          if (btnEl) btnEl.textContent = "👁️";
+        }
+      };
+
+      window.updateGatePasswordStrength = function(pwd) {
+        const bar = document.getElementById("gate-pwd-strength-bar");
+        const lbl = document.getElementById("gate-pwd-strength-label");
+        const val = pwd || "";
+        let score = 0;
+        if (val.length >= 8) score += 25;
+        if (val.length >= 12) score += 25;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score += 25;
+        if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) score += 25;
+        if (bar) {
+          bar.style.width = score + "%";
+          bar.style.background = score <= 25 ? "#ef4444" : (score <= 50 ? "#f59e0b" : (score <= 75 ? "#38bdf8" : "#38ef7d"));
+        }
+        if (lbl) {
+          lbl.textContent = score === 0 ? "Seguridad: Pendiente" : (score <= 25 ? "Seguridad: Débil" : (score <= 50 ? "Seguridad: Media" : (score <= 75 ? "Seguridad: Fuerte" : "Seguridad: Grado Militar 🔒")));
+          lbl.style.color = score <= 25 ? "#ef4444" : (score <= 50 ? "#ffd166" : "#38ef7d");
+        }
+      };
+
+      function formatFirebaseAuthError(fbErr) {
+        const code = String(fbErr?.code || "");
+        const msg = String(fbErr?.message || "");
+        if (code.includes("email-already-in-use") || msg.includes("EMAIL_EXISTS")) {
+          return "Este correo ya tiene una cuenta registrada en Firebase. Te hemos cambiado a 'Iniciar Sesión' para que entres con tu clave.";
+        }
+        if (code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found") || msg.includes("INVALID_LOGIN_CREDENTIALS")) {
+          return "Correo o contraseña incorrectos. Verifica tus datos o usa '¿Olvidaste tu contraseña?' para recuperarla.";
+        }
+        if (code.includes("weak-password")) {
+          return "La contraseña debe tener al menos 8 caracteres seguros.";
+        }
+        if (code.includes("too-many-requests")) {
+          return "Demasiados intentos seguidos. Espera un momento o restablece tu contraseña.";
+        }
+        if (code.includes("popup-closed-by-user")) {
+          return "Se cerró la ventana emergente de Google antes de completar el acceso.";
+        }
+        return "Firebase Auth: " + (msg || "No se pudo autenticar.");
+      }
+
       window.switchAuthGateMode = function(mode) {
         const regForm = document.getElementById("auth-firebase-register-form");
         const logForm = document.getElementById("auth-firebase-login-form");
+        const recForm = document.getElementById("auth-firebase-recover-form");
         const pinForm = document.getElementById("auth-pin-form");
         const tReg = document.getElementById("gate-tab-register");
         const tLog = document.getElementById("gate-tab-login");
@@ -23713,7 +23944,14 @@ const cardEsg = document.getElementById("hud-card-esg");
 
         if (regForm) regForm.style.display = (mode === "register") ? "block" : "none";
         if (logForm) logForm.style.display = (mode === "login") ? "block" : "none";
+        if (recForm) recForm.style.display = (mode === "recover") ? "block" : "none";
         if (pinForm) pinForm.style.display = (mode === "pin") ? "block" : "none";
+
+        if (mode === "recover") {
+          const loginEmail = document.getElementById("gate-login-email")?.value || document.getElementById("gate-reg-email")?.value || "";
+          const recEmailEl = document.getElementById("gate-recover-email");
+          if (recEmailEl && loginEmail) recEmailEl.value = loginEmail;
+        }
 
         if (tReg) {
           tReg.style.borderColor = (mode === "register") ? "#00f0ff" : "transparent";
@@ -23721,14 +23959,93 @@ const cardEsg = document.getElementById("hud-card-esg");
           tReg.style.color = (mode === "register") ? "#fff" : "#94a3b8";
         }
         if (tLog) {
-          tLog.style.borderColor = (mode === "login") ? "#00f0ff" : "transparent";
-          tLog.style.background = (mode === "login") ? "rgba(0, 240, 255, 0.2)" : "transparent";
-          tLog.style.color = (mode === "login") ? "#fff" : "#94a3b8";
+          const isLogOrRec = (mode === "login" || mode === "recover");
+          tLog.style.borderColor = isLogOrRec ? "#00f0ff" : "transparent";
+          tLog.style.background = isLogOrRec ? "rgba(0, 240, 255, 0.2)" : "transparent";
+          tLog.style.color = isLogOrRec ? "#fff" : "#94a3b8";
         }
         if (tPin) {
           tPin.style.borderColor = (mode === "pin") ? "#fbbf24" : "transparent";
           tPin.style.background = (mode === "pin") ? "rgba(251, 191, 36, 0.2)" : "transparent";
         }
+      };
+
+      window.handleFirebasePasswordReset = async function(e) {
+        if (e) e.preventDefault();
+        const email = (document.getElementById("gate-recover-email")?.value || "").trim();
+        const errBox = document.getElementById("auth-error-msg");
+        const resetBox = document.getElementById("gate-recover-reset-box");
+        const tokenInput = document.getElementById("gate-recover-token");
+        if (!email) return;
+
+        let fbSent = false;
+        if (window.firebase && window.firebase.apps && window.firebase.apps.length) {
+          try {
+            await window.firebase.auth().sendPasswordResetEmail(email);
+            fbSent = true;
+          } catch (_) {}
+        }
+
+        try {
+          const res = await fetch("/api/saas/auth/forgot-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+          });
+          const data = await res.json();
+          if (data && data.reset_token && resetBox && tokenInput) {
+            tokenInput.value = data.reset_token;
+            resetBox.style.display = "block";
+          }
+          if (errBox) {
+            errBox.style.display = "block";
+            errBox.style.color = "#38ef7d";
+            errBox.style.borderColor = "rgba(56, 239, 125, 0.45)";
+            errBox.style.background = "rgba(56, 239, 125, 0.12)";
+            errBox.textContent = fbSent
+              ? `📩 Se envió el enlace de recuperación de Firebase a ${email}. También puedes restablecerla directamente abajo.`
+              : (data.message || `📩 Solicitud de recuperación procesada para ${email}.`);
+          }
+        } catch (err) {
+          if (errBox) {
+            errBox.style.display = "block";
+            errBox.textContent = "Error al solicitar recuperación de contraseña.";
+          }
+        }
+      };
+
+      window.handleLocalPasswordResetConfirm = async function() {
+        const token = (document.getElementById("gate-recover-token")?.value || "").trim();
+        const new_password = document.getElementById("gate-recover-new-password")?.value || "";
+        const email = (document.getElementById("gate-recover-email")?.value || "").trim();
+        const errBox = document.getElementById("auth-error-msg");
+        if (!token || new_password.length < 8) {
+          if (errBox) {
+            errBox.style.display = "block";
+            errBox.style.color = "#ff5c77";
+            errBox.textContent = "La nueva contraseña debe tener mínimo 8 caracteres.";
+          }
+          return;
+        }
+        try {
+          const res = await fetch("/api/saas/auth/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, new_password })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            showToast("✅ Contraseña actualizada. Ya puedes iniciar sesión.");
+            const loginEmailEl = document.getElementById("gate-login-email");
+            const loginPassEl = document.getElementById("gate-login-password");
+            if (loginEmailEl && email) loginEmailEl.value = email;
+            if (loginPassEl) loginPassEl.value = new_password;
+            window.switchAuthGateMode("login");
+          } else if (errBox) {
+            errBox.style.display = "block";
+            errBox.textContent = data.detail || "No se pudo actualizar la contraseña.";
+          }
+        } catch (e) {}
       };
 
       const GATE_PLAN_PRICES = {
@@ -23778,13 +24095,12 @@ const cardEsg = document.getElementById("hud-card-esg");
             btn.style.color = (id === gw) ? "#fff" : "#cbd5e1";
           }
         });
-        const inst = document.getElementById("gate-gw-instructions-box");
-        const dt = cachedGatewaysConfig?.gateways?.direct_transfer || {};
-        if (inst) {
-          if (gw === "stripe") inst.textContent = "💳 Pago internacional con Tarjeta Visa, Mastercard, Amex, Apple Pay o Google Pay (Stripe).";
-          else if (gw === "wompi_pse_nequi") inst.textContent = "🏦 Débito bancario PSE (todos los bancos en Colombia), Nequi Push o Botón Bancolombia (Wompi/MercadoPago).";
-          else if (gw === "paypal") inst.textContent = "🅿️ Pago rápido con tu cuenta PayPal Express Checkout o tarjeta vinculada.";
-          else if (gw === "direct_transfer") inst.innerHTML = `📲 Transfiere a <b>Nequi: ${dt.nequi_number || '3122376474'}</b> | <b>WhatsApp: <a href="https://wa.me/${(dt.whatsapp_sales_phone || '+573122376474').replace(/[^0-9]/g, '')}" target="_blank" style="color:#38ef7d;">${dt.whatsapp_sales_phone || '+573122376474'}</a></b> e ingresa los últimos 4 dígitos del comprobante.`;
+        const brandSelect = document.getElementById("gate-pay-brand");
+        if (brandSelect) {
+          if (gw === "direct_transfer") brandSelect.value = "nequi";
+          else if (gw === "wompi_pse_nequi") brandSelect.value = "pse";
+          else if (gw === "paypal") brandSelect.value = "paypal";
+          else brandSelect.value = "visa";
         }
         window.updateGateLiveQuote();
       };
@@ -23808,11 +24124,48 @@ const cardEsg = document.getElementById("hud-card-esg");
           const data = await res.json();
           if (res.ok && data.ok && data.quote) {
             const q = data.quote;
+            const dt = q.direct_transfer_details || {};
+            const nequiNum = q.nequi_number || dt.nequi_number || "3122376474";
+            const waPhone = q.whatsapp_sales_phone || dt.whatsapp_sales_phone || "+573122376474";
+            const breB = dt.bre_b_key || "@santiagoliseth";
+            const waUrl = q.whatsapp_checkout_url || `https://wa.me/${waPhone.replace(/[^0-9]/g, '')}`;
             const copEl = document.getElementById("gate-live-quote-cop");
             const labelEl = document.getElementById("gate-selected-plan-label");
+            const inst = document.getElementById("gate-gw-instructions-box");
+            const brk = document.getElementById("gate-quote-breakdown-box");
             const suffix = (cycle === "annual") ? "/ año" : "/ mes";
             if (copEl) copEl.textContent = `$${q.total_usd} USD (~$${q.total_cop.toLocaleString("es-CO")} COP)`;
             if (labelEl) labelEl.textContent = `${q.plan_name} — $${q.total_usd} USD (~$${q.total_cop.toLocaleString("es-CO")} COP) ${suffix}`;
+
+            if (inst) {
+              if (gw === "stripe") {
+                inst.innerHTML = `💳 <b>Stripe Internacional:</b> Pago seguro con Visa, Mastercard, Amex, Apple Pay o Google Pay.` + (q.external_payment_link ? ` <a href="${q.external_payment_link}" target="_blank" style="color:#38ef7d;font-weight:700;">Abrir Checkout Stripe ↗</a>` : "");
+              } else if (gw === "wompi_pse_nequi") {
+                inst.innerHTML = `🏦 <b>Wompi / PSE / Nequi:</b> Débito bancario PSE, Nequi Push (<code>${nequiNum}</code>) o Bancolombia.` + (q.external_payment_link ? ` <a href="${q.external_payment_link}" target="_blank" style="color:#38ef7d;font-weight:700;">Abrir Wompi ↗</a>` : "");
+              } else if (gw === "paypal") {
+                inst.innerHTML = `🅿️ <b>PayPal Express Checkout:</b> Paga con saldo PayPal o tarjeta internacional.` + (q.external_payment_link ? ` <a href="${q.external_payment_link}" target="_blank" style="color:#38ef7d;font-weight:700;">Abrir PayPal ↗</a>` : "");
+              } else {
+                inst.innerHTML = `
+                  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+                    <span>📲 <b>Nequi Oficial:</b> <code style="color:#ffd166;font-weight:800;">${nequiNum}</code></span>
+                    <button type="button" onclick="copyPaymentValueUI('${nequiNum}', 'Número Nequi')" style="padding:2px 7px;font-size:0.65rem;background:#f59e0b;color:#04070d;border:none;border-radius:4px;font-weight:800;cursor:pointer;">📋 Copiar Nequi</button>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-top:4px;">
+                    <span>🔑 <b>Llave Bre-B:</b> <code>${breB}</code></span>
+                    <a href="${waUrl}" target="_blank" rel="noopener" style="padding:2px 8px;font-size:0.65rem;background:#25D366;color:#04070d;border-radius:4px;font-weight:800;text-decoration:none;">💬 Enviar Comprobante WhatsApp (${waPhone})</a>
+                  </div>`;
+              }
+            }
+
+            if (brk) {
+              brk.innerHTML = `
+                <div style="display:flex;justify-content:space-between;"><span>Subtotal (${cycle === 'annual' ? 'Anual -20%' : 'Mensual'}):</span><b>$${q.subtotal_usd} USD (~$${q.subtotal_cop.toLocaleString('es-CO')} COP)</b></div>
+                ${q.annual_savings_usd > 0 ? `<div style="display:flex;justify-content:space-between;color:#38ef7d;"><span>Ahorro Plan Anual (2 meses gratis):</span><b>-$${q.annual_savings_usd} USD</b></div>` : ""}
+                ${q.promo_discount_usd > 0 ? `<div style="display:flex;justify-content:space-between;color:#38ef7d;"><span>${q.promo_message || 'Descuento Cupón'}:</span><b>-$${q.promo_discount_usd} USD (-$${q.discount_cop.toLocaleString('es-CO')} COP)</b></div>` : ""}
+                <div style="display:flex;justify-content:space-between;color:#fff;border-top:1px solid rgba(255,255,255,0.1);margin-top:3px;padding-top:3px;"><span>Total a Pagar Hoy:</span><b style="color:#38ef7d;">$${q.total_usd} USD (~$${q.total_cop.toLocaleString('es-CO')} COP)</b></div>
+                <div style="display:flex;justify-content:space-between;color:#00f0ff;"><span>Créditos IA acreditados al instante:</span><b>+${q.total_credits_granted.toLocaleString()} créditos</b></div>
+              `;
+            }
           }
         } catch (e) {}
       };
@@ -23878,8 +24231,17 @@ const cardEsg = document.getElementById("hud-card-esg");
               firebase_id_token = await userCred.user.getIdToken();
             }
           } catch (fbErr) {
+            const code = String(fbErr?.code || "");
+            if (isReg && (code.includes("email-already-in-use") || String(fbErr?.message || "").includes("EMAIL_EXISTS"))) {
+              const logEmail = document.getElementById("gate-login-email");
+              const logPass = document.getElementById("gate-login-password");
+              if (logEmail) logEmail.value = email;
+              if (logPass) logPass.value = password;
+              window.switchAuthGateMode("login");
+            }
             if (errBox) {
-              errBox.textContent = "Firebase Auth: " + (fbErr.message || "Error de autenticación en Firebase.");
+              errBox.style.color = "#ff5c77";
+              errBox.textContent = formatFirebaseAuthError(fbErr);
               errBox.style.display = "block";
             }
             return;
