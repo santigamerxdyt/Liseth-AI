@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script src="access-mode.js"></script>
+  <script>window.LISETH_FREE_ACCESS = globalThis.LISETH_ACCESS_MODE?.freeAccess === true; if (window.LISETH_FREE_ACCESS) document.documentElement.classList.add("free-access");</script>
+  <style>.free-access #auth-modal, .free-access #saas-platform-modal, .free-access [onclick*="Saas"], .free-access #btn-session-lock { display: none !important; }</style>
   <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="mobile-web-app-capable" content="yes">
@@ -7923,7 +7926,7 @@
       measurementId: "G-33Y6VVGX3K"
     };
     try {
-      if (window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
+      if (!window.LISETH_FREE_ACCESS && window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
         window.firebase.initializeApp(window.lisethFirebaseConfig);
       }
     } catch (e) {}
@@ -7943,10 +7946,12 @@
     };
 
     try {
+      if (!window.LISETH_FREE_ACCESS) {
       const app = initializeApp(firebaseConfig);
       window.lisethFirebaseApp = app;
       if (window.location.protocol.startsWith("http")) {
         window.lisethFirebaseAnalytics = getAnalytics(app);
+      }
       }
     } catch (e) {
       console.warn("Aviso inicializando Firebase v13.2.0:", e);
@@ -15059,7 +15064,7 @@ Tus habilidades clave:
 
       // --- BLOQUEO ESTRICTO SAAS + FIREBASE: PROHIBIDO EL USO SIN INICIAR SESIÓN ---
       const isGitHubPages = false;
-      window.isLisethAuthenticated = false;
+      window.isLisethAuthenticated = window.LISETH_FREE_ACCESS === true;
       // Limpiar cualquier token de invitado antiguo para exigir cuenta real vinculada a Firebase
       if (["github-pages-guest", "liseth-cloud-guest"].includes(localStorage.getItem("liseth_session_token"))) {
         localStorage.removeItem("liseth_session_token");
@@ -15935,6 +15940,7 @@ Tus habilidades clave:
       let pcmLastSpeechTime = 0;
 
       async function ensureAuthenticatedSession() {
+        if (window.LISETH_FREE_ACCESS) { window.isLisethAuthenticated = true; return "free-access"; }
         let token = localStorage.getItem("liseth_session_token") || localStorage.getItem("liseth_saas_token");
         if (token) {
           window.isLisethAuthenticated = true;
@@ -19356,8 +19362,9 @@ Tus habilidades clave:
       const btnSessionLock = document.getElementById("btn-session-lock");
 
       function showAuthModal() {
+        if (window.LISETH_FREE_ACCESS) { return; }
         if (!authModal) return;
-        window.isLisethAuthenticated = false;
+        window.isLisethAuthenticated = window.LISETH_FREE_ACCESS === true;
         authModal.classList.add("active");
         if (authErrorMsg) authErrorMsg.style.display = "none";
       }
@@ -19370,6 +19377,7 @@ Tus habilidades clave:
       }
 
       async function checkAuthSession() {
+        if (window.LISETH_FREE_ACCESS) { hideAuthModal(); return true; }
         // Cargar configuración del proyecto Firebase vinculado
         if (typeof window.initFirebaseGateConfig === "function") {
           window.initFirebaseGateConfig();
@@ -19438,7 +19446,7 @@ Tus habilidades clave:
         localStorage.removeItem("liseth_session_token");
         localStorage.removeItem("liseth_saas_token");
         sessionStorage.removeItem("liseth_active_session_authenticated");
-        window.isLisethAuthenticated = false;
+        window.isLisethAuthenticated = window.LISETH_FREE_ACCESS === true;
         try {
           await fetch("/api/auth/logout", { method: "POST" });
           await fetch("/api/saas/auth/logout", { method: "POST" });
@@ -21653,21 +21661,7 @@ Tus habilidades clave:
         const w = window.open("", "_blank");
         w.document.write("<html><head><title>Factura Electrónica Pro-Forma - Liseth</title><style>body{font-family:sans-serif;padding:30px;}</style></head><body>");
         w.document.write(card.outerHTML);
-        w.document.write("
-      // Desbloqueo de AudioContext para políticas de Autoplay en celulares móviles (iOS Safari / Android Chrome)
-      function unlockMobileAudioOnTouch() {
-        try {
-          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioCtxClass) {
-            if (!window.__globalMobileAudioCtx) window.__globalMobileAudioCtx = new AudioCtxClass();
-            if (window.__globalMobileAudioCtx.state === "suspended") window.__globalMobileAudioCtx.resume();
-          }
-        } catch (_) {}
-      }
-      window.addEventListener("touchstart", unlockMobileAudioOnTouch, { once: true, passive: true });
-      window.addEventListener("click", unlockMobileAudioOnTouch, { once: true, passive: true });
-
-</body></html>");
+        w.document.write("</body></html>");
         w.document.close();
         w.print();
       };
@@ -21987,21 +21981,7 @@ Tus habilidades clave:
         const w = window.open("", "_blank");
         w.document.write("<html><head><title>Contrato Comercial</title><style>body{font-family:serif;padding:40px;line-height:1.6;font-size:12pt;}</style></head><body><pre style='font-family:inherit;white-space:pre-wrap;'>");
         w.document.write(text);
-        w.document.write("</pre>
-      // Desbloqueo de AudioContext para políticas de Autoplay en celulares móviles (iOS Safari / Android Chrome)
-      function unlockMobileAudioOnTouch() {
-        try {
-          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioCtxClass) {
-            if (!window.__globalMobileAudioCtx) window.__globalMobileAudioCtx = new AudioCtxClass();
-            if (window.__globalMobileAudioCtx.state === "suspended") window.__globalMobileAudioCtx.resume();
-          }
-        } catch (_) {}
-      }
-      window.addEventListener("touchstart", unlockMobileAudioOnTouch, { once: true, passive: true });
-      window.addEventListener("click", unlockMobileAudioOnTouch, { once: true, passive: true });
-
-</body></html>");
+        w.document.write("</pre></body></html>");
         w.document.close();
         w.print();
       };
@@ -24906,6 +24886,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       }
 
       window.isUserFullyOnboarded = function(userObj) {
+        if (window.LISETH_FREE_ACCESS) { return true; }
         const u = userObj || currentSaasUser;
         // Si es el propietario CREATOR (Señor Santiago), siempre está desbloqueado
         if (u && (u.is_creator || u.role === "CREATOR" || u.plan_code === "CREATOR")) {
@@ -24933,6 +24914,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.renderMandatoryOnboardingBanner = function(userObj) {
+        if (window.LISETH_FREE_ACCESS) { return; }
         const box = document.getElementById("saas-mandatory-onboarding-box");
         const closeX = document.getElementById("saas-modal-close-x");
         const closeBtn = document.getElementById("saas-modal-close-btn");
@@ -25030,6 +25012,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.enforceMandatoryOnboardingGate = function() {
+        if (window.LISETH_FREE_ACCESS) { return true; }
         if (window.isUserFullyOnboarded(currentSaasUser)) {
           return true;
         }
@@ -25039,6 +25022,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.openSaasModal = async function(defaultTab) {
+        if (window.LISETH_FREE_ACCESS) { return; }
         const modal = document.getElementById("saas-platform-modal");
         if (modal) modal.classList.add("active");
         await refreshSaasProfileState();
@@ -25095,6 +25079,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       async function refreshSaasProfileState() {
+        if (window.LISETH_FREE_ACCESS) { return; }
         try {
           const res = await fetch("/api/saas/profile", { headers: getSaasHeaders() });
           if (!res.ok) return;
@@ -25217,6 +25202,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.loginSaasUser = async function() {
+        if (window.LISETH_FREE_ACCESS) return;
         const email = (document.getElementById("saas-auth-email")?.value || "").trim();
         const password = document.getElementById("saas-auth-pass")?.value || "";
         const fb = document.getElementById("saas-auth-feedback");
@@ -25253,6 +25239,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.registerSaasUser = async function() {
+        if (window.LISETH_FREE_ACCESS) return;
         const email = (document.getElementById("saas-auth-email")?.value || "").trim();
         const password = document.getElementById("saas-auth-pass")?.value || "";
         const full_name = (document.getElementById("saas-auth-name")?.value || "").trim();
@@ -25293,6 +25280,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.logoutSaasAccount = async function() {
+        if (window.LISETH_FREE_ACCESS) return;
         localStorage.removeItem("liseth_saas_token");
         await fetch("/api/saas/auth/logout", { method: "POST" });
         await refreshSaasProfileState();
@@ -25584,6 +25572,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.checkoutSaasPlanUI = async function(planCode) {
+        if (window.LISETH_FREE_ACCESS) return;
         if (planCode === "FREE") {
           showToast("🔒 Para desbloquear y usar el proyecto debes adquirir un plan comercial (STARTER, PRO, BUSINESS o ENTERPRISE).");
           return;
@@ -25705,6 +25694,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       }
 
       window.topupSaasCreditsUI = async function(packCode) {
+        if (window.LISETH_FREE_ACCESS) return;
         const fb = document.getElementById("saas-topup-feedback");
         if (fb) fb.textContent = "Procesando recarga de créditos...";
         try {
@@ -26467,6 +26457,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       let linkedFirebaseConfig = window.lisethFirebaseConfig || null;
 
       window.initFirebaseGateConfig = async function() {
+        if (window.LISETH_FREE_ACCESS) { return; }
         fetchGatewaysMetadata();
         try {
           const res = await fetch("/api/saas/firebase/config");
@@ -26707,6 +26698,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.handleFirebasePasswordReset = async function(e) {
+        if (window.LISETH_FREE_ACCESS) { if (e) e.preventDefault(); return; }
         if (e) e.preventDefault();
         const email = (document.getElementById("gate-recover-email")?.value || "").trim();
         const errBox = document.getElementById("auth-error-msg");
@@ -26937,6 +26929,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.handleFirebaseGateSubmit = async function(e, mode) {
+        if (window.LISETH_FREE_ACCESS) { if (e) e.preventDefault(); return; }
         if (e) e.preventDefault();
         const errBox = document.getElementById("auth-error-msg");
         if (errBox) errBox.style.display = "none";
@@ -27485,6 +27478,7 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.handleFirebaseGoogleSignIn = async function() {
+        if (window.LISETH_FREE_ACCESS) { return; }
         const errBox = document.getElementById("auth-error-msg");
         if (errBox) errBox.style.display = "none";
         const selected_plan = document.getElementById("gate-selected-plan-code")?.value || "FREE";

@@ -228,6 +228,8 @@ def extract_token_from_request(request: Request) -> Optional[str]:
 
 def is_authenticated(request: Request) -> bool:
     """Checks if request has a valid session token."""
+    if settings.FREE_ACCESS:
+        return True
     token = extract_token_from_request(request)
     if not token:
         return False
@@ -241,6 +243,8 @@ def is_owner_or_creator_authenticated(request: Request) -> bool:
     or as the SaaS CREATOR superadmin (Señor Santiago).
     Blocks standard multi-tenant SaaS users (role='USER') from host-level administration.
     """
+    if settings.FREE_ACCESS and request.client and request.client.host in {"127.0.0.1", "::1"}:
+        return True
     token = extract_token_from_request(request)
     if not token:
         return False
@@ -257,6 +261,8 @@ async def require_auth(request: Request) -> dict:
     FastAPI dependency that enforces authentication.
     Raises HTTPException(401) if not authenticated.
     """
+    if settings.FREE_ACCESS:
+        return {"type": "free_access"}
     token = extract_token_from_request(request)
     if not token:
         raise HTTPException(

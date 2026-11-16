@@ -3,6 +3,7 @@ Configuration module for JARVIS / Liseth
 Validates environment variables, enforces security baselines, and prevents startup with insecure defaults.
 """
 import os
+import json
 import secrets
 from pathlib import Path
 from typing import List
@@ -31,6 +32,9 @@ class SecurityConfigurationError(Exception):
 
 class Settings:
     def __init__(self):
+        # Shared with both frontends and the Node server; restart after changes.
+        mode_source = (BASE_DIR / "access-mode.js").read_text(encoding="utf-8")
+        self.FREE_ACCESS = json.loads(mode_source.split("=", 1)[1].strip().rstrip(";"))["freeAccess"] is True
         # Security: Local-Only Mode (Private to Santiago, external access blocked)
         self.LOCAL_ONLY: bool = os.getenv("LOCAL_ONLY", "true").lower() in ("true", "1", "yes")
 

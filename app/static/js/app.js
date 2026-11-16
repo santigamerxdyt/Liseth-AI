@@ -3348,6 +3348,7 @@ Tus habilidades clave:
       const btnSessionLock = document.getElementById("btn-session-lock");
 
       function showAuthModal() {
+        if (window.LISETH_FREE_ACCESS) return;
         if (!authModal) return;
         authModal.classList.add("active");
         if (authErrorMsg) authErrorMsg.style.display = "none";
@@ -3364,6 +3365,7 @@ Tus habilidades clave:
       }
 
       async function checkAuthSession() {
+        if (window.LISETH_FREE_ACCESS) { hideAuthModal(); return true; }
         // Exigir SIEMPRE inicio de sesión y código de verificación al abrir la app o web
         sessionStorage.removeItem("liseth_active_session_authenticated");
         showAuthModal();

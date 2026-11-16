@@ -115,3 +115,21 @@ Todas las pruebas pasan al 100%:
 
 © 2026 **Santiago Huérfano López**. Todos los derechos reservados.  
 Propiedad intelectual y tecnológica protegida bajo los términos de `LEGAL_TERMS_AND_COPYRIGHT.md`.
+
+
+## Modo de uso libre
+
+Activado por solicitud del propietario. `access-mode.js` es el interruptor compartido
+por las interfaces y los servidores Python y Node: `freeAccess: true` permite usar
+el asistente sin cuenta, inicio de sesi?n ni compra de planes. El portal SaaS,
+los registros (incluido Firebase), pagos, recargas, referidos y webhooks comerciales
+quedan deshabilitados. No se crean cuentas ni se eliminan datos existentes.
+Las herramientas de an?lisis financiero del asistente siguen disponibles.
+
+Las operaciones administrativas del servidor Python conservan la protecci?n para
+accesos remotos; el uso local no requiere PIN. Las claves y los costes propios de
+los proveedores de IA siguen dependiendo de la configuraci?n del propietario.
+
+Mantener este modo hasta que el propietario solicite reactivarlo. Para reactivar,
+cambiar `true` a `false` en `access-mode.js`, reiniciar el servidor y recargar la
+interfaz. Reiniciar y recargar tambi?n es necesario al activar el modo libre.

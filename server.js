@@ -13,6 +13,7 @@ const path = require('path');
 const os = require('os');
 const url = require('url');
 const https = require('https');
+const FREE_ACCESS = JSON.parse(fs.readFileSync(path.join(__dirname, "access-mode.js"), "utf8").split("=")[1].trim().replace(/;$/, "")).freeAccess === true;
 
 // Carga de variables de entorno desde .env si existe
 const envPath = path.join(__dirname, '.env');
@@ -474,6 +475,14 @@ const server = http.createServer(async (req, res) => {
   const pathname = parsedUrl.pathname;
   const method = req.method;
   const clientIp = req.socket.remoteAddress || '127.0.0.1';
+  if (pathname === '/access-mode.js') {
+    res.writeHead(200, { 'Content-Type': 'application/javascript', 'Cache-Control': 'no-store' });
+    return res.end(fs.readFileSync(path.join(__dirname, 'access-mode.js')));
+  }
+  if (FREE_ACCESS && (pathname === '/api/saas' || pathname.startsWith('/api/saas/'))) {
+    return sendJson(res, 403, { ok: false, freeAccess: true, error: 'Cuentas y monetizacion desactivadas.' }, {}, req);
+  }
+
 
   // Manejo de preflight CORS (OPTIONS) restringido
   if (method === 'OPTIONS') {
@@ -529,7 +538,7 @@ const server = http.createServer(async (req, res) => {
     const cookies = Auth.parseCookies(req);
     const authHeader = req.headers.authorization;
     const token = cookies.jarvis_session || (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
-    const authenticated = Auth.verifySessionToken(token);
+    const authenticated = FREE_ACCESS || Auth.verifySessionToken(token);
     return sendJson(res, 200, { authenticated }, {}, req);
   }
 
@@ -542,7 +551,7 @@ const server = http.createServer(async (req, res) => {
   // Excepciones públicas: /api/auth/* y webhooks de mensajería (/api/webhook/*)
   const isPublicApi = pathname.startsWith('/api/auth/') || pathname.startsWith('/api/webhook/');
 
-  if (pathname.startsWith('/api') && !isPublicApi) {
+  if (pathname.startsWith('/api') && !isPublicApi && !FREE_ACCESS) {
     const cookies = Auth.parseCookies(req);
     const authHeader = req.headers.authorization;
     const queryToken = parsedUrl.searchParams.get('token');

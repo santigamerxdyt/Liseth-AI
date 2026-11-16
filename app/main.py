@@ -95,7 +95,8 @@ async def lifespan(app: FastAPI):
         migration_stats = await run_migration_if_needed()
         logger.info(f"Base de datos SQLite inicializada. Migración: {migration_stats}")
         from app.services.saas_service import saas_service
-        await saas_service.ensure_seeded()
+        if not settings.FREE_ACCESS:
+            await saas_service.ensure_seeded()
         logger.info("Plataforma SaaS Multiusuario (Planes, Catálogo IA y Cuenta CREATOR) inicializada.")
     except Exception as e:
         logger.error(f"Error inicializando base de datos / migración: {e}", exc_info=True)
@@ -335,6 +336,9 @@ async def api_auth_middleware(request: Request, call_next):
     path = request.url.path
     clean_path = path.rstrip("/") or "/"
 
+    if settings.FREE_ACCESS and (clean_path == "/api/saas" or clean_path.startswith("/api/saas/")):
+        return JSONResponse(status_code=403, content={"ok": False, "freeAccess": True, "error": "Cuentas y monetizacion desactivadas. Usa el asistente en modo libre."})
+
     # Check if request targets an API route that is not exempt
     is_nfc_path = path.startswith("/api/nfc/")
     if path.startswith("/api") and not is_nfc_path and path not in EXEMPT_API_PATHS and clean_path not in EXEMPT_API_PATHS:
@@ -445,3 +449,8 @@ async def serve_favicon():
         return FileResponse(ico_file, media_type="image/x-icon")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
+
+@app.get("/access-mode.js", include_in_schema=False)
+async def access_mode_script():
+    return FileResponse(BASE_DIR / "access-mode.js", media_type="application/javascript", headers={"Cache-Control": "no-store"})
