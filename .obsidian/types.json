@@ -1,0 +1,20 @@
+{
+  "types": {
+    "type": "text",
+    "status": "text",
+    "priority": "text",
+    "module": "text",
+    "created": "date",
+    "updated": "date",
+    "verified": "checkbox",
+    "author": "text",
+    "tags": "tags",
+    "source_paths": "multitext",
+    "provider": "text",
+    "severity": "text",
+    "plan_tier": "text",
+    "version": "text",
+    "category": "text",
+    "impact": "text"
+  }
+}

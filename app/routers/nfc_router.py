@@ -6,13 +6,29 @@ electronic invoices, AI triggers, merchant loyalty, and CREATOR NFC Management C
 """
 
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Header, HTTPException, Query, Request, Response
+from fastapi import APIRouter, Header, HTTPException, Query, Request, Response, status
 from pydantic import BaseModel, Field
 
+from app.core.auth import is_owner_or_creator_authenticated, verify_session_token
 from app.services.nfc_service import nfc_service
 from app.services.invoice_service import invoice_service
 
 router = APIRouter(prefix="/api/nfc", tags=["nfc"])
+
+
+def _guard_nfc_creator_action(request: Request) -> None:
+    """Blocks non-creator SaaS users from invoking NFC Superadmin endpoints."""
+    explicit_tok = (
+        request.headers.get("X-SaaS-Token")
+        or (request.headers.get("Authorization", "")[7:] if request.headers.get("Authorization", "").startswith("Bearer ") else None)
+    )
+    if explicit_tok:
+        payload = verify_session_token(explicit_tok.strip())
+        if not payload or not is_owner_or_creator_authenticated(request):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Acceso denegado: Esta operación NFC es exclusiva del propietario CREATOR (Señor Santiago).",
+            )
 
 
 class PaymentCreateRequest(BaseModel):
@@ -266,8 +282,9 @@ async def get_nfc_history(limit: int = Query(default=20, ge=1, le=100)):
 
 
 @router.post("/clear-history")
-async def clear_nfc_history():
-    """Resets the NFC transaction ledger."""
+async def clear_nfc_history(request: Request):
+    """Resets the NFC transaction ledger (CREATOR only)."""
+    _guard_nfc_creator_action(request)
     res = nfc_service.clear_ledger()
     return res
 
@@ -376,6 +393,7 @@ async def convert_currency_endpoint(
 # =============================================================================
 
 @router.get("/admin/dashboard")
-async def creator_nfc_dashboard_endpoint():
+async def creator_nfc_dashboard_endpoint(request: Request):
     """Returns telemetry and registered tag records for the CREATOR NFC Management Center."""
+    _guard_nfc_creator_action(request)
     return nfc_service.get_creator_dashboard()

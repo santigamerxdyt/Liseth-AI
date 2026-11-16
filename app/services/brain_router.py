@@ -1838,8 +1838,26 @@ class BrainRouter:
                     if candidate_text:
                         break
 
+        SAFE_TENANT_SKILLS = {
+            "web_search",
+            "academic_research",
+            "business_strategy",
+            "business_finance",
+            "academic_helper",
+            "data_ml_toolkit",
+            "workspace_automation",
+            "unal_pensum",
+            "slopmonster",
+        }
+        allow_host_tools = bool(kwargs.get("allow_host_tools", True))
+
         if candidate_text:
             direct_intent = detect_direct_intent(candidate_text)
+            if direct_intent:
+                tool_name, tool_args, default_reply = direct_intent
+                if not allow_host_tools and tool_name not in SAFE_TENANT_SKILLS:
+                    logger.warning(f"[SECURITY] Bloqueada herramienta de host '{tool_name}' para usuario SaaS no propietario.")
+                    direct_intent = None
             if direct_intent:
                 tool_name, tool_args, default_reply = direct_intent
                 logger.info(f"[DIRECT_INTENT] Ejecución local directa: {tool_name} {tool_args}")

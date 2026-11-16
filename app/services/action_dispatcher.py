@@ -1277,8 +1277,9 @@ class ActionDispatcher:
                 return res or "Archivo procesado."
 
             elif name == "screen_process":
+                import inspect
                 from app.actions.screen_processor import screen_process
-                if asyncio.iscoroutinefunction(screen_process):
+                if inspect.iscoroutinefunction(screen_process):
                     res = await screen_process(parameters=args)
                 else:
                     res = await loop.run_in_executor(None, lambda: screen_process(parameters=args))

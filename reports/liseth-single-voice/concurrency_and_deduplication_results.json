@@ -1,0 +1,110 @@
+{
+  "runs": [
+    {
+      "ok": true,
+      "turn_id": "concur-turn-0",
+      "playback_id": "30649e90-c5e6-4b54-aca2-4467482e40c5",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 0 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-1",
+      "playback_id": "1da4137c-3f04-4db1-aa4a-454b3eb7f3ca",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 1 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-2",
+      "playback_id": "1cb79eeb-4928-43ac-84aa-0fbf62de3cdb",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 2 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-3",
+      "playback_id": "971959d0-60c0-4c95-8592-6bfee01224ef",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 3 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-4",
+      "playback_id": "80ba8228-e5e3-4855-bd13-eb7ec0c30660",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 4 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-5",
+      "playback_id": "608f99f7-ff63-4ff7-b625-e5a202d5bbc2",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 5 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-6",
+      "playback_id": "2d661833-e0c7-4376-b198-1b2d4d226097",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 6 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-7",
+      "playback_id": "4f176db7-a49a-4a2a-96d3-c7ce27da19a6",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 7 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-8",
+      "playback_id": "be220b9e-e9dd-4d94-8743-6d7ba6a73abe",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 8 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-9",
+      "playback_id": "2a17009d-a0ce-455e-9e2c-235c0817760e",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 9 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-10",
+      "playback_id": "51c715a4-ff27-451f-9df5-7b892715d500",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 10 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-11",
+      "playback_id": "312a9876-cc51-4f77-8e3a-b7c98b49c5bc",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 11 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-12",
+      "playback_id": "39517a62-f7c8-4ff3-a0d3-1be89519d16c",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 12 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-13",
+      "playback_id": "5702309f-04f7-44b0-b572-2e63dde0ecbc",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 13 para estr\u00e9s de canal."
+    },
+    {
+      "ok": true,
+      "turn_id": "concur-turn-14",
+      "playback_id": "f9eb383f-ed6a-4888-aaae-3a15ecca2217",
+      "voice": "es-CO-SalomeNeural",
+      "text": "Mensaje concurrente 14 para estr\u00e9s de canal."
+    }
+  ],
+  "final_turn": "concur-turn-14"
+}

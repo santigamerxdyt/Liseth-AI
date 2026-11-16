@@ -33,6 +33,7 @@ from app.services.token_optimizer_service import token_optimizer_service
 from app.services.resource_optimizer_service import resource_optimizer_service
 
 from app.core.auth import extract_token_from_request, verify_session_token
+from app.core.crypto import decrypt as aes_decrypt, encrypt as aes_encrypt
 from app.core.database import AsyncSessionLocal, init_db
 from app.core.models import (
     ReferralAuditLog,
@@ -50,6 +51,7 @@ from app.core.models import (
     SaasAuditLog,
     SaasConversation,
     SaasCreditBalance,
+    SaasCreditLedger,
     SaasInvoice,
     SaasMessage,
     SaasPayment,
@@ -1022,8 +1024,108 @@ class SaasPlatformService:
             balance.alert_80_sent = False
             balance.is_quota_blocked = False
             balance.period_reset_at = now_dt + timedelta(days=30)
+            await self.record_credit_ledger(
+                db=db,
+                user_id=user.id,
+                tx_type="cycle_renewal",
+                amount=plan.monthly_credits,
+                balance_after=plan.monthly_credits + balance.bonus_credits,
+                reference_type="subscription",
+                reference_id=plan.code,
+                reason=f"Renovación automática de ciclo mensual ({plan.code})",
+            )
 
         return balance
+
+    async def record_credit_ledger(
+        self,
+        db: AsyncSession,
+        user_id: str,
+        tx_type: str,
+        amount: int,
+        balance_after: int,
+        model_or_skill: Optional[str] = None,
+        reference_type: str = "system",
+        reference_id: Optional[str] = None,
+        reason: str = "",
+        description: str = "",
+        estimated_cost_usd: float = 0.0,
+        meta: Optional[Dict[str, Any]] = None,
+    ) -> SaasCreditLedger:
+        """Records an immutable entry in the SaaS Credit Ledger (`saas_credit_ledger`)."""
+        effective_reason = (reason or description or "")[:300]
+        entry = SaasCreditLedger(
+            id=f"cled_{uuid.uuid4().hex[:16]}",
+            user_id=user_id,
+            tx_type=tx_type,
+            amount=int(amount),
+            balance_after=max(0, int(balance_after)),
+            model_or_skill=model_or_skill,
+            reference_type=reference_type,
+            reference_id=str(reference_id) if reference_id is not None else None,
+            reason=effective_reason,
+            estimated_cost_usd=round(float(estimated_cost_usd or 0.0), 6),
+            created_at=utcnow(),
+        )
+        db.add(entry)
+        return entry
+
+    async def get_credit_ledger(
+        self,
+        db: AsyncSession,
+        user: Any,
+        limit: int = 50,
+    ) -> Dict[str, Any]:
+        """Returns the immutable credit ledger history and current balance for `user` (SaasUser or user_id str)."""
+        if isinstance(user, str):
+            res_u = await db.execute(select(SaasUser).where(SaasUser.id == user))
+            user_obj = res_u.scalars().first()
+            if not user_obj:
+                return {"ok": True, "user_id": user, "plan_code": "FREE", "balance": {}, "entries": [], "ledger": []}
+        else:
+            user_obj = user
+
+        balance = await self.get_or_create_credit_balance(db, user_obj)
+        plan = await self.get_plan(db, user_obj.plan_code)
+        stmt = (
+            select(SaasCreditLedger)
+            .where(SaasCreditLedger.user_id == user_obj.id)
+            .order_by(desc(SaasCreditLedger.created_at))
+            .limit(max(1, min(200, limit)))
+        )
+        rows = (await db.execute(stmt)).scalars().all()
+        total_avail = balance.monthly_credits_allocated + balance.bonus_credits
+        rem = max(0, total_avail - balance.credits_used)
+        entries_list = [
+            {
+                "id": e.id,
+                "tx_type": e.tx_type,
+                "amount": e.amount,
+                "balance_after": e.balance_after,
+                "model_or_skill": e.model_or_skill,
+                "reference_type": e.reference_type,
+                "reference_id": e.reference_id,
+                "reason": e.reason,
+                "description": e.reason,
+                "estimated_cost_usd": e.estimated_cost_usd,
+                "created_at": _iso(e.created_at),
+            }
+            for e in rows
+        ]
+        return {
+            "ok": True,
+            "user_id": user_obj.id,
+            "plan_code": plan.code,
+            "balance": {
+                "monthly_credits_allocated": balance.monthly_credits_allocated,
+                "bonus_credits": balance.bonus_credits,
+                "total_credits_available": total_avail,
+                "credits_used": balance.credits_used,
+                "credits_remaining": rem,
+            },
+            "entries": entries_list,
+            "ledger": entries_list,
+        }
 
     @staticmethod
     def mask_api_key(key: Optional[str]) -> str:
@@ -1034,8 +1136,44 @@ class SaasPlatformService:
             return "••••••••"
         return f"{s[:4]}••••••••{s[-4:]}"
 
+    @staticmethod
+    def _encrypt_api_keys_dict(raw_keys: Dict[str, str]) -> Dict[str, str]:
+        """Encrypts tenant API keys using AES-256-GCM before storing in database."""
+        encrypted_map: Dict[str, str] = {}
+        for k, v in (raw_keys or {}).items():
+            if v and str(v).strip():
+                val_str = str(v).strip()
+                if val_str.startswith("v1:"):
+                    encrypted_map[k] = val_str
+                elif val_str.count(":") == 2:
+                    encrypted_map[k] = f"v1:{val_str}"
+                else:
+                    encrypted_map[k] = f"v1:{aes_encrypt(val_str)}"
+        return encrypted_map
+
+    def get_user_decrypted_api_keys(self, user: SaasUser) -> Dict[str, str]:
+        """
+        Safely decrypts tenant API keys stored in `user.preferences['api_keys_enc']`
+        (with transparent fallback for legacy `user.preferences['api_keys']`).
+        """
+        prefs = user.preferences or {}
+        source_map = prefs.get("api_keys_enc") or prefs.get("api_keys") or {}
+        decrypted_map: Dict[str, str] = {}
+        for k, v in source_map.items():
+            if not v or not str(v).strip():
+                continue
+            val_str = str(v).strip()
+            cipher_body = val_str[3:] if val_str.startswith("v1:") else val_str
+            if cipher_body.count(":") == 2:
+                dec = aes_decrypt(cipher_body)
+                if dec:
+                    decrypted_map[k] = dec
+            else:
+                decrypted_map[k] = val_str
+        return decrypted_map
+
     def get_user_masked_api_keys(self, user: SaasUser) -> Dict[str, Any]:
-        user_keys = (user.preferences or {}).get("api_keys", {})
+        user_keys = self.get_user_decrypted_api_keys(user)
         return {
             "gemini_api_key": self.mask_api_key(user_keys.get("gemini_api_key")),
             "groq_api_key": self.mask_api_key(user_keys.get("groq_api_key")),
@@ -1048,7 +1186,11 @@ class SaasPlatformService:
         }
 
     def serialize_user(self, user: SaasUser, plan: Optional[SaasPlan] = None, balance: Optional[SaasCreditBalance] = None) -> Dict[str, Any]:
-        user_keys = (user.preferences or {}).get("api_keys", {})
+        user_keys = self.get_user_decrypted_api_keys(user)
+        safe_prefs = dict(user.preferences or {})
+        # Never expose raw or ciphertext API keys in serialized profile/admin responses
+        safe_prefs.pop("api_keys", None)
+        safe_prefs.pop("api_keys_enc", None)
         data: Dict[str, Any] = {
             "id": user.id,
             "email": user.email,
@@ -1063,7 +1205,7 @@ class SaasPlatformService:
             "is_suspended": user.is_suspended,
             "email_verified": user.email_verified,
             "memory_enabled": user.memory_enabled,
-            "preferences": user.preferences or {},
+            "preferences": safe_prefs,
             "api_keys_status": {
                 "has_gemini": bool(user_keys.get("gemini_api_key")),
                 "has_groq": bool(user_keys.get("groq_api_key")),
@@ -1073,7 +1215,31 @@ class SaasPlatformService:
                 "groq_masked": self.mask_api_key(user_keys.get("groq_api_key")),
                 "openai_masked": self.mask_api_key(user_keys.get("openai_api_key")),
                 "anthropic_masked": self.mask_api_key(user_keys.get("anthropic_api_key")),
+                "configured_count": sum(
+                    1
+                    for k in ("gemini_api_key", "groq_api_key", "openai_api_key", "anthropic_api_key")
+                    if user_keys.get(k)
+                ),
+                "providers": {
+                    "gemini": {
+                        "configured": bool(user_keys.get("gemini_api_key")),
+                        "masked_key": self.mask_api_key(user_keys.get("gemini_api_key")),
+                    },
+                    "groq": {
+                        "configured": bool(user_keys.get("groq_api_key")),
+                        "masked_key": self.mask_api_key(user_keys.get("groq_api_key")),
+                    },
+                    "openai": {
+                        "configured": bool(user_keys.get("openai_api_key")),
+                        "masked_key": self.mask_api_key(user_keys.get("openai_api_key")),
+                    },
+                    "anthropic": {
+                        "configured": bool(user_keys.get("anthropic_api_key")),
+                        "masked_key": self.mask_api_key(user_keys.get("anthropic_api_key")),
+                    },
+                },
             },
+            "onboarding_gate": self._compute_onboarding_gate(user, safe_prefs, user_keys),
             "referral_code": user.referral_code,
             "referred_by_id": user.referred_by_id,
             "created_at": _iso(user.created_at),
@@ -1102,6 +1268,100 @@ class SaasPlatformService:
                 "period_reset_at": _iso(balance.period_reset_at),
             }
         return data
+
+    def _compute_onboarding_gate(
+        self,
+        user: SaasUser,
+        safe_prefs: Dict[str, Any],
+        user_keys: Dict[str, str],
+    ) -> Dict[str, Any]:
+        """
+        Computes whether a user has satisfied the 3 mandatory requirements to close the
+        plans purchase tab and use the project:
+        1. Created an account saved in Señor Santiago's Google Firebase (`has_firebase_account`)
+        2. Configured at least one personal AI Brain API key (`has_brain_api_key`)
+        3. Purchased a commercial subscription plan (`STARTER`, `PRO`, `BUSINESS`, or `ENTERPRISE`) (`has_purchased_plan`)
+        The sovereign CREATOR account is always exempt and unlocked.
+        """
+        is_creator = bool(user.role == "CREATOR" or user.plan_code == "CREATOR" or user.id == CREATOR_USER_ID)
+        has_firebase_account = bool(
+            is_creator
+            or safe_prefs.get("firebase_uid")
+            or safe_prefs.get("firebase_project_id")
+            or safe_prefs.get("firebase_account_saved")
+        )
+        has_brain_api_key = bool(
+            is_creator
+            or any(
+                bool(user_keys.get(k) and str(user_keys.get(k)).strip())
+                for k in ("gemini_api_key", "groq_api_key", "openai_api_key", "anthropic_api_key")
+            )
+        )
+        plan_up = str(user.plan_code or "FREE").strip().upper()
+        has_purchased_plan = bool(is_creator or (plan_up not in ("FREE", "")))
+        missing_steps: List[str] = []
+        if not has_firebase_account:
+            missing_steps.append("firebase_account")
+        if not has_brain_api_key:
+            missing_steps.append("brain_api_key")
+        if not has_purchased_plan:
+            missing_steps.append("purchased_plan")
+        is_complete = bool(is_creator or (has_firebase_account and has_brain_api_key and has_purchased_plan))
+        return {
+            "has_firebase_account": has_firebase_account,
+            "has_brain_api_key": has_brain_api_key,
+            "has_purchased_plan": has_purchased_plan,
+            "is_complete": is_complete,
+            "can_close_plans_tab": is_complete,
+            "can_use_project": is_complete,
+            "missing_steps": missing_steps,
+        }
+
+    def _record_firebase_user_in_owner_project(
+        self,
+        user: SaasUser,
+        firebase_uid: Optional[str] = None,
+        project_id: Optional[str] = None,
+        provider: str = "password",
+    ) -> None:
+        """
+        Persists/updates the user's account record in Señor Santiago's linked Google Firebase
+        project registry (`data/firebase_users_registry.json`).
+        """
+        try:
+            fb_cfg = self.get_firebase_config()
+            eff_project = project_id or fb_cfg.get("projectId") or "liseth-saas-ai"
+            prefs = dict(user.preferences or {})
+            eff_uid = firebase_uid or prefs.get("firebase_uid")
+            if not eff_uid:
+                digest = hashlib.sha256(f"{eff_project}:{user.email.lower()}".encode("utf-8")).hexdigest()[:24]
+                eff_uid = f"fb_{digest}"
+            user_keys = self.get_user_decrypted_api_keys(user)
+            reg_path = settings.DATA_DIR / "firebase_users_registry.json"
+            registry: Dict[str, Any] = {"projectId": eff_project, "owner": "Santiago Huérfano López", "users": {}}
+            if reg_path.exists():
+                try:
+                    loaded = json.loads(reg_path.read_text(encoding="utf-8"))
+                    if isinstance(loaded, dict) and isinstance(loaded.get("users"), dict):
+                        registry = loaded
+                except Exception:
+                    pass
+            registry["projectId"] = eff_project
+            registry["updated_at"] = _iso(utcnow())
+            registry["users"][user.id] = {
+                "user_id": user.id,
+                "firebase_uid": eff_uid,
+                "email": user.email,
+                "full_name": user.full_name,
+                "plan_code": user.plan_code,
+                "has_brain_api_key": any(bool(v) for v in user_keys.values()),
+                "project_id": eff_project,
+                "provider": provider or prefs.get("firebase_provider") or "password",
+                "synced_at": _iso(utcnow()),
+            }
+            reg_path.write_text(json.dumps(registry, indent=2, ensure_ascii=False), encoding="utf-8")
+        except Exception:
+            pass
 
     def serialize_plan(self, plan: SaasPlan) -> Dict[str, Any]:
         return {
@@ -1317,6 +1577,19 @@ class SaasPlatformService:
             estimated_cost_usd=est_cost_usd,
         )
         db.add(usage_rec)
+        charged_amt = 0 if user.plan_code == "CREATOR" else credit_cost
+        await self.record_credit_ledger(
+            db=db,
+            user_id=user.id,
+            tx_type="skill_consumption" if skill_code else "model_consumption",
+            amount=-charged_amt,
+            balance_after=max(0, total_avail - balance.credits_used),
+            model_or_skill=f"{model_id} + {skill_code}" if skill_code else model_id,
+            reference_type="conversation",
+            reference_id=conversation_id,
+            reason=f"Consumo IA ({model_id}{f' / skill:{skill_code}' if skill_code else ''}) — {total_tokens} tokens",
+            estimated_cost_usd=est_cost_usd,
+        )
         await db.flush()
 
         return {
@@ -1355,6 +1628,7 @@ class SaasPlatformService:
         openai_api_key: Optional[str] = None,
         anthropic_api_key: Optional[str] = None,
         api_keys: Optional[Dict[str, str]] = None,
+        launch_code: Optional[str] = None,
     ) -> Dict[str, Any]:
         await self.ensure_seeded(db)
         clean_email = (email or "").strip().lower()
@@ -1528,6 +1802,8 @@ class SaasPlatformService:
         if anthropic_api_key and str(anthropic_api_key).strip():
             user_api_keys["anthropic_api_key"] = str(anthropic_api_key).strip()
 
+        encrypted_api_keys = self._encrypt_api_keys_dict(user_api_keys)
+
         new_user = SaasUser(
             id=user_id,
             email=clean_email,
@@ -1549,7 +1825,7 @@ class SaasPlatformService:
                 "language": "es",
                 "referral_attribution_locked": bool(referred_by_id),
                 "referral_code_used": referrer_user.referral_code if referrer_user else None,
-                "api_keys": user_api_keys,
+                "api_keys_enc": encrypted_api_keys,
             },
             last_login_at=utcnow(),
         )
@@ -1582,11 +1858,12 @@ class SaasPlatformService:
 
         # Create initial credit balance
         free_plan = await self.get_plan(db, "FREE")
+        signup_bonus = 100 if referrer_user else 0
         balance = SaasCreditBalance(
             user_id=user_id,
             monthly_credits_allocated=free_plan.monthly_credits,
             credits_used=0,
-            bonus_credits=100 if referrer_user else 0,  # Initial referral signup bonus
+            bonus_credits=signup_bonus,  # Initial referral signup bonus
             daily_messages_used=0,
             monthly_messages_used=0,
             monthly_tokens_used=0,
@@ -1594,6 +1871,27 @@ class SaasPlatformService:
             period_reset_at=utcnow() + timedelta(days=30),
         )
         db.add(balance)
+        await self.record_credit_ledger(
+            db=db,
+            user_id=user_id,
+            tx_type="plan_allocation",
+            amount=free_plan.monthly_credits,
+            balance_after=free_plan.monthly_credits,
+            reference_type="subscription",
+            reference_id=sub.id,
+            reason="Asignación inicial de créditos Plan FREE",
+        )
+        if signup_bonus > 0:
+            await self.record_credit_ledger(
+                db=db,
+                user_id=user_id,
+                tx_type="referral_bonus",
+                amount=signup_bonus,
+                balance_after=free_plan.monthly_credits + signup_bonus,
+                reference_type="referral",
+                reference_id=referrer_user.referral_code if referrer_user else None,
+                reason="Bono de bienvenida por registro con código de referido",
+            )
 
         # Create referral records if invited
         if referrer_user:
@@ -1670,6 +1968,7 @@ class SaasPlatformService:
         email: str,
         password: str,
         ip_address: str = "127.0.0.1",
+        launch_code: Optional[str] = None,
     ) -> Dict[str, Any]:
         await self.ensure_seeded(db)
         clean_email = (email or "").strip().lower()
@@ -1690,6 +1989,28 @@ class SaasPlatformService:
             )
             await db.commit()
             raise HTTPException(status_code=401, detail="Credenciales inválidas.")
+
+        if launch_code is not None and str(launch_code).strip():
+            provided = str(launch_code).strip()
+            expected_master = settings.JARVIS_ACCESS_PIN.strip()
+            user_code = (user.preferences or {}).get("launch_code")
+            master_ok = hmac.compare_digest(provided.encode("utf-8"), expected_master.encode("utf-8")) if expected_master else False
+            user_ok = hmac.compare_digest(provided.encode("utf-8"), str(user_code).strip().encode("utf-8")) if user_code else False
+            if not master_ok and not user_ok:
+                await self.log_audit(
+                    db=db,
+                    action="login_invalid_launch_code",
+                    target_user_id=user.id,
+                    resource_type="auth",
+                    ip_address=ip_address,
+                    severity="security",
+                    details={"email": clean_email},
+                )
+                await db.commit()
+                raise HTTPException(
+                    status_code=401,
+                    detail="Código de verificación de inicio inválido. Se requiere tu código de seguridad para verificar tu identidad al iniciar el sistema.",
+                )
 
         if user.is_suspended:
             raise HTTPException(
@@ -1749,10 +2070,30 @@ class SaasPlatformService:
             if referrer:
                 ref_bal = await self.get_or_create_credit_balance(db, referrer)
                 ref_bal.bonus_credits += referral.referrer_reward_credits
+                await self.record_credit_ledger(
+                    db=db,
+                    user_id=referrer.id,
+                    tx_type="referral_bonus",
+                    amount=referral.referrer_reward_credits,
+                    balance_after=max(0, (ref_bal.monthly_credits_allocated + ref_bal.bonus_credits) - ref_bal.credits_used),
+                    reference_type="referral",
+                    reference_id=referral.id,
+                    reason=f"Bono de créditos por verificación de correo de referido ({user.id})",
+                )
 
             # Grant credits to referred user
             usr_bal = await self.get_or_create_credit_balance(db, user)
             usr_bal.bonus_credits += referral.referred_reward_credits
+            await self.record_credit_ledger(
+                db=db,
+                user_id=user.id,
+                tx_type="referral_bonus",
+                amount=referral.referred_reward_credits,
+                balance_after=max(0, (usr_bal.monthly_credits_allocated + usr_bal.bonus_credits) - usr_bal.credits_used),
+                reference_type="referral",
+                reference_id=referral.id,
+                reason="Bono de créditos por verificar correo electrónico con código de invitación",
+            )
             reward_granted = True
 
         await db.commit()
@@ -2266,7 +2607,7 @@ class SaasPlatformService:
                     sys_prompt += f" {profile_instruction}"
                 if mem_context_note:
                     sys_prompt += f" Recuerdos relevantes del usuario: {mem_context_note}"
-                user_keys = (user.preferences or {}).get("api_keys", {})
+                user_keys = self.get_user_decrypted_api_keys(user)
                 ai_res = await brain_router.generate_response(
                     prompt=clean_content,
                     system_prompt=sys_prompt,
@@ -2274,6 +2615,7 @@ class SaasPlatformService:
                     api_key_claude=user_keys.get("anthropic_api_key"),
                     api_key_groq=user_keys.get("groq_api_key"),
                     api_key_openai=user_keys.get("openai_api_key"),
+                    allow_host_tools=(user.role == "CREATOR" and user.plan_code == "CREATOR"),
                 )
                 reply_text = ai_res.get("text") or ""
             except Exception as e:
@@ -3051,6 +3393,7 @@ class SaasPlatformService:
         old_plan = user.plan_code
         user.plan_code = target_plan.code
         user.updated_at = now_dt
+        self._record_firebase_user_in_owner_project(user=user)
 
         balance = await self.get_or_create_credit_balance(db, user)
         balance.monthly_credits_allocated = target_plan.monthly_credits
@@ -3059,6 +3402,31 @@ class SaasPlatformService:
         balance.is_quota_blocked = False
         balance.alert_80_sent = False
         balance.period_reset_at = now_dt + timedelta(days=period_days)
+
+        new_balance_after = max(0, (balance.monthly_credits_allocated + balance.bonus_credits) - balance.credits_used)
+        await self.record_credit_ledger(
+            db=db,
+            user_id=user.id,
+            tx_type="plan_allocation",
+            amount=int(target_plan.monthly_credits or 0),
+            balance_after=int(new_balance_after),
+            reference_type="subscription",
+            reference_id=sub.id,
+            description=f"Asignación de créditos por compra de plan {target_plan.name} ({cycle})",
+            meta={"plan_code": target_plan.code, "billing_cycle": cycle, "invoice_id": invoice.id},
+        )
+        if bonus_credits > 0:
+            await self.record_credit_ledger(
+                db=db,
+                user_id=user.id,
+                tx_type="promo_bonus",
+                amount=int(bonus_credits),
+                balance_after=int(new_balance_after),
+                reference_type="coupon",
+                reference_id=applied_promo_code,
+                description=f"Bono promocional de créditos (+{bonus_credits}) con cupón {applied_promo_code}",
+                meta={"coupon_code": applied_promo_code, "invoice_id": invoice.id},
+            )
 
         # 1. If a referral reward/coupon was applied on this invoice, mark it as redeemed (max 1 per invoice)
         redeemed_reward_summary: Optional[Dict[str, Any]] = None
@@ -3605,6 +3973,18 @@ class SaasPlatformService:
             bal = await self.get_or_create_credit_balance(db, target)
             bal.monthly_credits_allocated = plan_obj.monthly_credits
             bal.is_quota_blocked = False
+            bal_after = max(0, (bal.monthly_credits_allocated + bal.bonus_credits) - bal.credits_used)
+            await self.record_credit_ledger(
+                db=db,
+                user_id=target.id,
+                tx_type="admin_adjustment",
+                amount=int(plan_obj.monthly_credits or 0),
+                balance_after=int(bal_after),
+                reference_type="admin_update",
+                reference_id=creator.id,
+                description=f"Ajuste administrativo de plan a {plan_obj.code} por CREATOR",
+                meta={"new_plan": plan_obj.code, "actor_id": creator.id},
+            )
 
         if "is_suspended" in updates and updates["is_suspended"] is not None:
             target.is_suspended = bool(updates["is_suspended"])
@@ -3612,7 +3992,21 @@ class SaasPlatformService:
 
         if "bonus_credits" in updates and updates["bonus_credits"] is not None:
             bal = await self.get_or_create_credit_balance(db, target)
-            bal.bonus_credits = max(0, int(updates["bonus_credits"]))
+            old_bonus = int(bal.bonus_credits or 0)
+            new_bonus = max(0, int(updates["bonus_credits"]))
+            bal.bonus_credits = new_bonus
+            bal_after = max(0, (bal.monthly_credits_allocated + bal.bonus_credits) - bal.credits_used)
+            await self.record_credit_ledger(
+                db=db,
+                user_id=target.id,
+                tx_type="admin_adjustment",
+                amount=int(new_bonus - old_bonus),
+                balance_after=int(bal_after),
+                reference_type="admin_bonus",
+                reference_id=creator.id,
+                description=f"Ajuste administrativo de créditos bono ({old_bonus} -> {new_bonus}) por CREATOR",
+                meta={"old_bonus": old_bonus, "new_bonus": new_bonus, "actor_id": creator.id},
+            )
 
         target.updated_at = utcnow()
         await self.log_audit(
@@ -4379,6 +4773,7 @@ class SaasPlatformService:
         openai_api_key: Optional[str] = None,
         anthropic_api_key: Optional[str] = None,
         api_keys: Optional[Dict[str, str]] = None,
+        launch_code: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Registers or logs in a user linked to the configured Firebase project,
@@ -4436,6 +4831,9 @@ class SaasPlatformService:
                 prefs["firebase_uid"] = resolved_fb_uid
                 prefs["firebase_project_id"] = project_id
                 prefs["firebase_provider"] = provider
+                prefs["firebase_account_saved"] = True
+                if launch_code and str(launch_code).strip():
+                    prefs["launch_code"] = str(launch_code).strip()
                 user.preferences = prefs
                 await db.commit()
 
@@ -4454,6 +4852,12 @@ class SaasPlatformService:
                         payment_gateway=payment_gateway or "stripe",
                     )
 
+                self._record_firebase_user_in_owner_project(
+                    user=user,
+                    firebase_uid=resolved_fb_uid,
+                    project_id=project_id,
+                    provider=provider,
+                )
                 plan_obj = await self.get_plan(db, user.plan_code)
                 bal_obj = await self.get_or_create_credit_balance(db, user)
                 token = sign_saas_token(user.id, user.email, user.role, user.plan_code)
@@ -4530,6 +4934,7 @@ class SaasPlatformService:
             email=clean_email,
             password=password or "",
             ip_address=ip_address,
+            launch_code=launch_code,
         )
         res_u = await db.execute(select(SaasUser).where(SaasUser.email == clean_email))
         user = res_u.scalars().first()
@@ -4538,9 +4943,10 @@ class SaasPlatformService:
             prefs["firebase_uid"] = prefs.get("firebase_uid") or resolved_fb_uid
             prefs["firebase_project_id"] = project_id
             prefs["firebase_provider"] = provider
+            prefs["firebase_account_saved"] = True
 
-            # Merge any passed brain API keys if supplied during login
-            user_keys = dict(prefs.get("api_keys") or {})
+            # Merge any passed brain API keys if supplied during login (encrypted at rest)
+            user_keys = self.get_user_decrypted_api_keys(user)
             if api_keys and isinstance(api_keys, dict):
                 for k, v in api_keys.items():
                     if v and str(v).strip():
@@ -4553,10 +4959,17 @@ class SaasPlatformService:
                 user_keys["openai_api_key"] = str(openai_api_key).strip()
             if anthropic_api_key and str(anthropic_api_key).strip():
                 user_keys["anthropic_api_key"] = str(anthropic_api_key).strip()
-            prefs["api_keys"] = user_keys
+            prefs["api_keys_enc"] = self._encrypt_api_keys_dict(user_keys)
+            prefs.pop("api_keys", None)
 
             user.preferences = prefs
             await db.commit()
+            self._record_firebase_user_in_owner_project(
+                user=user,
+                firebase_uid=prefs["firebase_uid"],
+                project_id=project_id,
+                provider=provider,
+            )
             plan_obj = await self.get_plan(db, user.plan_code)
             bal_obj = await self.get_or_create_credit_balance(db, user)
             login_res["user"] = self.serialize_user(user, plan_obj, bal_obj)
@@ -4577,12 +4990,14 @@ class SaasPlatformService:
         openai_api_key: Optional[str] = None,
         anthropic_api_key: Optional[str] = None,
         api_keys: Optional[Dict[str, str]] = None,
+        launch_code: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
-        Updates and safely stores the user's personal AI brain API keys in their tenant preferences.
+        Updates and safely stores the user's personal AI brain API keys encrypted at rest (AES-256-GCM)
+        in their tenant preferences.
         """
         prefs = dict(user.preferences or {})
-        current_keys = dict(prefs.get("api_keys") or {})
+        current_keys = self.get_user_decrypted_api_keys(user)
 
         if api_keys and isinstance(api_keys, dict):
             for k, v in api_keys.items():
@@ -4621,10 +5036,12 @@ class SaasPlatformService:
             elif "anthropic_api_key" in current_keys:
                 current_keys.pop("anthropic_api_key", None)
 
-        prefs["api_keys"] = current_keys
+        prefs["api_keys_enc"] = self._encrypt_api_keys_dict(current_keys)
+        prefs.pop("api_keys", None)
         user.preferences = prefs
         user.updated_at = utcnow()
         await db.commit()
+        self._record_firebase_user_in_owner_project(user=user)
 
         plan = await self.get_plan(db, user.plan_code)
         bal = await self.get_or_create_credit_balance(db, user)
@@ -6302,6 +6719,591 @@ class SaasPlatformService:
             ],
             "full_markdown": markdown_text,
             "markdown_document": markdown_text,
+        }
+
+    # ==========================================================================
+    # 9. CREDIT TOP-UP ENGINE & CREATOR BUSINESS INTELLIGENCE (BI)
+    # ==========================================================================
+
+    CREDIT_PACK_CATALOG: Dict[str, Dict[str, Any]] = {
+        "PACK_1K": {
+            "code": "PACK_1K",
+            "name": "Paquete Ágil +1,000 Créditos IA",
+            "credits": 1000,
+            "price_usd": 5.0,
+            "unit_cost_est_usd": 0.65,
+            "gross_margin_pct": 87.0,
+        },
+        "PACK_5K": {
+            "code": "PACK_5K",
+            "name": "Paquete Ejecutivo +5,000 Créditos IA",
+            "credits": 5000,
+            "price_usd": 20.0,
+            "unit_cost_est_usd": 3.10,
+            "gross_margin_pct": 84.5,
+        },
+        "PACK_20K": {
+            "code": "PACK_20K",
+            "name": "Paquete Corporativo +20,000 Créditos IA",
+            "credits": 20000,
+            "price_usd": 65.0,
+            "unit_cost_est_usd": 11.80,
+            "gross_margin_pct": 81.8,
+        },
+    }
+
+    async def topup_credits(
+        self,
+        db: AsyncSession,
+        user: SaasUser,
+        pack_code: str = "PACK_1K",
+        payment_gateway: str = "bre_b",
+        payment_method_brand: str = "BRE-B",
+        payment_method_last4: str = "3100",
+        ip_address: str = "127.0.0.1",
+    ) -> Dict[str, Any]:
+        """
+        Purchases an extra credit pack (add-on / top-up), creates a verified invoice & payment,
+        increments user's bonus_credits, and records an immutable entry in SaasCreditLedger.
+        """
+        clean_pack = (pack_code or "PACK_1K").strip().upper()
+        if clean_pack not in self.CREDIT_PACK_CATALOG:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Paquete de créditos '{clean_pack}' inválido. Opciones: {', '.join(self.CREDIT_PACK_CATALOG.keys())}",
+            )
+
+        pack = self.CREDIT_PACK_CATALOG[clean_pack]
+        credits_added = int(pack["credits"])
+        amount_usd = float(pack["price_usd"])
+        trm_usd_cop = 4200.0
+        amount_cop = round(amount_usd * trm_usd_cop, 0)
+        gw_clean = (payment_gateway or "bre_b").strip().lower()
+        now_dt = utcnow()
+
+        invoice_num = f"TOPUP-{now_dt.strftime('%Y%m%d')}-{secrets.token_hex(3).upper()}"
+        tx_ref = f"TX-TOPUP-{gw_clean.upper()}-{secrets.token_hex(5).upper()}"
+
+        payment_id_str = f"pay_topup_{uuid.uuid4().hex[:14]}"
+        invoice = SaasInvoice(
+            id=f"inv_topup_{uuid.uuid4().hex[:14]}",
+            invoice_number=invoice_num,
+            user_id=user.id,
+            subscription_id=None,
+            payment_id=payment_id_str,
+            plan_code=user.plan_code,
+            billing_cycle="one_time_topup",
+            subtotal_usd=amount_usd,
+            discount_usd=0.0,
+            tax_usd=0.0,
+            total_usd=amount_usd,
+            currency="USD",
+            status="paid",
+            line_items=[
+                {
+                    "type": "credit_topup",
+                    "pack_code": clean_pack,
+                    "description": f"{pack['name']} ({credits_added} créditos)",
+                    "credits": credits_added,
+                    "subtotal_usd": amount_usd,
+                    "discount_usd": 0.0,
+                    "total_usd": amount_usd,
+                    "total_cop": amount_cop,
+                    "payment_gateway": gw_clean,
+                }
+            ],
+            issued_at=now_dt,
+            paid_at=now_dt,
+        )
+        db.add(invoice)
+
+        payment = SaasPayment(
+            id=payment_id_str,
+            user_id=user.id,
+            subscription_id=None,
+            plan_code=user.plan_code,
+            amount_usd=amount_usd,
+            currency="USD",
+            status="succeeded",
+            provider=gw_clean,
+            external_tx_id=tx_ref,
+            payment_method_brand=payment_method_brand or gw_clean.upper(),
+            payment_method_last4=(payment_method_last4 or "3100")[-4:],
+            metadata_json={
+                "type": "credit_topup",
+                "pack_code": clean_pack,
+                "credits_added": credits_added,
+                "amount_cop": amount_cop,
+                "invoice_id": invoice.id,
+                "ip_address": ip_address,
+            },
+            created_at=now_dt,
+        )
+        db.add(payment)
+
+        balance = await self.get_or_create_credit_balance(db, user)
+        balance.bonus_credits = int(balance.bonus_credits or 0) + credits_added
+        balance.is_quota_blocked = False
+        new_balance_after = max(0, (balance.monthly_credits_allocated + balance.bonus_credits) - balance.credits_used)
+
+        await self.record_credit_ledger(
+            db=db,
+            user_id=user.id,
+            tx_type="credit_topup",
+            amount=credits_added,
+            balance_after=int(new_balance_after),
+            reference_type="invoice",
+            reference_id=invoice.id,
+            description=f"Recarga {pack['name']} (+{credits_added} créditos) — Factura {invoice_num}",
+            meta={
+                "pack_code": clean_pack,
+                "amount_usd": amount_usd,
+                "amount_cop": amount_cop,
+                "payment_id": payment.id,
+                "gateway": gw_clean,
+            },
+        )
+
+        await self.log_audit(
+            db=db,
+            action="credit_topup_purchased",
+            actor_user=user,
+            target_user_id=user.id,
+            ip_address=ip_address,
+            details={
+                "pack_code": clean_pack,
+                "credits_added": credits_added,
+                "amount_usd": amount_usd,
+                "invoice_number": invoice_num,
+            },
+        )
+        await db.commit()
+
+        plan_obj = await self.get_plan(db, user.plan_code)
+        return {
+            "ok": True,
+            "message": f"¡Recarga exitosa! Se acreditaron +{credits_added:,} créditos a su cuenta.",
+            "pack": pack,
+            "credits_added": credits_added,
+            "balance_after": new_balance_after,
+            "invoice": {
+                "id": invoice.id,
+                "invoice_number": invoice.invoice_number,
+                "total_usd": invoice.total_usd,
+                "total_cop": amount_cop,
+                "status": invoice.status,
+            },
+            "user": self.serialize_user(user, plan_obj, balance),
+        }
+
+    async def get_creator_business_intelligence(
+        self,
+        db: AsyncSession,
+        creator: SaasUser,
+    ) -> Dict[str, Any]:
+        """
+        Executive & Financial Business Intelligence Engine exclusively for the CREATOR (Owner).
+        Computes real, database-backed SaaS financial metrics across 4 domains:
+        1. INGRESOS (MRR, ARR, Billed vs Collected, Revenue by Plan, Top-ups, Net Revenue)
+        2. COSTES (AI Token Cost by Model/Skill/User, Infrastructure, Payment Gateways, Discounts)
+        3. RENTABILIDAD & UNIT ECONOMICS (Gross Margin, Net Margin, Plan Unit Economics, LTV, CAC, ARPU, Churn)
+        4. ALERTAS FINANCIERAS Y OPERATIVAS (Anomalous consumption, Negative margins, Expensive models, Fraud)
+        """
+        if creator.id != CREATOR_USER_ID and creator.role != "CREATOR":
+            raise HTTPException(status_code=403, detail="Acceso exclusivo para el propietario CREATOR.")
+
+        users = (await db.execute(select(SaasUser))).scalars().all()
+        plans = (await db.execute(select(SaasPlan))).scalars().all()
+        subs = (await db.execute(select(SaasSubscription))).scalars().all()
+        payments = (await db.execute(select(SaasPayment))).scalars().all()
+        invoices = (await db.execute(select(SaasInvoice))).scalars().all()
+        usage_logs = (await db.execute(select(SaasUsageRecord))).scalars().all()
+        balances = (await db.execute(select(SaasCreditBalance))).scalars().all()
+        fraud_flags = (await db.execute(select(ReferralFraudFlag))).scalars().all()
+
+        plan_map: Dict[str, SaasPlan] = {p.code: p for p in plans}
+        balance_map: Dict[str, SaasCreditBalance] = {b.user_id: b for b in balances}
+
+        # ------------------------------------------------------------------
+        # 1. INGRESOS (REVENUE)
+        # ------------------------------------------------------------------
+        active_subs = [s for s in subs if s.status == "active"]
+        canceled_subs = [s for s in subs if s.status in ("canceled", "expired")]
+
+        mrr_usd = 0.0
+        mrr_by_plan: Dict[str, float] = {p.code: 0.0 for p in plans if p.code != "CREATOR"}
+        active_subs_by_plan: Dict[str, int] = {p.code: 0 for p in plans}
+
+        for s in active_subs:
+            active_subs_by_plan[s.plan_code] = active_subs_by_plan.get(s.plan_code, 0) + 1
+            if s.plan_code in ("FREE", "CREATOR"):
+                continue
+            p_obj = plan_map.get(s.plan_code)
+            if not p_obj:
+                continue
+            monthly_equiv = (
+                round(float(p_obj.price_annual_usd or 0.0) / 12.0, 2)
+                if s.billing_cycle in ("yearly", "annual")
+                else float(p_obj.price_monthly_usd or 0.0)
+            )
+            mrr_usd += monthly_equiv
+            mrr_by_plan[s.plan_code] = round(mrr_by_plan.get(s.plan_code, 0.0) + monthly_equiv, 2)
+
+        mrr_usd = round(mrr_usd, 2)
+        arr_usd = round(mrr_usd * 12.0, 2)
+
+        # Billed vs Collected from invoices & payments
+        billed_gross_usd = round(sum(float(inv.subtotal_usd or 0.0) for inv in invoices), 2)
+        total_discounts_applied_usd = round(sum(float(inv.discount_usd or 0.0) for inv in invoices), 2)
+
+        succeeded_payments = [p for p in payments if p.status == "succeeded"]
+        refunded_payments = [p for p in payments if p.status == "refunded"]
+        failed_payments = [p for p in payments if p.status in ("failed", "rejected", "past_due")]
+
+        collected_gross_usd = round(sum(float(p.amount_usd or 0.0) for p in succeeded_payments), 2)
+        refunded_usd = round(
+            sum(float(p.refunded_amount_usd or p.amount_usd or 0.0) for p in refunded_payments)
+            + sum(float(p.refunded_amount_usd or 0.0) for p in succeeded_payments),
+            2,
+        )
+
+        # Breakdown by revenue stream
+        subscription_revenue_usd = 0.0
+        credit_topup_revenue_usd = 0.0
+        addon_revenue_usd = 0.0
+        api_revenue_usd = 0.0
+        marketplace_revenue_usd = 0.0
+        revenue_by_plan_collected: Dict[str, float] = {p.code: 0.0 for p in plans if p.code != "CREATOR"}
+
+        for p in succeeded_payments:
+            amt = float(p.amount_usd or 0.0)
+            meta = p.metadata_json if isinstance(p.metadata_json, dict) else {}
+            tx_type = str(meta.get("type") or "subscription")
+            if tx_type == "credit_topup":
+                credit_topup_revenue_usd += amt
+            elif tx_type == "addon":
+                addon_revenue_usd += amt
+            elif tx_type == "api":
+                api_revenue_usd += amt
+            elif tx_type == "marketplace":
+                marketplace_revenue_usd += amt
+            else:
+                subscription_revenue_usd += amt
+                if p.plan_code in revenue_by_plan_collected:
+                    revenue_by_plan_collected[p.plan_code] = round(
+                        revenue_by_plan_collected.get(p.plan_code, 0.0) + amt, 2
+                    )
+
+        net_collected_revenue_usd = round(max(0.0, collected_gross_usd - refunded_usd), 2)
+
+        # ------------------------------------------------------------------
+        # 2. COSTES (COSTS)
+        # ------------------------------------------------------------------
+        ai_cost_total_usd = 0.0
+        total_tokens_in = 0
+        total_tokens_out = 0
+        total_credits_consumed = 0
+        cost_by_model: Dict[str, Dict[str, Any]] = {}
+        cost_by_skill: Dict[str, Dict[str, Any]] = {}
+        ai_cost_by_user: Dict[str, float] = {}
+        tokens_by_user: Dict[str, int] = {}
+        ops_by_user: Dict[str, int] = {}
+
+        for log_row in usage_logs:
+            c_usd = float(log_row.estimated_cost_usd or 0.0)
+            t_in = int(log_row.prompt_tokens or 0)
+            t_out = int(log_row.completion_tokens or 0)
+            creds = int(log_row.credits_charged or 0)
+            ai_cost_total_usd += c_usd
+            total_tokens_in += t_in
+            total_tokens_out += t_out
+            total_credits_consumed += creds
+
+            m_name = str(log_row.model_used or "gemini-2.5-flash")
+            if m_name not in cost_by_model:
+                cost_by_model[m_name] = {
+                    "model": m_name,
+                    "provider": str(log_row.provider or "gemini"),
+                    "operations": 0,
+                    "tokens_input": 0,
+                    "tokens_output": 0,
+                    "credits_consumed": 0,
+                    "cost_usd": 0.0,
+                }
+            cost_by_model[m_name]["operations"] += 1
+            cost_by_model[m_name]["tokens_input"] += t_in
+            cost_by_model[m_name]["tokens_output"] += t_out
+            cost_by_model[m_name]["credits_consumed"] += creds
+            cost_by_model[m_name]["cost_usd"] = round(cost_by_model[m_name]["cost_usd"] + c_usd, 6)
+
+            sk_name = str(log_row.skill_used or log_row.agent_used or "general_chat")
+            if sk_name not in cost_by_skill:
+                cost_by_skill[sk_name] = {
+                    "skill": sk_name,
+                    "operations": 0,
+                    "credits_consumed": 0,
+                    "cost_usd": 0.0,
+                }
+            cost_by_skill[sk_name]["operations"] += 1
+            cost_by_skill[sk_name]["credits_consumed"] += creds
+            cost_by_skill[sk_name]["cost_usd"] = round(cost_by_skill[sk_name]["cost_usd"] + c_usd, 6)
+
+            uid = log_row.user_id
+            ai_cost_by_user[uid] = round(ai_cost_by_user.get(uid, 0.0) + c_usd, 6)
+            tokens_by_user[uid] = tokens_by_user.get(uid, 0) + t_in + t_out
+            ops_by_user[uid] = ops_by_user.get(uid, 0) + 1
+
+        ai_cost_total_usd = round(ai_cost_total_usd, 4)
+
+        # Payment gateway fees: Bre-B / Nequi = 0% instant transfer; Cards/Stripe/PSE = 2.9% + $0.30
+        gateway_fees_usd = 0.0
+        for p in succeeded_payments:
+            gw = (p.provider or "").lower()
+            amt = float(p.amount_usd or 0.0)
+            if gw in ("bre_b", "nequi"):
+                gateway_fees_usd += 0.0
+            else:
+                gateway_fees_usd += round((amt * 0.029) + (0.30 if amt > 0 else 0.0), 4)
+        gateway_fees_usd = round(gateway_fees_usd, 2)
+
+        # Cloud & storage infrastructure estimate ($0.025 per registered tenant + $0.0005 per DB usage log)
+        non_creator_users = [u for u in users if u.id != CREATOR_USER_ID]
+        infrastructure_cost_usd = round((len(non_creator_users) * 0.025) + (len(usage_logs) * 0.0005), 2)
+        total_operating_cost_usd = round(ai_cost_total_usd + gateway_fees_usd + infrastructure_cost_usd, 4)
+
+        # ------------------------------------------------------------------
+        # 3. RENTABILIDAD & UNIT ECONOMICS
+        # ------------------------------------------------------------------
+        effective_revenue_basis = max(net_collected_revenue_usd, mrr_usd)
+        gross_margin_usd = round(effective_revenue_basis - ai_cost_total_usd - gateway_fees_usd, 2)
+        gross_margin_pct = (
+            round((gross_margin_usd / effective_revenue_basis) * 100.0, 2)
+            if effective_revenue_basis > 0
+            else 100.0
+        )
+        net_margin_usd = round(effective_revenue_basis - total_operating_cost_usd, 2)
+        net_margin_pct = (
+            round((net_margin_usd / effective_revenue_basis) * 100.0, 2)
+            if effective_revenue_basis > 0
+            else 100.0
+        )
+
+        # Unit Economics per Plan (Theoretical 100% credit utilization vs Real observed)
+        # Blended AI cost per credit (~350 tokens on Gemini 2.5 Flash / Groq LLaMA-3.3): ~$0.00062 USD / credit
+        BLENDED_AI_COST_PER_CREDIT_USD = 0.00062
+        unit_economics_by_plan: List[Dict[str, Any]] = []
+        for p in sorted(plans, key=lambda x: x.level):
+            if p.code == "CREATOR":
+                continue
+            price_m = float(p.price_monthly_usd or 0.0)
+            credits_m = int(p.monthly_credits or 0)
+            max_ai_cost = round(credits_m * BLENDED_AI_COST_PER_CREDIT_USD, 2)
+            infra_alloc = 0.15 if price_m > 0 else 0.03
+            expected_cost_at_65pct = round((max_ai_cost * 0.65) + infra_alloc, 2)
+            expected_margin_usd = round(price_m - expected_cost_at_65pct, 2)
+            expected_margin_pct = (
+                round((expected_margin_usd / price_m) * 100.0, 2)
+                if price_m > 0
+                else 0.0
+            )
+            worst_case_margin_usd = round(price_m - max_ai_cost - infra_alloc, 2)
+            worst_case_margin_pct = (
+                round((worst_case_margin_usd / price_m) * 100.0, 2)
+                if price_m > 0
+                else 0.0
+            )
+            unit_economics_by_plan.append({
+                "plan_code": p.code,
+                "plan_name": p.name,
+                "price_monthly_usd": price_m,
+                "price_yearly_usd": float(p.price_annual_usd or 0.0),
+                "monthly_credits": credits_m,
+                "active_subscribers": active_subs_by_plan.get(p.code, 0),
+                "mrr_usd": mrr_by_plan.get(p.code, 0.0),
+                "collected_revenue_usd": revenue_by_plan_collected.get(p.code, 0.0),
+                "max_ai_cost_100pct_usd": max_ai_cost,
+                "expected_cost_65pct_usd": expected_cost_at_65pct,
+                "expected_gross_margin_usd": expected_margin_usd,
+                "expected_gross_margin_pct": expected_margin_pct,
+                "worst_case_margin_usd": worst_case_margin_usd,
+                "worst_case_margin_pct": worst_case_margin_pct,
+                "profitable_at_100pct_usage": worst_case_margin_usd >= 0 or p.code == "FREE",
+            })
+
+        # Margin by User (Per-Tenant Unit Economics)
+        user_revenue_map: Dict[str, float] = {}
+        for p in succeeded_payments:
+            user_revenue_map[p.user_id] = round(user_revenue_map.get(p.user_id, 0.0) + float(p.amount_usd or 0.0), 2)
+
+        margin_by_user: List[Dict[str, Any]] = []
+        negative_margin_users: List[Dict[str, Any]] = []
+        total_allocated_credits_all = 0
+        total_used_credits_all = 0
+
+        for u in non_creator_users:
+            u_plan = plan_map.get(u.plan_code)
+            u_bal = balance_map.get(u.id)
+            u_rev = user_revenue_map.get(u.id, 0.0)
+            if u_rev == 0.0 and u_plan and u.plan_code not in ("FREE", "CREATOR"):
+                u_rev = float(u_plan.price_monthly_usd or 0.0)
+            u_ai_cost = ai_cost_by_user.get(u.id, 0.0)
+            u_total_cost = round(u_ai_cost + 0.025, 4)
+            u_margin_usd = round(u_rev - u_total_cost, 4)
+            u_margin_pct = round((u_margin_usd / u_rev) * 100.0, 2) if u_rev > 0 else (0.0 if u_total_cost == 0 else -100.0)
+
+            alloc_c = int((u_bal.monthly_credits_allocated + u_bal.bonus_credits) if u_bal else (u_plan.monthly_credits if u_plan else 150))
+            used_c = int(u_bal.credits_used if u_bal else 0)
+            total_allocated_credits_all += alloc_c
+            total_used_credits_all += used_c
+
+            row_data = {
+                "user_id": u.id,
+                "email": u.email,
+                "full_name": u.full_name,
+                "plan_code": u.plan_code,
+                "revenue_usd": u_rev,
+                "ai_cost_usd": u_ai_cost,
+                "total_cost_usd": u_total_cost,
+                "margin_usd": u_margin_usd,
+                "margin_pct": u_margin_pct,
+                "operations": ops_by_user.get(u.id, 0),
+                "tokens_total": tokens_by_user.get(u.id, 0),
+                "credits_used": used_c,
+                "credits_allocated": alloc_c,
+                "utilization_pct": round((used_c / max(1, alloc_c)) * 100.0, 1),
+            }
+            margin_by_user.append(row_data)
+            if u_margin_usd < -0.50:
+                negative_margin_users.append(row_data)
+
+        margin_by_user.sort(key=lambda x: x["ai_cost_usd"], reverse=True)
+
+        # SaaS KPIs: ARPU, ARPPU, Conversion, Churn, LTV, CAC, Credit Utilization
+        total_customers = max(1, len(non_creator_users))
+        paying_users = [u for u in non_creator_users if u.plan_code not in ("FREE", "CREATOR")]
+        paying_count = len(paying_users)
+
+        arpu_usd = round(effective_revenue_basis / total_customers, 2)
+        arppu_usd = round(effective_revenue_basis / max(1, paying_count), 2) if paying_count > 0 else 0.0
+        free_to_paid_conversion_pct = round((paying_count / total_customers) * 100.0, 2)
+
+        total_sub_events = len(active_subs) + len(canceled_subs)
+        churn_rate_pct = round((len(canceled_subs) / max(1, total_sub_events)) * 100.0, 2) if total_sub_events > 0 else 0.0
+        effective_monthly_churn = max(0.03, (churn_rate_pct / 100.0)) if churn_rate_pct > 0 else 0.04
+        ltv_usd = round((arppu_usd if arppu_usd > 0 else 24.50) * (gross_margin_pct / 100.0) / effective_monthly_churn, 2)
+
+        # CAC derived from Referral & Promo discounts divided by acquired paying users (organic/referral CAC)
+        cac_usd = round(total_discounts_applied_usd / max(1, paying_count), 2) if paying_count > 0 else 2.50
+        ltv_to_cac_ratio = round(ltv_usd / max(0.50, cac_usd), 2)
+        credit_utilization_pct = round((total_used_credits_all / max(1, total_allocated_credits_all)) * 100.0, 2)
+
+        # ------------------------------------------------------------------
+        # 4. ALERTAS FINANCIERAS Y OPERATIVAS
+        # ------------------------------------------------------------------
+        alerts: List[Dict[str, Any]] = []
+
+        if negative_margin_users:
+            alerts.append({
+                "id": "ALERT-NEG-MARGIN-USERS",
+                "severity": "high",
+                "category": "profitability",
+                "title": f"{len(negative_margin_users)} usuario(s) con margen operativo negativo",
+                "description": "Existen cuentas cuyo coste acumulado de inferencia IA supera sus ingresos facturados.",
+                "recommended_action": "Revisar límites de cuota o activar enrutamiento automático a modelos Flash/Groq.",
+            })
+
+        if failed_payments:
+            alerts.append({
+                "id": "ALERT-FAILED-PAYMENTS",
+                "severity": "medium",
+                "category": "billing",
+                "title": f"{len(failed_payments)} pago(s) rechazado(s) o en mora detectados",
+                "description": "Transacciones no completadas que requieren reintento o contacto con el suscriptor.",
+                "recommended_action": "Enviar recordatorio de pago directo por Bre-B (@NEQUISAN243100) o Nequi.",
+            })
+
+        open_fraud = [f for f in fraud_flags if f.status == "open"]
+        if open_fraud:
+            alerts.append({
+                "id": "ALERT-REFERRAL-FRAUD",
+                "severity": "high",
+                "category": "security",
+                "title": f"{len(open_fraud)} alerta(s) antifraude abierta(s) en el Programa de Referidos",
+                "description": "Intentos bloqueados de autorreferido, misma IP, huella de dispositivo o medio de pago compartido.",
+                "recommended_action": "Inspeccionar la cola antifraude en el Panel de Referidos.",
+            })
+
+        # Always include a proactive model efficiency insight
+        alerts.append({
+            "id": "INSIGHT-BRE-B-ZERO-FEE",
+            "severity": "info",
+            "category": "optimization",
+            "title": "Optimización de Pasarela Bre-B / Nequi (0% Comisión)",
+            "description": "Los cobros procesados mediante Llave Bre-B (@NEQUISAN243100) y Nequi preservan el 100% del margen bruto frente al 2.9% + $0.30 de pasarelas de tarjeta.",
+            "recommended_action": "Mantener Bre-B como método de pago recomendado por defecto en el checkout.",
+        })
+
+        return {
+            "ok": True,
+            "generated_at": utcnow().isoformat(),
+            "currency": "USD",
+            "trm_usd_cop": 4200.0,
+            "revenue": {
+                "mrr_usd": mrr_usd,
+                "mrr_cop": round(mrr_usd * 4200.0, 0),
+                "arr_usd": arr_usd,
+                "arr_cop": round(arr_usd * 4200.0, 0),
+                "billed_gross_usd": billed_gross_usd,
+                "collected_gross_usd": collected_gross_usd,
+                "net_collected_revenue_usd": net_collected_revenue_usd,
+                "refunded_usd": refunded_usd,
+                "discounts_granted_usd": total_discounts_applied_usd,
+                "mrr_by_plan": mrr_by_plan,
+                "collected_by_plan": revenue_by_plan_collected,
+                "by_source": {
+                    "subscriptions_usd": round(subscription_revenue_usd, 2),
+                    "credit_topups_usd": round(credit_topup_revenue_usd, 2),
+                    "addons_usd": round(addon_revenue_usd, 2),
+                    "api_usd": round(api_revenue_usd, 2),
+                    "marketplace_usd": round(marketplace_revenue_usd, 2),
+                },
+            },
+            "costs": {
+                "ai_inference_cost_usd": ai_cost_total_usd,
+                "payment_gateway_fees_usd": gateway_fees_usd,
+                "infrastructure_storage_cost_usd": infrastructure_cost_usd,
+                "discounts_and_referrals_usd": total_discounts_applied_usd,
+                "total_operating_cost_usd": total_operating_cost_usd,
+                "tokens_input_total": total_tokens_in,
+                "tokens_output_total": total_tokens_out,
+                "credits_consumed_total": total_credits_consumed,
+                "by_model": sorted(cost_by_model.values(), key=lambda x: x["cost_usd"], reverse=True),
+                "by_skill": sorted(cost_by_skill.values(), key=lambda x: x["cost_usd"], reverse=True),
+            },
+            "profitability": {
+                "gross_margin_usd": gross_margin_usd,
+                "gross_margin_pct": gross_margin_pct,
+                "net_margin_usd": net_margin_usd,
+                "net_margin_pct": net_margin_pct,
+                "kpis": {
+                    "arpu_usd": arpu_usd,
+                    "arppu_usd": arppu_usd,
+                    "ltv_usd": ltv_usd,
+                    "cac_usd": cac_usd,
+                    "ltv_to_cac_ratio": ltv_to_cac_ratio,
+                    "free_to_paid_conversion_pct": free_to_paid_conversion_pct,
+                    "churn_rate_pct": churn_rate_pct,
+                    "credit_utilization_pct": credit_utilization_pct,
+                    "total_registered_users": len(non_creator_users),
+                    "paying_subscribers": paying_count,
+                    "active_subscriptions": len(active_subs),
+                    "canceled_subscriptions": len(canceled_subs),
+                },
+                "unit_economics_by_plan": unit_economics_by_plan,
+                "margin_by_user": margin_by_user[:25],
+            },
+            "alerts": alerts,
+            "credit_packs_catalog": list(self.CREDIT_PACK_CATALOG.values()),
         }
 
 

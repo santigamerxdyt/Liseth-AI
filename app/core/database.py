@@ -60,6 +60,7 @@ _PERFORMANCE_INDEX_DDL = (
     "CREATE INDEX IF NOT EXISTS idx_nfc_filetrans_token ON nfc_file_transfers (access_token, status);",
     "CREATE INDEX IF NOT EXISTS idx_nfc_audit_tag_event ON nfc_audit_logs (tag_id, event_type, created_at);",
     "CREATE INDEX IF NOT EXISTS idx_ai_tokopt_user_created ON ai_token_optimization_logs (user_id, created_at);",
+    "CREATE INDEX IF NOT EXISTS idx_saas_credit_ledger_user_created ON saas_credit_ledger (user_id, created_at);",
 )
 
 

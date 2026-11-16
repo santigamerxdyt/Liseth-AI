@@ -24,11 +24,48 @@ logger = logging.getLogger("jarvis.auth")
 # Rate limiter in-memory storage: ip -> list of failed attempt timestamps
 _failed_attempts: Dict[str, List[float]] = defaultdict(list)
 _lockouts: Dict[str, float] = {}
+# Revoked session token hashes: sha256(token) -> expiration timestamp
+_revoked_tokens: Dict[str, float] = {}
 
 MAX_ATTEMPTS = 5
 LOCKOUT_WINDOW_SECONDS = 300  # 5 minutes
 SESSION_EXPIRATION_SECONDS = 86400 * 7  # 7 days
 MAX_TRACKED_IPS = 1000  # Cap rate-limiter in-memory storage to prevent unbounded growth
+MAX_REVOKED_TOKENS = 5000  # Cap revoked token blocklist
+
+
+def _prune_revoked_tokens(now: float) -> None:
+    expired = [h for h, exp in _revoked_tokens.items() if now > exp]
+    for h in expired:
+        _revoked_tokens.pop(h, None)
+    if len(_revoked_tokens) > MAX_REVOKED_TOKENS:
+        sorted_items = sorted(_revoked_tokens.items(), key=lambda item: item[1])
+        for h, _ in sorted_items[: len(_revoked_tokens) - MAX_REVOKED_TOKENS]:
+            _revoked_tokens.pop(h, None)
+
+
+def revoke_session_token(token: Optional[str], ttl_seconds: int = SESSION_EXPIRATION_SECONDS) -> None:
+    """Adds a session or SaaS token to the server-side revocation blocklist upon logout."""
+    if not token or not str(token).strip():
+        return
+    now = time.time()
+    _prune_revoked_tokens(now)
+    token_hash = hashlib.sha256(str(token).strip().encode("utf-8")).hexdigest()
+    _revoked_tokens[token_hash] = now + max(60, ttl_seconds)
+
+
+def is_token_revoked(token: Optional[str]) -> bool:
+    """Checks if a session or SaaS token has been explicitly revoked."""
+    if not token or not str(token).strip():
+        return False
+    token_hash = hashlib.sha256(str(token).strip().encode("utf-8")).hexdigest()
+    exp = _revoked_tokens.get(token_hash)
+    if exp is None:
+        return False
+    if time.time() > exp:
+        _revoked_tokens.pop(token_hash, None)
+        return False
+    return True
 
 
 def _prune_ip_cache(now: float) -> None:
@@ -114,9 +151,12 @@ def sign_session_token(session_id: str, client_ip: str) -> str:
 def verify_session_token(token: str) -> Optional[dict]:
     """
     Verifies an HMAC-SHA256 session token.
-    Returns the payload dictionary if valid and not expired, else None.
+    Returns the payload dictionary if valid, not expired, and not revoked, else None.
     """
     if not token or "." not in token:
+        return None
+
+    if is_token_revoked(token):
         return None
 
     try:

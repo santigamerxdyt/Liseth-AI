@@ -1,0 +1,227 @@
+{
+  "main": {
+    "id": "bb225b5ea63a6388",
+    "type": "split",
+    "children": [
+      {
+        "id": "f8fcfb3721f0cc98",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1abacc7347dfc805",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Nueva pestaña"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "7d94c278a13c96df",
+    "type": "split",
+    "children": [
+      {
+        "id": "7a7e3d1e16712764",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "24f987ef104c7ba5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "ceab890bddecc67a",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Buscar"
+            }
+          },
+          {
+            "id": "5757b6f13dd3fe17",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Marcadores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "d65f3a8c10c931e4",
+    "type": "split",
+    "children": [
+      {
+        "id": "ec5468c912e64d6b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5e9336d5a9445fa0",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Manual_Liseth.pdf",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Enlaces entrantes"
+            }
+          },
+          {
+            "id": "e4ead5c0bc9e6845",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Manual_Liseth.pdf",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Enlaces salientes"
+            }
+          },
+          {
+            "id": "7c25f1267433a082",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Etiquetas"
+            }
+          },
+          {
+            "id": "cbb8c0e0c1a8695d",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Todas las propiedades"
+            }
+          },
+          {
+            "id": "4c05795af9e86393",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Manual_Liseth.pdf",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Esquema"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false,
+      "bases:Crear nueva base": false,
+      "audio-recorder:Iniciar/Detener la grabación": false
+    }
+  },
+  "active": "1abacc7347dfc805",
+  "lastOpenFiles": [
+    "data/jarvis.db-shm",
+    "data/jarvis.db-wal",
+    "reports/voice-overhaul/vm_test_execution.log",
+    "reports/voice-overhaul",
+    "reports",
+    "scratch/run_vm_voice_audit.py",
+    "app/services/__pycache__/diffin_service.cpython-314.pyc",
+    "app/services/__pycache__/openmontage_adapter.cpython-314.pyc",
+    "test/__pycache__/test_hermes_and_integrations.cpython-314-pytest-9.1.1.pyc",
+    "app/services/__pycache__/archify_service.cpython-314.pyc",
+    "app/services/__pycache__/omniroute_gateway.cpython-314.pyc",
+    "Knowledge/19 - PROJECT MANAGEMENT/backlog.md",
+    "SOUL.md",
+    "README.md",
+    "LEGAL_TERMS_AND_COPYRIGHT.md",
+    "GUIA_USO_LISEHT.md",
+    "CHANGELOG.md",
+    "Knowledge/03 - MODULES/DEVELOPMENT AND CODEBASE MAP.md",
+    "Knowledge/18 - DEPLOYMENT AND DEVOPS/github_sync.md",
+    "Knowledge/18 - DEPLOYMENT AND DEVOPS/production_deployment.md",
+    "Knowledge/18 - DEPLOYMENT AND DEVOPS/local_deployment.md",
+    "Knowledge/17 - TESTING AND QA/security_test_matrix.md",
+    "Knowledge/17 - TESTING AND QA/test_suite_overview.md",
+    "Knowledge/16 - PERFORMANCE/latency_optimization.md",
+    "Knowledge/16 - PERFORMANCE/resource_benchmarks.md",
+    "Knowledge/15 - NFC SYSTEM/nfc_p2p_and_vcard.md",
+    "Knowledge/15 - NFC SYSTEM/web_nfc_spec.md",
+    "Knowledge/14 - REFERRALS/anti_fraud_engine.md",
+    "Knowledge/14 - REFERRALS/referral_program.md",
+    "Knowledge/13 - SUBSCRIPTIONS AND PAYMENTS/subscription_lifecycle.md",
+    "Knowledge/13 - SUBSCRIPTIONS AND PAYMENTS/payment_gateways.md",
+    "Knowledge/12 - MONETIZATION/unit_economics.md",
+    "Knowledge/12 - MONETIZATION/pricing_matrix.md",
+    "Knowledge/11 - SECURITY/creator_protection.md",
+    "Knowledge/11 - SECURITY/auth_defense.md",
+    "Knowledge/11 - SECURITY/cryptographic_standards.md"
+  ]
+}

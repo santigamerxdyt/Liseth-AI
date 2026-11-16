@@ -52,16 +52,21 @@ def test_user_registration_with_custom_brain_api_keys():
     assert user_info["api_keys_status"]["has_groq"] is True
     assert "AIza" in user_info["api_keys_status"]["gemini_masked"]
 
-    # 3. Verify keys stored in database preferences
+    # 3. Verify keys stored encrypted at rest (AES-256-GCM) in database preferences
+    from app.services.saas_service import saas_service
+
     async def verify_db_keys():
         async with AsyncSessionLocal() as db:
             res = await db.execute(select(SaasUser).where(SaasUser.email == test_email))
             u = res.scalars().first()
             assert u is not None
             prefs = u.preferences or {}
-            assert "api_keys" in prefs
-            assert prefs["api_keys"].get("gemini_api_key") == gemini_test_key
-            assert prefs["api_keys"].get("groq_api_key") == groq_test_key
+            assert "api_keys" not in prefs
+            assert "api_keys_enc" in prefs
+            assert prefs["api_keys_enc"]["gemini_api_key"].startswith("v1:")
+            decrypted = saas_service.get_user_decrypted_api_keys(u)
+            assert decrypted.get("gemini_api_key") == gemini_test_key
+            assert decrypted.get("groq_api_key") == groq_test_key
 
     asyncio.run(verify_db_keys())
 
@@ -89,13 +94,16 @@ def test_user_registration_with_custom_brain_api_keys():
     assert upd_data["api_keys"]["has_openai"] is True
     assert upd_data["api_keys"]["has_gemini"] is True  # preserved
 
-    # 6. Verify database has updated keys
+    # 6. Verify database has updated encrypted keys
     async def verify_updated_db():
         async with AsyncSessionLocal() as db:
             res = await db.execute(select(SaasUser).where(SaasUser.email == test_email))
             u = res.scalars().first()
             prefs = u.preferences or {}
-            assert prefs["api_keys"].get("openai_api_key") == new_openai_key
-            assert prefs["api_keys"].get("gemini_api_key") == gemini_test_key
+            assert "api_keys" not in prefs
+            assert "api_keys_enc" in prefs
+            decrypted = saas_service.get_user_decrypted_api_keys(u)
+            assert decrypted.get("openai_api_key") == new_openai_key
+            assert decrypted.get("gemini_api_key") == gemini_test_key
 
     asyncio.run(verify_updated_db())

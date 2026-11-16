@@ -2,7 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -7359,6 +7362,44 @@
       input, select, textarea {
         font-size: 16px !important;
       }
+
+      /* Optimizaciones completas para dispositivos móviles en Auth Gate y Modales */
+      #auth-modal .modal-card {
+        width: 96vw !important;
+        max-width: 96vw !important;
+        max-height: 94dvh !important;
+        padding: 12px 10px !important;
+        border-radius: 14px !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      .gate-main-grid,
+      #auth-modal div[style*="grid-template-columns: repeat(auto-fit, minmax(340px, 1fr))"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      #gate-plans-cards-container {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+      }
+      #auth-modal button,
+      #auth-modal .btn-primary,
+      #auth-modal .btn-secondary,
+      .gate-plan-card {
+        min-height: 44px !important;
+        touch-action: manipulation !important;
+      }
+      #gate-tab-register,
+      #gate-tab-login,
+      #gate-tab-pin {
+        min-height: 44px !important;
+        padding: 10px 4px !important;
+        font-size: 0.8rem !important;
+      }
+      .gate-plan-card {
+        padding: 12px !important;
+      }
     }
 
     @media (max-width: 480px) {
@@ -10519,15 +10560,15 @@
             </div>
           </div>
         </div>
-        <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 0.74rem; border-color: rgba(251, 191, 36, 0.5); color: #fbbf24;" onclick="toggleFirebaseConfigDrawer()">
-          ⚙️ Configurar Proyecto Firebase
+        <button type="button" id="btn-toggle-fb-config-drawer" class="btn-secondary" style="padding: 6px 12px; font-size: 0.74rem; border-color: rgba(251, 191, 36, 0.5); color: #fbbf24;" onclick="toggleFirebaseConfigDrawer()">
+          👑 Configurar Firebase (Solo Creador)
         </button>
       </div>
 
-      <!-- Cajón Desplegable para Configurar Credenciales del Proyecto Firebase -->
+      <!-- Cajón Desplegable para Configurar Credenciales del Proyecto Firebase (EXCLUSIVO SEÑOR SANTIAGO) -->
       <div id="firebase-config-drawer" style="display: none; background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(251, 191, 36, 0.45); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-          <div style="font-size: 0.8rem; font-weight: 700; color: #fbbf24;">🔥 VINCULACIÓN DE PROYECTO FIREBASE (FIREBASE CONSOLE & AUTHENTICATION)</div>
+          <div style="font-size: 0.8rem; font-weight: 700; color: #fbbf24;">👑 VINCULACIÓN DE PROYECTO FIREBASE (EXCLUSIVO PROPIETARIO CREATOR — SEÑOR SANTIAGO)</div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <a id="fb-link-console" href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" style="padding: 4px 9px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; background: rgba(251, 191, 36, 0.16); border: 1px solid rgba(251, 191, 36, 0.5); color: #fbbf24; text-decoration: none;">🌐 Abrir Consola Firebase ↗</a>
             <a id="fb-link-auth-providers" href="https://console.firebase.google.com/project/liseth-saas-ai/authentication/providers" target="_blank" rel="noopener noreferrer" style="padding: 4px 9px; font-size: 0.7rem; font-weight: 700; border-radius: 6px; background: rgba(0, 210, 255, 0.14); border: 1px solid rgba(0, 210, 255, 0.45); color: #00f0ff; text-decoration: none;">🔑 Activar Correo/Google ↗</a>
@@ -10536,42 +10577,47 @@
           </div>
         </div>
         <div style="font-size: 0.72rem; color: #cbd5e1; margin-bottom: 10px; line-height: 1.45; background: rgba(4, 8, 18, 0.65); padding: 8px 10px; border-radius: 6px; border-left: 3px solid #fbbf24;">
-          <b>¿Cómo obtener tus llaves en 1 minuto?</b> Entra a <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" style="color: #00f0ff; text-decoration: underline;">console.firebase.google.com</a> &rarr; Crea o abre tu proyecto &rarr; Ve a <b>Configuración del proyecto (⚙️) &rarr; Tus apps &rarr; Web (&lt;/&gt;)</b> y copia los 4 valores abajo. En <b>Compilación &rarr; Authentication &rarr; Método de acceso</b> habilita <b>Correo electrónico/Contraseña</b> y <b>Google</b>.
+          🔒 <b>Protección Soberana CREATOR:</b> Todas las cuentas creadas por los usuarios se guardan en el Google Firebase de <b>Señor Santiago Huérfano López</b> (<code>liseth-saas-ai</code>). Solo el propietario puede desbloquear y modificar esta configuración mediante su PIN Maestro.
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; background: rgba(245, 158, 11, 0.1); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(251, 191, 36, 0.35); flex-wrap: wrap;">
+          <label style="font-size: 0.72rem; font-weight: 800; color: #fbbf24;">👑 PIN Maestro de Creador (Santiago):</label>
+          <input type="password" id="fb-cfg-creator-pin" placeholder="Ingresa tu PIN de Creador para editar..." style="background: #090d16; border: 1px solid #fbbf24; color: #fff; padding: 5px 8px; border-radius: 4px; font-size: 0.75rem; width: 220px;" />
+          <button type="button" class="btn-secondary" style="padding: 5px 10px; font-size: 0.72rem; border-color: #38ef7d; color: #38ef7d;" onclick="unlockFirebaseConfigFieldsUI()">🔓 Habilitar Edición</button>
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 8px; margin-bottom: 10px;">
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Project ID / Nombre:</label>
-            <input type="text" id="fb-cfg-project-id" value="liseth-saas-ai" placeholder="liseth-saas-ai" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-project-id" value="liseth-saas-ai" readonly placeholder="liseth-saas-ai" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #94a3b8; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Número del Proyecto (Sender ID):</label>
-            <input type="text" id="fb-cfg-project-number" value="353398586852" placeholder="353398586852" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-project-number" value="353398586852" readonly placeholder="353398586852" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #94a3b8; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Web API Key (Firebase SDK):</label>
-            <input type="text" id="fb-cfg-api-key" value="AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q" placeholder="AIzaSy..." style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-api-key" value="AIzaSyC8AYzsZfDFSL4sWaaU1xk_NQWJ9mux21Q" readonly placeholder="AIzaSy..." style="width: 100%; background: #090d16; border: 1px solid #334155; color: #94a3b8; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Auth Domain:</label>
-            <input type="text" id="fb-cfg-auth-domain" value="liseth-saas-ai.firebaseapp.com" placeholder="liseth-saas-ai.firebaseapp.com" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-auth-domain" value="liseth-saas-ai.firebaseapp.com" readonly placeholder="liseth-saas-ai.firebaseapp.com" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #94a3b8; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">App ID:</label>
-            <input type="text" id="fb-cfg-app-id" value="1:353398586852:web:8a548c1b56e8948b065bf1" placeholder="1:353398586852:web:8a548c1b56e8948b065bf1" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-app-id" value="1:353398586852:web:8a548c1b56e8948b065bf1" readonly placeholder="1:353398586852:web:8a548c1b56e8948b065bf1" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #94a3b8; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
           <div>
             <label style="font-size: 0.68rem; color: #94a3b8; display: block;">Measurement ID (Analytics):</label>
-            <input type="text" id="fb-cfg-measurement-id" value="G-33Y6VVGX3K" placeholder="G-33Y6VVGX3K" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #fff; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
+            <input type="text" id="fb-cfg-measurement-id" value="G-33Y6VVGX3K" readonly placeholder="G-33Y6VVGX3K" style="width: 100%; background: #090d16; border: 1px solid #334155; color: #94a3b8; padding: 6px; border-radius: 4px; font-size: 0.76rem;" />
           </div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
           <span id="fb-cfg-save-msg" style="font-size: 0.74rem; color: #38ef7d;"></span>
-          <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 0.75rem; background: #f59e0b; border-color: #f59e0b; color: #04070d; font-weight: 800;" onclick="saveFirebaseProjectConfigUI()">Guardar y Vincular Firebase</button>
+          <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 0.75rem; background: #f59e0b; border-color: #f59e0b; color: #04070d; font-weight: 800;" onclick="saveFirebaseProjectConfigUI()">👑 Guardar Firebase (Solo Creador)</button>
         </div>
       </div>
 
       <!-- Diseño Principal en 2 Columnas: [Izquierda: Crear Cuenta / Login] | [Derecha: Planes de Suscripción] -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; align-items: start;">
+      <div class="gate-main-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; align-items: start;">
 
         <!-- COLUMNA IZQUIERDA: FORMULARIO DE CREACIÓN DE CUENTA E INICIO DE SESIÓN -->
         <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(0, 210, 255, 0.35); border-radius: 12px; padding: 16px;">
@@ -10620,6 +10666,23 @@
               </div>
             </div>
 
+            <!-- CÓDIGO DE SEGURIDAD PERSONAL PARA INICIO -->
+            <div style="margin-bottom: 11px; padding: 10px 12px; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="font-size: 0.74rem; font-weight: 800; color: #c084fc;">
+                  🛡️ Crea tu Código de Verificación de Inicio:
+                </label>
+                <span style="font-size: 0.66rem; color: #c084fc; font-weight: 700;">Seguridad 2FA</span>
+              </div>
+              <p style="font-size: 0.68rem; color: #cbd5e1; margin: 0 0 6px 0; line-height: 1.35;">
+                Define un código o PIN secreto. Se te solicitará cada vez que inicies Liseth para comprobar que eres tú.
+              </p>
+              <div style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="gate-reg-launch-code" placeholder="Crea tu código (ej. 4 a 8 dígitos o clave secreta)..." autocomplete="new-password" required style="width: 100%; padding: 9px 38px 9px 11px; background: rgba(6, 11, 22, 0.95); border: 1px solid #a855f7; border-radius: 8px; color: #e9d5ff; font-family: monospace; font-size: 0.84rem; letter-spacing: 0.06em;" />
+                <button type="button" onclick="toggleGatePasswordVisibility('gate-reg-launch-code', this)" aria-label="Mostrar u ocultar código" style="position: absolute; right: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 0.9rem; padding: 4px;">👁️</button>
+              </div>
+            </div>
+
             <!-- CLAVES DE API DE LOS CEREBROS IA (PROPIAS DE CADA USUARIO) -->
             <div style="margin-bottom: 11px; padding: 10px 12px; background: rgba(0, 240, 255, 0.07); border: 1px solid rgba(0, 240, 255, 0.38); border-radius: 8px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 4px;">
@@ -10660,20 +10723,20 @@
               </details>
             </div>
 
-            <!-- Plan Seleccionado para la Cuenta -->
+            <!-- Plan Seleccionado para la Cuenta (OBLIGATORIO COMPRAR PLAN ACTIVO) -->
             <div style="margin-bottom: 10px; padding: 9px 11px; background: rgba(168, 85, 247, 0.14); border: 1px solid rgba(168, 85, 247, 0.45); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <span style="font-size: 0.68rem; color: #d8b4fe; display: block;">PLAN SELECCIONADO (Clic a la derecha para cambiar):</span>
-                <b id="gate-selected-plan-label" style="font-size: 0.86rem; color: #fff;">PLAN FREE — $0 USD / mes</b>
+                <span style="font-size: 0.68rem; color: #d8b4fe; display: block;">PLAN COMERCIAL OBLIGATORIO (Elige tu plan a la derecha):</span>
+                <b id="gate-selected-plan-label" style="font-size: 0.86rem; color: #fff;">LEVEL 1: STARTER — $10 USD / mes</b>
               </div>
-              <input type="hidden" id="gate-selected-plan-code" value="FREE" />
+              <input type="hidden" id="gate-selected-plan-code" value="STARTER" />
               <input type="hidden" id="gate-selected-billing-cycle" value="monthly" />
               <input type="hidden" id="gate-selected-payment-gateway" value="stripe" />
-              <span id="gate-selected-plan-badge" style="background: #a855f7; color: #fff; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 10px;">FREE</span>
+              <span id="gate-selected-plan-badge" style="background: #10b981; color: #04070d; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 10px;">STARTER</span>
             </div>
 
-            <!-- Pasarela de Pago Interactiva (Se despliega automáticamente al elegir un plan comercial STARTER/PRO/BUSINESS/ENTERPRISE) -->
-            <div id="gate-payment-selector-box" style="display: none; margin-bottom: 10px; padding: 10px 11px; background: rgba(6, 14, 28, 0.95); border: 1px solid rgba(56, 239, 125, 0.5); border-radius: 9px;">
+            <!-- Pasarela de Pago Interactiva (Visible por defecto al requerirse compra de plan) -->
+            <div id="gate-payment-selector-box" style="display: block; margin-bottom: 10px; padding: 10px 11px; background: rgba(6, 14, 28, 0.95); border: 1px solid rgba(56, 239, 125, 0.5); border-radius: 9px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <span style="font-size: 0.72rem; font-weight: 800; color: #38ef7d;">💳 MÉTODO DE PAGO & CHECKOUT INSTANTÁNEO</span>
                 <span id="gate-live-quote-cop" style="font-size: 0.74rem; font-weight: 800; color: #ffd166;">~$42,000 COP</span>
@@ -10739,6 +10802,23 @@
               <div style="position: relative; display: flex; align-items: center;">
                 <input type="password" id="gate-login-password" placeholder="••••••••" autocomplete="current-password" required style="width: 100%; padding: 9px 38px 9px 11px; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 0.82rem;" />
                 <button type="button" onclick="toggleGatePasswordVisibility('gate-login-password', this)" aria-label="Mostrar u ocultar contraseña" style="position: absolute; right: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 0.9rem; padding: 4px;">👁️</button>
+              </div>
+            </div>
+
+            <!-- CÓDIGO DE VERIFICACIÓN DE INICIO OBLIGATORIO (IDENTIDAD CONFIRMADA) -->
+            <div style="margin-bottom: 12px; padding: 10px 12px; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="font-size: 0.74rem; font-weight: 800; color: #00f0ff;">
+                  🛡️ Código de Verificación de Inicio:
+                </label>
+                <span style="font-size: 0.66rem; color: #38ef7d; font-weight: 700;">Verificación de Identidad</span>
+              </div>
+              <p style="font-size: 0.68rem; color: #cbd5e1; margin: 0 0 6px 0; line-height: 1.35;">
+                Ingresa tu código de seguridad o PIN maestro para confirmar que eres tú quien inicia el sistema.
+              </p>
+              <div style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="gate-login-launch-code" placeholder="Código de seguridad o PIN de inicio..." autocomplete="one-time-code" required style="width: 100%; padding: 9px 38px 9px 11px; background: rgba(6, 11, 22, 0.95); border: 1px solid #00f0ff; border-radius: 8px; color: #38ef7d; font-family: monospace; font-size: 0.84rem; letter-spacing: 0.06em;" />
+                <button type="button" onclick="toggleGatePasswordVisibility('gate-login-launch-code', this)" aria-label="Mostrar u ocultar código" style="position: absolute; right: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 0.9rem; padding: 4px;">👁️</button>
               </div>
             </div>
 
@@ -10819,24 +10899,20 @@
           <!-- Tarjetas Interactivas de Planes -->
           <div id="gate-plans-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 8px;">
 
-            <!-- PLAN FREE -->
-            <div class="gate-plan-card" id="gate-plan-card-FREE" onclick="selectGatePlan('FREE', 'PLAN FREE — $0 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 2px solid #00f0ff; border-radius: 9px; padding: 10px; transition: all 0.2s;">
+            <!-- PLAN FREE (DESHABILITADO PARA OBLIGAR COMPRA DE PLAN) -->
+            <div class="gate-plan-card" id="gate-plan-card-FREE" onclick="selectGatePlan('FREE', 'PLAN FREE — Requiere compra de plan activo')" style="cursor: not-allowed; opacity: 0.52; background: rgba(6, 11, 22, 0.9); border: 1px dashed #475569; border-radius: 9px; padding: 10px; transition: all 0.2s;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.75rem; font-weight: 800; color: #00f0ff;">PLAN FREE</span>
-                <span id="gate-price-tag-FREE" style="font-size: 0.88rem; font-weight: 900; color: #fff;">$0<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
+                <span style="font-size: 0.75rem; font-weight: 800; color: #64748b;">🔒 PLAN FREE (No habilitado)</span>
+                <span id="gate-price-tag-FREE" style="font-size: 0.88rem; font-weight: 900; color: #64748b;">$0<small style="font-size:0.65rem;color:#64748b;">/mes</small></span>
               </div>
-              <div id="gate-cop-tag-FREE" style="font-size: 0.65rem; color: #38ef7d; font-weight: 700;">Gratis • $0 COP</div>
-              <div style="font-size: 0.68rem; color: #cbd5e1; margin-top: 5px; line-height: 1.4;">
-                • Máx. <b>3 cerebros IA</b><br>
-                • Máx. <b>5 conversaciones</b><br>
-                • <b>25 mensajes</b> diarios<br>
-                • Memoria personal limitada<br>
-                • Acceso a skills básicas
+              <div id="gate-cop-tag-FREE" style="font-size: 0.65rem; color: #f87171; font-weight: 700;">Requiere comprar un plan comercial</div>
+              <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 5px; line-height: 1.4;">
+                • Para desbloquear Liseth es obligatorio adquirir un plan activo (<b>STARTER, PRO, BUSINESS o ENTERPRISE</b>) y colocar tu API Key de IA.
               </div>
             </div>
 
-            <!-- PLAN LEVEL 1: STARTER -->
-            <div class="gate-plan-card" id="gate-plan-card-STARTER" onclick="selectGatePlan('STARTER', 'LEVEL 1: STARTER — $10 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 1px solid #334155; border-radius: 9px; padding: 10px; transition: all 0.2s;">
+            <!-- PLAN LEVEL 1: STARTER (SELECCIONADO POR DEFECTO) -->
+            <div class="gate-plan-card" id="gate-plan-card-STARTER" onclick="selectGatePlan('STARTER', 'LEVEL 1: STARTER — $10 USD / mes')" style="cursor: pointer; background: rgba(6, 11, 22, 0.9); border: 2px solid #00f0ff; box-shadow: 0 0 16px rgba(0, 240, 255, 0.3); border-radius: 9px; padding: 10px; transition: all 0.2s;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.75rem; font-weight: 800; color: #38ef7d;">L1 • STARTER</span>
                 <span id="gate-price-tag-STARTER" style="font-size: 0.88rem; font-weight: 900; color: #fff;">$10<small style="font-size:0.65rem;color:#94a3b8;">/mes</small></span>
@@ -14310,8 +14386,11 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
           <h2>Liseth SaaS Cloud — Plataforma Multiusuario & Suscripciones</h2>
           <p>Cuentas aisladas, conversaciones privadas, cerebro de memoria individual, 6 niveles de planes y Panel Superadmin CREATOR</p>
         </div>
-        <button class="modal-close" onclick="closeSaasModal()">&times;</button>
+        <button class="modal-close" id="saas-modal-close-x" onclick="closeSaasModal()">&times;</button>
       </div>
+
+      <!-- BANNER DE BLOQUEO OBLIGATORIO DE DESBLOQUEO (CUENTA FIREBASE + API KEY IA + COMPRA DE PLAN) -->
+      <div id="saas-mandatory-onboarding-box" style="display: none; background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(248, 113, 113, 0.55); border-radius: 9px; padding: 11px 14px; margin-bottom: 12px; font-size: 0.74rem; color: #f8fafc;"></div>
 
       <!-- Barra de Navegación de Pestañas SaaS -->
       <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding-bottom: 10px;">
@@ -14519,7 +14598,7 @@ Seleccione los datos arriba y pulse 'Redactar Minuta Legal' para previsualizar e
       </div>
 
       <div class="modal-actions" style="margin-top: 12px;">
-        <button class="btn-secondary" onclick="closeSaasModal()">Cerrar Panel SaaS</button>
+        <button class="btn-secondary" id="saas-modal-close-btn" onclick="closeSaasModal()">Cerrar Panel SaaS</button>
       </div>
     </div>
   </div>
@@ -15322,36 +15401,26 @@ Tus habilidades clave:
 
         if (!clean) return;
 
-        let provider = "edge";
-        let voiceId = "es-CO-SalomeNeural";
-
-        const val = voiceModelSelect ? voiceModelSelect.value : "es-CO-SalomeNeural";
-        if (val.includes(":")) {
-          const parts = val.split(":");
-          provider = parts[0];
-          voiceId = parts[1];
-        } else {
-          provider = "edge";
-          voiceId = val;
-        }
-
-        const token = localStorage.getItem("liseth_session_token") || "";
-
-        // Si el servidor local no está conectado o estamos en la nube (GitHub Pages), hablar inmediatamente con síntesis local de navegador
-        if (!isServerConnected || isGitHubPages) {
-          fallbackLocalSpeech(clean);
+        // SISTEMA SINGLE VOICE: Enrutar a través de LisethAudioManager (POST /api/voice/speak)
+        if (isServerConnected && !isGitHubPages) {
+          fetch("/api/voice/speak", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: clean,
+              voice: "es-CO-SalomeNeural"
+            })
+          }).catch(err => {
+            console.warn("[Single Voice Engine] Error al solicitar habla centralizada:", err);
+          });
           return;
         }
 
-        const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
-        const ttsUrl = `${base}/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+0%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+10Hz')}&provider=${encodeURIComponent(provider)}&token=${encodeURIComponent(token)}&text=${encodeURIComponent(clean)}`;
-
-        // Reproducir vía fetch interceptado con blob para enviar credenciales y evitar 401
+        // Modo offline / GitHub Pages sin backend Python
+        const ttsUrl = `/api/tts?voice=es-CO-SalomeNeural&text=${encodeURIComponent(clean)}`;
         fetch(ttsUrl)
           .then(async (response) => {
-            if (!response.ok) {
-              throw new Error(`TTS HTTP status ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`TTS status ${response.status}`);
             const blob = await response.blob();
             const blobUrl = URL.createObjectURL(blob);
             const audio = new Audio(blobUrl);
@@ -15371,54 +15440,23 @@ Tus habilidades clave:
               handleSpeechOutputFinished();
             };
 
-            audio.onerror = (e) => {
-              console.warn("Audio neuronal no reproducible, usando sintetizador local femenino...", e);
+            audio.onerror = () => {
               try { URL.revokeObjectURL(blobUrl); } catch(err) {}
               activeAudioElement = null;
-              fallbackLocalSpeech(clean);
+              handleSpeechOutputFinished();
             };
 
             return audio.play();
           })
           .catch((err) => {
-            console.warn("Motor neuronal no disponible, recurriendo a voz local dulce:", err);
-            fallbackLocalSpeech(clean);
+            console.warn("[Single Voice Engine] Motor TTS no disponible:", err);
+            handleSpeechOutputFinished();
           });
       }
 
       function fallbackLocalSpeech(text) {
-        if (!("speechSynthesis" in window)) return;
-        try {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "es-ES";
-          utterance.pitch = 1.18; // Tono dulce, juvenil y femenino (en lugar del monótono 1.0)
-          utterance.rate = 0.98;  // Cadencia melodiosa y pausada
-
-          const bestVoice = getBestFeminineLocalVoice();
-          if (bestVoice) {
-            utterance.voice = bestVoice;
-            utterance.lang = bestVoice.lang || "es-ES";
-          }
-
-          utterance.onstart = () => {
-            isSpeaking = true;
-            if (typeof window.setOrbState === "function") window.setOrbState("speaking");
-            orb.classList.add("speaking");
-            statusLabel.textContent = "Liseth le asiste con voz armoniosa...";
-            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
-          };
-          utterance.onend = () => {
-            if (typeof window.setOrbState === "function") window.setOrbState("idle");
-            handleSpeechOutputFinished();
-          };
-          utterance.onerror = () => {
-            handleSpeechOutputFinished();
-          };
-          window.speechSynthesis.speak(utterance);
-        } catch(e) {
-          console.warn("Fallo en fallback de voz:", e);
-        }
+        // Desactivado permanentemente: Liseth cuenta con una sola voz oficial neuronal (es-CO-SalomeNeural)
+        console.info("[Single Voice Engine] Síntesis de voz local de navegador desactivada para preservar la identidad vocal única.");
       }
 
       let speechOutputEndTime = 0;
@@ -15666,6 +15704,12 @@ Tus habilidades clave:
             // Subtítulos flotantes en tiempo real en el HUD
             updateHudTranscript(currentSpeech, (currentCustomization.userTitle || "SANTIAGO").toUpperCase());
 
+            // Sincronización Single Voice: si el motor nativo de Python está activo en segundo plano,
+            // la interfaz web se limita a reflejar los subtítulos en tiempo real y no envía peticiones duplicadas.
+            if (window.__backendVoiceEngineRunning) {
+              return;
+            }
+
             // --- CASO 1: EN MODO REPOSO (STANDBY) ---
             if (voiceAssistantState === "standby") {
               if (containsWakeWord(currentSpeech)) {
@@ -15780,6 +15824,20 @@ Tus habilidades clave:
             try {
               const data = JSON.parse(event.data);
               if (data.type === "state_change") {
+                if (data.isRunning || data.singleVoiceActive) {
+                  window.__backendVoiceEngineRunning = true;
+                }
+                if (data.current_state === "SPEAKING" || data.isSpeaking) {
+                  isSpeaking = true;
+                  orb.classList.add("speaking");
+                  if (typeof window.setOrbState === "function") window.setOrbState("speaking");
+                  if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
+                } else if (data.current_state === "LISTENING" || data.current_state === "IDLE") {
+                  isSpeaking = false;
+                  orb.classList.remove("speaking");
+                  if (typeof window.setOrbState === "function") window.setOrbState("idle");
+                  if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH";
+                }
                 if (data.state === "active") {
                   voiceAssistantState = "active";
                   orb.classList.add("listening");
@@ -15941,6 +15999,10 @@ Tus habilidades clave:
           pcmAudioContext = new AudioCtxClass({ sampleRate: 16000 });
           if (pcmAudioContext.state === "suspended") {
             await pcmAudioContext.resume();
+          }
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showToast("⚠️ En dispositivos móviles o navegadores web, el acceso al micrófono requiere conexión segura HTTPS o localhost.");
+            return;
           }
           pcmMediaStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
           const source = pcmAudioContext.createMediaStreamSource(pcmMediaStream);
@@ -16806,6 +16868,9 @@ Tus habilidades clave:
         if (!window.isLisethAuthenticated && (!currentTok && !localStorage.getItem("liseth_session_token") && !localStorage.getItem("liseth_saas_token"))) {
           showAuthModal();
           showToast("🔒 Inicie sesión o ingrese su PIN para interactuar con Liseth.");
+          return;
+        }
+        if (typeof window.enforceMandatoryOnboardingGate === "function" && !window.enforceMandatoryOnboardingGate()) {
           return;
         }
         window.isLisethAuthenticated = true;
@@ -19309,29 +19374,17 @@ Tus habilidades clave:
         if (typeof window.initFirebaseGateConfig === "function") {
           window.initFirebaseGateConfig();
         }
-        // Si la ventana acaba de iniciar y el usuario no ha iniciado sesión en esta sesión activa, exigir Crear Cuenta / Login
-        const activeSessionAuth = sessionStorage.getItem("liseth_active_session_authenticated");
-        const saasTok = localStorage.getItem("liseth_saas_token");
-        const pinTok = localStorage.getItem("liseth_session_token");
-        if (!activeSessionAuth || (!saasTok && !pinTok)) {
-          showAuthModal();
-          return false;
-        }
-        try {
-          const headers = {};
-          if (saasTok) headers["X-SaaS-Token"] = saasTok;
-          if (pinTok) headers["Authorization"] = `Bearer ${pinTok}`;
-          const res = await fetch("/api/saas/profile", { headers, cache: "no-store" });
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.ok && data.user) {
-              hideAuthModal();
-              if (typeof refreshSaasProfileState === "function") refreshSaasProfileState();
-              return true;
-            }
-          }
-        } catch (e) {}
+        // Exigir SIEMPRE inicio de sesión y código de verificación al abrir la app o web
+        sessionStorage.removeItem("liseth_active_session_authenticated");
         showAuthModal();
+
+        // Si existe un correo previo guardado, pre-llenarlo en el formulario de login para agilizar
+        const savedEmail = localStorage.getItem("liseth_last_user_email");
+        if (savedEmail) {
+          const loginEmailInput = document.getElementById("gate-login-email");
+          if (loginEmailInput) loginEmailInput.value = savedEmail;
+          if (typeof switchAuthGateMode === "function") switchAuthGateMode("login");
+        }
         return false;
       }
 
@@ -21600,7 +21653,21 @@ Tus habilidades clave:
         const w = window.open("", "_blank");
         w.document.write("<html><head><title>Factura Electrónica Pro-Forma - Liseth</title><style>body{font-family:sans-serif;padding:30px;}</style></head><body>");
         w.document.write(card.outerHTML);
-        w.document.write("</body></html>");
+        w.document.write("
+      // Desbloqueo de AudioContext para políticas de Autoplay en celulares móviles (iOS Safari / Android Chrome)
+      function unlockMobileAudioOnTouch() {
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtxClass) {
+            if (!window.__globalMobileAudioCtx) window.__globalMobileAudioCtx = new AudioCtxClass();
+            if (window.__globalMobileAudioCtx.state === "suspended") window.__globalMobileAudioCtx.resume();
+          }
+        } catch (_) {}
+      }
+      window.addEventListener("touchstart", unlockMobileAudioOnTouch, { once: true, passive: true });
+      window.addEventListener("click", unlockMobileAudioOnTouch, { once: true, passive: true });
+
+</body></html>");
         w.document.close();
         w.print();
       };
@@ -21920,7 +21987,21 @@ Tus habilidades clave:
         const w = window.open("", "_blank");
         w.document.write("<html><head><title>Contrato Comercial</title><style>body{font-family:serif;padding:40px;line-height:1.6;font-size:12pt;}</style></head><body><pre style='font-family:inherit;white-space:pre-wrap;'>");
         w.document.write(text);
-        w.document.write("</pre></body></html>");
+        w.document.write("</pre>
+      // Desbloqueo de AudioContext para políticas de Autoplay en celulares móviles (iOS Safari / Android Chrome)
+      function unlockMobileAudioOnTouch() {
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtxClass) {
+            if (!window.__globalMobileAudioCtx) window.__globalMobileAudioCtx = new AudioCtxClass();
+            if (window.__globalMobileAudioCtx.state === "suspended") window.__globalMobileAudioCtx.resume();
+          }
+        } catch (_) {}
+      }
+      window.addEventListener("touchstart", unlockMobileAudioOnTouch, { once: true, passive: true });
+      window.addEventListener("click", unlockMobileAudioOnTouch, { once: true, passive: true });
+
+</body></html>");
         w.document.close();
         w.print();
       };
@@ -22578,7 +22659,21 @@ const cardEsg = document.getElementById("hud-card-esg");
           <!DOCTYPE html>
           <html>
           <head><title>Pitch Deck Ejecutivo</title></head>
-          <body onload="window.print();">${slidesHtml}</body>
+          <body onload="window.print();">${slidesHtml}
+      // Desbloqueo de AudioContext para políticas de Autoplay en celulares móviles (iOS Safari / Android Chrome)
+      function unlockMobileAudioOnTouch() {
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtxClass) {
+            if (!window.__globalMobileAudioCtx) window.__globalMobileAudioCtx = new AudioCtxClass();
+            if (window.__globalMobileAudioCtx.state === "suspended") window.__globalMobileAudioCtx.resume();
+          }
+        } catch (_) {}
+      }
+      window.addEventListener("touchstart", unlockMobileAudioOnTouch, { once: true, passive: true });
+      window.addEventListener("click", unlockMobileAudioOnTouch, { once: true, passive: true });
+
+</body>
           </html>
         `);
         printWindow.document.close();
@@ -24810,21 +24905,164 @@ const cardEsg = document.getElementById("hud-card-esg");
         return headers;
       }
 
+      window.isUserFullyOnboarded = function(userObj) {
+        const u = userObj || currentSaasUser;
+        // Si es el propietario CREATOR (Señor Santiago), siempre está desbloqueado
+        if (u && (u.is_creator || u.role === "CREATOR" || u.plan_code === "CREATOR")) {
+          return true;
+        }
+        // Si inició sesión con PIN maestro del propietario (sin token SaaS de inquilino externo)
+        if (!localStorage.getItem("liseth_saas_token") && localStorage.getItem("liseth_session_token") && (!u || u.role === "CREATOR")) {
+          return true;
+        }
+        if (!u) return false;
+        if (u.onboarding_gate && typeof u.onboarding_gate.is_complete === "boolean") {
+          return u.onboarding_gate.is_complete;
+        }
+        const prefs = u.preferences || {};
+        const hasFirebase = Boolean(prefs.firebase_uid || prefs.firebase_project_id || prefs.firebase_account_saved);
+        const ks = u.api_keys_status || {};
+        const hasApiKey = Boolean(
+          (ks.configured_count && ks.configured_count > 0) ||
+          ks.has_gemini || ks.has_groq || ks.has_openai || ks.has_anthropic ||
+          localStorage.getItem("liseth_gemini_api_key")
+        );
+        const planUp = String(u.plan_code || "FREE").toUpperCase();
+        const hasPaidPlan = Boolean(planUp && planUp !== "FREE");
+        return Boolean(hasFirebase && hasApiKey && hasPaidPlan);
+      };
+
+      window.renderMandatoryOnboardingBanner = function(userObj) {
+        const box = document.getElementById("saas-mandatory-onboarding-box");
+        const closeX = document.getElementById("saas-modal-close-x");
+        const closeBtn = document.getElementById("saas-modal-close-btn");
+        const u = userObj || currentSaasUser;
+        const complete = window.isUserFullyOnboarded(u);
+
+        if (complete) {
+          if (box) box.style.display = "none";
+          if (closeX) {
+            closeX.style.opacity = "1";
+            closeX.style.cursor = "pointer";
+            closeX.title = "Cerrar Panel SaaS";
+          }
+          if (closeBtn) {
+            closeBtn.textContent = "✔ Cerrar Panel SaaS y Usar Liseth";
+            closeBtn.style.borderColor = "#38ef7d";
+            closeBtn.style.color = "#38ef7d";
+          }
+          return;
+        }
+
+        const gate = u?.onboarding_gate || {};
+        const prefs = u?.preferences || {};
+        const ks = u?.api_keys_status || {};
+        const hasFirebase = Boolean(gate.has_firebase_account ?? (prefs.firebase_uid || prefs.firebase_project_id || prefs.firebase_account_saved));
+        const hasApiKey = Boolean(gate.has_brain_api_key ?? ((ks.configured_count && ks.configured_count > 0) || ks.has_gemini || ks.has_groq || ks.has_openai || ks.has_anthropic));
+        const hasPaidPlan = Boolean(gate.has_purchased_plan ?? (u?.plan_code && String(u.plan_code).toUpperCase() !== "FREE"));
+
+        if (closeX) {
+          closeX.style.opacity = "0.35";
+          closeX.style.cursor = "not-allowed";
+          closeX.title = "🔒 Bloqueado: Coloca tu API Key de IA y compra un plan para poder cerrar esta ventana";
+        }
+        if (closeBtn) {
+          closeBtn.textContent = "🔒 Bloqueado (Coloca tu API Key de IA y Compra un Plan para Desbloquear)";
+          closeBtn.style.borderColor = "#ef4444";
+          closeBtn.style.color = "#f87171";
+        }
+
+        if (box) {
+          box.style.display = "block";
+          box.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+              <div style="font-weight:800;color:#fca5a5;font-size:0.82rem;">🔒 REQUISITOS OBLIGATORIOS PARA CERRAR ESTA PESTAÑA Y USAR EL PROYECTO</div>
+              <span style="background:rgba(239,68,68,0.25);border:1px solid #ef4444;color:#fca5a5;padding:2px 8px;border-radius:10px;font-size:0.66rem;font-weight:800;">CIERRE BLOQUEADO HASTA COMPLETAR</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:${hasApiKey ? '4px' : '8px'};">
+              <div style="background:rgba(6,11,22,0.85);padding:7px 9px;border-radius:6px;border:1px solid ${hasFirebase ? '#38ef7d' : '#ef4444'};">
+                <div style="font-weight:800;color:${hasFirebase ? '#38ef7d' : '#f87171'};font-size:0.72rem;">${hasFirebase ? '✔ 1. Cuenta en Google Firebase' : '❌ 1. Cuenta en Google Firebase'}</div>
+                <div style="font-size:0.65rem;color:#cbd5e1;">${hasFirebase ? 'Guardada en Firebase (liseth-saas-ai)' : 'Crea o vincula tu cuenta en Firebase'}</div>
+              </div>
+              <div style="background:rgba(6,11,22,0.85);padding:7px 9px;border-radius:6px;border:1px solid ${hasApiKey ? '#38ef7d' : '#ef4444'};">
+                <div style="font-weight:800;color:${hasApiKey ? '#38ef7d' : '#f87171'};font-size:0.72rem;">${hasApiKey ? '✔ 2. API Key de IA Configurada' : '❌ 2. Falta tu API Key de IA'}</div>
+                <div style="font-size:0.65rem;color:#cbd5e1;">${hasApiKey ? 'Clave personal de cerebro activa' : 'Ingresa tu clave de Gemini / Groq abajo'}</div>
+              </div>
+              <div style="background:rgba(6,11,22,0.85);padding:7px 9px;border-radius:6px;border:1px solid ${hasPaidPlan ? '#38ef7d' : '#ef4444'};">
+                <div style="font-weight:800;color:${hasPaidPlan ? '#38ef7d' : '#f87171'};font-size:0.72rem;">${hasPaidPlan ? '✔ 3. Plan Comercial Comprado (' + u.plan_code + ')' : '❌ 3. Falta Comprar un Plan'}</div>
+                <div style="font-size:0.65rem;color:#cbd5e1;">${hasPaidPlan ? 'Suscripción activa verificada' : 'Compra STARTER, PRO, BUSINESS o ENTERPRISE'}</div>
+              </div>
+            </div>
+            ${!hasApiKey ? `
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:rgba(0,240,255,0.08);padding:7px 9px;border-radius:6px;border:1px solid rgba(0,240,255,0.35);">
+                <span style="font-size:0.7rem;font-weight:700;color:#00f0ff;">🧠 Coloca tu API Key de IA aquí mismo:</span>
+                <input type="password" id="saas-quick-plan-gemini-key" placeholder="AIzaSy... (Tu API Key de Google Gemini)" style="flex:1;min-width:210px;background:#090d16;border:1px solid #0ea5e9;color:#38ef7d;padding:5px 8px;border-radius:5px;font-family:monospace;font-size:0.73rem;" />
+                <button type="button" class="btn-primary" style="padding:5px 12px;font-size:0.72rem;" onclick="saveQuickPlanBrainKeyUI()">💾 Guardar API Key IA</button>
+              </div>
+            ` : ''}
+          `;
+        }
+      };
+
+      window.saveQuickPlanBrainKeyUI = async function() {
+        const keyVal = (document.getElementById("saas-quick-plan-gemini-key")?.value || "").trim();
+        if (!keyVal) {
+          showToast("⚠️ Ingresa una API Key de IA válida (ej. AIzaSy...).");
+          return;
+        }
+        try {
+          const res = await fetch("/api/saas/profile/api-keys", {
+            method: "PUT",
+            headers: getSaasHeaders(),
+            body: JSON.stringify({ gemini_api_key: keyVal })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            localStorage.setItem("liseth_gemini_api_key", keyVal);
+            showToast("✔ API Key de IA guardada. Ahora asegúrate de tener un plan comprado para desbloquear.");
+            await refreshSaasProfileState();
+          } else {
+            showToast("⚠️ " + (data.detail || "No se pudo guardar la API Key."));
+          }
+        } catch (e) {
+          showToast("⚠️ Error de red al guardar la API Key.");
+        }
+      };
+
+      window.enforceMandatoryOnboardingGate = function() {
+        if (window.isUserFullyOnboarded(currentSaasUser)) {
+          return true;
+        }
+        window.openSaasModal("plans");
+        showToast("🔒 Debes colocar tu API Key de IA, crear tu cuenta en el Firebase de Santiago y comprar algún plan antes de usar el proyecto.");
+        return false;
+      };
+
       window.openSaasModal = async function(defaultTab) {
         const modal = document.getElementById("saas-platform-modal");
         if (modal) modal.classList.add("active");
         await refreshSaasProfileState();
-        if (defaultTab) {
-          window.switchSaasTab(defaultTab);
-        }
+        const targetTab = (!window.isUserFullyOnboarded(currentSaasUser) && !defaultTab) ? "plans" : (defaultTab || "plans");
+        window.switchSaasTab(targetTab);
       };
 
       window.closeSaasModal = function() {
+        if (!window.isUserFullyOnboarded(currentSaasUser)) {
+          window.renderMandatoryOnboardingBanner(currentSaasUser);
+          window.switchSaasTab("plans");
+          showToast("🔒 No puedes cerrar la pestaña de compra de planes hasta colocar tu API Key de IA, crear tu cuenta en Firebase y comprar algún plan.");
+          return false;
+        }
         const modal = document.getElementById("saas-platform-modal");
         if (modal) modal.classList.remove("active");
+        return true;
       };
 
       window.switchSaasTab = async function(tabName) {
+        if (!window.isUserFullyOnboarded(currentSaasUser) && !["plans", "account", "legal"].includes(tabName)) {
+          tabName = "plans";
+          showToast("🔒 Primero coloca tu API Key de IA y compra algún plan para desbloquear las demás funciones.");
+        }
         const panes = ["account", "workspace", "plans", "usage", "catalog", "referrals", "legal", "creator", "nfc", "ai-perf"];
         panes.forEach(p => {
           const el = document.getElementById("saas-pane-" + p);
@@ -24885,6 +25123,7 @@ const cardEsg = document.getElementById("hud-card-esg");
             if (creatorBtn) {
               creatorBtn.style.display = data.user.is_creator ? "inline-block" : "none";
             }
+            window.renderMandatoryOnboardingBanner(data.user);
 
             if (data.user.preferences && data.user.preferences.api_keys) {
               const uKeys = data.user.preferences.api_keys;
@@ -25005,6 +25244,7 @@ const cardEsg = document.getElementById("hud-card-esg");
           }
           localStorage.setItem("liseth_saas_token", data.token);
           localStorage.setItem("liseth_session_token", data.token);
+          if (email) localStorage.setItem("liseth_last_user_email", email);
           if (fb) { fb.style.color = "#38ef7d"; fb.textContent = "✔ Sesión iniciada en Firebase como " + data.user.email; }
           await refreshSaasProfileState();
         } catch (e) {
@@ -25044,6 +25284,7 @@ const cardEsg = document.getElementById("hud-card-esg");
           if (gemini_api_key) localStorage.setItem("liseth_gemini_api_key", gemini_api_key);
           localStorage.setItem("liseth_saas_token", data.token);
           localStorage.setItem("liseth_session_token", data.token);
+          if (email) localStorage.setItem("liseth_last_user_email", email);
           if (fb) { fb.style.color = "#38ef7d"; fb.textContent = "✔ Cuenta creada en Firebase (Plan FREE): " + data.user.email; }
           await refreshSaasProfileState();
         } catch (e) {
@@ -25180,8 +25421,10 @@ const cardEsg = document.getElementById("hud-card-esg");
                 <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
                   ${isCreator
                     ? `<span style="display:block;text-align:center;font-size:0.68rem;color:#ffd166;">🔒 No comercializable</span>`
-                    : `<button type="button" class="btn-secondary" style="width:100%;padding:4px;font-size:0.68rem;border-color:#00f0ff;color:#00f0ff;" onclick="selectSaasPlanForQuote('${p.code}')">🧾 Cotizar ${p.code}</button>
-                       <button type="button" class="btn-primary" style="width:100%;padding:5px;font-size:0.72rem;" onclick="checkoutSaasPlanUI('${p.code}')">🛒 Comprar ${p.code}</button>`
+                    : (p.code === "FREE"
+                        ? `<span style="display:block;text-align:center;font-size:0.66rem;color:#f87171;">🔒 Requiere comprar un plan activo</span>`
+                        : `<button type="button" class="btn-secondary" style="width:100%;padding:4px;font-size:0.68rem;border-color:#00f0ff;color:#00f0ff;" onclick="selectSaasPlanForQuote('${p.code}')">🧾 Cotizar ${p.code}</button>
+                           <button type="button" class="btn-primary" style="width:100%;padding:5px;font-size:0.72rem;" onclick="checkoutSaasPlanUI('${p.code}')">🛒 Comprar ${p.code}</button>`)
                   }
                 </div>
               </div>`;
@@ -25236,7 +25479,21 @@ const cardEsg = document.getElementById("hud-card-esg");
             <div class="total"><span>TOTAL PAGADO:</span><span>$${inv.total_usd} USD (~$${copFormatted} COP)</span></div>
             <p style="font-size:12px;color:#94a3b8;margin-top:14px;">Soporte & Ventas WhatsApp: +573122376474 • Nequi Oficial: 3122376474 • Llave Bre-B (Personal): @NEQUISAN243100</p>
             <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar en PDF</button>
-          </div></body></html>`);
+          </div>
+      // Desbloqueo de AudioContext para políticas de Autoplay en celulares móviles (iOS Safari / Android Chrome)
+      function unlockMobileAudioOnTouch() {
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtxClass) {
+            if (!window.__globalMobileAudioCtx) window.__globalMobileAudioCtx = new AudioCtxClass();
+            if (window.__globalMobileAudioCtx.state === "suspended") window.__globalMobileAudioCtx.resume();
+          }
+        } catch (_) {}
+      }
+      window.addEventListener("touchstart", unlockMobileAudioOnTouch, { once: true, passive: true });
+      window.addEventListener("click", unlockMobileAudioOnTouch, { once: true, passive: true });
+
+</body></html>`);
         w.document.close();
       };
 
@@ -25327,6 +25584,10 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.checkoutSaasPlanUI = async function(planCode) {
+        if (planCode === "FREE") {
+          showToast("🔒 Para desbloquear y usar el proyecto debes adquirir un plan comercial (STARTER, PRO, BUSINESS o ENTERPRISE).");
+          return;
+        }
         selectedCheckoutPlanCode = planCode;
         const cycle = document.getElementById("saas-billing-cycle")?.value || "monthly";
         const gw = document.getElementById("saas-payment-gateway-select")?.value || "stripe";
@@ -25353,6 +25614,9 @@ const cardEsg = document.getElementById("hud-card-esg");
         }
         await refreshSaasProfileState();
         await loadSaasPlansUI();
+        if (window.isUserFullyOnboarded(currentSaasUser)) {
+          showToast("🎉 ¡Requisitos completados! Cuenta en Firebase, API Key de IA y Plan activo verificados. Ya puedes cerrar esta pestaña y usar Liseth.");
+        }
       };
 
       window.loadSaasPlansUI = loadSaasPlansUI;
@@ -25363,12 +25627,45 @@ const cardEsg = document.getElementById("hud-card-esg");
           const data = await res.json();
           if (box && data.summary) {
             const s = data.summary;
-            box.innerHTML = `<div style="font-size:0.88rem;font-weight:700;color:#00f0ff;margin-bottom:8px;">⚡ ESTADO DE CRÉDITOS Y CUOTAS (${data.plan_code})</div>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+            const ledger = Array.isArray(data.credit_ledger) ? data.credit_ledger : [];
+            const packs = Array.isArray(data.credit_packs) ? data.credit_packs : [
+              { code: "PACK_1K", name: "Paquete Ágil +1,000 Créditos IA", credits: 1000, price_usd: 5.0 },
+              { code: "PACK_5K", name: "Paquete Ejecutivo +5,000 Créditos IA", credits: 5000, price_usd: 20.0 },
+              { code: "PACK_20K", name: "Paquete Corporativo +20,000 Créditos IA", credits: 20000, price_usd: 65.0 }
+            ];
+            const packsHtml = packs.map(p => `
+              <div style="background:rgba(6,14,28,0.88);border:1px solid rgba(0,240,255,0.35);border-radius:8px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;gap:6px;">
+                <div>
+                  <div style="font-weight:800;color:#00f0ff;font-size:0.76rem;">${p.name}</div>
+                  <div style="font-size:0.7rem;color:#94a3b8;">+${Number(p.credits || 0).toLocaleString()} créditos acumulables</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                  <span style="font-weight:800;color:#38ef7d;font-size:0.9rem;">$${Number(p.price_usd || 0).toFixed(2)} USD</span>
+                  <button type="button" class="btn-primary" style="padding:4px 10px;font-size:0.68rem;" onclick="topupSaasCreditsUI('${p.code}')">⚡ Recargar</button>
+                </div>
+              </div>
+            `).join("");
+
+            const ledgerHtml = ledger.length
+              ? ledger.slice(0, 15).map(item => {
+                  const isPos = Number(item.amount || 0) >= 0;
+                  const amtStr = (isPos ? "+" : "") + Number(item.amount || 0).toLocaleString();
+                  return `<tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <td style="padding:5px 6px;color:#94a3b8;">${(item.created_at || "").replace("T", " ").slice(0, 19)}</td>
+                    <td style="padding:5px 6px;"><code style="color:#00f0ff;font-size:0.66rem;">${item.tx_type}</code></td>
+                    <td style="padding:5px 6px;color:#e2e8f0;">${item.description || ""}</td>
+                    <td style="padding:5px 6px;text-align:right;font-weight:800;color:${isPos ? '#38ef7d' : '#f87171'};">${amtStr}</td>
+                    <td style="padding:5px 6px;text-align:right;font-weight:700;color:#ffd166;">${Number(item.balance_after || 0).toLocaleString()}</td>
+                  </tr>`;
+                }).join("")
+              : `<tr><td colspan="5" style="padding:8px;text-align:center;color:#94a3b8;">Sin movimientos contables registrados aún.</td></tr>`;
+
+            box.innerHTML = `<div style="font-size:0.88rem;font-weight:700;color:#00f0ff;margin-bottom:8px;">⚡ ESTADO DE CRÉDITOS, LIBRO CONTABLE Y RECARGAS (${data.plan_code})</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;">
                 <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;">
                   <div style="color:#94a3b8;font-size:0.7rem;">Créditos Disponibles</div>
                   <div style="font-size:1.1rem;font-weight:800;color:#38ef7d;">${s.credits_remaining} / ${s.total_credits_available}</div>
-                  <div style="font-size:0.68rem;color:#cbd5e1;">Consumo: ${s.consumption_pct}%</div>
+                  <div style="font-size:0.68rem;color:#cbd5e1;">Consumo: ${s.consumption_pct}% (Bono: +${s.bonus_credits || 0})</div>
                 </div>
                 <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:6px;">
                   <div style="color:#94a3b8;font-size:0.7rem;">Mensajes Hoy</div>
@@ -25378,10 +25675,57 @@ const cardEsg = document.getElementById("hud-card-esg");
                   <div style="color:#94a3b8;font-size:0.7rem;">Tokens Mensuales</div>
                   <div style="font-size:1.1rem;font-weight:800;color:#c084fc;">${s.monthly_tokens_used} / ${s.monthly_token_limit}</div>
                 </div>
+              </div>
+
+              <!-- PAQUETES DE RECARGA DE CRÉDITOS EXTRA (TOP-UP) -->
+              <div style="margin-bottom:12px;">
+                <div style="font-weight:800;color:#ffd166;font-size:0.76rem;margin-bottom:6px;">🔋 COMPRAR PAQUETES DE CRÉDITOS EXTRA (TOP-UP INMEDIATO VÍA BRE-B / NEQUI)</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${packsHtml}</div>
+                <div id="saas-topup-feedback" style="font-size:0.72rem;color:#38ef7d;margin-top:6px;"></div>
+              </div>
+
+              <!-- LIBRO CONTABLE INMUTABLE DE CRÉDITOS (CREDIT LEDGER) -->
+              <div style="background:rgba(6,11,22,0.85);border:1px solid rgba(0,210,255,0.25);border-radius:8px;padding:10px;max-height:220px;overflow-y:auto;">
+                <div style="font-weight:800;color:#00d2ff;font-size:0.76rem;margin-bottom:6px;">📒 LIBRO CONTABLE DE CRÉDITOS (AUDITORÍA DE ASIGNACIONES, CONSUMOS Y BONOS)</div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.68rem;">
+                  <thead>
+                    <tr style="border-bottom:1px solid rgba(0,210,255,0.3);color:#94a3b8;text-align:left;">
+                      <th style="padding:4px 6px;">Fecha</th>
+                      <th style="padding:4px 6px;">Tipo</th>
+                      <th style="padding:4px 6px;">Concepto / Operación</th>
+                      <th style="padding:4px 6px;text-align:right;">Movimiento</th>
+                      <th style="padding:4px 6px;text-align:right;">Saldo</th>
+                    </tr>
+                  </thead>
+                  <tbody>${ledgerHtml}</tbody>
+                </table>
               </div>`;
           }
         } catch (e) {}
       }
+
+      window.topupSaasCreditsUI = async function(packCode) {
+        const fb = document.getElementById("saas-topup-feedback");
+        if (fb) fb.textContent = "Procesando recarga de créditos...";
+        try {
+          const res = await fetch("/api/saas/credits/topup", {
+            method: "POST",
+            headers: getSaasHeaders(),
+            body: JSON.stringify({ pack_code: packCode, payment_gateway: "bre_b" })
+          });
+          const data = await res.json();
+          if (res.ok && data.ok) {
+            if (fb) fb.textContent = `✔ ${data.message} (Factura ${data.invoice?.invoice_number || ''})`;
+            if (typeof showToast === "function") showToast(data.message);
+            await refreshSaasProfileState();
+            await loadSaasUsageUI();
+          } else {
+            if (fb) fb.textContent = data.detail || "No se pudo completar la recarga.";
+          }
+        } catch (e) {
+          if (fb) fb.textContent = "Error de red al procesar la recarga.";
+        }
+      };
 
       async function loadSaasCatalogUI() {
         const box = document.getElementById("saas-catalog-box");
@@ -25503,9 +25847,120 @@ const cardEsg = document.getElementById("hud-card-esg");
                 }
               </div>
             </div>
+            <div id="saas-creator-bi-box" style="margin-top:12px;"></div>
             <div id="saas-creator-referrals-admin-box" style="margin-top:12px;"></div>`;
+            await loadCreatorBusinessIntelligenceUI();
             await loadCreatorReferralsAdminSectionUI();
           }
+        } catch (e) {}
+      }
+
+      async function loadCreatorBusinessIntelligenceUI() {
+        const biBox = document.getElementById("saas-creator-bi-box");
+        if (!biBox) return;
+        try {
+          const res = await fetch("/api/saas/admin/business-intelligence", { headers: getSaasHeaders() });
+          if (!res.ok) return;
+          const bi = await res.json();
+          const rev = bi.revenue || {};
+          const costs = bi.costs || {};
+          const prof = bi.profitability || {};
+          const kpis = prof.kpis || {};
+          const unitPlans = Array.isArray(prof.unit_economics_by_plan) ? prof.unit_economics_by_plan : [];
+          const alerts = Array.isArray(bi.alerts) ? bi.alerts : [];
+          const modelsCost = Array.isArray(costs.by_model) ? costs.by_model : [];
+
+          const unitRowsHtml = unitPlans.map(up => `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+              <td style="padding:5px 6px;font-weight:800;color:#00f0ff;">${up.plan_code}</td>
+              <td style="padding:5px 6px;">$${Number(up.price_monthly_usd || 0).toFixed(2)}</td>
+              <td style="padding:5px 6px;">${Number(up.monthly_credits || 0).toLocaleString()}</td>
+              <td style="padding:5px 6px;">${up.active_subscribers || 0}</td>
+              <td style="padding:5px 6px;color:#cbd5e1;">$${Number(up.expected_cost_65pct_usd || 0).toFixed(2)}</td>
+              <td style="padding:5px 6px;color:#f87171;">$${Number(up.max_ai_cost_100pct_usd || 0).toFixed(2)}</td>
+              <td style="padding:5px 6px;font-weight:800;color:#38ef7d;">$${Number(up.expected_gross_margin_usd || 0).toFixed(2)} (${up.expected_gross_margin_pct || 0}%)</td>
+              <td style="padding:5px 6px;color:${up.profitable_at_100pct_usage ? '#38ef7d' : '#f59e0b'};">${up.profitable_at_100pct_usage ? '✔ Rentable 100%' : '⚠ Vigilar'}</td>
+            </tr>
+          `).join("");
+
+          const alertsHtml = alerts.map(a => {
+            const col = a.severity === "high" ? "#ef4444" : (a.severity === "medium" ? "#f59e0b" : "#00f0ff");
+            return `<div style="background:rgba(0,0,0,0.35);border-left:3px solid ${col};padding:7px 10px;border-radius:4px;margin-bottom:6px;">
+              <div style="font-weight:800;color:${col};font-size:0.72rem;">[${(a.severity || 'info').toUpperCase()}] ${a.title}</div>
+              <div style="font-size:0.68rem;color:#cbd5e1;">${a.description}</div>
+              <div style="font-size:0.66rem;color:#ffd166;margin-top:2px;">💡 Acción: ${a.recommended_action}</div>
+            </div>`;
+          }).join("");
+
+          const modelsHtml = modelsCost.length
+            ? modelsCost.map(mc => `<span style="background:rgba(0,210,255,0.1);border:1px solid rgba(0,210,255,0.3);padding:3px 8px;border-radius:12px;font-size:0.66rem;color:#e2e8f0;"><b>${mc.model}</b>: ${mc.operations} ops • $${Number(mc.cost_usd || 0).toFixed(4)} USD</span>`).join(" ")
+            : `<span style="color:#94a3b8;font-size:0.68rem;">Sin consumo de modelos facturado aún.</span>`;
+
+          biBox.innerHTML = `
+            <div style="background:rgba(9,15,29,0.95);border:1px solid rgba(56,239,125,0.45);border-radius:10px;padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+                <div>
+                  <div style="font-weight:800;color:#38ef7d;font-size:0.86rem;">📊 CREATOR BUSINESS INTELLIGENCE — FINANZAS, COSTES IA, UNIT ECONOMICS & RENTABILIDAD</div>
+                  <div style="font-size:0.68rem;color:#94a3b8;">Auditoría financiera en tiempo real (Ingresos cobrados vs Costes de Tokens IA, Pasarelas, LTV/CAC y Márgenes por Plan)</div>
+                </div>
+                <span style="background:rgba(56,239,125,0.15);border:1px solid #38ef7d;color:#38ef7d;padding:2px 8px;border-radius:12px;font-size:0.66rem;font-weight:800;">MARGEN BRUTO: ${prof.gross_margin_pct ?? 100}%</span>
+              </div>
+
+              <!-- 1. INGRESOS, COSTES Y RENTABILIDAD -->
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;text-align:center;">
+                <div style="background:rgba(0,0,0,0.4);padding:8px;border-radius:6px;border:1px solid rgba(56,239,125,0.25);">
+                  <div style="font-size:0.64rem;color:#94a3b8;">Ingresos Cobrados Netos</div>
+                  <div style="font-size:0.98rem;font-weight:800;color:#38ef7d;">$${Number(rev.net_collected_revenue_usd || 0).toFixed(2)} USD</div>
+                  <div style="font-size:0.62rem;color:#cbd5e1;">Top-Ups: $${Number(rev.by_source?.credit_topups_usd || 0).toFixed(2)} | Dtos: $${Number(rev.discounts_granted_usd || 0).toFixed(2)}</div>
+                </div>
+                <div style="background:rgba(0,0,0,0.4);padding:8px;border-radius:6px;border:1px solid rgba(248,113,113,0.25);">
+                  <div style="font-size:0.64rem;color:#94a3b8;">Coste Operativo Total</div>
+                  <div style="font-size:0.98rem;font-weight:800;color:#f87171;">$${Number(costs.total_operating_cost_usd || 0).toFixed(4)} USD</div>
+                  <div style="font-size:0.62rem;color:#cbd5e1;">IA: $${Number(costs.ai_inference_cost_usd || 0).toFixed(4)} | Pasarela: $${Number(costs.payment_gateway_fees_usd || 0).toFixed(2)}</div>
+                </div>
+                <div style="background:rgba(0,0,0,0.4);padding:8px;border-radius:6px;border:1px solid rgba(0,240,255,0.25);">
+                  <div style="font-size:0.64rem;color:#94a3b8;">Margen Neto Operativo</div>
+                  <div style="font-size:0.98rem;font-weight:800;color:#00f0ff;">$${Number(prof.net_margin_usd || 0).toFixed(2)} (${prof.net_margin_pct ?? 100}%)</div>
+                  <div style="font-size:0.62rem;color:#cbd5e1;">ARPU: $${kpis.arpu_usd || 0} | ARPPU: $${kpis.arppu_usd || 0}</div>
+                </div>
+                <div style="background:rgba(0,0,0,0.4);padding:8px;border-radius:6px;border:1px solid rgba(255,209,102,0.25);">
+                  <div style="font-size:0.64rem;color:#94a3b8;">LTV / CAC & Conversión</div>
+                  <div style="font-size:0.98rem;font-weight:800;color:#ffd166;">LTV $${kpis.ltv_usd || 0} (${kpis.ltv_to_cac_ratio || 0}x)</div>
+                  <div style="font-size:0.62rem;color:#cbd5e1;">Conv: ${kpis.free_to_paid_conversion_pct || 0}% | Churn: ${kpis.churn_rate_pct || 0}%</div>
+                </div>
+              </div>
+
+              <!-- 2. UNIT ECONOMICS POR PLAN -->
+              <div style="margin-bottom:10px;overflow-x:auto;">
+                <div style="font-weight:800;color:#00f0ff;font-size:0.74rem;margin-bottom:4px;">📐 UNIT ECONOMICS Y RENTABILIDAD POR PLAN DE SUSCRIPCIÓN</div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.66rem;">
+                  <thead>
+                    <tr style="border-bottom:1px solid rgba(0,240,255,0.3);color:#94a3b8;text-align:left;">
+                      <th style="padding:4px 6px;">Plan</th>
+                      <th style="padding:4px 6px;">Precio/Mes</th>
+                      <th style="padding:4px 6px;">Créditos/Mes</th>
+                      <th style="padding:4px 6px;">Activos</th>
+                      <th style="padding:4px 6px;">Coste Esp. (65%)</th>
+                      <th style="padding:4px 6px;">Coste Máx (100%)</th>
+                      <th style="padding:4px 6px;">Margen Bruto Esp.</th>
+                      <th style="padding:4px 6px;">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>${unitRowsHtml}</tbody>
+                </table>
+              </div>
+
+              <!-- 3. DESGLOSE DE COSTES POR MODELO IA Y ALERTAS FINANCIERAS -->
+              <div style="margin-bottom:8px;">
+                <div style="font-weight:800;color:#c084fc;font-size:0.72rem;margin-bottom:4px;">🧠 COSTE DE INFERENCIA POR MODELO IA</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">${modelsHtml}</div>
+              </div>
+              <div>
+                <div style="font-weight:800;color:#ffd166;font-size:0.72rem;margin-bottom:4px;">🚨 ALERTAS FINANCIERAS, OPERATIVAS Y DE RENTABILIDAD</div>
+                ${alertsHtml}
+              </div>
+            </div>
+          `;
         } catch (e) {}
       }
 
@@ -26066,19 +26521,70 @@ const cardEsg = document.getElementById("hud-card-esg");
         drawer.style.display = (drawer.style.display === "none" || !drawer.style.display) ? "block" : "none";
       };
 
+      window.unlockFirebaseConfigFieldsUI = function() {
+        const pinVal = (document.getElementById("fb-cfg-creator-pin")?.value || "").trim();
+        const isCreatorSession = Boolean(currentSaasUser && (currentSaasUser.is_creator || currentSaasUser.role === "CREATOR"));
+        const msg = document.getElementById("fb-cfg-save-msg");
+        if (!pinVal && !isCreatorSession) {
+          if (msg) {
+            msg.style.color = "#ef4444";
+            msg.textContent = "🔒 Acceso denegado: Ingresa el PIN Maestro del Creador (Señor Santiago) para desbloquear la edición.";
+          }
+          showToast("🔒 Solo el propietario CREATOR (Señor Santiago) puede modificar el proyecto Firebase.");
+          return false;
+        }
+        ["fb-cfg-project-id", "fb-cfg-project-number", "fb-cfg-api-key", "fb-cfg-auth-domain", "fb-cfg-app-id", "fb-cfg-measurement-id"].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.removeAttribute("readonly");
+            el.style.color = "#fff";
+            el.style.borderColor = "#fbbf24";
+          }
+        });
+        if (msg) {
+          msg.style.color = "#38ef7d";
+          msg.textContent = "🔓 Campos desbloqueados para edición del propietario CREATOR.";
+        }
+        return true;
+      };
+
       window.saveFirebaseProjectConfigUI = async function() {
+        const creatorPin = (document.getElementById("fb-cfg-creator-pin")?.value || "").trim();
+        const isCreatorSession = Boolean(currentSaasUser && (currentSaasUser.is_creator || currentSaasUser.role === "CREATOR"));
+        const msg = document.getElementById("fb-cfg-save-msg");
+        if (!creatorPin && !isCreatorSession) {
+          if (msg) {
+            msg.style.color = "#ef4444";
+            msg.textContent = "🔒 Operación bloqueada: Solo Señor Santiago (CREATOR) puede modificar la información de este Firebase.";
+          }
+          showToast("🔒 Solo Señor Santiago puede modificar la información del proyecto Firebase.");
+          return;
+        }
         const projectId = (document.getElementById("fb-cfg-project-id")?.value || "liseth-saas-ai").trim();
         const projectNumber = (document.getElementById("fb-cfg-project-number")?.value || "353398586852").trim();
         const apiKey = (document.getElementById("fb-cfg-api-key")?.value || "").trim();
         const authDomain = (document.getElementById("fb-cfg-auth-domain")?.value || "").trim();
         const appId = (document.getElementById("fb-cfg-app-id")?.value || "1:353398586852:web:8a548c1b56e8948b065bf1").trim();
         const measurementId = (document.getElementById("fb-cfg-measurement-id")?.value || "G-33Y6VVGX3K").trim();
-        const msg = document.getElementById("fb-cfg-save-msg");
         try {
+          const headers = { "Content-Type": "application/json" };
+          const pinTok = localStorage.getItem("liseth_session_token");
+          if (pinTok) headers["Authorization"] = `Bearer ${pinTok}`;
           const res = await fetch("/api/saas/firebase/config", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projectName: projectId, projectId, projectNumber, messagingSenderId: projectNumber, apiKey, authDomain, appId, measurementId, hostingEnabled: false })
+            headers,
+            body: JSON.stringify({
+              projectName: projectId,
+              projectId,
+              projectNumber,
+              messagingSenderId: projectNumber,
+              apiKey,
+              authDomain,
+              appId,
+              measurementId,
+              hostingEnabled: false,
+              creator_pin: creatorPin || undefined
+            })
           });
           const data = await res.json();
           if (res.ok && data.ok) {
@@ -26091,9 +26597,17 @@ const cardEsg = document.getElementById("hud-card-esg");
             if (lnkUsers) lnkUsers.href = `https://console.firebase.google.com/project/${encodeURIComponent(data.projectId)}/authentication/users`;
             const lnkSettings = document.getElementById("fb-link-project-settings");
             if (lnkSettings) lnkSettings.href = `https://console.firebase.google.com/project/${encodeURIComponent(data.projectId)}/settings/general`;
-            if (msg) msg.textContent = "✔ Proyecto Firebase '" + data.projectId + "' vinculado correctamente.";
+            if (msg) {
+              msg.style.color = "#38ef7d";
+              msg.textContent = "✔ Proyecto Firebase '" + data.projectId + "' actualizado por el Creador.";
+            }
             if (data.apiKey && window.firebase && (!window.firebase.apps || !window.firebase.apps.length)) {
               try { window.firebase.initializeApp(data); } catch (e) {}
+            }
+          } else {
+            if (msg) {
+              msg.style.color = "#ef4444";
+              msg.textContent = data.detail || "Acceso denegado: PIN de Creador incorrecto.";
             }
           }
         } catch (e) {
@@ -26394,11 +26908,16 @@ const cardEsg = document.getElementById("hud-card-esg");
       };
 
       window.selectGatePlan = function(planCode, planLabel) {
+        if (planCode === "FREE") {
+          showToast("🔒 Para usar el proyecto es obligatorio comprar algún plan activo (STARTER, PRO, BUSINESS o ENTERPRISE).");
+          planCode = "STARTER";
+          planLabel = null;
+        }
         const codeInput = document.getElementById("gate-selected-plan-code");
         const labelEl = document.getElementById("gate-selected-plan-label");
         const badgeEl = document.getElementById("gate-selected-plan-badge");
         const cycle = document.getElementById("gate-selected-billing-cycle")?.value || "monthly";
-        const pInfo = GATE_PLAN_PRICES[planCode] || GATE_PLAN_PRICES.FREE;
+        const pInfo = GATE_PLAN_PRICES[planCode] || GATE_PLAN_PRICES.STARTER;
         const usd = (cycle === "annual") ? pInfo.annual : pInfo.monthly;
         const suffix = (cycle === "annual") ? "año" : "mes";
         const computedLabel = planLabel || `${pInfo.title} — $${usd} USD / ${suffix}`;
@@ -26410,7 +26929,7 @@ const cardEsg = document.getElementById("hud-card-esg");
         ["FREE", "STARTER", "PRO", "BUSINESS", "ENTERPRISE"].forEach(c => {
           const card = document.getElementById("gate-plan-card-" + c);
           if (card) {
-            card.style.border = (c === planCode) ? "2px solid #00f0ff" : "1px solid #334155";
+            card.style.border = (c === planCode) ? "2px solid #00f0ff" : (c === "FREE" ? "1px dashed #475569" : "1px solid #334155");
             card.style.boxShadow = (c === planCode) ? "0 0 16px rgba(0, 240, 255, 0.3)" : "none";
           }
         });
@@ -26426,7 +26945,7 @@ const cardEsg = document.getElementById("hud-card-esg");
         const email = (document.getElementById(isReg ? "gate-reg-email" : "gate-login-email")?.value || "").trim();
         const password = document.getElementById(isReg ? "gate-reg-password" : "gate-login-password")?.value || "";
         const full_name = isReg ? (document.getElementById("gate-reg-name")?.value || "").trim() : "";
-        const selected_plan = isReg ? (document.getElementById("gate-selected-plan-code")?.value || "FREE") : "FREE";
+        let selected_plan = isReg ? (document.getElementById("gate-selected-plan-code")?.value || "STARTER") : "FREE";
         const promo_code = isReg ? ((document.getElementById("gate-reg-promo")?.value || "").trim() || null) : null;
         let referral_code = isReg ? ((document.getElementById("gate-reg-referral")?.value || "").trim() || null) : null;
         if (isReg && !referral_code) {
@@ -26443,6 +26962,38 @@ const cardEsg = document.getElementById("hud-card-esg");
         const groq_api_key = isReg ? (document.getElementById("gate-reg-groq-key")?.value || "").trim() : "";
         const openai_api_key = isReg ? (document.getElementById("gate-reg-openai-key")?.value || "").trim() : "";
         const anthropic_api_key = isReg ? (document.getElementById("gate-reg-anthropic-key")?.value || "").trim() : "";
+        const launch_code = (document.getElementById(isReg ? "gate-reg-launch-code" : "gate-login-launch-code")?.value || "").trim();
+
+        if (!launch_code) {
+          if (errBox) {
+            errBox.style.color = "#ff5c77";
+            errBox.textContent = isReg 
+              ? "🛡️ Debes definir tu Código de Verificación de Inicio para proteger tu cuenta al iniciar."
+              : "🛡️ Código de verificación requerido: Ingresa tu código de seguridad o PIN para verificar que eres tú quien inicia Liseth.";
+            errBox.style.display = "block";
+          }
+          return;
+        }
+
+        if (isReg) {
+          if (!gemini_api_key && !groq_api_key && !openai_api_key && !anthropic_api_key) {
+            if (errBox) {
+              errBox.style.color = "#ff5c77";
+              errBox.textContent = "🔒 Requisito obligatorio: Debes colocar tu propia API Key de IA (Google Gemini, Groq, OpenAI o Claude) para crear tu cuenta y usar el proyecto.";
+              errBox.style.display = "block";
+            }
+            return;
+          }
+          if (!selected_plan || selected_plan === "FREE") {
+            window.selectGatePlan("STARTER");
+            if (errBox) {
+              errBox.style.color = "#ff5c77";
+              errBox.textContent = "🔒 Requisito obligatorio: Debes seleccionar y comprar algún plan comercial (STARTER, PRO, BUSINESS o ENTERPRISE) para desbloquear el proyecto.";
+              errBox.style.display = "block";
+            }
+            return;
+          }
+        }
 
         let firebase_uid = null;
         let firebase_id_token = null;
@@ -26504,6 +27055,7 @@ const cardEsg = document.getElementById("hud-card-esg");
               groq_api_key: groq_api_key || null,
               openai_api_key: openai_api_key || null,
               anthropic_api_key: anthropic_api_key || null,
+              launch_code: launch_code || null,
             })
           });
           const data = await res.json();
@@ -26524,10 +27076,16 @@ const cardEsg = document.getElementById("hud-card-esg");
 
           localStorage.setItem("liseth_saas_token", data.token);
           localStorage.setItem("liseth_session_token", data.token);
+          if (email) localStorage.setItem("liseth_last_user_email", email);
           sessionStorage.setItem("liseth_active_session_authenticated", "true");
           hideAuthModal();
           await refreshSaasProfileState();
-          showToast(`🔥 Cuenta vinculada a Firebase (${data.firebase?.projectId || 'liseth-saas-ai'}) • Plan ${data.user?.plan_code}`);
+          if (!window.isUserFullyOnboarded(data.user)) {
+            await window.openSaasModal("plans");
+            showToast("🔒 Completa tu API Key de IA y compra un plan en esta pestaña para poder cerrarla y usar el proyecto.");
+          } else {
+            showToast(`🔥 Cuenta guardada en Firebase (${data.firebase?.projectId || 'liseth-saas-ai'}) • Plan ${data.user?.plan_code} activo`);
+          }
         } catch (netErr) {
           if (errBox) {
             errBox.textContent = "Error de conexión con el servidor SaaS.";
@@ -26957,7 +27515,12 @@ const cardEsg = document.getElementById("hud-card-esg");
               sessionStorage.setItem("liseth_active_session_authenticated", "true");
               hideAuthModal();
               await refreshSaasProfileState();
-              showToast(`🔥 Sesión Google Firebase iniciada: ${data.user.email}`);
+              if (!window.isUserFullyOnboarded(data.user)) {
+                await window.openSaasModal("plans");
+                showToast("🔒 Cuenta Google vinculada. Ahora coloca tu API Key de IA y compra un plan para desbloquear el proyecto.");
+              } else {
+                showToast(`🔥 Sesión Google Firebase iniciada: ${data.user.email}`);
+              }
               return;
             }
           } catch (fbErr) {
@@ -27538,5 +28101,19 @@ const cardEsg = document.getElementById("hud-card-esg");
       });
 
     </script>
+
+      // Desbloqueo de AudioContext para políticas de Autoplay en celulares móviles (iOS Safari / Android Chrome)
+      function unlockMobileAudioOnTouch() {
+        try {
+          const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtxClass) {
+            if (!window.__globalMobileAudioCtx) window.__globalMobileAudioCtx = new AudioCtxClass();
+            if (window.__globalMobileAudioCtx.state === "suspended") window.__globalMobileAudioCtx.resume();
+          }
+        } catch (_) {}
+      }
+      window.addEventListener("touchstart", unlockMobileAudioOnTouch, { once: true, passive: true });
+      window.addEventListener("click", unlockMobileAudioOnTouch, { once: true, passive: true });
+
 </body>
 </html>

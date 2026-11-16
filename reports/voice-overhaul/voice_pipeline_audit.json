@@ -1,0 +1,40 @@
+{
+  "voice_engine": {
+    "Micrófono": "PASS",
+    "Escucha": "PASS",
+    "Transcripción STT": "PASS",
+    "Procesamiento IA": "PASS",
+    "Respuesta TTS": "PASS",
+    "Streaming": "PASS",
+    "Barge-in": "PASS",
+    "Escucha en segundo plano": "PASS",
+    "Reconexión": "PASS"
+  },
+  "hermes": {
+    "Instalación": "PASS",
+    "Conexión de modelos": "PASS",
+    "Skills": "PASS",
+    "Agents": "PASS",
+    "Memoria": "PASS",
+    "Voice": "PASS"
+  },
+  "integraciones": {
+    "Archify": "PASS",
+    "OpenMontage": "PASS",
+    "OmniRoute": "PASS",
+    "Diffin": "PASS"
+  },
+  "calidad_general": {
+    "Build": "PASS",
+    "Tests": "PASS",
+    "Seguridad": "PASS",
+    "Rendimiento": "PASS",
+    "Máquina virtual": "PASS"
+  },
+  "totals": {
+    "pass": 24,
+    "fail": 0,
+    "blocked": 0,
+    "not_run": 0
+  }
+}

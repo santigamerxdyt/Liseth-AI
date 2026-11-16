@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.auth import is_owner_or_creator_authenticated
 from app.core.database import get_db
 from app.services.brain_router import brain_router
 
@@ -48,13 +49,14 @@ async def chat_endpoint(
         user_claude_key = None
         user_groq_key = None
         user_openai_key = None
+        allow_host_tools = is_owner_or_creator_authenticated(request) if request else True
 
         if request and db:
             try:
                 from app.services.saas_service import saas_service
                 user = await saas_service.get_current_user_optional(request, db)
-                if user and user.preferences:
-                    u_keys = (user.preferences or {}).get("api_keys", {})
+                if user:
+                    u_keys = saas_service.get_user_decrypted_api_keys(user)
                     if not user_gemini_key and u_keys.get("gemini_api_key"):
                         user_gemini_key = u_keys.get("gemini_api_key")
                     user_claude_key = u_keys.get("anthropic_api_key")
@@ -72,6 +74,7 @@ async def chat_endpoint(
             api_key_claude=user_claude_key,
             api_key_groq=user_groq_key,
             api_key_openai=user_openai_key,
+            allow_host_tools=allow_host_tools,
         )
 
         return {
@@ -135,8 +138,13 @@ async def test_models_endpoint(key: Optional[str] = None):
 
 @router.post("/switch")
 @router.post("/force")
-async def force_brain(req: ForceBrainRequest):
-    """Forces the active brain to a specific provider or returns to auto."""
+async def force_brain(req: ForceBrainRequest, request: Request):
+    """Forces the active brain to a specific provider or returns to auto (CREATOR / Owner only)."""
+    if not is_owner_or_creator_authenticated(request):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso denegado: Solo el propietario CREATOR puede forzar el cerebro global del servidor.",
+        )
     if req.brain in ["gemini", "claude", None]:
         brain_router.forced_brain = req.brain
         if req.brain:
@@ -171,8 +179,13 @@ async def get_soul_endpoint():
 
 
 @router.post("/soul")
-async def update_soul_endpoint(req: SoulUpdateRequest):
-    """Updates the contents of SOUL.md."""
+async def update_soul_endpoint(req: SoulUpdateRequest, request: Request):
+    """Updates the contents of SOUL.md (CREATOR / Owner only)."""
+    if not is_owner_or_creator_authenticated(request):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso denegado: Solo el propietario CREATOR puede modificar SOUL.md.",
+        )
     from app.services.soul_service import soul_service
     success = soul_service.save_soul(req.content)
     if not success:
@@ -181,8 +194,13 @@ async def update_soul_endpoint(req: SoulUpdateRequest):
 
 
 @router.post("/memories/remember")
-async def add_memory_endpoint(req: MemoryAddRequest):
-    """Appends a new memory note to USER.md or MEMORY.md."""
+async def add_memory_endpoint(req: MemoryAddRequest, request: Request):
+    """Appends a new memory note to USER.md or MEMORY.md (CREATOR / Owner only)."""
+    if not is_owner_or_creator_authenticated(request):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso denegado: Usa /api/saas/memories para tu cerebro de memoria personal.",
+        )
     from app.services.soul_service import soul_service
     success = soul_service.append_memory(req.note, req.target)
     if not success:

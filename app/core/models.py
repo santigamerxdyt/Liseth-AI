@@ -947,6 +947,30 @@ class AITokenOptimizationLog(Base):
     created_at = Column(DateTime, default=utcnow)
 
 
+class SaasCreditLedger(Base):
+    """
+    Immutable financial & operational ledger for SaaS AI credits (`credit_ledger`).
+    Tracks monthly plan allocations, model/skill/agent consumption, bonus credits,
+    referral credits, top-up credit purchases, and cycle renewals with running balance.
+    """
+    __tablename__ = "saas_credit_ledger"
+
+    id = Column(String(64), primary_key=True)  # cled_xxxx
+    user_id = Column(String(64), index=True, nullable=False)
+    tx_type = Column(String(50), index=True, nullable=False)
+    # tx_type values: 'plan_allocation', 'model_consumption', 'skill_consumption', 'agent_consumption',
+    # 'promo_bonus', 'referral_bonus', 'credit_topup', 'cycle_renewal', 'admin_adjustment'
+    amount = Column(Integer, nullable=False)  # Positive for credit grants, negative for deductions
+    balance_after = Column(Integer, nullable=False)  # Resulting available credits after this transaction
+    model_or_skill = Column(String(120), nullable=True)
+    reference_type = Column(String(50), default="system")
+    reference_id = Column(String(64), nullable=True)
+    reason = Column(String(300), default="")
+    estimated_cost_usd = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=utcnow)
+
+
+
 
 
 

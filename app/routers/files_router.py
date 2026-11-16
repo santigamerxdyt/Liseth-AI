@@ -13,11 +13,31 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.core.auth import require_auth
+from app.core.auth import (
+    extract_token_from_request,
+    is_owner_or_creator_authenticated,
+    require_auth,
+    verify_session_token,
+)
 from app.core.database import get_db
 from app.core.models import UploadedFile
 
 router = APIRouter(prefix="/api", tags=["files"])
+
+
+def _get_tenant_owner_prefix(request: Request) -> Optional[str]:
+    """
+    Returns None if caller is host owner / CREATOR (full access),
+    or returns '{uid}__' for standard SaaS tenants to isolate their files.
+    """
+    if is_owner_or_creator_authenticated(request):
+        return None
+    token = extract_token_from_request(request)
+    if token:
+        payload = verify_session_token(token)
+        if payload and payload.get("type") == "saas_user" and payload.get("uid"):
+            return f"{payload['uid']}__"
+    return "anon__"
 
 MAX_UPLOAD_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB maximum upload size (DoS protection)
 BLOCKED_UPLOAD_EXTENSIONS = {".exe", ".bat", ".cmd", ".vbs", ".scr", ".pif", ".msi"}
@@ -98,8 +118,10 @@ async def upload_file(
 
         safe_name = sanitize_filename(raw_name)
         validate_upload_constraints(safe_name, len(content))
-        file_id = str(uuid.uuid4())
-        stored_name = f"{file_id[:8]}_{safe_name}"
+        tenant_prefix = _get_tenant_owner_prefix(request) or ""
+        raw_uuid = str(uuid.uuid4())
+        file_id = f"{tenant_prefix}{raw_uuid}"
+        stored_name = f"{tenant_prefix}{raw_uuid[:8]}_{safe_name}"
         target_path = settings.UPLOADS_DIR / stored_name
         verify_path_safe(target_path, settings.UPLOADS_DIR)
 
@@ -137,8 +159,10 @@ async def upload_file(
         raise HTTPException(status_code=400, detail="No se envió ningún archivo")
 
     safe_name = sanitize_filename(getattr(file, "filename", "upload.bin"))
-    file_id = str(uuid.uuid4())
-    stored_name = f"{file_id[:8]}_{safe_name}"
+    tenant_prefix = _get_tenant_owner_prefix(request) or ""
+    raw_uuid = str(uuid.uuid4())
+    file_id = f"{tenant_prefix}{raw_uuid}"
+    stored_name = f"{tenant_prefix}{raw_uuid[:8]}_{safe_name}"
     target_path = settings.UPLOADS_DIR / stored_name
     verify_path_safe(target_path, settings.UPLOADS_DIR)
 
@@ -173,12 +197,15 @@ async def upload_file(
 
 
 @router.get("/files", dependencies=[Depends(require_auth)])
-async def list_files(db: AsyncSession = Depends(get_db)):
+async def list_files(request: Request, db: AsyncSession = Depends(get_db)):
     """
-    Lists uploaded files from database.
+    Lists uploaded files from database, isolated per SaaS tenant (CREATOR sees all).
     """
+    tenant_prefix = _get_tenant_owner_prefix(request)
     res = await db.execute(select(UploadedFile))
     files = res.scalars().all()
+    if tenant_prefix is not None:
+        files = [f for f in files if f.id.startswith(tenant_prefix) or f.name.startswith(tenant_prefix)]
     return {
         "files": [
             {
@@ -196,15 +223,18 @@ async def list_files(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/files/catalog")
-async def get_files_catalog():
+async def get_files_catalog(request: Request):
     """
-    Lists catalog of generated and uploaded files for the Dynamic Viewer.
+    Lists catalog of generated and uploaded files for the Dynamic Viewer, isolated per tenant.
     """
+    tenant_prefix = _get_tenant_owner_prefix(request)
     items = []
-    # 1. Archivos creados
+    # 1. Archivos creados (host owner / CREATOR only, or tenant-prefixed)
     if settings.ARCHIVOS_CREADOS_DIR.exists():
         for p in settings.ARCHIVOS_CREADOS_DIR.iterdir():
             if p.is_file():
+                if tenant_prefix is not None and not p.name.startswith(tenant_prefix):
+                    continue
                 try:
                     st = p.stat()
                     items.append({
@@ -223,6 +253,8 @@ async def get_files_catalog():
     if settings.UPLOADS_DIR.exists():
         for p in settings.UPLOADS_DIR.iterdir():
             if p.is_file():
+                if tenant_prefix is not None and not p.name.startswith(tenant_prefix):
+                    continue
                 try:
                     st = p.stat()
                     items.append({
@@ -242,11 +274,17 @@ async def get_files_catalog():
 
 
 @router.get("/files/{filename}", dependencies=[Depends(require_auth)])
-async def get_uploaded_file(filename: str):
+async def get_uploaded_file(filename: str, request: Request):
     """
-    Serves an uploaded file with path traversal check.
+    Serves an uploaded file with path traversal check and tenant ownership verification.
     """
     safe_name = sanitize_filename(filename)
+    tenant_prefix = _get_tenant_owner_prefix(request)
+    if tenant_prefix is not None and not safe_name.startswith(tenant_prefix):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso denegado: No tienes permiso para acceder a archivos de otro usuario.",
+        )
     target = verify_path_safe(settings.UPLOADS_DIR / safe_name, settings.UPLOADS_DIR)
 
     if not target.exists() or not target.is_file():

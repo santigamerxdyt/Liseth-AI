@@ -40,7 +40,7 @@ class SensitiveLogRedactionFilter(logging.Filter):
     _PATTERNS = (
         (_re.compile(r"(https?://api\.telegram\.org/bot)\d+:[A-Za-z0-9_-]+"), r"\1[REDACTED_BOT_TOKEN]"),
         (_re.compile(r"([?&](?:key|api_key|token|access_token)=)[^&\s\"']+"), r"\1[REDACTED]"),
-        (_re.compile(r"\b(sk-ant-[A-Za-z0-9_-]{8,}|sk-[A-Za-z0-9_-]{16,}|gsk_[A-Za-z0-9_-]{16,}|AQ\.[A-Za-z0-9_-]{16,})\b"), "[REDACTED_API_KEY]"),
+        (_re.compile(r"\b(sk-ant-[A-Za-z0-9_-]{8,}|sk-[A-Za-z0-9_-]{16,}|gsk_[A-Za-z0-9_-]{16,}|AQ\.[A-Za-z0-9_-]{16,}|AIza[0-9A-Za-z_-]{20,})\b"), "[REDACTED_API_KEY]"),
     )
 
     @classmethod
@@ -134,6 +134,11 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
     voice_engine.stop()
+    try:
+        from app.services.audio_manager import audio_manager
+        audio_manager.shutdown()
+    except Exception:
+        pass
     await engine.dispose()
     try:
         from app.services.brain_router import brain_router
@@ -192,13 +197,20 @@ EXEMPT_API_PATHS = {
     "/api/auth/login",
     "/api/auth/status",
     "/api/auth/logout",
+    "/api/auth/verify-launch-code",
     "/api/health",
     "/health",
     "/api/voice/state",
     "/api/voice/events",
     "/api/voice/toggle",
     "/api/voice/stop",
+    "/api/voice/speak",
     "/api/voice/transcribe",
+    "/api/voice/execute",
+    "/api/voice/agents",
+    "/api/voice/skills",
+    "/api/voice/gateway",
+    "/api/voice/diagram",
     "/api/credentials",
     "/api/credentials/test",
     "/api/nfc/status",
@@ -291,7 +303,25 @@ HOST_OWNER_ONLY_API_PATHS = {
     "/api/system/read",
     "/api/system/search",
     "/api/system/clean-storage",
+    "/api/system/shutdown",
+    "/api/system/processes",
+    "/api/system/info",
+    "/api/system/optimize-ram",
+    "/api/system/dnd",
+    "/api/system/routines/execute",
+    "/api/brain/memories/remember",
+    "/api/brain/switch",
+    "/api/brain/force",
     "/api/audit/confirm",
+    "/api/audit/logs",
+    "/api/audit/pending",
+    "/api/audit/request",
+    "/api/google/execute",
+    "/api/google/auth-url",
+    "/api/scheduler/tasks",
+    "/api/scheduler/tasks/trigger",
+    "/api/scheduler/tasks/toggle",
+    "/api/notifications/test",
 }
 
 
@@ -318,7 +348,10 @@ async def api_auth_middleware(request: Request, call_next):
                         "error": "Acceso restringido. Por favor ingrese su PIN de acceso personal (Santiago).",
                     },
                 )
-            if clean_path in HOST_OWNER_ONLY_API_PATHS and not is_owner_or_creator_authenticated(request):
+            is_host_only = clean_path in HOST_OWNER_ONLY_API_PATHS or (
+                clean_path == "/api/brain/soul" and request.method == "POST"
+            )
+            if is_host_only and not is_owner_or_creator_authenticated(request):
                 return JSONResponse(
                     status_code=status.HTTP_403_FORBIDDEN,
                     content={

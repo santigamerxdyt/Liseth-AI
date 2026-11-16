@@ -1,0 +1,26 @@
+{
+  "attachmentFolderPath": "Knowledge/Attachments",
+  "newFileFolderPath": "Knowledge/00 - HOME",
+  "useMarkdownLinks": false,
+  "promptDelete": false,
+  "showLineNumber": true,
+  "readableLineLength": true,
+  "strictLineBreaks": false,
+  "userIgnoreFilters": [
+    ".git/**",
+    "node_modules/**",
+    "data/**",
+    ".pytest_cache/**",
+    ".pytest_temp/**",
+    "__pycache__/**",
+    "_backup_pre_hardening/**",
+    "_backup_pre_upgrade/**",
+    "uploads/**",
+    "scratch/**",
+    "tokens/**",
+    "*.pyc",
+    "*.log",
+    "*.sqlite3",
+    "*.db"
+  ]
+}

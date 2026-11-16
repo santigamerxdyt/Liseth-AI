@@ -584,29 +584,25 @@ Tus habilidades clave:
 
         if (!clean) return;
 
-        let provider = "edge";
-        let voiceId = "es-CO-SalomeNeural";
-
-        const val = voiceModelSelect ? voiceModelSelect.value : "es-CO-SalomeNeural";
-        if (val.includes(":")) {
-          const parts = val.split(":");
-          provider = parts[0];
-          voiceId = parts[1];
-        } else {
-          provider = "edge";
-          voiceId = val;
+        // SISTEMA SINGLE VOICE: Enrutar a través de LisethAudioManager (POST /api/voice/speak)
+        if (isServerConnected && !isGitHubPages) {
+          fetch("/api/voice/speak", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: clean,
+              voice: "es-CO-SalomeNeural"
+            })
+          }).catch(err => {
+            console.warn("[Single Voice Engine] Error al solicitar habla centralizada:", err);
+          });
+          return;
         }
 
-        const token = localStorage.getItem("liseth_session_token") || "";
-        const base = apiBaseUrl || (window.location.protocol.startsWith("http") ? window.location.origin : "http://127.0.0.1:3000");
-        const ttsUrl = `${base}/api/tts?voice=${encodeURIComponent(voiceId)}&rate=${encodeURIComponent(voiceSettings.rate || '+0%')}&pitch=${encodeURIComponent(voiceSettings.pitch || '+10Hz')}&provider=${encodeURIComponent(provider)}&token=${encodeURIComponent(token)}&text=${encodeURIComponent(clean)}`;
-
-        // Reproducir vía fetch interceptado con blob para enviar credenciales y evitar 401
+        const ttsUrl = `/api/tts?voice=es-CO-SalomeNeural&text=${encodeURIComponent(clean)}`;
         fetch(ttsUrl)
           .then(async (response) => {
-            if (!response.ok) {
-              throw new Error(`TTS HTTP status ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`TTS status ${response.status}`);
             const blob = await response.blob();
             const blobUrl = URL.createObjectURL(blob);
             const audio = new Audio(blobUrl);
@@ -625,52 +621,23 @@ Tus habilidades clave:
               handleSpeechOutputFinished();
             };
 
-            audio.onerror = (e) => {
-              console.warn("Audio neuronal no reproducible, usando sintetizador local femenino...", e);
+            audio.onerror = () => {
               try { URL.revokeObjectURL(blobUrl); } catch(err) {}
               activeAudioElement = null;
-              fallbackLocalSpeech(clean);
+              handleSpeechOutputFinished();
             };
 
             return audio.play();
           })
           .catch((err) => {
-            console.warn("Motor neuronal no disponible, recurriendo a voz local dulce:", err);
-            fallbackLocalSpeech(clean);
+            console.warn("[Single Voice Engine] Motor TTS no disponible:", err);
+            handleSpeechOutputFinished();
           });
       }
 
       function fallbackLocalSpeech(text) {
-        if (!("speechSynthesis" in window)) return;
-        try {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = "es-ES";
-          utterance.pitch = 1.18; // Tono dulce, juvenil y femenino (en lugar del monótono 1.0)
-          utterance.rate = 0.98;  // Cadencia melodiosa y pausada
-
-          const bestVoice = getBestFeminineLocalVoice();
-          if (bestVoice) {
-            utterance.voice = bestVoice;
-            utterance.lang = bestVoice.lang || "es-ES";
-          }
-
-          utterance.onstart = () => {
-            isSpeaking = true;
-            orb.classList.add("speaking");
-            statusLabel.textContent = "Liseth le asiste con voz armoniosa...";
-            if (transcriptSpeaker) transcriptSpeaker.textContent = "LISETH (HABLANDO)";
-          };
-          utterance.onend = () => {
-            handleSpeechOutputFinished();
-          };
-          utterance.onerror = () => {
-            handleSpeechOutputFinished();
-          };
-          window.speechSynthesis.speak(utterance);
-        } catch(e) {
-          console.warn("Fallo en fallback de voz:", e);
-        }
+        // Desactivado permanentemente: Liseth cuenta con una sola voz oficial neuronal (es-CO-SalomeNeural)
+        console.info("[Single Voice Engine] Síntesis de voz local de navegador desactivada para preservar la identidad vocal única.");
       }
 
       let speechOutputEndTime = 0;
@@ -3397,34 +3364,10 @@ Tus habilidades clave:
       }
 
       async function checkAuthSession() {
-        const token = localStorage.getItem("liseth_session_token");
-        if (!token) {
-          showAuthModal();
-          return false;
-        }
-        try {
-          const res = await fetch("/api/auth/status", { cache: "no-store" });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.authenticated === false) {
-              localStorage.removeItem("liseth_session_token");
-              showAuthModal();
-              return false;
-            } else {
-              hideAuthModal();
-              return true;
-            }
-          } else {
-            showAuthModal();
-            return false;
-          }
-        } catch(e) {
-          if (!localStorage.getItem("liseth_session_token")) {
-            showAuthModal();
-            return false;
-          }
-        }
-        return true;
+        // Exigir SIEMPRE inicio de sesión y código de verificación al abrir la app o web
+        sessionStorage.removeItem("liseth_active_session_authenticated");
+        showAuthModal();
+        return false;
       }
 
       async function handlePinLogin(e) {
@@ -3442,7 +3385,7 @@ Tus habilidades clave:
           const res = await fetch("/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pin })
+            body: JSON.stringify({ pin, launch_code: pin })
           });
           const data = await res.json();
           if (res.ok && data.ok) {

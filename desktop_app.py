@@ -91,6 +91,8 @@ def main():
         try:
             from app.services.voice_engine import voice_engine
             voice_engine.stop()
+            from app.services.audio_manager import audio_manager
+            audio_manager.shutdown()
         except Exception:
             pass
 

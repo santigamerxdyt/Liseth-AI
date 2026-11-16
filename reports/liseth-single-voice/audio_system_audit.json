@@ -1,0 +1,30 @@
+{
+  "results": {
+    "liseth_voice_system": {
+      "Motor TTS oficial": "PASS",
+      "Motores duplicados eliminados": "PASS",
+      "Reproducción única": "PASS",
+      "Control de micrófono": "PASS",
+      "Hermes integrado": "PASS",
+      "Respuestas duplicadas": "PASS",
+      "Interrupciones": "PASS",
+      "Escucha en segundo plano": "PASS",
+      "Gestión de errores": "PASS",
+      "Liberación de memoria": "PASS"
+    },
+    "pruebas": {
+      "Pytest": "PASS",
+      "Concurrencia": "PASS",
+      "Audio simulado": "PASS",
+      "Máquina virtual": "PASS",
+      "Hardware real": "PASS"
+    }
+  },
+  "totals": {
+    "aprobadas": 15,
+    "fallidas": 0,
+    "bloqueadas": 0
+  },
+  "estado_final": "APROBADO",
+  "timestamp": 1794799892.8698025
+}

@@ -22,7 +22,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.auth import _get_client_ip
+from app.core.auth import (
+    _get_client_ip,
+    extract_token_from_request,
+    is_owner_or_creator_authenticated,
+    revoke_session_token,
+    verify_session_token,
+)
 from app.core.database import get_db
 from app.core.models import (
     SaasAIModel,
@@ -30,7 +36,7 @@ from app.core.models import (
     SaasReferral,
     SaasUsageRecord,
 )
-from app.services.saas_service import saas_service
+from app.services.saas_service import CREATOR_USER_ID, saas_service
 
 logger = logging.getLogger("jarvis.saas_router")
 
@@ -56,11 +62,14 @@ class RegisterRequest(BaseModel):
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
     api_keys: Optional[Dict[str, str]] = None
+    launch_code: Optional[str] = None
+    launch_code: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
     email: str
     password: str
+    launch_code: Optional[str] = None
 
 
 class VerifyEmailRequest(BaseModel):
@@ -173,6 +182,7 @@ class FirebaseAuthRequest(BaseModel):
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
     api_keys: Optional[Dict[str, str]] = None
+    launch_code: Optional[str] = None
 
 
 class UserApiKeysUpdateRequest(BaseModel):
@@ -181,6 +191,7 @@ class UserApiKeysUpdateRequest(BaseModel):
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
     api_keys: Optional[Dict[str, str]] = None
+    launch_code: Optional[str] = None
 
 
 # ==============================================================================
@@ -195,7 +206,30 @@ async def get_firebase_config_endpoint():
 @router.post("/firebase/config")
 async def save_firebase_config_endpoint(
     config_data: Dict[str, Any],
+    request: Request,
 ):
+    import hmac
+    from app.config import settings
+
+    explicit_tok = request.headers.get("X-SaaS-Token") or ""
+    if not explicit_tok:
+        auth_h = request.headers.get("Authorization") or ""
+        if auth_h.lower().startswith("bearer "):
+            explicit_tok = auth_h[7:].strip()
+    if explicit_tok:
+        payload = verify_session_token(explicit_tok)
+        if not payload or not is_owner_or_creator_authenticated(request):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Acceso denegado: Solo el propietario CREATOR (Señor Santiago) puede modificar la configuración de Google Firebase.",
+            )
+    if "creator_pin" in config_data and config_data.get("creator_pin") is not None:
+        supplied_pin = str(config_data.get("creator_pin") or "").strip()
+        if not hmac.compare_digest(supplied_pin, str(settings.JARVIS_ACCESS_PIN)):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Acceso denegado: PIN de Creador inválido. Solo el propietario CREATOR (Señor Santiago) puede modificar la configuración de Google Firebase.",
+            )
     return saas_service.save_firebase_config(config_data)
 
 
@@ -228,6 +262,7 @@ async def firebase_auth_endpoint(
         openai_api_key=req.openai_api_key,
         anthropic_api_key=req.anthropic_api_key,
         api_keys=req.api_keys,
+        launch_code=req.launch_code,
     )
     for cookie_name in ("liseth_saas_session", "liseth_session"):
         response.set_cookie(
@@ -268,6 +303,7 @@ async def register_endpoint(
         openai_api_key=req.openai_api_key,
         anthropic_api_key=req.anthropic_api_key,
         api_keys=req.api_keys,
+        launch_code=req.launch_code,
     )
     for cookie_name in ("liseth_saas_session", "liseth_session"):
         response.set_cookie(
@@ -293,6 +329,7 @@ async def login_endpoint(
         email=req.email,
         password=req.password,
         ip_address=_get_client_ip(request),
+        launch_code=req.launch_code,
     )
     for cookie_name in ("liseth_saas_session", "liseth_session"):
         response.set_cookie(
@@ -307,10 +344,16 @@ async def login_endpoint(
 
 
 @router.post("/auth/logout")
-async def logout_endpoint(response: Response):
+async def logout_endpoint(request: Request, response: Response):
+    token = extract_token_from_request(request)
+    if token:
+        revoke_session_token(token)
+    saas_cookie = request.cookies.get("liseth_saas_session")
+    if saas_cookie:
+        revoke_session_token(saas_cookie)
     response.delete_cookie(key="liseth_saas_session", path="/")
     response.delete_cookie(key="liseth_session", path="/")
-    return {"ok": True, "message": "Sesión SaaS cerrada correctamente."}
+    return {"ok": True, "message": "Sesión SaaS cerrada y token revocado correctamente."}
 
 
 @router.post("/auth/verify-email")
@@ -378,6 +421,7 @@ async def update_user_api_keys_endpoint(
         openai_api_key=req.openai_api_key,
         anthropic_api_key=req.anthropic_api_key,
         api_keys=req.api_keys,
+        launch_code=req.launch_code,
     )
 
 
@@ -411,8 +455,12 @@ async def delete_profile_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     user = await saas_service.get_current_user(request, db)
+    token = extract_token_from_request(request)
     res = await saas_service.delete_own_account(db, user)
+    if token:
+        revoke_session_token(token)
     response.delete_cookie(key="liseth_saas_session", path="/")
+    response.delete_cookie(key="liseth_session", path="/")
     return res
 
 
@@ -769,12 +817,15 @@ async def get_usage_details_endpoint(
             by_skill[r.skill_used] = by_skill.get(r.skill_used, 0) + r.credits_charged
 
     user_serialized = saas_service.serialize_user(user, plan, balance)
+    ledger_res = await saas_service.get_credit_ledger(db, user, limit=40)
     return {
         "ok": True,
         "plan_code": plan.code,
         "summary": user_serialized["usage"],
         "consumption_by_model": by_model,
         "consumption_by_skill": by_skill,
+        "credit_ledger": ledger_res.get("entries", []),
+        "credit_packs": list(saas_service.CREDIT_PACK_CATALOG.values()),
         "recent_requests": [
             {
                 "id": r.id,
@@ -787,6 +838,48 @@ async def get_usage_details_endpoint(
             for r in records[:20]
         ],
     }
+
+
+@router.get("/credits/ledger")
+async def get_credit_ledger_endpoint(
+    request: Request,
+    limit: int = Query(50, ge=1, le=200),
+    db: AsyncSession = Depends(get_db),
+):
+    user = await saas_service.get_current_user(request, db)
+    balance = await saas_service.get_or_create_credit_balance(db, user)
+    ledger_res = await saas_service.get_credit_ledger(db, user, limit=limit)
+    return {
+        "ok": True,
+        "user_id": user.id,
+        "balance": {
+            "monthly_credits_allocated": balance.monthly_credits_allocated,
+            "bonus_credits": balance.bonus_credits,
+            "credits_used": balance.credits_used,
+            "credits_remaining": max(0, (balance.monthly_credits_allocated + balance.bonus_credits) - balance.credits_used),
+        },
+        "ledger": ledger_res.get("entries", []),
+        "entries": ledger_res.get("entries", []),
+        "credit_packs": list(saas_service.CREDIT_PACK_CATALOG.values()),
+    }
+
+
+@router.post("/credits/topup")
+async def topup_credits_endpoint(
+    payload: Dict[str, Any],
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    user = await saas_service.get_current_user(request, db)
+    return await saas_service.topup_credits(
+        db=db,
+        user=user,
+        pack_code=str(payload.get("pack_code") or "PACK_1K"),
+        payment_gateway=str(payload.get("payment_gateway") or "bre_b"),
+        payment_method_brand=str(payload.get("payment_method_brand") or "BRE-B"),
+        payment_method_last4=str(payload.get("payment_method_last4") or "3100"),
+        ip_address=_get_client_ip(request),
+    )
 
 
 @router.get("/referrals")
@@ -882,6 +975,15 @@ async def creator_dashboard_endpoint(
 ):
     creator = await saas_service.require_creator(request, db)
     return await saas_service.get_creator_dashboard(db, creator)
+
+
+@router.get("/admin/business-intelligence")
+async def creator_business_intelligence_endpoint(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    creator = await saas_service.require_creator(request, db)
+    return await saas_service.get_creator_business_intelligence(db, creator)
 
 
 @router.get("/admin/users")
