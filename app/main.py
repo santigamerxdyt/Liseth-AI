@@ -292,6 +292,7 @@ EXEMPT_API_PATHS = {
     "/api/saas/billing/gateways",
     "/api/saas/billing/quote",
     "/api/saas/billing/webhook",
+    "/api/saas/startup-sequence",
 }
 
 

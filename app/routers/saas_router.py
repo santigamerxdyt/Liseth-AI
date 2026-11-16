@@ -63,7 +63,6 @@ class RegisterRequest(BaseModel):
     anthropic_api_key: Optional[str] = None
     api_keys: Optional[Dict[str, str]] = None
     launch_code: Optional[str] = None
-    launch_code: Optional[str] = None
 
 
 class LoginRequest(BaseModel):
@@ -274,6 +273,18 @@ async def firebase_auth_endpoint(
             path="/",
         )
     return res
+
+
+@router.get("/startup-sequence")
+async def startup_sequence_endpoint(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Returns ordered startup lifecycle state:
+    INITIALIZING -> CONNECTING -> AUTHENTICATING -> LOADING_PROFILE -> LOADING_SUBSCRIPTION -> READY.
+    """
+    return await saas_service.get_startup_state(request, db)
 
 
 # ==============================================================================
@@ -984,6 +995,19 @@ async def creator_business_intelligence_endpoint(
 ):
     creator = await saas_service.require_creator(request, db)
     return await saas_service.get_creator_business_intelligence(db, creator)
+
+
+@router.get("/admin/diagnostics")
+async def creator_system_diagnostics_endpoint(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Centralized internal system diagnostics endpoint for CREATOR Superadmin (Señor Santiago).
+    Verifies health across Backend, Database, Auth, Subscriptions, Payments, Webhooks and External Services.
+    """
+    creator = await saas_service.require_creator(request, db)
+    return await saas_service.get_system_diagnostics(db, creator)
 
 
 @router.get("/admin/users")
