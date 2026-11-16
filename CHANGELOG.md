@@ -5,6 +5,42 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [3.0.0] - 2026-11-15
+
+### Añadido (Arquitectura de Voz Única, Seguridad 2FA de Inicio, Optimización Móvil, Obsidian Vault y SaaS Firebase)
+- **Arquitectura de Voz Única Oficial (`app/services/audio_manager.py`)**:
+  - Implementación de `LisethAudioManager` singleton con control de concurrencia y Mutex de reproducción.
+  - Asignación de la voz oficial inmutable `es-CO-SalomeNeural` (Edge-TTS) con acústica cálida y melodiosa colombiana.
+  - Eliminación y neutralización de rutas redundantes en frontend (`window.speechSynthesis` y Windows SAPI).
+  - Deduplicación algorítmica por hash MD5 en ventana de 2.0 segundos para impedir locuciones dobles o ecos.
+  - Integración de `LisethMicrophoneManager` con posesión exclusiva del hardware y supresión de colisiones de captura.
+- **Sincronización Silenciosa de Hermes AI (`app/services/hermes_orchestrator.py`)**:
+  - Hermes Agent y sus 8 Named Bots razonan en segundo plano en silencio absoluto, delegando la síntesis vocal a Liseth.
+  - Secuencia de estados de 16 fases (`IDLE` -> `SPEAKING`) con Barge-In ultra-rápido (< 40ms) ante la voz del usuario.
+- **Seguridad de Inicio (2FA) & Código de Verificación Obligatorio (`app/routers/auth_router.py`)**:
+  - Incorporación de campo obligatorio `launch_code` en inicio de sesión y registro para comprobar la identidad del operador al iniciar.
+  - Validación en tiempo constante contra `JARVIS_ACCESS_PIN` para el Creador (Señor Santiago) y contra código personal para usuarios.
+  - Endpoint público exento `POST /api/auth/verify-launch-code`.
+  - Supresión del auto-login silencioso: la app y la web siempre exigen autenticación y código de inicio al arrancar.
+- **Optimización Integral para Celulares Inteligentes (`index.html`)**:
+  - Viewport dinámico adaptativo (`interactive-widget=resizes-content`) para teclado virtual en smartphones.
+  - Prevención de auto-zoom en iOS Safari mediante `font-size: 16px !important;` en todos los inputs y controles.
+  - Diseño responsivo de 1 columna vertical en pantallas de 320px a 480px, eliminando desbordamientos horizontales.
+  - Touch targets ergonómicos de al menos 44px (estándares Apple/Google).
+  - Desbloqueo proactivo de `AudioContext` en el primer toque de pantalla y salvaguardas amigables de permisos para micrófono en redes locales.
+- **Bóveda Inteligente de Conocimiento Obsidian (`Knowledge/` y `.obsidian/`)**:
+  - Conversión del proyecto en un Vault estructurado con Centro de Mando en `Knowledge/00 - HOME/PROJECT COMMAND CENTER.md`.
+  - MOCs especializados (Architecture, AI Ecosystem, Business & Revenue, Security & Privacy) y protocolo de contexto progresivo de 5 niveles para Antigravity.
+- **Plataforma SaaS Multi-Tenant y Vinculación Soberana Firebase (`app/services/saas_service.py`)**:
+  - Portal Onboarding Gate con vinculación obligatoria al proyecto Google Firebase del Creador (`liseth-saas-ai`).
+  - Protección Soberana CREATOR: solo el Señor Santiago puede editar la configuración de Firebase con su PIN maestro.
+  - API Keys de IA propias por usuario (Google Gemini, Groq, OpenAI, Claude) cifradas en reposo con AES-256-GCM.
+  - Jerarquía de planes comerciales activos (STARTER, PRO, BUSINESS, ENTERPRISE) y pasarelas de pago (Stripe, Wompi, Bold, Nequi, Daviplata, PSE, Cripto).
+- **Manual Ejecutivo PDF v3.0 (`tools/generate_manual_pdf.py` y `Manual_Liseth.pdf`)**:
+  - Expansión a 43 secciones ejecutivas cubriendo todos los nuevos motores y arquitecturas de vanguardia.
+
+---
+
 ## [2.4.0] - 2026-10-12
 
 ### Añadido (Fase 4 — Control de Costes, Modelos y Límites de Tokens)

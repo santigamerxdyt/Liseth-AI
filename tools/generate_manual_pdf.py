@@ -1022,6 +1022,82 @@ def generate_manual_pdf(output_path: str = "Manual_Liseth.pdf") -> str:
     builder.add_command_box("Matriz de Priorizacion CEO Eisenhower 2.0", "Pida a Liseth: 'Evalua mis prioridades de hoy con jornada de 9 horas y calcula mi indice de foco estrategico Q2'.", "Optimizacion de Agenda Directiva")
     builder.add_command_box("Conmutacion de Avatar 3D en Escritorio", "Haga clic en 'Avatar 3D' en la barra superior del avatar para activar el holograma tridimensional interactivo con seguimiento de cursor.", "WebGL Three.js 3D Hologram")
 
+    # ───
+    # SECCIÓN 40: ARQUITECTURA DE VOZ ÚNICA OFICIAL Y SINCRONIZACIÓN SILENCIOSA DE HERMES AI
+    # ───
+    builder.add_section_header("40. Arquitectura de Voz Unica Oficial y Sincronizacion Hermes AI")
+    builder.add_paragraph(
+        "Liseth consolida su identidad vocal con una arquitectura de voz unica, eliminando definitivamente cualquier solapamiento, eco o ejecucion paralela: "
+        "(1) LisethAudioManager (Singleton con Mutex): Controlador centralizado de reproduccion de audio con bloqueo atomico de canal. Serializa las emisiones vocales "
+        "y aplica deduplicacion inteligente mediante hash en ventana de 2.0 segundos, garantizando una sola respuesta hablada por turno. "
+        "(2) Identidad Vocal Inmutable: Voz oficial unica es-CO-SalomeNeural (Microsoft Edge-TTS en espanol de Colombia), con entonacion calida, respetuosa y melodiosa. "
+        "Se neutralizan y eliminan las rutas redundantes de SpeechSynthesis y SAPI del navegador web. "
+        "(3) Sincronizacion Silenciosa de Hermes AI: El orquestador NousResearch Hermes Agent y sus 8 Named Bots especializados razonan en segundo plano "
+        "en completo silencio sin disparar audio directo, canalizando sus respuestas exclusivamente a traves del despachador central de Liseth. "
+        "(4) Maquina de Estados de 16 Fases y Barge-In Reactivo: Control exhaustivo de ciclo de vida (IDLE, LISTENING, SPEECH_DETECTED, RECORDING, TRANSCRIBING, "
+        "PROCESSING, THINKING, RESPONSE_READY, SYNTHESIZING, SPEAKING) con interrupcion instantanea en menos de 40 milisegundos ante voz del usuario:",
+        size=9.0
+    )
+    builder.add_command_box("Voz Oficial Unica de Liseth (Salome es-CO)", "Hable con Liseth o use el microfono: el sistema responde con una sola voz oficial colombiana perfectamente calibrada.", "Single Voice Architecture")
+    builder.add_command_box("Interrupcion Reactiva (Barge-In < 40ms)", "Diga 'Liseth para' o 'espera' mientras Liseth habla: el motor suspende la reproduccion inmediatamente liberando el canal.", "Control de Salida & Mutex")
+
+    # ───
+    # SECCIÓN 41: BÓVEDA DE CONOCIMIENTO OBSIDIAN Y MOTOR DE PRODUCTIVIDAD ANTIGRAVITY
+    # ───
+    builder.add_section_header("41. Boveda de Conocimiento Obsidian y Motor Antigravity (Vault Engine)")
+    builder.add_paragraph(
+        "El proyecto se transforma integramente en un Vault Inteligente de Conocimiento compatible con Obsidian: "
+        "(1) Project Command Center: Centro neural de documentacion interactiva ubicado en Knowledge/00 - HOME/PROJECT COMMAND CENTER.md, "
+        "conectando toda la arquitectura, bases de datos, APIs, modulos ejecutivos, finanzas y hojas de ruta mediante enlaces bidireccionales. "
+        "(2) Mapas de Contenido (MOCs): Red especializada que enlaza la arquitectura tecnica (PROJECT ARCHITECTURE MAP), el ecosistema de inteligencia "
+        "artificial (AI ECOSYSTEM MAP), el modelo de monetizacion y precios (BUSINESS MAP) y la proteccion de sesiones y datos (SECURITY MAP). "
+        "(3) Contexto Progresivo de 5 Niveles: Arquitectura de recuperacion selectiva para Antigravity que permite consultar unicamente los fragmentos "
+        "y documentos estrictamente necesarios (Nivel 1: Resumen hasta Nivel 5: Dependencias y Pruebas), optimizando radicalmente el consumo de tokens. "
+        "(4) Registro de Decisiones de Arquitectura (ADRs) e Incidencias: Historial inmutable de decisiones tecnicas y solucion de anomalias:",
+        size=9.0
+    )
+    builder.add_command_box("Centro de Control de Obsidian", "Abra la carpeta raiz del proyecto en Obsidian para navegar el mapa interactivo y el grafo de relaciones de todo el software.", "Obsidian Vault & Grafos")
+    builder.add_command_box("Consultas con Contexto Progresivo", "Pida a Antigravity: 'Consulta la documentacion del modulo de pagos en el Vault' para recuperacion selectiva sin saturar contexto.", "Antigravity Retrieval Protocol")
+
+    # ───
+    # SECCIÓN 42: PLATAFORMA SAAS COMERCIAL, FIREBASE SOBERANO Y PLANES DE ACCESO
+    # ───
+    builder.add_section_header("42. Plataforma SaaS Comercial, Firebase Soberano y Planes de Acceso")
+    builder.add_paragraph(
+        "Liseth evoluciona a una plataforma SaaS multi-usuario, multi-inquilino y monetizable de nivel comercial: "
+        "(1) Vinculacion Soberana Google Firebase (liseth-saas-ai): Las cuentas y perfiles de los usuarios quedan protegidos y vinculados "
+        "directamente al proyecto Firebase del Senor Santiago. Solo el Creador puede desbloquear y modificar esta configuracion con su PIN maestro. "
+        "(2) Cerebros de IA Propios Obligatorios: Para activar una cuenta, cada usuario debe registrar su propia clave de API (Google Gemini, Groq, "
+        "OpenAI o Claude), garantizando la autonomia cognitiva privada y la rentabilidad estructural del negocio sin costes de inferencia para el Creador. "
+        "(3) Jerarquia de Planes Comerciales: Bloqueo de entrada mediante Onboarding Gate. Los usuarios eligen un plan activo (STARTER, PRO, BUSINESS "
+        "o ENTERPRISE) con facturacion mensual o anual (-20%). Pasarelas integradas para Colombia e internacional (Stripe, Wompi, Bold, Nequi, Daviplata, PSE y Cripto). "
+        "(4) Programa de Referidos Anti-Fraude & Saldo de Creditos: Libro mayor contable inmutable de transacciones y recompensas por recomendacion:",
+        size=9.0
+    )
+    builder.add_command_box("Creacion de Cuenta Vinculada a Firebase", "Los usuarios crean su cuenta vinculada a Firebase Auth colocando su propia clave de Google Gemini y seleccionando su plan.", "Portal SaaS & Firebase")
+    builder.add_command_box("Panel Administrativo CREATOR", "El Senor Santiago accede al panel de control con su PIN maestro para auditar usuarios, transacciones, pasarelas y metricas en vivo.", "Control Center Superadmin")
+
+    # ───
+    # SECCIÓN 43: SEGURIDAD DE INICIO (2FA), CÓDIGO OBLIGATORIO Y OPTIMIZACIÓN MÓVIL
+    # ───
+    builder.add_section_header("43. Seguridad de Inicio (2FA), Codigo Obligatorio y Optimizacion Movil")
+    builder.add_paragraph(
+        "Fortalecimiento de seguridad de acceso y optimizacion de vanguardia para celulares inteligentes: "
+        "(1) Codigo de Verificacion de Inicio Obligatorio (Launch Code): Para comprobar que es el titular quien inicia el sistema, Liseth exige "
+        "siempre el ingreso del codigo de seguridad al abrir la aplicacion de escritorio o la version web. Para el Senor Santiago se valida contra su PIN maestro "
+        "en tiempo constante, y para usuarios contra su clave de seguridad personal. "
+        "(2) Inicio de Sesion Obligatorio Sin Auto-Bypass: Cada apertura o recarga de la plataforma solicita formalmente la autenticacion de credenciales "
+        "y codigo de inicio, impidiendo que personas con acceso temporal al dispositivo puedan ingresar sin autorizacion. "
+        "(3) Optimizacion Integral para Smartphones: Viewport interactivo con ajuste automatico al teclado virtual (interactive-widget=resizes-content). "
+        "Diseno responsive de 1 columna vertical que elimina por completo el desbordamiento horizontal en pantallas de 320px a 480px. "
+        "Prevencion de auto-zoom en iOS Safari mediante font-size adaptativo de 16px en todos los campos, y botones con areas tactiles de 44px (estandares Apple/Google). "
+        "(4) Salvaguardas de Microfono y Desbloqueo de Audio Movil: Activacion proactiva de AudioContext en el primer toque de pantalla y alertas "
+        "amigables ante restricciones de permisos de microfono sin HTTPS en redes locales:",
+        size=9.0
+    )
+    builder.add_command_box("Codigo de Verificacion al Iniciar", "Al abrir la app o web, ingrese su correo, contrasena y el codigo de seguridad personal para confirmar su identidad.", "Verificacion 2FA de Inicio")
+    builder.add_command_box("Experiencia Tactil Optimizada en Celular", "Acceda desde cualquier smartphone (iPhone o Android): la interfaz se adapta fluidamente sin zoom molesto ni cortes de pantalla.", "Mobile Responsive Engine")
+
     # Final summary note
     builder.add_paragraph(
         "\n*Nota de Mantenimiento:* Este manual se actualiza dinámicamente mediante el script `tools/generate_manual_pdf.py`. "

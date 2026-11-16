@@ -1,36 +1,45 @@
-# LISEHT AI — Copiloto Autónomo y Asistente Personal Ejecutivo v2.0
-> **Exclusivo para Señor Santiago**  
-> Asistente de inteligencia artificial de escritorio y web, autónomo, con síntesis de voz colombiana de alta fidelidad, automatización total de Windows, ciberseguridad, navegación web y herramientas ejecutivas/universitarias.
+# LISETH AI — Copiloto Autónomo, Plataforma SaaS & Asistente Personal Ejecutivo v3.0
+> **Exclusivo para Señor Santiago Huérfano López (Superadmin CREATOR)**  
+> Plataforma de inteligencia artificial multi-inquilino de escritorio y web, con arquitectura de voz única colombiana (`es-CO-SalomeNeural`), integración de Bóveda Obsidian, orquestación Hermes AI, vinculación soberana a Google Firebase, verificación de identidad en inicio (2FA) y optimización ergonómica completa para smartphones.
 
 ---
 
 ## 🌟 Visión General
 
-**Liseth AI** es un sistema autónomo de asistencia personal y copiloto de ingeniería desarrollado en **Python 3.10+** (con backend de alto rendimiento **FastAPI** / **Uvicorn** y frontend interactivo de escritorio / web). Integra arquitecturas multi-cerebro (**Google Gemini 3.5**, **Anthropic Claude 3.5**, **Groq LLaMA 3.3**), síntesis de voz neuronal en tiempo real (Edge-TTS Salomé es-CO) y más de 30 módulos de hardware, investigación, automatización y ciberseguridad.
+**Liseth AI** es un ecosistema autónomo de inteligencia artificial desarrollado en **Python 3.10+** (con backend de alto rendimiento **FastAPI** / **Uvicorn** y frontend interactivo de escritorio / web). Integra arquitecturas multi-cerebro (**Google Gemini 3.5**, **Anthropic Claude 3.5**, **Groq LLaMA 3.3**, **OpenAI GPT-4o**), síntesis de voz neuronal oficial en tiempo real, 48 módulos tácticos HUD y un vault estructurado de conocimiento compatible con Obsidian.
 
-Para una guía detallada de todas las capacidades, consulte el documento oficial:  
-📄 **[`Manual_Liseth.pdf`](Manual_Liseth.pdf)** *(Recompilado dinámicamente con cada versión)*.
+Para una guía detallada de todas las capacidades, consulte los documentos oficiales:
+- 📄 **[`Manual_Liseth.pdf`](Manual_Liseth.pdf)** — Manual Ejecutivo Integral (43 secciones, recompilado dinámicamente).
+- 📘 **[`GUIA_USO_LISEHT.md`](GUIA_USO_LISEHT.md)** — Guía Rápida de Operación, Voz y Despliegue Móvil.
+- 🏛️ **[`Knowledge/00 - HOME/PROJECT COMMAND CENTER.md`](Knowledge/00%20-%20HOME/PROJECT%20COMMAND%20CENTER.md)** — Centro de Mando del Vault Obsidian.
 
 ---
 
-## 🚀 Capacidades y Módulos del Sistema
+## 🚀 Capacidades y Módulos Principales del Sistema
 
-| Módulo | Motor / Servicio | Descripción Operativa |
+| Módulo / Subsistema | Motor / Componente | Descripción Operativa |
 |---|---|---|
-| **1. Identidad y Privilegios** | `app/core/admin.py` | Autoelevación UAC a Administrador de Windows con acceso irrestricto al sistema. |
-| **2. Automatización Windows** | `app/actions/computer_*.py` | Control de volumen, brillo, teclado, ratón, ventanas y atajos con 0 ms de latencia. |
-| **3. Síntesis y Reconocimiento de Voz** | `app/services/voice_engine.py` | Voz colombiana natural (Salomé es-CO), modo reposo (Standby) y conversación fluida continua. |
-| **4. Cerebro Dual y Respaldo** | `app/services/brain_router.py` | Gemini 3.5 Flash como cerebro primario con failover automático a Claude/Groq ante límites de cuota. |
-| **5. Rutinas y Tareas en Segundo Plano** | `app/services/routine_engine.py` | Ejecución de rutinas programadas (matutina, nocturna, estudio, respaldo de datos). |
-| **6. Centinela de Recursos y Memoria** | `app/services/workspace_sentinel.py` | Monitoreo en segundo plano de RAM, CPU, disco y procesos zombi con optimización proactiva. |
-| **7. Resumen Diario Ejecutivo (Debrief)** | `app/services/daily_debrief_service.py` | Síntesis nocturna de compromisos cumplidos, tareas pendientes y resumen de productividad. |
-| **8. Finanzas y Administración** | `app/actions/business_finance.py` | Cálculo de VAN/NPV, TIR/IRR, Payback, ROI, WACC, Punto de Equilibrio y Matrices FODA/Canvas/PESTEL. |
-| **9. Asistente Académico Universitario** | `app/actions/academic_helper.py` | Citas y referencias en Normas APA 7ª Edición y esquemas de redacción para ensayos y tesis. |
-| **10. Ingeniería Inversa de Binarios** | `app/services/reverse_engineering_service.py` | Motor REA (v6.7.0): inspección de PE/ELF, entropía de Shannon, mitigaciones (ASLR/DEP), cadenas y desempaque ASAR. |
-| **11. Navegación Web Acelerada** | `app/services/ego_browser_service.py` | Motor Ego Lite: taskSpaces aislados en segundo plano, snapshots semánticos ultraligeros y control sin selectores CSS frágiles. |
-| **12. Despliegue en la Nube y Frontend** | `app/services/vercel_skills_service.py` | Vercel Labs Suite: despliegue instantáneo a vista previa/producción, auditoría de 45+ reglas React y directrices de UI. |
-| **13. Auditoría de Ciberseguridad** | `app/services/security_audit_service.py` | Análisis estático SAST (OWASP Top 10, CWE Top 25, fugas de secretos/API keys, inyecciones SQL/OS y Prompt Injection en LLMs). |
-| **14. Detector y Humanizador de Textos** | `app/services/slopmonster_service.py` | Motor SlopMonster: detección de clichés sintéticos de IA en español e inglés y reescritura en prosa ejecutiva natural. |
+| **1. Arquitectura de Voz Única Oficial** | `app/services/audio_manager.py` | Voz oficial inmutable `es-CO-SalomeNeural` (Microsoft Edge-TTS en español colombiano) con Mutex singleton, deduplicación de audio y neutralización de motores redundantes. |
+| **2. Control Central de Micrófono** | `app/services/microphone_manager.py` | Posesión exclusiva del hardware de audio (`sounddevice`), prevención de colisiones de captura y supresión de eco acústico. |
+| **3. Orquestación Silenciosa Hermes AI** | `app/services/hermes_orchestrator.py` | Integración del orquestador NousResearch Hermes Agent y sus 8 Named Bots; razonan en segundo plano en silencio y canalizan la respuesta hablada por Liseth. |
+| **4. Seguridad de Inicio (Launch Code 2FA)** | `app/routers/auth_router.py` | Verificación de identidad obligatoria al iniciar la app o web. Valida contra PIN maestro (Señor Santiago) o código de seguridad personal (usuarios). |
+| **5. Plataforma SaaS & Firebase Soberano** | `app/services/saas_service.py` | Multi-inquilino comercial vinculado a Google Firebase (`liseth-saas-ai`). Usuarios colocan sus propias API Keys de IA y adquieren planes activos. |
+| **6. Pasarelas de Pago Múltiples** | `app/routers/saas_router.py` | Checkout integrado para Colombia e internacional (Stripe, Wompi, Bold, Nequi, Daviplata, PSE, Cripto) con libro mayor de créditos inmutable. |
+| **7. Optimización Móvil Ergonómica** | `index.html` & `app/static/` | Viewport dinámico (`interactive-widget=resizes-content`), prevención de auto-zoom en iOS Safari (`font-size: 16px !important;`), touch targets de 44px y layout vertical. |
+| **8. Bóveda de Conocimiento Obsidian** | `Knowledge/` & `.obsidian/` | Vault inteligente con MOCs de Arquitectura, IA, Monetización y Seguridad. Protocolo de contexto progresivo de 5 niveles para Antigravity. |
+| **9. Automatización de Windows y PC** | `app/actions/computer_*.py` | Control de volumen, brillo, teclado, ratón, ventanas y atajos con 0 ms de latencia y autoelevación UAC a Administrador. |
+| **10. Cerebros en Cascada y Auto-Heal** | `app/services/brain_router.py` | Conmutación instantánea ante cuotas agotadas: Gemini 3.5 -> Claude 3.5 -> Groq LLaMA 3.3 -> OpenAI GPT-4o. |
+| **11. Ecosistema NFC y Pagos por Contacto** | `app/routers/nfc_router.py` | Emisión de tarjetas virtuales vCard, lectura de credenciales y simulación de transacciones sin contacto. |
+| **12. Auditoría Integral SAST & Ciberseguridad**| `app/services/security_audit_service.py` | Análisis de vulnerabilidades OWASP Top 10, CWE Top 25, prevención de inyecciones y control estricto de roles (RBAC). |
+
+---
+
+## 📱 Experiencia en Dispositivos Móviles (Celulares)
+
+Liseth puede ser utilizada directamente desde cualquier teléfono inteligente (iPhone o Android):
+1. Inicie Liseth en su computadora mediante `iniciar_liseth.bat` o `INICIAR_WEB.bat`.
+2. En el navegador del celular (Safari / Chrome), abra la dirección de red local de la PC (ejemplo: `http://192.168.1.15:3000`).
+3. La interfaz se adaptará automáticamente a una sola columna vertical con botones de fácil pulsación (touch targets >= 44px), sin auto-zoom en campos de texto y con desbloqueo proactivo de audio.
 
 ---
 
@@ -59,7 +68,7 @@ Copie el archivo de plantilla `.env.example` a `.env`:
 ```bash
 copy .env.example .env
 ```
-Abra `.env` y agregue su clave de Google Gemini (`GEMINI_API_KEY`) y opcionalmente las claves de Anthropic, Telegram o Groq.
+Abra `.env` y agregue su clave de Google Gemini (`GEMINI_API_KEY`), el PIN de acceso maestro (`JARVIS_ACCESS_PIN`) y opcionalmente las claves de Anthropic, Groq u OpenAI.
 
 ### 5. Iniciar la Aplicación
 Liseth incluye lanzadores rápidos con autoelevación de privilegios de Administrador:
@@ -80,7 +89,7 @@ Liseth incluye lanzadores rápidos con autoelevación de privilegios de Administ
 
 - **Ejecución directa por comando:**
   ```bash
-  python run.py
+  python desktop_app.py
   ```
 
 ---
@@ -94,23 +103,15 @@ python -m pytest test/ -v
 ```
 
 Todas las pruebas pasan al 100%:
-- `test_security_audit.py` (Vulnerabilidades SAST, CWE y fugas de credenciales).
-- `test_slopmonster.py` (Detección de patrones de IA y humanizador de texto).
-- `test_all_actions_and_intents.py` (Enrutamiento con 0 ms de latencia y herramientas de sistema).
-- `test_vercel_skills.py` (Despliegues y auditoría de código frontend).
-- `test_reverse_engineering.py` (Inspección binaria y cálculo de entropía).
-- `test_ego_browser.py` (Navegación web en segundo plano).
-- `test_phase1` a `test_phase4` (Workers, Centinela, Rutinas y Debriefing).
+- `test_single_voice_architecture.py` (Arquitectura de voz única, mutex singleton, supresión de duplicaciones y sincronización Hermes).
+- `test_mobile_and_launch_auth.py` (Código de verificación 2FA, inicio obligatorio en app/web y salvaguardas móviles).
+- `test_saas_platform.py` (Multi-inquilino, aislamiento de datos, planes, pasarelas de pago y vinculación Firebase).
+- `test_user_brain_keys.py` (Almacenamiento cifrado de API keys propias de usuarios).
+- `test_manual_pdf.py` (Generación dinámica del manual PDF ejecutivo de 43 secciones).
 
 ---
 
-## 🔒 Privacidad y Seguridad
+## 📄 Licencia y Propiedad
 
-- **Totalmente Local:** El código fuente, los registros de actividad y los modelos locales se ejecutan en su equipo.
-- **Protección de Credenciales:** Los archivos `.env` y `config/api_keys.json` se encuentran estrictamente ignorados en Git y nunca son transmitidos a servidores remotos.
-- **Auditoría de Acciones Sensibles:** Operaciones destructivas o de alto impacto exigen confirmación explícita.
-
----
-
-## 📜 Licencia
-Proyecto de software privado y exclusivo para el Señor Santiago. Todos los derechos reservados.
+© 2026 **Santiago Huérfano López**. Todos los derechos reservados.  
+Propiedad intelectual y tecnológica protegida bajo los términos de `LEGAL_TERMS_AND_COPYRIGHT.md`.
